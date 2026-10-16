@@ -125,16 +125,23 @@ Documentation-only changes finish the framework selector and summary without a C
 
 | Changed files | Selected platform builds |
 | --- | --- |
-| Core, shared transport/MAUI code, shared build configuration, CI logic, unknown paths | All |
+| Core, shared transport/MAUI code, shared build configuration/workflows, unknown paths | All |
 | Android native code or Android platform implementation | Android |
 | Shared Apple code or Apple bindings | iOS and Catalyst |
 | iOS-only / Catalyst-only application code | iOS / Catalyst respectively |
 | Windows native or platform code | Windows |
-| Portable framework tests or package-tool tests only | Core tests only |
+| C++/Rust interop sources, test project, verifier, or dedicated workflow | Windows |
+| Portable framework tests, package-tool tests, or the platform selector only | Core tests only |
 | Documentation, examples, benchmarks only | None; use their separate workflows |
 
-Project and dependency definitions conservatively select all platforms. Auto compares against the PR
-base or the push's previous commit. Manual Auto takes `base`; a missing/unavailable comparison selects
+Project and dependency definitions conservatively select all platforms, except the explicitly
+Windows-owned `native/windows/interop/` and `tests/NativeChannels.Windows.Interop/` trees.
+`eng/verify-windows-interop.ps1` and `.github/workflows/windows-interop.yml` also select Windows.
+Selector changes run the shared job's routing regression tests; shared workflow changes still select
+all platforms. Mixed changes combine their selections, so adding a shared change still selects all.
+Auto compares the entire PR against its base, or a push against its previous commit. A documentation
+commit on an existing code PR therefore still verifies that PR's code changes.
+Manual Auto takes `base`; a missing/unavailable comparison selects
 all platforms. Deleted and renamed paths are included. A manual platform override is useful for focused
 work; it does not establish verification of unselected platforms.
 

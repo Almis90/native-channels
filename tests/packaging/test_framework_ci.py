@@ -1,6 +1,9 @@
 """CI routing and evidence must fail closed without native toolchains."""
 import importlib.util
+import json
+import os
 from pathlib import Path
+import tempfile
 import unittest
 from unittest.mock import patch
 
@@ -20,6 +23,74 @@ release = load('release-evidence')
 
 
 class PlatformSelectionTests(unittest.TestCase):
+    INTEROP_PATHS = [
+        '.github/workflows/windows-interop.yml',
+        'eng/verify-windows-interop.ps1',
+        'native/windows/interop/NativeDllModule.cs',
+        'native/windows/interop/cpp/probe.cpp',
+        'native/windows/interop/native_channels_probe.h',
+        'native/windows/interop/rust/Cargo.toml',
+        'native/windows/interop/rust/Cargo.lock',
+        'native/windows/interop/rust/src/lib.rs',
+        'tests/NativeChannels.Windows.Interop/NativeChannels.Windows.Interop.csproj',
+        'tests/NativeChannels.Windows.Interop/Program.cs',
+    ]
+
+    def test_windows_interop_paths_include_project_workflow_and_verifier(self):
+        for path in self.INTEROP_PATHS:
+            with self.subTest(path=path):
+                self.assertEqual(({'windows'}, True), selection.classify([path]))
+
+    def test_selector_changes_run_core_tests_without_forcing_platform_builds(self):
+        paths = ['.github/scripts/select-platforms.py', 'tests/packaging/test_framework_ci.py']
+        self.assertEqual((set(), True), selection.classify(paths))
+        self.assertEqual(({'windows'}, True), selection.classify(paths + self.INTEROP_PATHS))
+
+    def test_interop_exception_does_not_hide_shared_or_unknown_changes(self):
+        for path in (
+            'Directory.Build.props',
+            'src/NativeChannels/NativeChannels.csproj',
+            '.github/workflows/verify-framework.yml',
+            '.github/actions/shared-core/action.yml',
+            '.github/scripts/new-helper.py',
+            'eng/verify-windows-interop-extra.ps1',
+            'tests/NativeChannels.Windows.Interop.Other/Program.cs',
+        ):
+            with self.subTest(path=path):
+                self.assertEqual((selection.ALL, True), selection.classify(self.INTEROP_PATHS + [path]))
+
+    def test_mixed_platform_changes_are_combined(self):
+        self.assertEqual(({'windows', 'android'}, True), selection.classify(
+            self.INTEROP_PATHS + ['native/android/library/src/Bridge.kt']))
+        self.assertEqual(({'windows', 'ios', 'catalyst'}, True), selection.classify(
+            self.INTEROP_PATHS + ['native/apple/Bridge.swift']))
+
+    def test_pr_outputs_disable_mobile_jobs_for_complete_interop_diff(self):
+        paths = self.INTEROP_PATHS + [
+            'native/windows/interop/README.md', 'docs/windows-integration.md',
+            '.github/scripts/select-platforms.py', 'tests/packaging/test_framework_ci.py',
+        ]
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            payload = root / 'event.json'
+            payload.write_text(json.dumps({'pull_request': {'base': {'sha': 'a' * 40}}}))
+            env = {'GITHUB_EVENT_NAME': 'pull_request', 'GITHUB_EVENT_PATH': str(payload),
+                   'GITHUB_SHA': 'b' * 40, 'GITHUB_OUTPUT': str(root / 'output'),
+                   'GITHUB_STEP_SUMMARY': str(root / 'summary')}
+            previous = Path.cwd()
+            try:
+                os.chdir(root)
+                with patch.dict(os.environ, env), patch.object(selection, 'changed_paths', return_value=paths) as diff:
+                    selection.main()
+                diff.assert_called_once_with('a' * 40)
+            finally:
+                os.chdir(previous)
+            outputs = dict(line.split('=', 1) for line in (root / 'output').read_text().splitlines())
+            self.assertEqual({'android': 'false', 'ios': 'false', 'catalyst': 'false',
+                              'windows': 'true', 'core': 'true', 'apple': 'false',
+                              'depth': 'Compile'}, outputs)
+            self.assertEqual(['windows'], json.loads((root / 'artifacts/selection.json').read_text())['platforms'])
+
     def test_platform_source_is_independent(self):
         for path, platforms in (
             ('native/android/library/src/Bridge.kt', {'android'}),

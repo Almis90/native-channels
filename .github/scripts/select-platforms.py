@@ -5,6 +5,14 @@ from pathlib import Path
 import subprocess
 
 ALL = {"android", "ios", "catalyst", "windows"}
+WINDOWS_INTEROP_FILES = {
+    ".github/workflows/windows-interop.yml",
+    "eng/verify-windows-interop.ps1",
+}
+WINDOWS_INTEROP_DIRECTORIES = (
+    "native/windows/interop/",
+    "tests/NativeChannels.Windows.Interop/",
+)
 
 
 def classify(paths):
@@ -18,6 +26,15 @@ def classify(paths):
         if path.endswith(".md") or path in {"LICENSE", "package.json", "package-lock.json", "eng/check-docs.mjs", ".github/workflows/pages.yml"}:
             continue
         core = True
+        # Routing changes are checked by the shared job's selector regression tests.
+        # They do not change platform code; shared workflow changes still select all.
+        if path == ".github/scripts/select-platforms.py":
+            continue
+        # These owned paths are Windows-only, including their workflow and test project.
+        # Keep this before the conservative shared-config/unknown-path rules.
+        if path in WINDOWS_INTEROP_FILES or path.startswith(WINDOWS_INTEROP_DIRECTORIES):
+            selected.add("windows")
+            continue
         # Shared config and binding definitions widen the selection even when stored under one platform.
         if path.endswith((".props", ".targets", ".csproj", ".slnx")) or path.startswith(".github/"):
             selected |= ALL
