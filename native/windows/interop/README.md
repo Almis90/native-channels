@@ -46,7 +46,12 @@ options.Modules.Add(new("", "")
 // For C++, use native_channels_cpp_probe.dll with the same adapter.
 ```
 
-Then call `GetMethodChannel("native.math").InvokeAsync<long>("add", new { a = 20L, b = 22L })`.
+Then call the channel using its built-in dictionary serialization:
+
+```csharp
+await channels.GetMethodChannel("native.math").InvokeAsync<long>(
+    "add", new Dictionary<string, object?> { ["a"] = 20L, ["b"] = 22L });
+```
 Use a trusted absolute DLL path. Missing or incompatible exports fail at module
 creation; a factory failure is reported by the transport and its resources are cleaned up.
 

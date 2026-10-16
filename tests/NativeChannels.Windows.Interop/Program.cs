@@ -48,7 +48,9 @@ foreach (var implementation in implementations)
                 Equal("native_overflow", error.Code, "native error envelope");
             }
             await Throws<MethodNotImplementedException>(() => methods.InvokeAsync("missing"));
-            var missing = await Throws<ChannelException>(() => methods.InvokeAsync("add", new { a = 1L }));
+            var missing = await Throws<ChannelException>(() =>
+                methods.InvokeAsync("add", new Dictionary<string, object?> { ["a"] = 1L })
+            );
             Equal("invalid_arguments", missing.Code, "missing argument");
             foreach (
                 var input in new[]
@@ -129,7 +131,8 @@ Console.WriteLine("PASS C++ and Rust modules coexist through the shipping Window
 static ChannelService CreateService(Func<IWindowsChannelModule> factory) =>
     new(new BinaryMessenger(new NativeChannelTransport([new("", "") { WindowsFactory = factory }])));
 
-static Task<long> Add(MethodChannel channel, long a, long b) => channel.InvokeAsync<long>("add", new { a, b });
+static Task<long> Add(MethodChannel channel, long a, long b) =>
+    channel.InvokeAsync<long>("add", new Dictionary<string, object?> { ["a"] = a, ["b"] = b });
 
 static void Equal<T>(T expected, T actual, string label)
 {
