@@ -42,6 +42,9 @@ MAUI integration for Android, iOS, Mac Catalyst, and Windows. Build using the lo
 packages are not yet on NuGet.org.
 [Platform verification](verification.md) · [Roadmap](roadmap.md)
 
+Planned next: complete Avalonia integration in 0.2, then Uno in 0.3, each across Android, iOS,
+Windows, desktop macOS, Linux, and browser/WebAssembly. These hosts are not available on `main` yet.
+
 </div>
 
 ## A small API for a native round trip
@@ -84,7 +87,7 @@ dispatch are part of the contract.
 - **Plugin authors:** [design and package an integration](plugin-authoring.md), starting from the Currency example.
 - **Contributors:** [build from source](building.md), [run tests](testing.md), and review [release checklist](release-checklist.md).
 
-Android, iOS, and Mac Catalyst builds are supported. Execution coverage and physical-device gaps are
+Android, iOS, Mac Catalyst, and Windows builds are supported through MAUI. Execution coverage and physical-device gaps are
 recorded in the [verification matrix](verification.md). Browse the [guide index](overview.md) for the full documentation.
 
 </div>

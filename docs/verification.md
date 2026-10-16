@@ -5,10 +5,17 @@ Package acceptance requires verification of the exact source revision and genera
 
 | Status | Meaning |
 | --- | --- |
+| Planned | Roadmap scope; not implemented or verified support on `main` |
 | Implemented | Code exists for the target |
 | Compiled | The specified configuration built successfully |
 | Executed | The scenario ran on the stated environment |
 | Unverified | The scenario has not been checked on that environment |
+
+The current support record covers MAUI. Complete Avalonia integration (0.2) and Uno integration
+(0.3) are [planned](roadmap.md) for Android, iOS, Windows, desktop macOS, Linux, and browser/WebAssembly.
+None of those additional host combinations is accepted on `main` yet. The Android Currency proof
+is partial milestone work; it does not establish other contracts, targets, or released support.
+Future records must distinguish unavailable OS/browser capabilities from checks that have not run.
 
 ## Current checkout
 
@@ -136,7 +143,7 @@ application, and installer checks. ARM64 cross-compilation does not establish AR
 - Verify independent iOS observer counts and additional audio routes; foreground/background example behavior was manually checked as described above.
 - Verify Catalyst output-device switching, Bluetooth/headphone routes, and audio interruptions.
 - Complete long-running native heap/lifecycle stress and measured end-to-end performance checks.
-- Verify new host/platform combinations separately when Avalonia work begins; none is supported yet.
+- Verify every planned Avalonia and Uno host/target combination against the [roadmap completion criteria](roadmap.md#avalonia-integration), including desktop macOS, Linux, and JavaScript/DOM browser adapters. None is supported on `main` yet.
 
 Use the [release checklist](release-checklist.md) before tagging or distribution. Keep implementation,
 compilation, runtime results, and manual observations separate in future updates.

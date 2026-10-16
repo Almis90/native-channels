@@ -67,5 +67,13 @@ Two views with the same factory name receive different instance IDs and MethodCh
 
 ## Additional application hosts
 
-The core messaging layer is independent of MAUI. Framework-neutral registration and additional
-application hosts are planned in the [roadmap](roadmap.md); no placeholder APIs are shipped.
+The core messaging layer is independent of MAUI. The [roadmap](roadmap.md) plans complete Avalonia
+integration in 0.2 and Uno integration in 0.3, each covering Android, iOS, Windows, desktop macOS,
+Linux, and browser/WebAssembly. These hosts are not implemented on `main`; the Android Currency
+proof is an initial part of the Avalonia milestone, not full host or platform acceptance.
+
+Shared registration and plugin contracts will remain independent of application frameworks.
+Each host must supply startup/lifecycle integration, dispatchers, and native or DOM view containers.
+Browser support requires JavaScript adapters and web asset packaging, with an explicit capability
+matrix; desktop macOS and Linux require their own native integration. The existing MAUI handlers
+and OS adapters do not establish support for these planned hosts. No placeholder APIs are shipped.

@@ -19,8 +19,9 @@ string? reply = await channel.InvokeAsync<string>("echo", "Hello from .NET");
 ```
 
 **Preview software.** NativeChannels supports Android, iOS, Mac Catalyst, and Windows through its
-MAUI integration. The core messaging layer is independent of MAUI; additional UI-framework hosts
-are planned. Packages are built locally and have not been published to NuGet.org.
+MAUI integration. The core messaging layer is independent of MAUI. Complete Avalonia integration is
+planned for 0.2 and Uno for 0.3; neither is available on `main` yet. Packages are built locally and
+have not been published to NuGet.org.
 
 [Documentation](https://almis90.github.io/native-channels/) ·
 [Getting started](docs/getting-started.md) ·
@@ -117,7 +118,9 @@ See [configuration](docs/configuration.md), [lifecycle](docs/lifecycle.md), and
 
 MAUI is the current application host. Mac Catalyst support does not provide an AppKit desktop host.
 See [platform verification](docs/verification.md) for executed scenarios and remaining gaps,
-and the [roadmap](docs/roadmap.md) for Avalonia and shared-hosting work.
+and the [roadmap](docs/roadmap.md) for planned Avalonia (0.2) and Uno (0.3) integration across Android,
+iOS, Windows, desktop macOS, Linux, and browser/WebAssembly. These planned targets do not extend
+the current support matrix; browser integration will require JavaScript adapters and DOM views.
 
 ## Documentation
 
@@ -146,8 +149,9 @@ Use `eng/NativeChannels.Platforms.slnx` for platform libraries. Changes to nativ
 dependencies, or packaging require fresh package-consumer verification.
 See [contributing](CONTRIBUTING.md), [testing](docs/testing.md), and [performance](docs/performance.md).
 
-The [roadmap](docs/roadmap.md) covers the initial preview, shared hosting, Avalonia integration,
-and stable API acceptance. Use the [release checklist](docs/release-checklist.md) before distribution.
+The [roadmap](docs/roadmap.md) covers the initial preview, complete Avalonia and Uno integration,
+and stable API acceptance. The Android Currency proof is only the first part of Avalonia's milestone.
+Use the [release checklist](docs/release-checklist.md) before distribution.
 
 Pull requests run portable tests and compile affected platforms using one shared Core build.
 Use **Verify framework** for development checks and **Verify distribution** to assemble final packages
