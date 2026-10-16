@@ -59,7 +59,7 @@ if ($Phase -eq 'Install') {
 }
 
 if (-not (Test-Path -LiteralPath $dotnet)) { throw 'The restored toolchain has no dotnet.exe.' }
-$resolved = (Get-Command dotnet -CommandType Application).Source
+$resolved = (Get-Command dotnet -CommandType Application | Select-Object -First 1).Source
 if ([IO.Path]::GetFullPath($resolved) -ne [IO.Path]::GetFullPath($dotnet)) {
     throw "PATH resolves to $resolved instead of the isolated SDK."
 }
