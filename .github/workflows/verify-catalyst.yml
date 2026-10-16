@@ -64,11 +64,11 @@ jobs:
       - uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: '26.6'
-      - name: Install target toolchain
+      - name: Set up cached Mac Catalyst .NET toolchain
         timeout-minutes: 10
-        run: |
-          bash eng/bootstrap.sh
-          bash eng/dotnet.sh workload install maui-maccatalyst --version 10.0.401
+        uses: ./.github/actions/mobile-toolchain
+        with:
+          target: maccatalyst
       - name: Restore selected consumer
         timeout-minutes: 8
         env:

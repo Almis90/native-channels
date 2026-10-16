@@ -65,12 +65,9 @@ jobs:
             echo "The example feed does not contain $SAMPLE." >&2
             exit 1
           fi
-      - uses: actions/setup-dotnet@v4
-        with:
-          global-json-file: global.json
-      - name: Install Windows workload
+      - name: Set up cached Windows toolchain
         timeout-minutes: 10
-        run: dotnet workload install maui-windows --version 10.0.401
+        uses: ./.github/actions/windows-toolchain
       - name: Compile consumer and run applicable native API tests
         timeout-minutes: 20
         shell: pwsh

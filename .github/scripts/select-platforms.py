@@ -5,6 +5,30 @@ from pathlib import Path
 import subprocess
 
 ALL = {"android", "ios", "catalyst", "windows"}
+WINDOWS_INTEROP_FILES = {
+    ".github/workflows/windows-interop.yml",
+    "eng/verify-windows-interop.ps1",
+}
+WINDOWS_TOOLCHAIN_FILES = {
+    ".github/actions/windows-toolchain/action.yml",
+    ".github/scripts/windows-toolchain.ps1",
+    ".github/workflows/framework-windows.yml",
+    ".github/workflows/windows.yml",
+}
+WINDOWS_INTEROP_DIRECTORIES = (
+    "native/windows/interop/",
+    "tests/NativeChannels.Windows.Interop/",
+)
+MOBILE_TOOLCHAIN_FILES = {
+    '.github/actions/mobile-toolchain/action.yml': {'android', 'ios', 'catalyst'},
+    '.github/scripts/mobile-toolchain.py': {'android', 'ios', 'catalyst'},
+    '.github/workflows/framework-android.yml': {'android'},
+    '.github/workflows/verify-android.yml': {'android'},
+    '.github/workflows/framework-apple.yml': {'ios', 'catalyst'},
+    '.github/workflows/verify-ios.yml': {'ios'},
+    '.github/workflows/verify-ios-device.yml': {'ios'},
+    '.github/workflows/verify-catalyst.yml': {'catalyst'},
+}
 
 
 def classify(paths):
@@ -18,6 +42,18 @@ def classify(paths):
         if path.endswith(".md") or path in {"LICENSE", "package.json", "package-lock.json", "eng/check-docs.mjs", ".github/workflows/pages.yml"}:
             continue
         core = True
+        # Routing changes are checked by the shared job's selector regression tests.
+        # They do not change platform code; shared workflow changes still select all.
+        if path == ".github/scripts/select-platforms.py":
+            continue
+        # These owned paths are Windows-only, including their workflow and test project.
+        # Keep this before the conservative shared-config/unknown-path rules.
+        if path in WINDOWS_INTEROP_FILES | WINDOWS_TOOLCHAIN_FILES or path.startswith(WINDOWS_INTEROP_DIRECTORIES):
+            selected.add("windows")
+            continue
+        if path in MOBILE_TOOLCHAIN_FILES:
+            selected |= MOBILE_TOOLCHAIN_FILES[path]
+            continue
         # Shared config and binding definitions widen the selection even when stored under one platform.
         if path.endswith((".props", ".targets", ".csproj", ".slnx")) or path.startswith(".github/"):
             selected |= ALL

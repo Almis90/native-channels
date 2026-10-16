@@ -1,0 +1,35 @@
+name: Isolated Windows .NET toolchain
+description: Cache the pinned SDK and maui-windows workload without inheriting Visual Studio workloads.
+outputs:
+  cache-hit:
+    description: Whether the exact verified toolchain cache was restored.
+    value: ${{ steps.restore.outputs.cache-hit }}
+runs:
+  using: composite
+  steps:
+    - name: Select isolated SDK and workload versions
+      id: pins
+      shell: pwsh
+      run: ./.github/scripts/windows-toolchain.ps1 -Phase Prepare
+    - name: Restore Windows toolchain
+      id: restore
+      uses: actions/cache/restore@v4
+      with:
+        path: ${{ steps.pins.outputs.root }}
+        key: windows-toolchain-v1-${{ runner.os }}-${{ runner.arch }}-${{ steps.pins.outputs.image }}-sdk-${{ steps.pins.outputs.sdk }}-maui-windows-${{ steps.pins.outputs.workload }}-${{ hashFiles('.github/actions/windows-toolchain/action.yml', '.github/scripts/windows-toolchain.ps1', 'global.json') }}
+    - name: Install isolated SDK and Windows workload on cache miss
+      if: steps.restore.outputs.cache-hit != 'true'
+      shell: pwsh
+      run: ./.github/scripts/windows-toolchain.ps1 -Phase Install
+    - name: Verify isolated Windows toolchain
+      shell: pwsh
+      env:
+        TOOLCHAIN_CACHE_HIT: ${{ steps.restore.outputs.cache-hit }}
+      run: ./.github/scripts/windows-toolchain.ps1 -Phase Verify
+    # Save before packaging so dependent architecture jobs can reuse this exact cache.
+    - name: Save verified Windows toolchain
+      if: steps.restore.outputs.cache-hit != 'true'
+      uses: actions/cache/save@v4
+      with:
+        path: ${{ steps.pins.outputs.root }}
+        key: ${{ steps.restore.outputs.cache-primary-key }}

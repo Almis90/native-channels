@@ -80,12 +80,14 @@ jobs:
         with:
           packages: platform-tools
           log-accepted-android-sdk-licenses: false
-      - name: Install Android toolchain
+      - name: Set up cached Android .NET toolchain
         timeout-minutes: 10
-        run: |
-          bash eng/bootstrap.sh
-          bash eng/dotnet.sh workload install maui-android --version 10.0.401
-          sdkmanager 'platforms;android-36' 'build-tools;36.0.0'
+        uses: ./.github/actions/mobile-toolchain
+        with:
+          target: android
+      - name: Install Android SDK platform and build tools
+        timeout-minutes: 5
+        run: sdkmanager 'platforms;android-36' 'build-tools;36.0.0'
       - name: Restore selected consumer
         timeout-minutes: 8
         env:

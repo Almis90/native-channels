@@ -125,16 +125,25 @@ Documentation-only changes finish the framework selector and summary without a C
 
 | Changed files | Selected platform builds |
 | --- | --- |
-| Core, shared transport/MAUI code, shared build configuration, CI logic, unknown paths | All |
+| Core, shared transport/MAUI code, shared build configuration/workflows, unknown paths | All |
 | Android native code or Android platform implementation | Android |
 | Shared Apple code or Apple bindings | iOS and Catalyst |
 | iOS-only / Catalyst-only application code | iOS / Catalyst respectively |
 | Windows native or platform code | Windows |
-| Portable framework tests or package-tool tests only | Core tests only |
+| C++/Rust interop sources, test project, verifier, or dedicated workflow | Windows |
+| Portable framework tests, package-tool tests, or the platform selector only | Core tests only |
 | Documentation, examples, benchmarks only | None; use their separate workflows |
 
-Project and dependency definitions conservatively select all platforms. Auto compares against the PR
-base or the push's previous commit. Manual Auto takes `base`; a missing/unavailable comparison selects
+Project and dependency definitions conservatively select all platforms, except the explicitly
+Windows-owned `native/windows/interop/` and `tests/NativeChannels.Windows.Interop/` trees.
+`eng/verify-windows-interop.ps1` and `.github/workflows/windows-interop.yml` also select Windows.
+The Windows toolchain action/helper and the dedicated `framework-windows.yml` and `windows.yml`
+workflows select Windows as well. Shared workflows, including `build-examples.yml`, still select all.
+Selector changes run the shared job's routing regression tests; shared workflow changes still select
+all platforms. Mixed changes combine their selections, so adding a shared change still selects all.
+Auto compares the entire PR against its base, or a push against its previous commit. A documentation
+commit on an existing code PR therefore still verifies that PR's code changes.
+Manual Auto takes `base`; a missing/unavailable comparison selects
 all platforms. Deleted and renamed paths are included. A manual platform override is useful for focused
 work; it does not establish verification of unselected platforms.
 
@@ -171,12 +180,51 @@ physical-device support; Android ARM64 compilation also does not establish physi
 
 ### Windows-only framework changes
 
+The Windows framework and standalone consumer jobs use a private ZIP-installed .NET SDK under
+the runner's temporary directory. This avoids importing Visual Studio's installed Android, Apple
+and WebAssembly workloads when installing `maui-windows`. The SDK and workload-set versions come
+from `global.json`; the SDK directory alone is cached, keyed by runner OS, host architecture, image
+family, SDK/workload versions and setup implementation. No partial cache-key fallback is used.
+
+The package job saves the verified toolchain before its dependent x64 and ARM64 compilation jobs
+start. Every installation and cache restore checks the selected executable, SDK and workload-set
+versions, the file-based registration, and that only `maui-windows` is installed with no mobile or
+WebAssembly workload packs. A bad cache fails verification; changing the action's cache revision
+forces a fresh installation. The step summary records cache-hit status and the verified versions.
+
+Consumer NuGet caches, package feeds and build outputs are not part of this cache. The optional
+example-package workflow and the lightweight C++/Rust probe keep their existing setup.
+The probe does not require a MAUI workload.
+
+Before this change, run `38939526252` spent 9m20s installing workloads for Windows packaging,
+5m40s for x64 compilation and 6m40s for ARM64 compilation. Those installs also updated preinstalled
+Android, Apple and WebAssembly workloads; the Windows-only platform selection was already correct.
+
 ```sh
 gh workflow run verify-framework.yml --ref main -f platforms=Windows -f depth=Compile
 ```
 
 This builds Core once and Windows framework packages once, then compiles both x64 and ARM64 samples.
 For interactive desktop verification, use the local steps in [Windows integration](windows-integration.md).
+
+### Android and Apple SDK caches
+
+Android, iOS and Mac Catalyst framework and standalone consumer jobs use the same isolation and
+exact-cache approach. Each target has its own cache containing a private archive-installed .NET SDK
+and exactly one workload: `maui-android`, `maui-ios` or `maui-maccatalyst`. The private location is
+`.tools/dotnet`, matching `eng/dotnet.sh`; host SDKs are not used. Pins come from `global.json`.
+
+Cache keys include the runner OS, host architecture, image family, target, SDK/workload versions and
+setup implementation. Apple keys also include the selected Xcode version/build fingerprint. There
+are no partial-key fallbacks or cross-target restores. The Android package job saves its verified
+cache before the x64 and ARM64 consumers start; Apple jobs save theirs before packaging and compilation
+so subsequent runs can reuse them. Every restore checks the executable, versions, installed workload,
+file-based registration and absence of unrelated platform packs before any package build begins.
+
+Only the .NET SDK directory is cached. JDK, Android SDK platform/build tools, Xcode and simulator images
+retain their existing setup. Consumer NuGet caches and build outputs remain fresh. Combined release
+and optional example packaging still use their existing multi-platform bootstrap; runtime-only jobs
+continue to execute saved applications without installing an SDK.
 
 ### Release package gate
 

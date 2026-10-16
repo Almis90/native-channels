@@ -1,0 +1,40 @@
+name: Isolated Android and Apple .NET toolchain
+description: Cache one pinned MAUI workload in the private SDK used by eng/dotnet.sh.
+inputs:
+  target:
+    description: android, ios or maccatalyst
+    required: true
+outputs:
+  cache-hit:
+    description: Whether the exact verified toolchain cache was restored.
+    value: ${{ steps.restore.outputs.cache-hit }}
+runs:
+  using: composite
+  steps:
+    - name: Select isolated SDK and workload versions
+      id: pins
+      shell: bash
+      env:
+        TOOLCHAIN_TARGET: ${{ inputs.target }}
+      run: python3 .github/scripts/mobile-toolchain.py prepare
+    - name: Restore selected mobile toolchain
+      id: restore
+      uses: actions/cache/restore@v4
+      with:
+        path: ${{ steps.pins.outputs.root }}
+        key: mobile-toolchain-v1-${{ runner.os }}-${{ runner.arch }}-${{ steps.pins.outputs.image }}-${{ steps.pins.outputs.target }}-sdk-${{ steps.pins.outputs.sdk }}-workload-${{ steps.pins.outputs.workload }}-xcode-${{ steps.pins.outputs.xcode }}-${{ hashFiles('.github/actions/mobile-toolchain/action.yml', '.github/scripts/mobile-toolchain.py', 'eng/dotnet.sh', 'global.json') }}
+    - name: Install isolated SDK and selected workload on cache miss
+      if: steps.restore.outputs.cache-hit != 'true'
+      shell: bash
+      run: python3 .github/scripts/mobile-toolchain.py install
+    - name: Verify isolated mobile toolchain
+      shell: bash
+      env:
+        TOOLCHAIN_CACHE_HIT: ${{ steps.restore.outputs.cache-hit }}
+      run: python3 .github/scripts/mobile-toolchain.py verify
+    - name: Save verified mobile toolchain
+      if: steps.restore.outputs.cache-hit != 'true'
+      uses: actions/cache/save@v4
+      with:
+        path: ${{ steps.pins.outputs.root }}
+        key: ${{ steps.restore.outputs.cache-primary-key }}

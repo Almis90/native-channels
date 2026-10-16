@@ -1,0 +1,59 @@
+name: Windows / C++ and Rust interop
+on:
+  push:
+    branches: [main, windows-cpp-rust]
+    paths:
+      - 'native/windows/interop/**'
+      - 'tests/NativeChannels.Windows.Interop/**'
+      - 'src/NativeChannels/**'
+      - 'src/NativeChannels.Core/**'
+      - 'eng/verify-windows-interop.ps1'
+      - '.github/workflows/windows-interop.yml'
+      - 'global.json'
+      - 'Directory.Build.props'
+      - 'Directory.Packages.props'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'native/windows/interop/**'
+      - 'tests/NativeChannels.Windows.Interop/**'
+      - 'src/NativeChannels/**'
+      - 'src/NativeChannels.Core/**'
+      - 'eng/verify-windows-interop.ps1'
+      - '.github/workflows/windows-interop.yml'
+      - 'global.json'
+      - 'Directory.Build.props'
+      - 'Directory.Packages.props'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  interop:
+    runs-on: windows-2022
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - name: Install pinned Rust toolchain
+        shell: pwsh
+        run: |
+          rustup toolchain install 1.90.0 --profile minimal --component rustfmt --target x86_64-pc-windows-msvc
+          if ($LASTEXITCODE -ne 0) { throw 'Rust installation failed.' }
+      - name: Build and execute both native implementations through channels
+        shell: pwsh
+        run: ./eng/verify-windows-interop.ps1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: windows-cpp-rust-evidence
+          path: |
+            artifacts/windows-interop/verification.log
+            artifacts/windows-interop/verification.json
+            artifacts/windows-interop/native_channels_*_probe.dll
+          retention-days: 7
+          if-no-files-found: warn
