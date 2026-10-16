@@ -56,12 +56,29 @@ cleanup does not turn it into an exact-commit runtime result for a newer revisio
 consumer checks, iOS device compilation/execution, optional example handoffs, and physical-device
 acceptance remain separate checks before distribution.
 
-## Automated checks
+## Shared hosting on Android
 
-The Avalonia Android Currency sample and shared-hosting workflow are implemented. The workflow
-requires both MAUI and Avalonia to execute the same Currency scenarios against identical package
-archives from separate caches. Runtime evidence for this new proof is pending; no Avalonia native-view,
-event-stream, physical-device or other-platform support is claimed.
+On 2026-10-17, [Shared hosting / Android Currency](https://github.com/Almis90/native-channels/actions/runs/38970474333/job/117209907244)
+passed for PR head `e7483451976582371c2fc1b6cf75b41bd5ef2a02`. GitHub tested merge revision
+`984e4aacd020a894c73522e4a53a9e3c18421738`; this is the source revision recorded in the package evidence.
+
+Both package-only Release apps compiled with zero warnings/errors and executed on the same Android
+API 35 x64 emulator. MAUI and Avalonia returned `USD=$, EUR=€, GBP=£, JPY=¥`, and both passed
+normalization, structured native errors, invalid input, concurrent calls, cancellation and recovery.
+Both apps compile the same verification source.
+
+The two fresh NuGet caches contained identical `NativeChannels.Core`, `NativeChannels`, Android
+binding and Currency archives. Avalonia's dependency graph contained no `NativeChannels.Maui` or
+`Microsoft.Maui.*` packages. The Android development package `Plugin.Maui.Currency` 1.1.0-alpha.1 had
+SHA-256 `e10129f0347ccfceab5d2d709e360c94febe1661ee252e90789cab1bd7a12270` in both hosts.
+The `shared-hosting-android` artifact retains all four package hashes, app logs and `verification.json`.
+
+All framework compile checks, workflow lint, documentation and Windows C++/Rust checks passed in
+that run. This proves the Currency method-call slice of milestone 0.2. It does not establish Avalonia
+native views, incoming UI callbacks, event lifecycle, physical-device or other-platform support;
+combined release-feed acceptance and fresh iOS simulator execution remain separate checks.
+
+## Automated checks
 
 The portable suite covers codecs and typed values, error/null distinctions, reentrancy, FIFO entry,
 concurrent completion, handler ownership, cancellation and timeout races, infinite timeouts, disposal,

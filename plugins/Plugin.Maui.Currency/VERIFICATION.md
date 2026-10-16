@@ -10,9 +10,16 @@ and Mac Catalyst slices. This is native compilation, not application runtime ver
 current preview still requires fresh package-only consumer acceptance on each target. See the
 [platform verification record](../../docs/verification.md).
 
+## Shared package in MAUI and Avalonia Android
+
+On 2026-10-17, both Release apps passed on an Android API 35 x64 emulator using identical Currency
+package bytes restored into separate caches. Avalonia resolved no MAUI dependencies. See the
+[shared-hosting evidence](../../docs/verification.md#shared-hosting-on-android) for the successful CI
+job, source revision, package hash, tested scenarios and scope.
+
 ## Windows development preview
 
-The Windows adapter uses `RegionInfo` and exposes the same currency-code lookup contract. Native
+The Windows adapter uses WinRT `CurrencyIdentifiers` and `CurrencyFormatter` and exposes the same currency-code lookup contract. Native
 API tests and a separate package-only MAUI consumer are available through:
 
 ```powershell
