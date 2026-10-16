@@ -79,6 +79,13 @@ restore and Release runtime checks after changing the plugin, its native modules
 `plugins/Plugin.Maui.Currency/eng/inspect-package.py` checks the native classes, preservation rules,
 framework slices, dependencies, and import paths inside the actual archive.
 
+The [Avalonia Android proof](../samples/Currency.Avalonia.Android/README.md) checks host independence.
+Its reusable workflow runs after Android framework verification, reuses those packages, and builds
+Currency once. Both MAUI and Avalonia restore separately and execute the same shared scenarios in one
+emulator. Package hashes must match and Avalonia's dependency graph must exclude MAUI. This runtime
+proof is mandatory when Android is selected, independently of the framework sample's Compile/Runtime
+depth. A failure blocks the framework result. Logs and hashes are retained as `shared-hosting-android`.
+
 The portable solution includes Currency facade and registration tests, alongside core channel tests.
 Shared registration tests exercise lazy session creation, independent providers, captured settings,
 duplicate and invalid configuration, host dispatch and owned disposal. They compile the production

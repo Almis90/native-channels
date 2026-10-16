@@ -27,9 +27,12 @@ and DI registration now live in the platform package; the MAUI host adds startup
 integration. Currency uses this shared registration without depending on MAUI. Framework hosts
 supply dispatchers, startup/shutdown integration, and native view containers.
 
-The first proof is a single Currency plugin consumed through packages by both MAUI and Avalonia on
-Android. Extend that proof to messages and event streams before expanding native view hosting.
-Avalonia support is planned and is not yet implemented.
+The [Avalonia Android Currency sample](../samples/Currency.Avalonia.Android/README.md) and its dedicated
+verification workflow implement the first proof: one Currency package consumed by both MAUI and
+Avalonia. The workflow checks matching archive hashes, separate fresh caches, no MAUI dependencies
+in Avalonia, and matching runtime results. See [verification](verification.md) for executed evidence.
+Extend this proof to messages and event streams before expanding native view hosting. A general
+Avalonia host package and other Avalonia platforms remain planned.
 
 ## Platform expansion
 

@@ -1,0 +1,71 @@
+name: Shared hosting / Android Currency
+on:
+  workflow_call:
+permissions:
+  contents: read
+jobs:
+  currency:
+    name: Same Currency package in MAUI and Avalonia
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: framework-packages-android
+          path: artifacts
+      - name: Reuse this run's Android framework packages
+        run: |
+          tar -xzf artifacts/package-feed.tar.gz
+          python3 eng/package_audit.py artifacts/packages/*.nupkg --android-only --source-commit "$GITHUB_SHA"
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
+          log-accepted-android-sdk-licenses: false
+      - uses: ./.github/actions/mobile-toolchain
+        with:
+          target: android
+      - name: Install Android SDK platform and build tools
+        timeout-minutes: 5
+        run: sdkmanager 'platforms;android-36' 'build-tools;36.0.0'
+      - name: Build, test and pack Currency once
+        timeout-minutes: 10
+        run: |
+          bash eng/pack-currency-android.sh
+          python3 eng/package_audit.py artifacts/packages/*.nupkg --android-only --source-commit "$GITHUB_SHA"
+      - name: Restore both package-only hosts into separate fresh caches
+        timeout-minutes: 10
+        run: |
+          bash eng/restore-currency-sample.sh -p:TargetFrameworks=net10.0-android -r android-x64
+          bash eng/restore-currency-avalonia.sh -r android-x64
+          python3 eng/verify-shared-hosting.py packages
+      - name: Compile both Release apps from those restores
+        timeout-minutes: 12
+        run: |
+          bash eng/dotnet.sh build samples/Currency.Sample -c Release -f net10.0-android -r android-x64 --no-restore --disable-build-servers
+          bash eng/dotnet.sh build samples/Currency.Avalonia.Android -c Release -r android-x64 --no-restore --disable-build-servers
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Execute the same Currency scenarios in both hosts
+        timeout-minutes: 10
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          arch: x86_64
+          target: google_apis
+          disk-size: 2048M
+          script: bash eng/verify-shared-hosting-android.sh emulator-5554
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: shared-hosting-android
+          path: artifacts/shared-hosting/**
+          retention-days: 7
+          if-no-files-found: warn

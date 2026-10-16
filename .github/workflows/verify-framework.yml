@@ -86,9 +86,13 @@ jobs:
     needs: [select, core]
     if: needs.select.outputs.windows == 'true'
     uses: ./.github/workflows/framework-windows.yml
+  shared-hosting:
+    needs: [select, android]
+    if: needs.select.outputs.android == 'true'
+    uses: ./.github/workflows/shared-hosting-android.yml
   result:
     name: Framework verification result
-    needs: [select, core, apple-native, android, ios, catalyst, windows]
+    needs: [select, core, apple-native, android, ios, catalyst, windows, shared-hosting]
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 5

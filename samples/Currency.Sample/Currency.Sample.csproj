@@ -43,6 +43,7 @@
         <AndroidLinkTool>r8</AndroidLinkTool>
     </PropertyGroup>
     <ItemGroup>
+        <Compile Include="../Currency.Shared/PluginVerification.cs" Link="PluginVerification.cs" />
         <PackageReference Include="NativeChannels.Maui" />
         <PackageReference Include="Plugin.Maui.Currency" />
     </ItemGroup>

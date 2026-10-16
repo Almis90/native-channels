@@ -74,4 +74,6 @@ registration and adds startup integration and native view handlers. Its existing
 
 Currency depends on the platform package rather than the MAUI host. Applications choose their host
 explicitly; the MAUI Currency sample references both `Plugin.Maui.Currency` and `NativeChannels.Maui`.
-Additional application hosts, including Avalonia, remain planned in the [roadmap](roadmap.md).
+The [Avalonia Android sample](../samples/Currency.Avalonia.Android/README.md) consumes the same Currency
+package through shared registration and owns disposal at the activity boundary. It is a method-call
+proof; a general Avalonia host and native view integration remain [roadmap](roadmap.md) work.

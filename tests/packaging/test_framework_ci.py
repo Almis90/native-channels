@@ -142,8 +142,27 @@ class PlatformSelectionTests(unittest.TestCase):
 
     def test_docs_examples_and_benchmarks_do_not_build_framework(self):
         self.assertEqual((set(), False), selection.classify([
-            'docs/building.md', 'plugins/Plugin.Maui.Currency/native/Foo.kt',
-            'samples/Currency.Sample/MainPage.cs', 'benchmarks/Benchmarks.cs']))
+            'docs/building.md', 'plugins/Plugin.Maui.AudioStreamer/native/Foo.kt',
+            'samples/AudioStreamer.Sample/MainPage.cs', 'benchmarks/Benchmarks.cs']))
+
+    def test_shared_currency_proof_selects_android_without_other_platform_builds(self):
+        for path in ('samples/Currency.Avalonia.Android/Currency.Avalonia.Android.csproj',
+                     'samples/Currency.Shared/PluginVerification.cs', 'samples/Currency.Sample/MainPage.cs',
+                     'plugins/Plugin.Maui.Currency/src/Plugin.Maui.Currency/CurrencyService.cs',
+                     'plugins/Plugin.Maui.Currency/native/android/CurrencyModule.kt',
+                     '.github/workflows/shared-hosting-android.yml', 'eng/verify-shared-hosting.py',
+                     'eng/pack-currency-android.sh', 'eng/restore-currency-avalonia.sh'):
+            with self.subTest(path=path):
+                self.assertEqual(({'android'}, True), selection.classify([path]))
+        self.assertEqual((selection.ALL, True), selection.classify([
+            'samples/Currency.Avalonia.Android/App.cs', 'src/NativeChannels/Hosting/Registration.cs']))
+
+    def test_currency_docs_and_non_android_adapters_do_not_trigger_android(self):
+        self.assertEqual((set(), False), selection.classify([
+            'samples/Currency.Avalonia.Android/README.md',
+            'plugins/Plugin.Maui.Currency/native/windows/WindowsCurrencyModule.cs',
+            'plugins/Plugin.Maui.Currency/native/apple/Sources/CurrencyModule.swift',
+            'samples/Currency.Sample/Platforms/iOS/AppDelegate.cs']))
 
     def test_failed_comparison_falls_back_to_all(self):
         with patch.object(selection, 'changed_paths', side_effect=ValueError('missing base')):
@@ -179,6 +198,15 @@ class EvidenceTests(unittest.TestCase):
     def test_green_parent_without_evidence_is_insufficient(self):
         record = results.summarize(self.selection, self.needs, [], self.sha)
         self.assertFalse(record['success'])
+
+    def test_selected_shared_hosting_failure_blocks_framework_result(self):
+        chosen = {**self.selection, 'depth': 'Compile', 'sharedHosting': True}
+        needs = {**self.needs, 'shared-hosting': {'result': 'failure'}}
+        record = results.summarize(chosen, needs, [self.compile, self.arm64], self.sha)
+        self.assertFalse(record['success'])
+        self.assertEqual(['shared-hosting'], record['failedJobs'])
+        needs['shared-hosting']['result'] = 'success'
+        self.assertTrue(results.summarize(chosen, needs, [self.compile, self.arm64], self.sha)['success'])
 
     def test_wrong_source_and_duplicate_evidence_rejected(self):
         for evidence in ([{**self.compile, 'sourceCommit': 'b' * 40}], [self.compile, self.compile]):

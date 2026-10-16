@@ -8,6 +8,7 @@ CONSUMERS = {
     'samples/NativeChannels.Sample': 'sample',
     'tests/PackageConsumer': 'consumer',
     'samples/Currency.Sample': 'currency',
+    'samples/Currency.Avalonia.Android': 'currency-avalonia',
     'samples/AudioStreamer.Sample': 'audio',
     'samples/VolumeMonitor.Sample': 'volume',
     'samples/PdfViewer.Sample': 'pdf',

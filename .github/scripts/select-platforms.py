@@ -20,6 +20,7 @@ WINDOWS_INTEROP_DIRECTORIES = (
     "tests/NativeChannels.Windows.Interop/",
 )
 MOBILE_TOOLCHAIN_FILES = {
+    '.github/workflows/shared-hosting-android.yml': {'android'},
     '.github/actions/mobile-toolchain/action.yml': {'android', 'ios', 'catalyst'},
     '.github/scripts/mobile-toolchain.py': {'android', 'ios', 'catalyst'},
     '.github/workflows/framework-android.yml': {'android'},
@@ -35,6 +36,15 @@ def classify(paths):
     selected = set()
     core = False
     for path in paths:
+        if not path.endswith('.md') and (path.startswith(('samples/Currency.Avalonia.Android/',
+                'samples/Currency.Shared/', 'samples/Currency.Sample/Platforms/Android/',
+                'plugins/Plugin.Maui.Currency/native/android/', 'plugins/Plugin.Maui.Currency/src/'))
+                or (path.startswith('samples/Currency.Sample/') and '/Platforms/' not in path)
+                or path in {'eng/pack-currency-android.sh', 'eng/restore-currency-avalonia.sh', 'eng/restore-currency-sample.sh',
+                            'eng/verify-shared-hosting.py', 'eng/verify-shared-hosting-android.sh'}):
+            selected.add('android')
+            core = True
+            continue
         if path.startswith(("docs/", "plugins/", "benchmarks/", "tests/Plugin.Maui.")):
             continue
         if path.startswith("samples/") and not path.startswith("samples/NativeChannels.Sample/"):
@@ -117,7 +127,7 @@ def main():
         raise ValueError("Unknown verification depth")
     selected, core, reason = choose(requested, base)
     record = {"sourceCommit": os.environ["GITHUB_SHA"], "platforms": sorted(selected),
-              "core": core, "depth": depth, "reason": reason}
+              "core": core, "depth": depth, "reason": reason, "sharedHosting": "android" in selected}
     Path("artifacts").mkdir(exist_ok=True)
     Path("artifacts/selection.json").write_text(json.dumps(record, indent=2) + "\n")
     with open(os.environ["GITHUB_OUTPUT"], "a") as output:

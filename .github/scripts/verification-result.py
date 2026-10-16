@@ -17,6 +17,8 @@ def summarize(selection, needs, evidence, sha):
     if selection["core"]:
         required.add("core")
     required.update(selection["platforms"])
+    if selection.get('sharedHosting'):
+        required.add('shared-hosting')
     if set(selection["platforms"]) & {"ios", "catalyst"}:
         required.add("apple-native")
     failed = sorted(name for name in required if needs.get(name, {}).get("result") != "success")
@@ -56,6 +58,9 @@ def main():
         for row in record["results"]:
             summary.write(f"| {row['platform']} | {row['jobResult']} | {row['compiled']} | {row['executed']} |\n")
         summary.write("\nAndroid compiles x64 and ARM64; only x64 executes in the emulator. ARM64 device execution remains a separate check. Windows is compile-only on hosted CI. iOS execution is simulator-only. Catalyst runs directly on the Mac runner.\n")
+        if record.get('sharedHosting'):
+            outcome = json.loads(os.environ['JOB_RESULTS']).get('shared-hosting', {}).get('result', 'missing')
+            summary.write(f"\nShared hosting / Android Currency: **{outcome}**. This separate proof executes both MAUI and Avalonia Currency apps even at Compile depth; see the shared-hosting-android artifact.\n")
     if not record["success"]:
         sys.exit("Incomplete verification: " + ", ".join(record["failedJobs"] + record["unverifiedStages"]))
 

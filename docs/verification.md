@@ -58,6 +58,11 @@ acceptance remain separate checks before distribution.
 
 ## Automated checks
 
+The Avalonia Android Currency sample and shared-hosting workflow are implemented. The workflow
+requires both MAUI and Avalonia to execute the same Currency scenarios against identical package
+archives from separate caches. Runtime evidence for this new proof is pending; no Avalonia native-view,
+event-stream, physical-device or other-platform support is claimed.
+
 The portable suite covers codecs and typed values, error/null distinctions, reentrancy, FIFO entry,
 concurrent completion, handler ownership, cancellation and timeout races, infinite timeouts, disposal,
 independent event subscriptions, bounded buffering, Windows transport behavior, and view lifetimes.
@@ -106,7 +111,8 @@ application, and installer checks. ARM64 cross-compilation does not establish AR
 - Verify VolumeMonitor background/resume after its iOS fix, independent iOS observer counts, and audio routes.
 - Verify plugin-specific Mac Catalyst runtime behavior, Bluetooth/headphone routes, and audio interruptions.
 - Complete long-running native heap/lifecycle stress and measured end-to-end performance checks.
-- Verify new host/platform combinations separately when Avalonia work begins; none is supported yet.
+- Verify each Avalonia host/platform combination separately; the Android Currency proof does not
+  establish other contracts or platforms.
 
 Use the [release checklist](release-checklist.md) before tagging or distribution. Keep implementation,
 compilation, runtime results, and manual observations separate in future updates.

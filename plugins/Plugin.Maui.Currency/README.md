@@ -134,7 +134,8 @@ If your app already calls `UseNativeChannels`, add `options.AddCurrency()` to th
 A platform application that supplies its own lifecycle can instead use
 `services.AddNativeChannels(options => options.AddCurrency())` and `services.AddCurrency()`.
 See [shared registration](../../docs/configuration.md#registration-without-a-maui-host) for ownership
-and package references. Avalonia application integration remains a separate milestone step.
+and package references. The [Avalonia Android sample](../../samples/Currency.Avalonia.Android/README.md)
+uses the same package through shared registration, with dedicated CI checking both hosts together.
 
 Inject `ICurrencyService` into a page or view model:
 

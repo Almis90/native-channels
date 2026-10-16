@@ -17,6 +17,7 @@ export const includedPages = {
   'currency-verification.md': 'plugins/Plugin.Maui.Currency/VERIFICATION.md',
   'sample.md': 'samples/NativeChannels.Sample/README.md',
   'currency-sample.md': 'samples/Currency.Sample/README.md',
+  'currency-avalonia.md': 'samples/Currency.Avalonia.Android/README.md',
   'changelog.md': 'CHANGELOG.md',
   'contributing.md': 'CONTRIBUTING.md',
 }
