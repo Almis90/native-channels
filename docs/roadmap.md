@@ -22,9 +22,10 @@ The [verification record](verification.md) distinguishes implemented, compiled, 
 
 ## Shared hosting
 
-Keep `NativeChannels.Core` independent of application frameworks. Move shared module configuration
-and registration out of the MAUI integration where appropriate. Framework hosts supply dispatchers,
-startup/shutdown integration, and native view containers.
+`NativeChannels.Core` remains independent of application frameworks. Shared module configuration
+and DI registration now live in the platform package; the MAUI host adds startup and native view
+integration. Currency uses this shared registration without depending on MAUI. Framework hosts
+supply dispatchers, startup/shutdown integration, and native view containers.
 
 The first proof is a single Currency plugin consumed through packages by both MAUI and Avalonia on
 Android. Extend that proof to messages and event streams before expanding native view hosting.

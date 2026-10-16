@@ -68,6 +68,35 @@ This setting controls incoming managed handler entry. Configure native UI handle
 Kotlin `setHandler(onMainThread = true)` or Swift `setHandler(onMainThread: true, handler:)`.
 See [threading](threading.md) for asynchronous continuation and reentrancy rules.
 
+## Registration without a MAUI host
+
+The platform package exposes shared registration through `IServiceCollection`. For example, a
+platform-specific application can register Currency using the same plugin archive as a MAUI app:
+
+```csharp
+using Microsoft.Extensions.DependencyInjection;
+using NativeChannels;
+using Plugin.Maui.Currency;
+
+var services = new ServiceCollection();
+services.AddNativeChannels(options => options.AddCurrency());
+services.AddCurrency();
+await using var provider = services.BuildServiceProvider();
+var currency = provider.GetRequiredService<ICurrencyService>();
+string symbol = await currency.GetSymbolAsync("EUR");
+```
+
+Reference `Plugin.Maui.Currency` and `Microsoft.Extensions.DependencyInjection`; use a supported
+platform target such as `net10.0-windows10.0.19041.0` or `net10.0-android`. The platform package and
+native adapters arrive through the plugin dependency. This API supplies channel services; the host
+still controls startup, UI dispatch, and disposal. It does not supply an Avalonia application host.
+
+Registration snapshots module entries, timeout, immutable limits, and a copy of the JSON options.
+Every service provider owns a separate, lazily created session. Use asynchronous provider disposal
+to await native cleanup. Do not combine `AddNativeChannels` and `UseNativeChannels` on the same
+service collection. MAUI applications continue to use `UseNativeChannels`, which initializes the
+session at startup and retains `options.ViewFactories` for MAUI view hosting.
+
 ## Serialization metadata
 
 Set `options.Json.TypeInfoResolver` to your source-generated `JsonSerializerContext` when exchanging

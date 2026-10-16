@@ -19,7 +19,7 @@ as communication. A lower-level bridge regression consumer lives in `tests/Packa
 
 `NativeChannels.Core` has no MAUI or native runtime dependencies. It owns named endpoints,
 request correlation, cancellation, timeout handling, serialization, and channel contracts.
-`NativeChannels` supplies platform transports and native registration.
+`NativeChannels` supplies platform transports, shared service registration, and native module configuration.
 `NativeChannels.Maui` supplies DI/startup integration and native view handlers.
 The generic Android and Apple bindings are separate implementation packages.
 
@@ -67,5 +67,11 @@ Two views with the same factory name receive different instance IDs and MethodCh
 
 ## Additional application hosts
 
-The core messaging layer is independent of MAUI. Framework-neutral registration and additional
-application hosts are planned in the [roadmap](roadmap.md); no placeholder APIs are shipped.
+The core messaging layer is independent of MAUI. `AddNativeChannels` registers a session from
+`ChannelRegistrationOptions` in the platform package. MAUI's `UseNativeChannels` delegates to that
+registration and adds startup integration and native view handlers. Its existing
+`NativeChannelsOptions` extends the shared settings with MAUI view factories.
+
+Currency depends on the platform package rather than the MAUI host. Applications choose their host
+explicitly; the MAUI Currency sample references both `Plugin.Maui.Currency` and `NativeChannels.Maui`.
+Additional application hosts, including Avalonia, remain planned in the [roadmap](roadmap.md).

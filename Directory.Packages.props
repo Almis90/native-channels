@@ -8,6 +8,12 @@
     </PropertyGroup>
     <ItemGroup>
         <PackageVersion Include="NativeChannels.Core" Version="$(NativeChannelsPackageVersion)" />
+        <PackageVersion Include="NativeChannels" Version="$(NativeChannelsPackageVersion)" />
+        <PackageVersion
+            Include="Microsoft.Extensions.DependencyInjection.Abstractions"
+            Version="10.0.0"
+        />
+        <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="10.0.0" />
         <PackageVersion Include="Microsoft.Maui.Controls" Version="10.0.110" />
         <PackageVersion Include="Xamarin.Kotlin.StdLib" Version="2.3.0.1" />
         <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />

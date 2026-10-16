@@ -26,7 +26,7 @@ with zipfile.ZipFile(package) as archive:
     metadata = ET.fromstring(archive.read("Plugin.Maui.Currency.nuspec"))
     assert metadata.find(".//{*}version").text == version
     dependencies = metadata.findall(".//{*}dependency")
-    assert len(dependencies) == len(platforms) and all(d.attrib["id"] == "NativeChannels.Maui" for d in dependencies)
+    assert len(dependencies) == len(platforms) and all(d.attrib["id"] == "NativeChannels" for d in dependencies)
     assert all(d.attrib["version"] == framework_version for d in dependencies)
     targets = archive.read("buildTransitive/Plugin.Maui.Currency.targets").decode()
     assert '../native/android/currency.aar' in targets and 'Bind="false"' in targets

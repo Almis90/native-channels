@@ -7,7 +7,6 @@
             >net10.0-android</TargetFrameworks>
         <TargetFrameworks Condition="'$(NativeChannelsWindowsOnly)' == 'true'"
             >net10.0-windows10.0.19041.0</TargetFrameworks>
-        <UseMaui>true</UseMaui>
         <PackageId>Plugin.Maui.Currency</PackageId>
         <Version>1.1.0-alpha.1</Version>
         <Description>Reference plugin demonstrating native currency symbols and reusable packaging with NativeChannels.</Description>
@@ -29,7 +28,7 @@
     </ItemGroup>
     <ItemGroup>
         <InternalsVisibleTo Include="Plugin.Maui.Currency.Windows.Tests" />
-        <PackageReference Include="NativeChannels.Maui" />
+        <PackageReference Include="NativeChannels" />
         <None Remove="$(MSBuildThisFileDirectory)../../../../README.md" />
         <None Include="../../README.md" Pack="true" PackagePath="/" />
         <None

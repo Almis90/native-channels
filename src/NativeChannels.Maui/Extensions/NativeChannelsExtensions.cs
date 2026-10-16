@@ -10,29 +10,24 @@ public static class NativeChannelsExtensions
         Action<NativeChannelsOptions>? configure = null
     )
     {
-        if (builder.Services.Any(descriptor => descriptor.ServiceType == typeof(IChannelService)))
+        ArgumentNullException.ThrowIfNull(builder);
+        if (
+            builder.Services.Any(descriptor =>
+                descriptor.ServiceType == typeof(IChannelService) || descriptor.ServiceType == typeof(IBinaryMessenger)
+            )
+        )
         {
             throw new InvalidOperationException("NativeChannels has already been registered.");
         }
 
         var options = new NativeChannelsOptions();
         configure?.Invoke(options);
-        var modules = options.Modules.ToArray();
-        builder.Services.AddSingleton(new NativeViewSettings(options));
+        var views = new NativeViewSettings(options);
+        builder.Services.AddNativeChannels(options);
+        builder.Services.AddSingleton(views);
         builder.ConfigureMauiHandlers(handlers =>
             handlers.AddHandler<PlatformChannelView, PlatformChannelViewHandler>()
         );
-        var serializer = new ChannelSerializer(options.Json);
-        builder.Services.AddSingleton<IBinaryMessenger>(_ => new BinaryMessenger(
-            new NativeChannelTransport(modules),
-            options.Limits
-        ));
-        builder.Services.AddSingleton<IChannelService>(services => new ChannelService(
-            services.GetRequiredService<IBinaryMessenger>(),
-            serializer,
-            options.DefaultTimeout,
-            options.Limits
-        ));
         builder.Services.AddSingleton<IMauiInitializeService, Initializer>();
         return builder;
     }

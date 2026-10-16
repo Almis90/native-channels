@@ -20,6 +20,11 @@
             Link="Transport/%(Filename)%(Extension)"
         />
         <ProjectReference Include="../../src/NativeChannels.Core/NativeChannels.Core.csproj" />
+        <Compile
+            Include="../../src/NativeChannels/Hosting/*.cs"
+            Link="Hosting/%(Filename)%(Extension)"
+        />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" />
         <PackageReference Include="xunit" />
         <PackageReference Include="xunit.runner.visualstudio" PrivateAssets="all" />
