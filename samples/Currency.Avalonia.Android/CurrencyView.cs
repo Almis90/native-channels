@@ -13,7 +13,7 @@ internal sealed class CurrencyView : UserControl
     private readonly TextBox _code = new()
     {
         Text = "USD",
-        Watermark = "Currency code",
+        PlaceholderText = "Currency code",
         MaxLength = 12,
     };
     private readonly TextBlock _symbol = new()
@@ -83,10 +83,18 @@ internal sealed class CurrencyView : UserControl
         try
         {
             result = await PluginVerification.RunAsync(_session.Currency, _lifetime.Token);
+            if (_closed)
+            {
+                return;
+            }
             _verification.Text =
                 "Native checks passed: lookups, normalization, errors, concurrent calls and cancellation.";
         }
         catch (OperationCanceledException) when (_closed)
+        {
+            return;
+        }
+        catch (ObjectDisposedException) when (_closed)
         {
             return;
         }
@@ -112,6 +120,7 @@ internal sealed class CurrencyView : UserControl
             _description.Text = _code.Text?.Trim().ToUpperInvariant();
         }
         catch (OperationCanceledException) when (_closed) { }
+        catch (ObjectDisposedException) when (_closed) { }
         catch (Exception error)
         {
             _symbol.Text = "—";
@@ -132,8 +141,14 @@ internal sealed class CurrencyView : UserControl
         _closed = true;
         try
         {
-            _lifetime.Cancel();
-            await _session.DisposeAsync();
+            try
+            {
+                _lifetime.Cancel();
+            }
+            finally
+            {
+                await _session.DisposeAsync();
+            }
         }
         catch (Exception error)
         {
