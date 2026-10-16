@@ -1,17 +1,28 @@
 name: Consumers / iOS device compile
 run-name: iOS device compile · ${{ inputs.sample }} · ${{ inputs.package_source }} feed ${{ inputs.package_run }}
 on:
+  workflow_call:
+    inputs:
+      package_run:
+        type: string
+        required: true
+      package_source:
+        type: string
+        default: Distribution
+      sample:
+        type: string
+        default: Framework
   workflow_dispatch:
     inputs:
       package_run:
-        description: Successful release gate or example package run ID at this commit
+        description: Successful distribution, release gate or example run ID at this commit
         type: string
         required: true
       package_source:
         description: Combined release or optional example feed
         type: choice
-        options: [Release, Example]
-        default: Release
+        options: [Distribution, Release, Example]
+        default: Distribution
       sample:
         description: One package-only consumer
         type: choice
@@ -21,7 +32,7 @@ permissions:
   contents: read
   actions: read
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}-${{ inputs.sample }}-default
+  group: consumer-verify-ios-device-${{ github.ref }}-${{ inputs.sample }}-default
   cancel-in-progress: false
 jobs:
   consumer:
@@ -35,13 +46,10 @@ jobs:
           echo 'Plugin samples require package_source=Example and a matching Examples / Package build run.' >&2
           exit 1
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/verified-artifact
+      - uses: ./.github/actions/consumer-feed
         with:
           run-id: ${{ inputs.package_run }}
-          workflow: ${{ inputs.package_source == 'Example' && 'build-examples.yml' || 'release-packages.yml' }}
-          artifact: ${{ inputs.package_source == 'Example' && 'example-package-feed' || 'package-feed' }}
-          path: artifacts/feed
-          token: ${{ github.token }}
+          source: ${{ inputs.package_source }}
       - name: Extract and audit exact-commit packages
         shell: bash
         run: |
@@ -75,7 +83,26 @@ jobs:
           SUFFIX: ${{ steps.sample.outputs.suffix }}
         run: bash "eng/restore-$SUFFIX.sh" -p:TargetFrameworks=net10.0-ios -r ios-arm64
       - name: Compile selected Release consumer (no device execution)
+        id: compile
         timeout-minutes: 25
         env:
           PROJECT: ${{ steps.sample.outputs.project }}
         run: bash eng/dotnet.sh build "$PROJECT" -c Release -f net10.0-ios -r ios-arm64 --no-restore --disable-build-servers --verbosity normal -p:EnableCodeSigning=false
+      - name: Record consumer stage outcomes
+        if: always()
+        shell: bash
+        env:
+          COMPILE_OUTCOME: ${{ steps.compile.outcome }}
+          SAMPLE: ${{ inputs.sample }}
+          PACKAGE_SOURCE: ${{ inputs.package_source }}
+          PACKAGE_RUN: ${{ inputs.package_run }}
+          CONFIGURATION: ios-device
+        run: python .github/scripts/distribution-result.py record "$CONFIGURATION"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          overwrite: true
+          name: consumer-evidence-${{ inputs.sample }}-ios-device
+          path: artifacts/consumer-evidence/*.json
+          retention-days: 7
+          if-no-files-found: error

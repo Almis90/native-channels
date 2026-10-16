@@ -1,0 +1,100 @@
+name: Verify distribution
+run-name: Distribution · framework run ${{ inputs.framework_run }}
+on:
+  workflow_dispatch:
+    inputs:
+      framework_run:
+        description: Successful same-commit All / Runtime Verify framework run ID
+        type: string
+        required: true
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: distribution-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  packages:
+    uses: ./.github/workflows/release-packages.yml
+    with:
+      framework_run: ${{ inputs.framework_run }}
+  android-x64:
+    needs: packages
+    uses: ./.github/workflows/verify-android.yml
+    with:
+      package_run: ${{ format('{0}', github.run_id) }}
+      package_source: Distribution
+      sample: Framework
+      runtime: android-x64
+  android-arm64:
+    needs: packages
+    uses: ./.github/workflows/verify-android.yml
+    with:
+      package_run: ${{ format('{0}', github.run_id) }}
+      package_source: Distribution
+      sample: Framework
+      runtime: android-arm64
+  ios-simulator:
+    needs: packages
+    uses: ./.github/workflows/verify-ios.yml
+    with:
+      package_run: ${{ format('{0}', github.run_id) }}
+      package_source: Distribution
+      sample: Framework
+  ios-device:
+    needs: packages
+    uses: ./.github/workflows/verify-ios-device.yml
+    with:
+      package_run: ${{ format('{0}', github.run_id) }}
+      package_source: Distribution
+      sample: Framework
+  catalyst:
+    needs: packages
+    uses: ./.github/workflows/verify-catalyst.yml
+    with:
+      package_run: ${{ format('{0}', github.run_id) }}
+      package_source: Distribution
+      sample: Framework
+  win-x64:
+    needs: packages
+    uses: ./.github/workflows/windows.yml
+    with:
+      package_run: ${{ format('{0}', github.run_id) }}
+      package_source: Distribution
+      sample: Framework
+      runtime: win-x64
+  win-arm64:
+    needs: packages
+    uses: ./.github/workflows/windows.yml
+    with:
+      package_run: ${{ format('{0}', github.run_id) }}
+      package_source: Distribution
+      sample: Framework
+      runtime: win-arm64
+  result:
+    name: Distribution verification result
+    needs: [packages, android-x64, android-arm64, ios-simulator, ios-device, catalyst, win-x64, win-arm64]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Collect consumer stage evidence
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          pattern: consumer-evidence-Framework-*
+          merge-multiple: true
+          path: artifacts/consumer-evidence
+      - name: Require all consumers against the same combined feed
+        env:
+          JOB_RESULTS: ${{ toJSON(needs) }}
+        run: python3 .github/scripts/distribution-result.py summarize
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          overwrite: true
+          name: distribution-verification
+          path: artifacts/distribution-verification.json
+          retention-days: 7
+          if-no-files-found: error

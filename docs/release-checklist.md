@@ -37,8 +37,12 @@ imports still require the existing inspectors and fresh consumer restores.
 
 ## Before a release
 
-Run [Verify framework](building.md#github-actions) with `All / Runtime`, then the separate release package gate at the same source commit. Keep the successful run URLs and stage evidence. Use the combined feed for release consumers (`package_source=Release` on every platform). Single-platform
-development feeds do not establish combined-package acceptance. One green sample run is not a full-platform release pass. See the [recorded CI evidence](verification.md#framework-ci-verification) for its tested source revision;
+Run [Verify framework](building.md#github-actions) with `All / Runtime`, then
+[Verify distribution](building.md#verify-distribution-before-a-release) using that successful run ID
+at the same commit. The coordinator assembles the combined feed and runs all seven framework consumers.
+Keep both successful run URLs and their stage evidence. Development feeds do not establish
+combined-package acceptance, and compilation does not establish physical-device execution.
+See the [recorded CI evidence](verification.md#framework-ci-verification) for tested source revisions;
 repeat applicable acceptance checks for the revision being released.
 
 The framework sample is the required consumer for the framework release. Example plugins are

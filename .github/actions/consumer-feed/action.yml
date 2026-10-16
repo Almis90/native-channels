@@ -1,0 +1,47 @@
+name: Consume verified distribution or example feed
+description: Reuse the coordinator feed, or require a successful same-commit external run.
+inputs:
+  run-id:
+    description: Package producer run ID
+    required: true
+  source:
+    description: Release, Distribution or Example
+    required: true
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+    - id: current
+      uses: actions/github-script@v7
+      env:
+        PACKAGE_RUN: ${{ inputs.run-id }}
+      with:
+        script: |
+          if (process.env.PACKAGE_RUN === String(context.runId)) {
+            const {data: run} = await github.rest.actions.getWorkflowRun({...context.repo, run_id: context.runId});
+            core.setOutput('metadata', JSON.stringify(run));
+          } else {
+            core.setOutput('metadata', '{}');
+          }
+    - id: source
+      shell: bash
+      env:
+        PACKAGE_RUN: ${{ inputs.run-id }}
+        PACKAGE_SOURCE: ${{ inputs.source }}
+        CURRENT_RUN: ${{ steps.current.outputs.metadata }}
+      run: python .github/scripts/consumer-source.py
+    - uses: ./.github/actions/verified-artifact
+      if: steps.source.outputs.current == 'false'
+      with:
+        run-id: ${{ inputs.run-id }}
+        workflow: ${{ steps.source.outputs.workflow }}
+        artifact: ${{ steps.source.outputs.artifact }}
+        path: artifacts/feed
+        token: ${{ github.token }}
+    - uses: actions/download-artifact@v4
+      if: steps.source.outputs.current == 'true'
+      with:
+        name: package-feed
+        path: artifacts/feed

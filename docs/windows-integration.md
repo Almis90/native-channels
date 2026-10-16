@@ -212,13 +212,16 @@ packages once, then compiles the framework sample for x64 and ARM64 in independe
 or Apple artifacts are needed. Hosted Windows verification establishes compilation, not desktop execution. See the
 [Windows-only workflow commands](building.md#windows-only-framework-changes).
 
-For separate consumer runs, select `package_source=Release` for the release gate feed,
+For separate consumer runs, select `package_source=Distribution` for a successful distribution run,
+`package_source=Release` for a standalone release gate feed,
 or `package_source=Example` when using the separate optional example workflow. These feed types are not interchangeable.
 
 ## Combined platform packages
 
-The manual **Release / Package gate** consumes a successful **All / Runtime** framework run at the
-same commit. It reuses its Core, native and Windows artifacts and assembles the combined mobile payloads.
+The manual **Verify distribution** workflow consumes a successful **All / Runtime** framework run at
+the same commit. Its package gate reuses Core, native and Windows artifacts and assembles the combined
+mobile payloads, then independent consumer jobs verify all seven configurations.
+The standalone **Release / Package gate** remains available for packaging-only checks.
 `eng/combine-packages.py` combines the transport, MAUI and
 framework `.nupkg` and `.snupkg` files by using `--scope framework`; the optional example workflow
 adds one selected plugin with `--scope example --plugin NAME`. It preserves the mobile native payloads, adds the Windows

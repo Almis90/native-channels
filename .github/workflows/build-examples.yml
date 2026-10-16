@@ -4,9 +4,14 @@ on:
   workflow_dispatch:
     inputs:
       framework_run:
-        description: Successful Release / Package gate run ID at this commit
+        description: Successful distribution or release gate run ID at this commit
         type: string
         required: true
+      framework_source:
+        description: Workflow that produced the prepared framework packages
+        type: choice
+        options: [Distribution, Release]
+        default: Distribution
       sample:
         description: Optional example plugin to build on all supported platforms
         type: choice
@@ -27,7 +32,7 @@ jobs:
       - uses: ./.github/actions/verified-artifact
         with:
           run-id: ${{ inputs.framework_run }}
-          workflow: release-packages.yml
+          workflow: ${{ inputs.framework_source == 'Distribution' && 'verify-distribution.yml' || 'release-packages.yml' }}
           artifact: release-inputs
           path: artifacts
           token: ${{ github.token }}
@@ -40,7 +45,7 @@ jobs:
       - uses: ./.github/actions/verified-artifact
         with:
           run-id: ${{ inputs.framework_run }}
-          workflow: release-packages.yml
+          workflow: ${{ inputs.framework_source == 'Distribution' && 'verify-distribution.yml' || 'release-packages.yml' }}
           artifact: mobile-framework-packages
           path: artifacts/packages
           token: ${{ github.token }}
@@ -53,7 +58,7 @@ jobs:
       - uses: ./.github/actions/verified-artifact
         with:
           run-id: ${{ inputs.framework_run }}
-          workflow: release-packages.yml
+          workflow: ${{ inputs.framework_source == 'Distribution' && 'verify-distribution.yml' || 'release-packages.yml' }}
           artifact: windows-framework-packages
           path: artifacts/windows/packages
           token: ${{ github.token }}

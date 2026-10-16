@@ -1,6 +1,11 @@
 name: Release / Package gate
 run-name: Package gate · verified framework run ${{ inputs.framework_run }}
 on:
+  workflow_call:
+    inputs:
+      framework_run:
+        type: string
+        required: true
   workflow_dispatch:
     inputs:
       framework_run:

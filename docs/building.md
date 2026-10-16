@@ -226,28 +226,50 @@ retain their existing setup. Consumer NuGet caches and build outputs remain fres
 and optional example packaging still use their existing multi-platform bootstrap; runtime-only jobs
 continue to execute saved applications without installing an SDK.
 
-### Release package gate
+### Verify distribution before a release
 
-Development verification uses platform-specific feeds. Before distribution, assemble and inspect the
-combined packages through [Release / Package gate](../.github/workflows/release-packages.yml):
+Use **Verify framework** for everyday development. Use [Verify distribution](../.github/workflows/verify-distribution.yml)
+before distributing packages or after changing packaging. Examples remain optional and separate.
+
+After a successful **All / Runtime** framework run, start one distribution workflow at the same commit:
 
 ```sh
-gh workflow run release-packages.yml --ref main -f framework_run=ALL_RUNTIME_RUN_ID
+gh workflow run verify-distribution.yml --ref main -f framework_run=ALL_RUNTIME_RUN_ID
 ```
 
-The input must be a successful manual **All / Runtime** framework run at the **same commit** in this
-repository. The gate validates its evidence, reuses Core, native artifacts and Windows packages,
-builds the combined mobile libraries, merges Windows payloads, and inspects the resulting five
-framework packages and symbols. It produces a `package-feed` artifact; it never publishes anything.
+The coordinator validates the completed framework run, reuses its Core package, native artifacts and
+Windows packages, and assembles the final combined feed once. Seven independent jobs then consume
+that same archive through fresh package-only restores:
 
-The upstream runtime results describe the platform feeds. They do not prove consumption of the newly
-assembled combined feed. Run the combined-feed consumers below and follow the
-[release checklist](release-checklist.md) before distribution. Artifacts from another revision, failed
-runs, incomplete verification, or expired inputs are rejected.
+| Consumer | Compiles | Executes |
+| --- | --- | --- |
+| Android x64 | Release APK | Android emulator |
+| Android ARM64 | Release device APK | No; APK retained for physical-device testing |
+| iOS simulator | Release simulator app | iPhone simulator |
+| iOS device | Unsigned Release device app | No |
+| Mac Catalyst | Release app | No; framework runtime verification is separate |
+| Windows x64 | Release app | No desktop execution |
+| Windows ARM64 | Release app | No desktop execution |
+
+The **Distribution verification result** rejects missing or failed consumers, mismatched source/run
+metadata, and different feed hashes. It retains the compilation and execution outcomes separately in
+`distribution-verification`. This workflow never publishes packages, creates releases or tags commits.
+Do not move `main` between the prerequisite and distribution run; artifact acceptance requires the same source SHA.
+
+Use **Re-run failed jobs** on the distribution run to reuse successful packaging and consumer jobs.
+Jobs have independent deadlines; a consumer failure does not cancel its siblings. Inputs expire after
+seven days; expired inputs require a fresh prerequisite run. ARM64 APKs and runtime logs expire after three days.
+
+The standalone [Release / Package gate](../.github/workflows/release-packages.yml) remains available
+for packaging-only diagnostics. It accepts the same `framework_run` input, performs the same package
+assembly and inspection, and stops before consumers. A successful package gate alone is not a
+successful distribution verification.
 
 ### Verify the framework sample
 
-These manual workflows remain available for distribution checks and focused troubleshooting:
+The coordinator calls these same workflows. Manual entry points remain available for focused troubleshooting
+or checking an optional example. For a successful distribution run, use `package_source=Distribution`
+and its run ID; use `Release` for a standalone package gate or `Example` for an example package build:
 
 | Workflow | Evidence |
 | --- | --- |
@@ -258,13 +280,13 @@ These manual workflows remain available for distribution checks and focused trou
 | [Consumers / Windows](../.github/workflows/windows.yml) | Combined-feed compilation for the chosen architecture |
 
 ```sh
-gh workflow run verify-android.yml --ref main -f package_source=Release -f package_run=PACKAGE_GATE_RUN_ID
-gh workflow run verify-android.yml --ref main -f package_source=Release -f package_run=PACKAGE_GATE_RUN_ID -f runtime=android-arm64
-gh workflow run verify-ios.yml --ref main -f package_source=Release -f package_run=PACKAGE_GATE_RUN_ID
-gh workflow run verify-ios-device.yml --ref main -f package_source=Release -f package_run=PACKAGE_GATE_RUN_ID
-gh workflow run verify-catalyst.yml --ref main -f package_source=Release -f package_run=PACKAGE_GATE_RUN_ID
-gh workflow run windows.yml --ref main -f package_source=Release -f package_run=PACKAGE_GATE_RUN_ID -f runtime=win-x64
-gh workflow run windows.yml --ref main -f package_source=Release -f package_run=PACKAGE_GATE_RUN_ID -f runtime=win-arm64
+gh workflow run verify-android.yml --ref main -f package_source=Distribution -f package_run=DISTRIBUTION_RUN_ID
+gh workflow run verify-android.yml --ref main -f package_source=Distribution -f package_run=DISTRIBUTION_RUN_ID -f runtime=android-arm64
+gh workflow run verify-ios.yml --ref main -f package_source=Distribution -f package_run=DISTRIBUTION_RUN_ID
+gh workflow run verify-ios-device.yml --ref main -f package_source=Distribution -f package_run=DISTRIBUTION_RUN_ID
+gh workflow run verify-catalyst.yml --ref main -f package_source=Distribution -f package_run=DISTRIBUTION_RUN_ID
+gh workflow run windows.yml --ref main -f package_source=Distribution -f package_run=DISTRIBUTION_RUN_ID -f runtime=win-x64
+gh workflow run windows.yml --ref main -f package_source=Distribution -f package_run=DISTRIBUTION_RUN_ID -f runtime=win-arm64
 ```
 
 ### Android ARM64 and physical-device verification
@@ -302,13 +324,13 @@ Development-feed execution remains separate from combined-release-feed acceptanc
 ### Optional examples and deeper checks
 
 Example plugins are optional on **every platform**. [Examples / Package build](../.github/workflows/build-examples.yml)
-accepts a successful release package gate run and one plugin name. It reuses the retained mobile and
+accepts a successful distribution run (or standalone package gate) and one plugin name. It reuses the retained mobile and
 Windows framework packages and native artifacts, then builds only the selected example. Keep the
 input run at the same source commit; expired inputs require rebuilding the release package gate.
-The artifact handoff for this optional route still needs an example build after the workflow cleanup.
+Choose `framework_source=Distribution` for the coordinator or `Release` for a standalone package gate.
 
 ```sh
-gh workflow run build-examples.yml --ref main -f framework_run=PACKAGE_GATE_RUN_ID -f sample=AudioStreamer
+gh workflow run build-examples.yml --ref main -f framework_source=Distribution -f framework_run=DISTRIBUTION_RUN_ID -f sample=AudioStreamer
 gh workflow run verify-ios.yml --ref main -f package_source=Example -f package_run=EXAMPLE_RUN_ID -f sample=AudioStreamer
 ```
 

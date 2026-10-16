@@ -150,7 +150,9 @@ The [roadmap](docs/roadmap.md) covers the initial preview, shared hosting, Avalo
 and stable API acceptance. Use the [release checklist](docs/release-checklist.md) before distribution.
 
 Pull requests run portable tests and compile affected platforms using one shared Core build.
-Runtime verification, example plugins, and benchmarks run on demand; see [CI commands](docs/building.md#github-actions). Workflows never publish packages.
+Use **Verify framework** for development checks and **Verify distribution** to assemble final packages
+and test their consumers before distribution. Example plugins and benchmarks remain separate, optional
+workflows; see [CI commands](docs/building.md#github-actions). Workflows never publish packages.
 
 ## License
 
