@@ -88,11 +88,41 @@ for the exact scope and remaining lifecycle checks.
 The framework app's native buttons are small lifecycle fixtures; PdfViewer is the practical
 native-view example. Mac Catalyst, iOS simulator, and physical iOS execution require separate checks.
 
+### Physical phones and Mac examples — 2026-10-16/17
+
+All four Release examples passed automatic startup checks and user-confirmed manual checklists on
+an Android CPH2581, an iPhone 12 Pro, and an arm64 Mac running the Catalyst apps:
+
+| Example | Manual observations |
+| --- | --- |
+| Currency | Symbols, lowercase input, invalid-code errors and recovery |
+| AudioStreamer | Audible music, looping, pause/resume, stop/restart and volume controls |
+| VolumeMonitor | Live volume updates and immediate current level after Stop/change/Start |
+| PdfViewer | Three-page navigation, zoom/pan, fit, reopen and layout checks |
+
+Phone checks also covered audio stopping on backgrounding and explicit volume-listener restart
+after returning. Mac Currency and AudioStreamer checks included window resizing. Mac VolumeMonitor
+initially stayed at 100%; the Core Audio correction was rebuilt locally, retested, then committed as
+`f9c779f`. Its default-output-device switching remains unverified. See
+[VolumeMonitor verification](volume-verification.md#mac-catalyst-correction-on-2026-10-17).
+
+The sample source was `53b10ae`, with existing local framework/plugin packages from `b14c1ff`;
+Mac VolumeMonitor used the corrected local package described above. These are example behavior
+checks, not acceptance of the final combined feed. Earlier Mac launches could create two processes;
+PDF Viewer exposed a shared-file conflict. A single-instance relaunch passed both automatic and
+manual checks. The observations do not establish multi-instance application support.
+
+Separately, the framework's combined-feed ARM64 Android APK from distribution run
+`38960118568` at `53b10ae` passed its automatic checks on the physical Android phone. No new physical
+iPhone framework self-test was executed in this session.
+
 ## Windows
 
-Windows transport behavior passes eight portable regression tests. These test the channel transport,
-not WinUI hosting or packaged application deployment. The current preview still requires combined-feed
-consumer compilation and execution on the supported Windows hosts.
+Windows 11 x64 physical execution passed on 2026-10-17 at `f9c779f`: 98 portable tests, 27 Windows
+plugin tests, all five application runtime checks, and user-confirmed example interactions.
+The [Windows report](windows-plugins-verification.md#physical-windows-execution-2026-10-17) records
+the environment and scope. Packages were Windows-only and applications were unpackaged;
+combined-feed execution, ARM64 execution and MSIX deployment remain separate checks.
 
 Use [Windows integration](windows-integration.md#combined-platform-packages) for the OS/architecture
 acceptance matrix, and [Windows plugin verification](windows-plugins-verification.md) for native API,
@@ -102,9 +132,9 @@ application, and installer checks. ARM64 cross-compilation does not establish AR
 
 - Execute combined-feed consumers for the intended release revision; compile the iOS device target and record physical-device execution separately.
 - Run Windows ARM64 applications on ARM64 hardware; broaden OS and deployment coverage as documented.
-- Test framework, Currency, AudioStreamer, and PdfViewer behavior on physical Android/iOS devices.
-- Verify VolumeMonitor background/resume after its iOS fix, independent iOS observer counts, and audio routes.
-- Verify plugin-specific Mac Catalyst runtime behavior, Bluetooth/headphone routes, and audio interruptions.
+- Execute the final combined-feed framework consumer on physical Android/iOS devices and Windows; keep example observations separate from distribution evidence.
+- Verify independent iOS observer counts and additional audio routes; foreground/background example behavior was manually checked as described above.
+- Verify Catalyst output-device switching, Bluetooth/headphone routes, and audio interruptions.
 - Complete long-running native heap/lifecycle stress and measured end-to-end performance checks.
 - Verify new host/platform combinations separately when Avalonia work begins; none is supported yet.
 
