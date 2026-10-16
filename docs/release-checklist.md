@@ -37,6 +37,16 @@ imports still require the existing inspectors and fresh consumer restores.
 
 ## Before a release
 
+For 0.2, also complete the [Avalonia milestone acceptance](roadmap.md): Android, iOS, Windows,
+macOS, Linux, and browser/WebAssembly, with every channel contract, host/view lifecycle, and the
+documented reference-plugin capability matrix verified using the exact release packages. The
+existing Android Currency proof covers only one part of this requirement. Extend distribution
+verification to include the Avalonia host, new platform/web assets, and all six Avalonia consumers;
+the current seven framework consumers alone do not establish 0.2 release readiness.
+
+For 0.3, add the equivalent Uno consumers and host acceptance while retaining MAUI and Avalonia
+regression checks. Record each host/platform result separately.
+
 Run [Verify framework](building.md#github-actions) with `All / Runtime`, then
 [Verify distribution](building.md#verify-distribution-before-a-release) using that successful run ID
 at the same commit. The coordinator assembles the combined feed and runs all seven framework consumers.
