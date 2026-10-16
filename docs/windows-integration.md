@@ -9,6 +9,11 @@ separate adapter-side `ChannelService`. The existing codecs and binary messenger
 including reentrant callbacks, independent streams, cancellation and channel ownership. No Kotlin or
 Swift binding package is needed on Windows. This is an in-process bridge, not an IPC protocol.
 
+The [C++ and Rust experiment](https://github.com/Almis90/native-channels/tree/main/native/windows/interop)
+demonstrates native DLL implementations behind a small shared C# channel adapter.
+Run `./eng/verify-windows-interop.ps1` to build both DLLs and execute their channel
+checks on Windows x64. This is separate from MAUI application and MSIX verification.
+
 ## Build and verify
 
 On Windows, install the SDK pinned in `global.json` and its `maui-windows` workload:

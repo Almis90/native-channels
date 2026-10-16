@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net10.0</TargetFramework>
+        <IsPackable>false</IsPackable>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <DefineConstants>$(DefineConstants);WINDOWS</DefineConstants>
+    </PropertyGroup>
+    <ItemGroup>
+        <!-- Run the real Windows transport without installing a MAUI UI workload. -->
+        <Compile
+            Include="../../src/NativeChannels/NativeChannelTransport.cs"
+            Link="Transport/NativeChannelTransport.cs"
+        />
+        <Compile
+            Include="../../src/NativeChannels/NativeModuleRegistration.cs"
+            Link="Transport/NativeModuleRegistration.cs"
+        />
+        <Compile
+            Include="../../src/NativeChannels/Platforms/Windows/*.cs"
+            Link="Transport/%(Filename)%(Extension)"
+        />
+        <Compile
+            Include="../../native/windows/interop/NativeDllModule.cs"
+            Link="NativeDllModule.cs"
+        />
+        <ProjectReference Include="../../src/NativeChannels.Core/NativeChannels.Core.csproj" />
+    </ItemGroup>
+</Project>
