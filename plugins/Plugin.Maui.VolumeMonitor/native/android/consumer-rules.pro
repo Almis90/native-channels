@@ -1,0 +1,1 @@
+-keep class dev.nativechannels.volume.VolumeMonitorModule { public <init>(); *; }

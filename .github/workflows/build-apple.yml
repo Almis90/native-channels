@@ -1,0 +1,34 @@
+name: Internal / Apple native
+on:
+  workflow_call:
+permissions:
+  contents: read
+concurrency:
+  group: native-apple-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  native:
+    runs-on: macos-26
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '26.6'
+      - run: bash eng/format.sh swift --check
+      - name: Build bridge and sample XCFrameworks
+        timeout-minutes: 10
+        run: python3 eng/build-apple.py
+      - name: Run Swift bridge tests
+        run: |
+          xcrun swiftc -swift-version 5 native/apple/Sources/*.swift native/apple/Tests/main.swift -o artifacts/apple-bridge-tests
+          artifacts/apple-bridge-tests
+      - name: Archive bridge slices and sample XCFramework for reuse
+        run: tar -czf artifacts/apple-native.tar.gz artifacts/native
+      - uses: actions/upload-artifact@v4
+        with:
+          overwrite: true
+          name: apple-native
+          path: artifacts/apple-native.tar.gz
+          retention-days: 7
+          if-no-files-found: error

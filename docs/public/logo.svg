@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="title desc">
+  <title id="title">NativeChannels</title>
+  <desc id="desc">Two connected endpoints with arrows carrying messages in both directions.</desc>
+  <rect x="16" y="36" width="68" height="184" rx="24" fill="#6554c0"/>
+  <rect x="172" y="36" width="68" height="184" rx="24" fill="#168786"/>
+  <path d="M62 96h130m-25-25 25 25-25 25" fill="none" stroke="#c6bef1" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M194 160H64m25-25-25 25 25 25" fill="none" stroke="#9ee4dc" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

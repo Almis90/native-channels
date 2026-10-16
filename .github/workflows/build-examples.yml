@@ -1,0 +1,197 @@
+name: Examples / Package build
+run-name: Example ${{ inputs.sample }} · framework run ${{ inputs.framework_run }}
+on:
+  workflow_dispatch:
+    inputs:
+      framework_run:
+        description: Successful Release / Package gate run ID at this commit
+        type: string
+        required: true
+      sample:
+        description: Optional example plugin to build on all supported platforms
+        type: choice
+        options: [Currency, AudioStreamer, VolumeMonitor, PdfViewer]
+        default: Currency
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: example-packages-${{ github.ref }}-${{ inputs.sample }}
+  cancel-in-progress: false
+jobs:
+  inputs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/verified-artifact
+        with:
+          run-id: ${{ inputs.framework_run }}
+          workflow: release-packages.yml
+          artifact: release-inputs
+          path: artifacts
+          token: ${{ github.token }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: native-inputs
+          path: artifacts/inputs/*.tar.gz
+          retention-days: 7
+          if-no-files-found: error
+      - uses: ./.github/actions/verified-artifact
+        with:
+          run-id: ${{ inputs.framework_run }}
+          workflow: release-packages.yml
+          artifact: mobile-framework-packages
+          path: artifacts/packages
+          token: ${{ github.token }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mobile-framework-packages
+          path: artifacts/packages/*
+          retention-days: 7
+          if-no-files-found: error
+      - uses: ./.github/actions/verified-artifact
+        with:
+          run-id: ${{ inputs.framework_run }}
+          workflow: release-packages.yml
+          artifact: windows-framework-packages
+          path: artifacts/windows/packages
+          token: ${{ github.token }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-framework-packages
+          path: artifacts/windows/packages/*
+          retention-days: 7
+          if-no-files-found: error
+  mobile:
+    needs: inputs
+    runs-on: macos-26
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: native-inputs
+          path: artifacts/inputs
+      - run: |
+          tar -xzf artifacts/inputs/android-native.tar.gz
+          tar -xzf artifacts/inputs/apple-native.tar.gz
+      - uses: actions/download-artifact@v4
+        with:
+          name: mobile-framework-packages
+          path: artifacts/packages
+      - uses: ./.github/actions/mobile-packaging
+      - name: Run selected portable example tests when present
+        env:
+          SAMPLE: ${{ inputs.sample }}
+        run: |
+          project="tests/Plugin.Maui.$SAMPLE.Tests/Plugin.Maui.$SAMPLE.Tests.csproj"
+          if [[ -f "$project" ]]; then
+            bash eng/dotnet.sh test "$project" -c Release --logger trx --results-directory artifacts/example-tests
+          fi
+      - name: Build selected native adapters and tests
+        timeout-minutes: 12
+        env:
+          SAMPLE: ${{ inputs.sample }}
+        run: |
+          case "$SAMPLE" in
+            Currency) module=currency ;;
+            AudioStreamer) module=audio ;;
+            VolumeMonitor) module=volume ;;
+            PdfViewer) module=pdf ;;
+            *) exit 2 ;;
+          esac
+          native/android/gradlew -p native/android --no-daemon ":$module:assembleRelease" ":$module:testReleaseUnitTest"
+          python3 "plugins/Plugin.Maui.$SAMPLE/eng/build-apple.py"
+          if [[ "$SAMPLE" == Currency ]]; then
+            xcrun swiftc -swift-version 5 plugins/Plugin.Maui.Currency/native/apple/Sources/CurrencySymbols.swift plugins/Plugin.Maui.Currency/native/apple/Tests/main.swift -o artifacts/currency-swift-tests
+            artifacts/currency-swift-tests
+          fi
+      - name: Pack and inspect selected mobile plugin
+        timeout-minutes: 12
+        env:
+          SAMPLE: ${{ inputs.sample }}
+        run: |
+          bash "plugins/Plugin.Maui.$SAMPLE/eng/pack.sh"
+          python3 "plugins/Plugin.Maui.$SAMPLE/eng/inspect-package.py"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mobile-example-package
+          path: artifacts/packages/Plugin.Maui.${{ inputs.sample }}.*
+          retention-days: 7
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: example-portable-results
+          path: artifacts/example-tests/**
+          retention-days: 3
+          if-no-files-found: ignore
+  windows:
+    needs: inputs
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: windows-framework-packages
+          path: artifacts/windows/packages
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - run: dotnet workload install maui-windows --version 10.0.401
+      - name: Pack selected Windows plugin against the prepared framework
+        shell: pwsh
+        env:
+          SAMPLE: ${{ inputs.sample }}
+        run: ./.github/scripts/pack-windows.ps1 -Scope Plugin -Plugin $env:SAMPLE
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-example-inputs
+          path: artifacts/windows/packages/*
+          retention-days: 7
+          if-no-files-found: error
+  feed:
+    needs: [mobile, windows]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: mobile-framework-packages
+          path: artifacts/packages
+      - uses: actions/download-artifact@v4
+        with:
+          name: mobile-example-package
+          path: artifacts/packages
+      - uses: actions/download-artifact@v4
+        with:
+          name: windows-example-inputs
+          path: artifacts/windows/packages
+      - uses: actions/download-artifact@v4
+        with:
+          name: native-inputs
+          path: artifacts/inputs
+      - name: Assemble framework and selected example feed
+        env:
+          SAMPLE: ${{ inputs.sample }}
+        run: |
+          tar -xzf artifacts/inputs/android-native.tar.gz
+          tar -xzf artifacts/inputs/apple-native.tar.gz
+          python3 eng/combine-packages.py --mobile artifacts/packages --windows artifacts/windows/packages \
+            --output artifacts/combined-packages --source-commit "$GITHUB_SHA" --scope example --plugin "$SAMPLE"
+          mv artifacts/packages artifacts/mobile-packages
+          mv artifacts/combined-packages artifacts/packages
+          python3 eng/inspect-packages.py --combined
+          python3 "plugins/Plugin.Maui.$SAMPLE/eng/inspect-package.py" --combined
+          python3 eng/package_audit.py artifacts/packages/*.nupkg --source-commit "$GITHUB_SHA"
+          tar -czf artifacts/package-feed.tar.gz artifacts/packages artifacts/package-audit.json \
+            native/android/sample/build/outputs/aar/sample-release.aar artifacts/native/NativeChannelsSample.xcframework
+      - uses: actions/upload-artifact@v4
+        with:
+          name: example-package-feed
+          path: artifacts/package-feed.tar.gz
+          retention-days: 7
+          if-no-files-found: error

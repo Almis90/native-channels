@@ -1,0 +1,14 @@
+<Project>
+    <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
+        <AndroidLibrary
+            Include="$(MSBuildThisFileDirectory)../native/android/volume.aar"
+            Bind="false"
+        />
+    </ItemGroup>
+    <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios' Or $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">
+        <NativeReference Include="$(MSBuildThisFileDirectory)../native/apple/MauiVolumeMonitorNative.xcframework">
+            <Kind>Framework</Kind>
+            <SmartLink>false</SmartLink>
+        </NativeReference>
+    </ItemGroup>
+</Project>

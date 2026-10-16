@@ -1,0 +1,31 @@
+name: Select sample
+description: Map a sample choice to its project and verification scripts.
+inputs:
+  sample:
+    description: Framework, Currency, AudioStreamer, VolumeMonitor or PdfViewer
+    required: true
+outputs:
+  project:
+    description: Sample project directory
+    value: ${{ steps.select.outputs.project }}
+  suffix:
+    description: Restore and verification script suffix
+    value: ${{ steps.select.outputs.suffix }}
+runs:
+  using: composite
+  steps:
+    - id: select
+      shell: bash
+      env:
+        SAMPLE: ${{ inputs.sample }}
+      run: |
+        case "$SAMPLE" in
+          Framework) project=NativeChannels; suffix=sample ;;
+          Currency) project=Currency; suffix=currency-sample ;;
+          AudioStreamer) project=AudioStreamer; suffix=audio-sample ;;
+          VolumeMonitor) project=VolumeMonitor; suffix=volume-sample ;;
+          PdfViewer) project=PdfViewer; suffix=pdf-sample ;;
+          *) echo "Unknown sample: $SAMPLE" >&2; exit 1 ;;
+        esac
+        echo "project=samples/$project.Sample" >> "$GITHUB_OUTPUT"
+        echo "suffix=$suffix" >> "$GITHUB_OUTPUT"

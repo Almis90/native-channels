@@ -1,0 +1,30 @@
+<Project>
+    <PropertyGroup>
+        <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+        <NativeChannelsPackageVersion Condition="'$(NativeChannelsPackageVersion)' == ''"
+            >0.1.0-preview.1</NativeChannelsPackageVersion>
+        <CurrencyPackageVersion Condition="'$(CurrencyPackageVersion)' == ''"
+            >1.1.0-alpha.1</CurrencyPackageVersion>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageVersion Include="NativeChannels.Core" Version="$(NativeChannelsPackageVersion)" />
+        <PackageVersion Include="Microsoft.Maui.Controls" Version="10.0.110" />
+        <PackageVersion Include="Xamarin.Kotlin.StdLib" Version="2.3.0.1" />
+        <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+        <PackageVersion Include="xunit" Version="2.9.3" />
+        <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.5" />
+        <PackageVersion
+            Include="NativeChannels.Native.Android"
+            Version="$(NativeChannelsPackageVersion)"
+        />
+        <PackageVersion
+            Include="NativeChannels.Native.Apple"
+            Version="$(NativeChannelsPackageVersion)"
+        />
+        <PackageVersion Include="Plugin.Maui.AudioStreamer" Version="0.1.0-alpha.1" />
+        <PackageVersion Include="Plugin.Maui.PdfViewer" Version="0.1.0-alpha.1" />
+        <PackageVersion Include="Plugin.Maui.VolumeMonitor" Version="0.1.0-alpha.1" />
+        <PackageVersion Include="Plugin.Maui.Currency" Version="$(CurrencyPackageVersion)" />
+        <PackageVersion Include="NativeChannels.Maui" Version="$(NativeChannelsPackageVersion)" />
+    </ItemGroup>
+</Project>

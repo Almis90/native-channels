@@ -1,0 +1,1 @@
+-keep class dev.nativechannels.audio.AudioStreamerModule { public <init>(); *; }

@@ -1,0 +1,94 @@
+name: Internal / Windows framework
+on:
+  workflow_call:
+permissions:
+  contents: read
+jobs:
+  packages:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/shared-core
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - name: Install Windows workload
+        timeout-minutes: 10
+        run: dotnet workload install maui-windows --version 10.0.401
+      - name: Pack Windows framework using shared Core
+        timeout-minutes: 10
+        shell: pwsh
+        run: |
+          ./.github/scripts/pack-windows.ps1 -Scope Framework
+          Copy-Item artifacts/windows/packages/* artifacts/packages -Force
+      - name: Audit and archive framework feed
+        shell: bash
+        run: |
+          python eng/package_audit.py artifacts/packages/*.nupkg --platform-only windows --source-commit "$GITHUB_SHA"
+          python eng/inspect-packages.py --platform-only windows
+          tar -czf artifacts/package-feed.tar.gz artifacts/packages artifacts/package-audit.json
+      - uses: actions/upload-artifact@v4
+        with:
+          overwrite: true
+          name: framework-packages-windows
+          path: artifacts/package-feed.tar.gz
+          retention-days: 7
+          if-no-files-found: error
+  compile:
+    name: Compile Windows (${{ matrix.runtime }})
+    needs: packages
+    runs-on: windows-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        runtime: [win-x64, win-arm64]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - uses: actions/download-artifact@v4
+        with:
+          name: framework-packages-windows
+          path: artifacts
+      - name: Extract and audit exact-commit packages
+        shell: bash
+        run: |
+          tar -xzf artifacts/package-feed.tar.gz
+          python eng/package_audit.py artifacts/packages/*.nupkg --platform-only windows --source-commit "$GITHUB_SHA"
+      - name: Install Windows workload
+        timeout-minutes: 10
+        run: dotnet workload install maui-windows --version 10.0.401
+      - name: Compile package-only sample
+        id: compile
+        timeout-minutes: 20
+        shell: pwsh
+        env:
+          RUNTIME: ${{ matrix.runtime }}
+        run: ./eng/verify-windows.ps1 -PackageFeed artifacts/packages -WindowsOnlyFeed -RuntimeIdentifier $env:RUNTIME -BuildOnly
+      - name: Record compilation outcome
+        if: always()
+        env:
+          STEP_OUTCOME: ${{ steps.compile.outcome }}
+          RUNTIME: ${{ matrix.runtime }}
+        run: python .github/scripts/evidence.py windows compile --runtime "$env:RUNTIME"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          overwrite: true
+          name: framework-evidence-windows-${{ matrix.runtime }}
+          path: artifacts/evidence/*.json
+          retention-days: 7
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          overwrite: true
+          name: framework-logs-windows-${{ matrix.runtime }}
+          path: artifacts/windows/verification/*/verification.json
+          retention-days: 3
+          if-no-files-found: ignore

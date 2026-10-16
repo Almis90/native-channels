@@ -1,0 +1,25 @@
+<Project>
+    <PropertyGroup>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <LangVersion>14.0</LangVersion>
+        <Version>0.1.0-preview.1</Version>
+        <Authors>NativeChannels contributors</Authors>
+        <Description>Native platform channels for .NET applications.</Description>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <RepositoryType>git</RepositoryType>
+        <RepositoryUrl>https://github.com/Almis90/native-channels</RepositoryUrl>
+        <PackageProjectUrl>https://github.com/Almis90/native-channels</PackageProjectUrl>
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <Deterministic>true</Deterministic>
+        <NoWarn>$(NoWarn);CS1591</NoWarn>
+        <EnablePackageValidation>true</EnablePackageValidation>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+    </PropertyGroup>
+    <ItemGroup>
+        <None Include="$(MSBuildThisFileDirectory)README.md" Pack="true" PackagePath="/" />
+    </ItemGroup>
+</Project>

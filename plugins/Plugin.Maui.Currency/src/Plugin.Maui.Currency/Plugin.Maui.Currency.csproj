@@ -1,0 +1,68 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFrameworks>net10.0-android;net10.0-ios;net10.0-maccatalyst</TargetFrameworks>
+        <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))"
+            >$(TargetFrameworks);net10.0-windows10.0.19041.0</TargetFrameworks>
+        <TargetFrameworks Condition="'$(NativeChannelsAndroidOnly)' == 'true'"
+            >net10.0-android</TargetFrameworks>
+        <TargetFrameworks Condition="'$(NativeChannelsWindowsOnly)' == 'true'"
+            >net10.0-windows10.0.19041.0</TargetFrameworks>
+        <UseMaui>true</UseMaui>
+        <PackageId>Plugin.Maui.Currency</PackageId>
+        <Version>1.1.0-alpha.1</Version>
+        <Description>Reference plugin demonstrating native currency symbols and reusable packaging with NativeChannels.</Description>
+        <SupportedOSPlatformVersion
+            Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'"
+            >24</SupportedOSPlatformVersion>
+        <SupportedOSPlatformVersion
+            Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios' Or $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'"
+            >15.0</SupportedOSPlatformVersion>
+        <SupportedOSPlatformVersion
+            Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'"
+            >10.0.17763.0</SupportedOSPlatformVersion>
+    </PropertyGroup>
+    <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">
+        <Compile
+            Include="../../native/windows/**/*.cs"
+            Link="native/windows/%(RecursiveDir)%(Filename)%(Extension)"
+        />
+    </ItemGroup>
+    <ItemGroup>
+        <InternalsVisibleTo Include="Plugin.Maui.Currency.Windows.Tests" />
+        <PackageReference Include="NativeChannels.Maui" />
+        <None Remove="$(MSBuildThisFileDirectory)../../../../README.md" />
+        <None Include="../../README.md" Pack="true" PackagePath="/" />
+        <None
+            Include="buildTransitive/Plugin.Maui.Currency.targets"
+            Pack="true"
+            PackagePath="buildTransitive/"
+        />
+        <None
+            Include="../../native/android/build/outputs/aar/currency-release.aar"
+            Condition="'$(NativeChannelsWindowsOnly)' != 'true'"
+            Pack="true"
+            PackagePath="native/android/currency.aar"
+        />
+        <None
+            Include="../../../../artifacts/native/MauiCurrencyNative.xcframework/**/*"
+            Condition="'$(NativeChannelsWindowsOnly)' != 'true' And '$(NativeChannelsAndroidOnly)' != 'true'"
+            Pack="true"
+            Exclude="../../../../artifacts/native/MauiCurrencyNative.xcframework/**/Modules/MauiCurrencyNative.swiftmodule/**/*"
+            PackagePath="native/apple/MauiCurrencyNative.xcframework/"
+        />
+    </ItemGroup>
+    <Target
+        Name="ValidateMauiCurrencyNativeAssets"
+        BeforeTargets="GenerateNuspec"
+        Condition="'$(NativeChannelsWindowsOnly)' != 'true'"
+    >
+        <Error
+            Condition="!Exists('../../native/android/build/outputs/aar/currency-release.aar')"
+            Text="Build the Plugin.Maui.Currency Android adapter before packing."
+        />
+        <Error
+            Condition="'$(NativeChannelsAndroidOnly)' != 'true' And !Exists('../../../../artifacts/native/MauiCurrencyNative.xcframework/Info.plist')"
+            Text="Build the Plugin.Maui.Currency Apple adapter before packing."
+        />
+    </Target>
+</Project>

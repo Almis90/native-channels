@@ -1,0 +1,17 @@
+name: Consume shared Core
+description: Download this run's Core artifact and prevent downstream source rebuilds.
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+    - uses: actions/download-artifact@v4
+      with:
+        name: framework-core
+        path: artifacts/packages
+    - shell: bash
+      run: |
+        python .github/scripts/shared-core.py prepare
+        echo 'NativeChannelsUseCorePackage=true' >> "$GITHUB_ENV"
+        echo 'NATIVECHANNELS_SHARED_CORE=true' >> "$GITHUB_ENV"

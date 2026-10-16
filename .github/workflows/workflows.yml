@@ -1,0 +1,26 @@
+name: Checks / Workflows
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/**', '.github/scripts/**', '.github/actions/**']
+  pull_request:
+    branches: [main]
+    paths: ['.github/workflows/**', '.github/scripts/**', '.github/actions/**']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.26.x'
+          cache: false
+      - name: Validate all workflows
+        run: go run github.com/rhysd/actionlint/cmd/actionlint@v1.7.12 -color

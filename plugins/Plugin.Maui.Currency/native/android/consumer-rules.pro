@@ -1,0 +1,1 @@
+-keep class dev.nativechannels.currency.CurrencyModule { public <init>(); *; }

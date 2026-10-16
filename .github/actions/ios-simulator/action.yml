@@ -1,0 +1,13 @@
+name: Prepare iOS simulator
+description: Boot one available iPhone and finish data migration before the test deadline starts.
+outputs:
+  device:
+    description: Selected simulator UDID, also available when boot fails for cleanup.
+    value: ${{ steps.boot.outputs.device }}
+runs:
+  using: composite
+  steps:
+    - name: Boot and wait for simulator readiness
+      id: boot
+      shell: bash
+      run: python3 eng/prepare-ios-simulator.py

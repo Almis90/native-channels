@@ -1,0 +1,9 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <provider
+            android:name="dev.nativechannels.audio.AudioStreamerInitializer"
+            android:authorities="${applicationId}.nativechannels.audio.init"
+            android:exported="false"
+        />
+    </application>
+</manifest>

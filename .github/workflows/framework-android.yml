@@ -1,0 +1,186 @@
+name: Internal / Android framework
+on:
+  workflow_call:
+    inputs:
+      depth:
+        type: string
+        required: true
+permissions:
+  contents: read
+jobs:
+  packages:
+    name: Build Android packages
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/shared-core
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
+          log-accepted-android-sdk-licenses: false
+      - name: Install Android toolchain
+        timeout-minutes: 10
+        run: |
+          bash eng/bootstrap.sh
+          bash eng/dotnet.sh workload install maui-android --version 10.0.401
+          sdkmanager 'platforms;android-36' 'build-tools;36.0.0'
+      - name: Build framework native bridge and adapter
+        timeout-minutes: 10
+        run: |
+          bash eng/format.sh kotlin --check
+          bash eng/build-android.sh
+          native/android/gradlew -p native/android --no-daemon :library:testReleaseUnitTest
+      - name: Package framework using shared Core
+        timeout-minutes: 10
+        run: |
+          bash eng/pack-android.sh
+          python3 eng/package_audit.py artifacts/packages/*.nupkg --android-only --source-commit "$GITHUB_SHA"
+      - name: Retain native and package inputs for the release packaging gate
+        run: |
+          tar -czf artifacts/android-native.tar.gz native/android/{library,sample}/build/outputs/aar
+          tar -czf artifacts/package-feed.tar.gz artifacts/packages artifacts/package-audit.json native/android/sample/build/outputs/aar/sample-release.aar
+      - uses: actions/upload-artifact@v4
+        with:
+          overwrite: true
+          name: android-native
+          path: artifacts/android-native.tar.gz
+          retention-days: 7
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        with:
+          overwrite: true
+          name: framework-packages-android
+          path: artifacts/package-feed.tar.gz
+          retention-days: 7
+          if-no-files-found: error
+  compile:
+    name: Compile Android (${{ matrix.runtime }})
+    needs: packages
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        runtime: [android-x64, android-arm64]
+    env:
+      RUNTIME: ${{ matrix.runtime }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: framework-packages-android
+          path: artifacts
+      - name: Extract and audit exact-commit packages
+        run: |
+          tar -xzf artifacts/package-feed.tar.gz
+          python3 eng/package_audit.py artifacts/packages/*.nupkg --android-only --source-commit "$GITHUB_SHA"
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
+          log-accepted-android-sdk-licenses: false
+      - name: Install Android toolchain
+        timeout-minutes: 10
+        run: |
+          bash eng/bootstrap.sh
+          bash eng/dotnet.sh workload install maui-android --version 10.0.401
+          sdkmanager 'platforms;android-36' 'build-tools;36.0.0'
+      - name: Restore package-only sample
+        timeout-minutes: 8
+        run: bash eng/restore-sample.sh -p:TargetFrameworks=net10.0-android -r "$RUNTIME"
+      - name: Compile sample once (Release)
+        id: compile
+        timeout-minutes: 15
+        run: bash eng/dotnet.sh build samples/NativeChannels.Sample -c Release -f net10.0-android -r "$RUNTIME" --no-restore --disable-build-servers --verbosity normal
+      - name: Save compiled APK for emulator or physical-device verification
+        run: |
+          tar -czf "artifacts/$RUNTIME-app.tar.gz" "samples/NativeChannels.Sample/bin/Release/net10.0-android/$RUNTIME/"*-Signed.apk
+          sha256sum "artifacts/$RUNTIME-app.tar.gz" > "artifacts/$RUNTIME-app.sha256"
+      - uses: actions/upload-artifact@v4
+        with:
+          overwrite: true
+          name: framework-app-${{ matrix.runtime }}
+          path: |
+            artifacts/${{ matrix.runtime }}-app.tar.gz
+            artifacts/${{ matrix.runtime }}-app.sha256
+          retention-days: 3
+          if-no-files-found: error
+      - name: Record compilation outcome
+        if: always()
+        env:
+          STEP_OUTCOME: ${{ steps.compile.outcome }}
+        run: python3 .github/scripts/evidence.py android compile --runtime "$RUNTIME"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          overwrite: true
+          name: framework-evidence-android-compile-${{ matrix.runtime }}
+          path: artifacts/evidence/*.json
+          retention-days: 7
+  runtime:
+    name: Execute Android sample
+    needs: compile
+    if: inputs.depth == 'Runtime'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
+          log-accepted-android-sdk-licenses: false
+      - uses: actions/download-artifact@v4
+        with:
+          name: framework-app-android-x64
+          path: artifacts
+      - name: Verify and extract compiled sample
+        run: |
+          sha256sum -c artifacts/android-x64-app.sha256
+          tar -xzf artifacts/android-x64-app.tar.gz
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Run existing APK in emulator
+        id: execute
+        timeout-minutes: 10
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          arch: x86_64
+          target: google_apis
+          disk-size: 2048M
+          script: bash -o pipefail -c 'bash eng/verify-android-sample.sh emulator-5554 Release android-x64 2>&1 | tee artifacts/android-runtime.log'
+      - name: Record runtime outcome
+        if: always()
+        env:
+          STEP_OUTCOME: ${{ steps.execute.outcome }}
+        run: python3 .github/scripts/evidence.py android runtime --runtime android-x64
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          overwrite: true
+          name: framework-evidence-android-runtime
+          path: artifacts/evidence/*.json
+          retention-days: 7
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          overwrite: true
+          name: framework-logs-android
+          path: artifacts/android-runtime.log
+          retention-days: 3
+          if-no-files-found: ignore

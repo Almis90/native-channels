@@ -1,0 +1,15 @@
+.tools/
+artifacts/
+**/bin/
+**/obj/
+**/.gradle/
+**/build/
+local.properties
+.DS_Store
+*.user
+node_modules
+docs/.vitepress/cache/
+docs/.vitepress/dist/
+docs/.vitepress/.temp/
+**/__pycache__/
+BenchmarkDotNet.Artifacts/

@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFrameworks>net10.0-ios;net10.0-maccatalyst</TargetFrameworks>
+        <TargetFrameworks
+            Condition="'$(NativeChannelsAppleTarget)' == 'ios' Or '$(NativeChannelsAppleTarget)' == 'maccatalyst'"
+            >net10.0-$(NativeChannelsAppleTarget)</TargetFrameworks>
+        <SupportedOSPlatformVersion>15.0</SupportedOSPlatformVersion>
+        <IsBindingProject>true</IsBindingProject>
+        <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    </PropertyGroup>
+    <ItemGroup>
+        <ObjcBindingApiDefinition Include="ApiDefinition.cs" />
+        <NativeReference Include="../../artifacts/native/NativeChannelsNative.xcframework">
+            <Kind>Framework</Kind>
+            <SmartLink>false</SmartLink>
+        </NativeReference>
+    </ItemGroup>
+</Project>

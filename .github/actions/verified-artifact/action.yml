@@ -1,0 +1,50 @@
+name: Download artifacts from a verified run
+description: Require a successful manual run of the expected workflow at this exact repository commit.
+inputs:
+  run-id:
+    description: Completed workflow run ID
+    required: true
+  workflow:
+    description: Expected workflow filename
+    required: true
+  artifact:
+    description: Artifact name
+    required: true
+  path:
+    description: Download directory
+    default: .
+  token:
+    description: Token with actions read permission
+    required: true
+runs:
+  using: composite
+  steps:
+    - uses: actions/github-script@v7
+      env:
+        SOURCE_RUN: ${{ inputs.run-id }}
+        SOURCE_WORKFLOW: ${{ inputs.workflow }}
+        SOURCE_ARTIFACT: ${{ inputs.artifact }}
+      with:
+        github-token: ${{ inputs.token }}
+        script: |
+          const id = process.env.SOURCE_RUN;
+          if (!/^[1-9][0-9]*$/.test(id)) throw new Error('Provide a numeric workflow run ID.');
+          const {data: run} = await github.rest.actions.getWorkflowRun({...context.repo, run_id: id});
+          const expected = `.github/workflows/${process.env.SOURCE_WORKFLOW}`;
+          if (run.path !== expected || run.event !== 'workflow_dispatch' ||
+              run.head_sha !== context.sha || run.head_repository?.full_name !== `${context.repo.owner}/${context.repo.repo}` ||
+              run.status !== 'completed' || run.conclusion !== 'success') {
+            throw new Error(`Run ${id} must be a successful manual ${expected} run at ${context.sha} in this repository.`);
+          }
+          const artifacts = await github.paginate(github.rest.actions.listWorkflowRunArtifacts, {...context.repo, run_id: id});
+          const matches = artifacts.filter(a => a.name === process.env.SOURCE_ARTIFACT && !a.expired);
+          if (matches.length !== 1) throw new Error('Expected exactly one unexpired artifact. Rebuild expired inputs.');
+          await core.summary.addHeading('Verified artifact source', 3)
+            .addRaw(`Run: ${run.html_url}\n\nCommit: ${run.head_sha}\n\nArtifact: ${matches[0].name} (${matches[0].id})\n`)
+            .write();
+    - uses: actions/download-artifact@v4
+      with:
+        github-token: ${{ inputs.token }}
+        run-id: ${{ inputs.run-id }}
+        name: ${{ inputs.artifact }}
+        path: ${{ inputs.path }}

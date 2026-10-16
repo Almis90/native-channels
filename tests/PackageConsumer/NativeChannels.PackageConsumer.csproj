@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFrameworks>net10.0-android;net10.0-ios;net10.0-maccatalyst</TargetFrameworks>
+        <OutputType>Exe</OutputType>
+        <UseMaui>true</UseMaui>
+        <SingleProject>true</SingleProject>
+        <IsPackable>false</IsPackable>
+        <ApplicationTitle>NativeChannels Probe</ApplicationTitle>
+        <ApplicationId>dev.nativechannels.probe</ApplicationId>
+        <ApplicationDisplayVersion>0.1</ApplicationDisplayVersion>
+        <ApplicationVersion>1</ApplicationVersion>
+        <EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
+        <SupportedOSPlatformVersion
+            Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'"
+            >24</SupportedOSPlatformVersion>
+        <SupportedOSPlatformVersion
+            Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) != 'android'"
+            >15.0</SupportedOSPlatformVersion>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Maui.Controls" />
+    </ItemGroup>
+    <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
+        <PackageReference Include="NativeChannels.Native.Android" />
+        <AndroidLibrary
+            Include="../../native/android/sample/build/outputs/aar/sample-release.aar"
+            Bind="false"
+        />
+    </ItemGroup>
+    <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios' Or $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">
+        <PackageReference Include="NativeChannels.Native.Apple" />
+        <NativeReference Include="../../artifacts/native/NativeChannelsSample.xcframework">
+            <Kind>Framework</Kind>
+            <SmartLink>false</SmartLink>
+        </NativeReference>
+    </ItemGroup>
+</Project>

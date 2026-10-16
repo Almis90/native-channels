@@ -1,0 +1,46 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
+        <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
+        <IsPackable>false</IsPackable>
+        <IsTestProject>true</IsTestProject>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageReference
+            Include="Plugin.Maui.AudioStreamer"
+            Condition="'$(WindowsTestPlugin)' == '' Or '$(WindowsTestPlugin)' == 'AudioStreamer'"
+        />
+        <PackageReference
+            Include="Plugin.Maui.VolumeMonitor"
+            Condition="'$(WindowsTestPlugin)' == '' Or '$(WindowsTestPlugin)' == 'VolumeMonitor'"
+        />
+        <PackageReference
+            Include="Plugin.Maui.PdfViewer"
+            Condition="'$(WindowsTestPlugin)' == '' Or '$(WindowsTestPlugin)' == 'PdfViewer'"
+        />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" />
+        <PackageReference Include="xunit" />
+        <PackageReference Include="xunit.runner.visualstudio" PrivateAssets="all" />
+        <None
+            Include="../../samples/PdfViewer.Sample/Resources/Raw/nativechannels-guide.pdf"
+            Link="guide.pdf"
+            CopyToOutputDirectory="PreserveNewest"
+        />
+    </ItemGroup>
+    <ItemGroup Condition="'$(WindowsTestPlugin)' != ''">
+        <Compile Remove="*Tests.cs" />
+        <Compile Include="$(WindowsTestPlugin)Tests.cs" />
+    </ItemGroup>
+    <ItemGroup Condition="'$(WindowsTestPlugin)' == '' Or '$(WindowsTestPlugin)' == 'AudioStreamer'">
+        <Compile
+            Include="../../samples/AudioStreamer.Sample/AudioVerification.cs"
+            Link="AudioVerification.cs"
+        />
+    </ItemGroup>
+    <ItemGroup Condition="'$(WindowsTestPlugin)' == '' Or '$(WindowsTestPlugin)' == 'VolumeMonitor'">
+        <Compile
+            Include="../../samples/VolumeMonitor.Sample/VolumeVerification.cs"
+            Link="VolumeVerification.cs"
+        />
+    </ItemGroup>
+</Project>

@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net10.0-android</TargetFramework>
+        <SupportedOSPlatformVersion>24</SupportedOSPlatformVersion>
+        <IsBindingProject>true</IsBindingProject>
+        <RootNamespace>NativeChannels.Native.Android</RootNamespace>
+    </PropertyGroup>
+    <ItemGroup>
+        <AndroidLibrary Include="../../native/android/library/build/outputs/aar/library-release.aar" />
+        <PackageReference Include="Xamarin.Kotlin.StdLib" />
+    </ItemGroup>
+</Project>

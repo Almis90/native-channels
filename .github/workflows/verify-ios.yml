@@ -1,0 +1,113 @@
+name: Consumers / iOS simulator
+run-name: iOS simulator · ${{ inputs.sample }} · ${{ inputs.package_source }} feed ${{ inputs.package_run }}
+on:
+  workflow_dispatch:
+    inputs:
+      package_run:
+        description: Successful release gate or example package run ID at this commit
+        type: string
+        required: true
+      package_source:
+        description: Combined release or optional example feed
+        type: choice
+        options: [Release, Example]
+        default: Release
+      sample:
+        description: One package-only consumer
+        type: choice
+        options: [Framework, Currency, AudioStreamer, VolumeMonitor, PdfViewer]
+        default: Framework
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ inputs.sample }}-default
+  cancel-in-progress: false
+jobs:
+  consumer:
+    runs-on: macos-26
+    timeout-minutes: 35
+    steps:
+      - name: Require an example feed when selecting a plugin
+        if: inputs.sample != 'Framework' && inputs.package_source != 'Example'
+        shell: bash
+        run: |
+          echo 'Plugin samples require package_source=Example and a matching Examples / Package build run.' >&2
+          exit 1
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/verified-artifact
+        with:
+          run-id: ${{ inputs.package_run }}
+          workflow: ${{ inputs.package_source == 'Example' && 'build-examples.yml' || 'release-packages.yml' }}
+          artifact: ${{ inputs.package_source == 'Example' && 'example-package-feed' || 'package-feed' }}
+          path: artifacts/feed
+          token: ${{ github.token }}
+      - name: Extract and audit exact-commit packages
+        shell: bash
+        run: |
+          tar -xzf artifacts/feed/package-feed.tar.gz
+          python3 eng/package_audit.py artifacts/packages/*.nupkg --source-commit "$GITHUB_SHA"
+      - name: Check selected example is present
+        if: inputs.sample != 'Framework'
+        shell: bash
+        env:
+          SAMPLE: ${{ inputs.sample }}
+        run: |
+          if ! compgen -G "artifacts/packages/Plugin.Maui.$SAMPLE.*.nupkg" > /dev/null; then
+            echo "The example feed does not contain $SAMPLE." >&2
+            exit 1
+          fi
+      - uses: ./.github/actions/select-sample
+        id: sample
+        with:
+          sample: ${{ inputs.sample }}
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '26.6'
+      - name: Install iOS toolchain
+        timeout-minutes: 10
+        run: |
+          bash eng/bootstrap.sh
+          bash eng/dotnet.sh workload install maui-ios --version 10.0.401
+      - name: Restore selected consumer
+        timeout-minutes: 8
+        env:
+          SUFFIX: ${{ steps.sample.outputs.suffix }}
+        run: bash "eng/restore-$SUFFIX.sh" -p:TargetFrameworks=net10.0-ios -r iossimulator-arm64
+      - name: Compile selected Release consumer
+        timeout-minutes: 15
+        env:
+          PROJECT: ${{ steps.sample.outputs.project }}
+        run: bash eng/dotnet.sh build "$PROJECT" -c Release -f net10.0-ios -r iossimulator-arm64 --no-restore --disable-build-servers --verbosity normal
+      - name: Prepare iOS simulator
+        id: simulator
+        timeout-minutes: 5
+        uses: ./.github/actions/ios-simulator
+      - name: Execute selected consumer
+        timeout-minutes: 5
+        env:
+          SUFFIX: ${{ steps.sample.outputs.suffix }}
+          DEVICE: ${{ steps.simulator.outputs.device }}
+        run: bash "eng/verify-ios-${SUFFIX%-sample}.sh" "$DEVICE" Release
+      - name: Capture simulator diagnostics on failure
+        if: failure()
+        continue-on-error: true
+        timeout-minutes: 1
+        env:
+          DEVICE: ${{ steps.simulator.outputs.device }}
+        run: bash eng/ios-simulator-diagnostics.sh "$DEVICE"
+      - name: Shut down test simulator
+        if: ${{ always() && steps.simulator.outputs.device != '' }}
+        continue-on-error: true
+        timeout-minutes: 2
+        env:
+          SIMULATOR_ID: ${{ steps.simulator.outputs.device }}
+        run: xcrun simctl shutdown "$SIMULATOR_ID"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          overwrite: true
+          name: ios-${{ inputs.sample }}-logs
+          path: artifacts/ios-consumers/**
+          retention-days: 3
+          if-no-files-found: ignore

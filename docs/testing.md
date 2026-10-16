@@ -1,0 +1,96 @@
+# Testing channel integrations
+
+Use portable tests for application logic and native consumers for bridge, loading, and packaging
+behavior. Passing one layer does not establish that the other works.
+
+## Run a channel entirely in .NET
+
+Reference `NativeChannels.Core` in a .NET 10 test or console project. This complete console example
+creates two endpoints, registers a handler, and performs a typed call:
+
+```csharp
+using NativeChannels;
+
+var pair = InMemoryTransport.CreatePair();
+await using var client = new ChannelService(new BinaryMessenger(pair.Managed));
+await using var server = new ChannelService(new BinaryMessenger(pair.Native));
+using var incoming = server.GetMethodChannel("calculator");
+using var registration = incoming.SetMethodCallHandler((call, cancellation) =>
+{
+    cancellation.ThrowIfCancellationRequested();
+    if (call.Method != "add") throw new MethodNotImplementedException(call.Method);
+    var sum = call.GetArgument<int>("a") + call.GetArgument<int>("b");
+    return ValueTask.FromResult<object?>(sum);
+});
+
+using var outgoing = client.GetMethodChannel("calculator");
+var result = await outgoing.InvokeAsync<int>("add", new Dictionary<string, object?>
+{
+    ["a"] = 10,
+    ["b"] = 20
+});
+Console.WriteLine(result); // 30
+```
+
+The services own their messengers and transports. Handles and registrations dispose first because
+of their declaration order. This exercises the actual managed messenger and codec without MAUI.
+
+## Test application behavior
+
+Cover successful values and null, unknown methods, structured errors, cancellation, and feature
+cleanup. Retain handler tokens until the test finishes. Use a completion signal when a test must wait
+for handler entry instead of relying on a short sleep. For deadline races, inject a controlled
+`TimeProvider` into `BinaryMessenger`; a real 1 ms deadline can expire before a slow runner dispatches
+anything.
+
+The repository's portable suite runs with:
+
+```sh
+bash eng/dotnet.sh test -c Release
+```
+
+For repeated lifecycle stress and optional benchmarks, see [performance](performance.md).
+Package metadata regression tests use only Python's standard library:
+
+```sh
+python3 -m unittest discover -s tests/packaging
+```
+
+## Verify the native boundary
+
+Use the [package-only sample](../samples/NativeChannels.Sample/README.md) after changing a bridge,
+binding, native dependency, or packaging rule. Restore into a fresh package cache and rebuild clean
+consumer outputs. The scripts verify source mapping, archive hashes, and absence of project references.
+
+Run Release consumers on Android and iOS simulators to exercise shrinking/linking and actual framework
+loading. Compile device/Catalyst targets separately and record runtime execution separately. Shared
+C#, Kotlin, and Swift protocol fixtures live in `tests/fixtures/values.json`.
+
+See [building](building.md) for native test commands and [verification](verification.md) for recorded
+results and CI evidence.
+
+## Verify a reusable plugin
+
+The [currency sample](../samples/Currency.Sample/README.md) references only `Plugin.Maui.Currency`.
+Its AAR and XCFramework arrive through the package's `buildTransitive` imports. Run its fresh-cache
+restore and Release runtime checks after changing the plugin, its native modules, or packaging.
+`plugins/Plugin.Maui.Currency/eng/inspect-package.py` checks the native classes, preservation rules,
+framework slices, dependencies, and import paths inside the actual archive.
+
+The portable solution includes 14 currency facade tests, alongside core channel tests. The facade
+tests compile the production C# source without MAUI workloads; the native app checks remain necessary
+to establish native loading and real platform results.
+
+The message/event tests cover null versus empty payloads, strict UTF-8, bidirectional replies,
+registration ownership, independent enumerations, bounded overflow policies, buffered terminal errors,
+service/handle cancellation, and cleanup after typed conversion failures. Native tests additionally
+exercise the producer queue and its one-shot termination cleanup. The MAUI sample repeats the
+message/stream contract through actual packaged Kotlin and Swift adapters.
+
+## Native view lifecycle
+
+Portable tests exercise view-channel ownership, cooperative cancellation, isolated instances, and
+registration cleanup. The package-only sample additionally creates actual native views, checks
+creation parameters and bidirectional clicks, unloads/reloads a view, rejects background reconnect,
+and verifies fresh instance IDs and stale-channel failure. Both Android and Apple verification
+scripts require the `native views:` result. Native UI and framework loading still require platform execution.

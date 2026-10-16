@@ -1,0 +1,129 @@
+name: Release / Package gate
+run-name: Package gate · verified framework run ${{ inputs.framework_run }}
+on:
+  workflow_dispatch:
+    inputs:
+      framework_run:
+        description: Successful All / Runtime Verify framework run at this exact commit
+        type: string
+        required: true
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: release-packages-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  inputs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/verified-artifact
+        with:
+          run-id: ${{ inputs.framework_run }}
+          workflow: verify-framework.yml
+          artifact: framework-verification
+          path: artifacts
+          token: ${{ github.token }}
+      - run: python3 .github/scripts/release-evidence.py
+      - uses: ./.github/actions/verified-artifact
+        with:
+          run-id: ${{ inputs.framework_run }}
+          workflow: verify-framework.yml
+          artifact: framework-core
+          path: artifacts/core
+          token: ${{ github.token }}
+      - uses: ./.github/actions/verified-artifact
+        with:
+          run-id: ${{ inputs.framework_run }}
+          workflow: verify-framework.yml
+          artifact: android-native
+          path: artifacts/inputs
+          token: ${{ github.token }}
+      - uses: ./.github/actions/verified-artifact
+        with:
+          run-id: ${{ inputs.framework_run }}
+          workflow: verify-framework.yml
+          artifact: apple-native
+          path: artifacts/inputs
+          token: ${{ github.token }}
+      - uses: ./.github/actions/verified-artifact
+        with:
+          run-id: ${{ inputs.framework_run }}
+          workflow: verify-framework.yml
+          artifact: framework-packages-windows
+          path: artifacts/windows-input
+          token: ${{ github.token }}
+      - uses: actions/upload-artifact@v4
+        with:
+          overwrite: true
+          name: framework-core
+          path: artifacts/core/*
+          retention-days: 7
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        with:
+          overwrite: true
+          name: release-inputs
+          path: |
+            artifacts/inputs/*.tar.gz
+            artifacts/windows-input/package-feed.tar.gz
+            artifacts/verification.json
+          retention-days: 7
+          if-no-files-found: error
+  assemble:
+    needs: inputs
+    runs-on: macos-26
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/shared-core
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-inputs
+          path: artifacts
+      - name: Extract native and Windows inputs
+        run: |
+          tar -xzf artifacts/inputs/android-native.tar.gz
+          tar -xzf artifacts/inputs/apple-native.tar.gz
+          mkdir -p artifacts/windows-feed
+          tar -xzf artifacts/windows-input/package-feed.tar.gz -C artifacts/windows-feed
+      - uses: ./.github/actions/mobile-packaging
+      - name: Assemble mobile framework with shared Core
+        timeout-minutes: 20
+        run: bash eng/pack.sh
+      - name: Combine and inspect distribution packages
+        run: |
+          python3 eng/combine-packages.py --mobile artifacts/packages --windows artifacts/windows-feed/artifacts/packages \
+            --output artifacts/combined-packages --source-commit "$GITHUB_SHA" --scope framework
+          mv artifacts/packages artifacts/mobile-packages
+          mv artifacts/combined-packages artifacts/packages
+          python3 eng/inspect-packages.py --combined
+          python3 eng/package_audit.py artifacts/packages/*.nupkg --source-commit "$GITHUB_SHA"
+          tar -czf artifacts/package-feed.tar.gz artifacts/packages artifacts/package-audit.json \
+            artifacts/verification.json native/android/sample/build/outputs/aar/sample-release.aar artifacts/native/NativeChannelsSample.xcframework
+          echo 'Combined packages inspected. Upstream runtime results used platform feeds; verify these combined packages separately before publication.' >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          overwrite: true
+          name: package-feed
+          path: artifacts/package-feed.tar.gz
+          retention-days: 7
+          if-no-files-found: error
+      - name: Preserve mobile framework inputs for optional examples
+        uses: actions/upload-artifact@v4
+        with:
+          overwrite: true
+          name: mobile-framework-packages
+          path: artifacts/mobile-packages/*
+          retention-days: 7
+          if-no-files-found: error
+      - name: Preserve Windows framework inputs for optional examples
+        uses: actions/upload-artifact@v4
+        with:
+          overwrite: true
+          name: windows-framework-packages
+          path: artifacts/windows-feed/artifacts/packages/*
+          retention-days: 7
+          if-no-files-found: error

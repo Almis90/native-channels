@@ -1,0 +1,6 @@
+<metadata>
+    <attr path="/api/package[@name='dev.nativechannels']" name="managedName"
+        >NativeChannels.Native.Android</attr>
+    <remove-node path="/api/package[@name='dev.nativechannels']/class[@name='MethodChannel' or @name='MethodCall' or @name='MethodResult' or @name='JsonMethodCodec' or @name='ChannelError' or @name='BasicMessageChannel' or @name='MessageResult' or @name='JsonMessageCodec' or @name='BinaryMessageCodec' or @name='StringMessageCodec' or @name='StandardMessageCodec' or starts-with(@name, 'StandardMessageCodec.') or @name='StandardMessageMap' or @name='BasicMessageChannelKt' or @name='EventChannel' or @name='EventSink' or starts-with(@name, 'EventSink.')]" />
+    <remove-node path="/api/package[@name='dev.nativechannels']/interface[@name='MessageCodec']" />
+</metadata>

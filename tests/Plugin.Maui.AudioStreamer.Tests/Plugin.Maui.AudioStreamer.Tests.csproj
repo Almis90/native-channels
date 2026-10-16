@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <IsPackable>false</IsPackable>
+        <IsTestProject>true</IsTestProject>
+    </PropertyGroup>
+    <ItemGroup>
+        <ProjectReference Include="../../src/NativeChannels.Core/NativeChannels.Core.csproj" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" />
+        <PackageReference Include="xunit" />
+        <PackageReference Include="xunit.runner.visualstudio" PrivateAssets="all" />
+        <Compile
+            Include="../../plugins/Plugin.Maui.AudioStreamer/src/Plugin.Maui.AudioStreamer/*.cs"
+            Exclude="../../plugins/Plugin.Maui.AudioStreamer/src/Plugin.Maui.AudioStreamer/AudioStreamerExtensions.cs"
+        />
+        <Compile Include="../../samples/AudioStreamer.Sample/MusicGenerator.cs" />
+    </ItemGroup>
+</Project>

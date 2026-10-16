@@ -1,0 +1,35 @@
+name: Internal / Shared Core
+on:
+  workflow_call:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - run: bash eng/bootstrap.sh
+      - run: bash eng/format.sh csharp --check
+      - run: bash eng/dotnet.sh test eng/NativeChannels.Core.slnx -c Release --logger trx --results-directory artifacts/test-results
+      - run: python3 -m unittest discover -s tests/packaging
+      - run: bash eng/dotnet.sh pack src/NativeChannels.Core -c Release --no-build --no-restore -o artifacts/packages
+      - run: python3 eng/package_audit.py artifacts/packages/*.nupkg --source-commit "$GITHUB_SHA"
+      - uses: actions/upload-artifact@v4
+        with:
+          overwrite: true
+          name: framework-core
+          path: |
+            artifacts/packages/NativeChannels.Core.*.nupkg
+            artifacts/packages/NativeChannels.Core.*.snupkg
+          retention-days: 7
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          overwrite: true
+          name: portable-results
+          retention-days: 3
+          path: |
+            artifacts/test-results/**
+            artifacts/package-audit.json

@@ -1,0 +1,5 @@
+-keep public class * implements dev.nativechannels.NativeModule { public <init>(); *; }
+-keep public interface dev.nativechannels.** { *; }
+-keep public class dev.nativechannels.NativeBridge { *; }
+-keep public class * implements dev.nativechannels.NativeViewFactory { public <init>(); *; }
+-keep public class dev.nativechannels.NativeViewHost { *; }

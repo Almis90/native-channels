@@ -1,0 +1,159 @@
+name: Internal / Apple framework
+on:
+  workflow_call:
+    inputs:
+      target:
+        type: string
+        required: true
+      depth:
+        type: string
+        required: true
+permissions:
+  contents: read
+jobs:
+  compile:
+    name: Compile ${{ inputs.target }} sample
+    runs-on: macos-26
+    timeout-minutes: 35
+    env:
+      TARGET: ${{ inputs.target }}
+      RID: ${{ inputs.target == 'ios' && 'iossimulator-arm64' || 'maccatalyst-arm64' }}
+      VERIFICATION_PLATFORM: ${{ inputs.target == 'ios' && 'ios' || 'catalyst' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/shared-core
+      - uses: actions/download-artifact@v4
+        with:
+          name: apple-native
+          path: artifacts
+      - run: tar -xzf artifacts/apple-native.tar.gz
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '26.6'
+      - name: Install selected Apple toolchain
+        timeout-minutes: 10
+        run: |
+          bash eng/bootstrap.sh
+          bash eng/dotnet.sh workload install "maui-$TARGET" --version 10.0.401
+      - name: Package framework using shared Core
+        timeout-minutes: 15
+        run: |
+          bash eng/pack-apple.sh "$TARGET"
+          python3 eng/package_audit.py artifacts/packages/*.nupkg --platform-only "$TARGET" --source-commit "$GITHUB_SHA"
+      - name: Restore package-only sample
+        timeout-minutes: 8
+        run: bash eng/restore-sample.sh "-p:TargetFrameworks=net10.0-$TARGET" -r "$RID"
+      - name: Compile sample once (Release)
+        id: compile
+        timeout-minutes: 20
+        run: bash eng/dotnet.sh build samples/NativeChannels.Sample -c Release -f "net10.0-$TARGET" -r "$RID" --no-restore --disable-build-servers --verbosity normal
+      - name: Preserve compiled application with signatures and permissions
+        if: inputs.depth == 'Runtime'
+        run: |
+          tar -czf "artifacts/$TARGET-app.tar.gz" samples/NativeChannels.Sample/bin/Release/net10.0-"$TARGET"/"$RID"/*.app
+          shasum -a 256 "artifacts/$TARGET-app.tar.gz" > "artifacts/$TARGET-app.sha256"
+      - uses: actions/upload-artifact@v4
+        if: inputs.depth == 'Runtime'
+        with:
+          overwrite: true
+          name: framework-app-${{ inputs.target }}
+          path: |
+            artifacts/${{ inputs.target }}-app.tar.gz
+            artifacts/${{ inputs.target }}-app.sha256
+          retention-days: 3
+          if-no-files-found: error
+      - run: tar -czf artifacts/package-feed.tar.gz artifacts/packages artifacts/package-audit.json artifacts/native/NativeChannelsSample.xcframework
+      - uses: actions/upload-artifact@v4
+        with:
+          overwrite: true
+          name: framework-packages-${{ inputs.target }}
+          path: artifacts/package-feed.tar.gz
+          retention-days: 7
+          if-no-files-found: error
+      - name: Record compilation outcome
+        if: always()
+        env:
+          STEP_OUTCOME: ${{ steps.compile.outcome }}
+        run: python3 .github/scripts/evidence.py "$VERIFICATION_PLATFORM" compile --runtime "$RID"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          overwrite: true
+          name: framework-evidence-${{ inputs.target }}-compile
+          path: artifacts/evidence/*.json
+          retention-days: 7
+  runtime:
+    name: Execute ${{ inputs.target }} sample
+    needs: compile
+    if: inputs.depth == 'Runtime'
+    runs-on: macos-26
+    timeout-minutes: 15
+    env:
+      TARGET: ${{ inputs.target }}
+      VERIFICATION_PLATFORM: ${{ inputs.target == 'ios' && 'ios' || 'catalyst' }}
+      RID: ${{ inputs.target == 'ios' && 'iossimulator-arm64' || 'maccatalyst-arm64' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '26.6'
+      - uses: actions/download-artifact@v4
+        with:
+          name: framework-app-${{ inputs.target }}
+          path: artifacts
+      - name: Verify and extract compiled application
+        run: |
+          shasum -a 256 -c "artifacts/$TARGET-app.sha256"
+          tar -xzf "artifacts/$TARGET-app.tar.gz"
+      - name: Prepare iOS simulator
+        if: inputs.target == 'ios'
+        id: simulator
+        timeout-minutes: 5
+        uses: ./.github/actions/ios-simulator
+      - name: Execute compiled sample
+        id: execute
+        timeout-minutes: 5
+        env:
+          DEVICE: ${{ steps.simulator.outputs.device }}
+        run: |
+          if [[ "$TARGET" == ios ]]; then
+            bash eng/verify-ios-sample.sh "$DEVICE" Release
+          else
+            bash eng/verify-catalyst-sample.sh Release "$RID"
+          fi
+      - name: Capture simulator diagnostics on failure
+        if: ${{ failure() && inputs.target == 'ios' }}
+        continue-on-error: true
+        timeout-minutes: 1
+        env:
+          DEVICE: ${{ steps.simulator.outputs.device }}
+        run: bash eng/ios-simulator-diagnostics.sh "$DEVICE"
+      - name: Shut down test simulator
+        if: ${{ always() && steps.simulator.outputs.device != '' }}
+        continue-on-error: true
+        timeout-minutes: 2
+        env:
+          DEVICE: ${{ steps.simulator.outputs.device }}
+        run: xcrun simctl shutdown "$DEVICE"
+      - name: Record runtime outcome
+        if: always()
+        env:
+          STEP_OUTCOME: ${{ steps.execute.outcome }}
+        run: python3 .github/scripts/evidence.py "$VERIFICATION_PLATFORM" runtime --runtime "$RID"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          overwrite: true
+          name: framework-evidence-${{ inputs.target }}-runtime
+          path: artifacts/evidence/*.json
+          retention-days: 7
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          overwrite: true
+          name: framework-logs-${{ inputs.target }}
+          path: |
+            artifacts/ios-consumers/**
+            artifacts/sample-catalyst-process.log
+          retention-days: 3
+          if-no-files-found: ignore

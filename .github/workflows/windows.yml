@@ -1,0 +1,92 @@
+name: Consumers / Windows
+run-name: Windows · ${{ inputs.sample }} · ${{ inputs.package_source }} feed ${{ inputs.package_run }}
+on:
+  workflow_dispatch:
+    inputs:
+      package_run:
+        description: Successful release gate or example package run ID at this commit
+        type: string
+        required: true
+      package_source:
+        description: Combined release or optional example feed
+        type: choice
+        options: [Release, Example]
+        default: Release
+      sample:
+        description: One package-only consumer
+        type: choice
+        options: [Framework, Currency, AudioStreamer, VolumeMonitor, PdfViewer]
+        default: Framework
+      runtime:
+        description: Compile architecture (no desktop UI execution)
+        type: choice
+        options: [win-x64, win-arm64]
+        default: win-x64
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ inputs.sample }}-${{ inputs.runtime }}
+  cancel-in-progress: false
+jobs:
+  consumer:
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - name: Require an example feed when selecting a plugin
+        if: inputs.sample != 'Framework' && inputs.package_source != 'Example'
+        shell: bash
+        run: |
+          echo 'Plugin samples require package_source=Example and a matching Examples / Package build run.' >&2
+          exit 1
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: ./.github/actions/verified-artifact
+        with:
+          run-id: ${{ inputs.package_run }}
+          workflow: ${{ inputs.package_source == 'Example' && 'build-examples.yml' || 'release-packages.yml' }}
+          artifact: ${{ inputs.package_source == 'Example' && 'example-package-feed' || 'package-feed' }}
+          path: artifacts/feed
+          token: ${{ github.token }}
+      - name: Extract and audit exact-commit packages
+        shell: bash
+        run: |
+          tar -xzf artifacts/feed/package-feed.tar.gz artifacts/packages artifacts/package-audit.json
+          python eng/package_audit.py artifacts/packages/*.nupkg --source-commit "$GITHUB_SHA"
+      - name: Check selected example is present
+        if: inputs.sample != 'Framework'
+        shell: bash
+        env:
+          SAMPLE: ${{ inputs.sample }}
+        run: |
+          if ! compgen -G "artifacts/packages/Plugin.Maui.$SAMPLE.*.nupkg" > /dev/null; then
+            echo "The example feed does not contain $SAMPLE." >&2
+            exit 1
+          fi
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - name: Install Windows workload
+        timeout-minutes: 10
+        run: dotnet workload install maui-windows --version 10.0.401
+      - name: Compile consumer and run applicable native API tests
+        timeout-minutes: 20
+        shell: pwsh
+        env:
+          SAMPLE: ${{ inputs.sample }}
+          RUNTIME: ${{ inputs.runtime }}
+        run: |
+          $parameters = @{ PackageFeed = 'artifacts/packages'; RuntimeIdentifier = $env:RUNTIME; BuildOnly = $true }
+          if ($env:SAMPLE -ne 'Framework') { $parameters.Plugin = $env:SAMPLE }
+          ./eng/verify-windows.ps1 @parameters
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: windows-${{ inputs.sample }}-${{ inputs.runtime }}-results
+          retention-days: 3
+          if-no-files-found: ignore
+          path: |
+            artifacts/windows/verification/*/*.trx
+            artifacts/windows/verification/*/verification.json

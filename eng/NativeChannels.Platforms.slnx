@@ -1,0 +1,7 @@
+<Solution>
+    <Project Path="../src/NativeChannels.Core/NativeChannels.Core.csproj" />
+    <Project Path="../src/NativeChannels.Native.Android/NativeChannels.Native.Android.csproj" />
+    <Project Path="../src/NativeChannels.Native.Apple/NativeChannels.Native.Apple.csproj" />
+    <Project Path="../src/NativeChannels/NativeChannels.csproj" />
+    <Project Path="../src/NativeChannels.Maui/NativeChannels.Maui.csproj" />
+</Solution>

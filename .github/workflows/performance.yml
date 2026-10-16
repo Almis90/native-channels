@@ -1,0 +1,22 @@
+name: Verify / Lifecycle stress
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: stress-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  stress:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - run: bash eng/bootstrap.sh
+      - run: bash eng/stress.sh 20
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: stress-results
+          retention-days: 7
+          path: artifacts/stress/**

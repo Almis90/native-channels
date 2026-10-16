@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+set -euo pipefail
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+DEVICE="${1:?Usage: verify-android-volume.sh EMULATOR_SERIAL [Debug|Release] [android-arm64|android-x64]}"
+CONFIGURATION="${2:-Debug}"
+ADB="${ANDROID_HOME:-$HOME/Library/Android/sdk}/platform-tools/adb"
+RID="${3:-}"
+APK="$ROOT/samples/VolumeMonitor.Sample/bin/$CONFIGURATION/net10.0-android/${RID:+$RID/}dev.nativechannels.volume.sample-Signed.apk"
+"$ADB" -s "$DEVICE" install --no-incremental -r "$APK"
+"$ADB" -s "$DEVICE" shell am force-stop dev.nativechannels.volume.sample
+"$ADB" -s "$DEVICE" logcat -c
+ACTIVITY="$("$ADB" -s "$DEVICE" shell cmd package resolve-activity --brief dev.nativechannels.volume.sample | tr -d '\r' | tail -1)"
+"$ADB" -s "$DEVICE" shell am start -n "$ACTIVITY"
+for ((attempt=0; attempt<45; attempt++)); do
+    result="$("$ADB" -s "$DEVICE" logcat -d -v brief | grep 'VOLUME_SAMPLE' || true)"
+    if [[ -n "$result" ]]; then
+        printf '%s\n' "$result"
+        [[ "$result" == *'VOLUME_SAMPLE PASS initial levels'* ]]
+        exit "$?"
+    fi
+    sleep 1
+done
+echo 'FAIL: No sample result within 45 seconds' >&2
+exit 1

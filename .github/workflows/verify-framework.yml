@@ -1,0 +1,118 @@
+name: Verify framework
+run-name: Framework · ${{ inputs.platforms || 'Auto' }} · ${{ inputs.depth || 'Compile' }}
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      platforms:
+        description: Platforms to verify (Auto requires a base revision for manual runs)
+        type: choice
+        options: [Auto, All, Android, iOS, Catalyst, Windows]
+        default: Auto
+      depth:
+        description: Compile only, or execute the compiled Android/iOS/Catalyst sample
+        type: choice
+        options: [Compile, Runtime]
+        default: Compile
+      base:
+        description: Comparison revision for manual Auto (missing/unavailable means All)
+        type: string
+        required: false
+permissions:
+  contents: read
+concurrency:
+  group: framework-${{ github.event_name }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name != 'workflow_dispatch' }}
+jobs:
+  select:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      core: ${{ steps.select.outputs.core }}
+      android: ${{ steps.select.outputs.android }}
+      apple: ${{ steps.select.outputs.apple }}
+      ios: ${{ steps.select.outputs.ios }}
+      catalyst: ${{ steps.select.outputs.catalyst }}
+      windows: ${{ steps.select.outputs.windows }}
+      depth: ${{ steps.select.outputs.depth }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: select
+        env:
+          REQUESTED_PLATFORMS: ${{ inputs.platforms || 'Auto' }}
+          VERIFICATION_DEPTH: ${{ inputs.depth || 'Compile' }}
+          COMPARISON_BASE: ${{ inputs.base }}
+        run: python3 .github/scripts/select-platforms.py
+      - uses: actions/upload-artifact@v4
+        with:
+          overwrite: true
+          name: framework-selection
+          path: artifacts/selection.json
+          retention-days: 7
+  core:
+    needs: select
+    if: needs.select.outputs.core == 'true'
+    uses: ./.github/workflows/portable.yml
+  apple-native:
+    needs: select
+    if: needs.select.outputs.apple == 'true'
+    uses: ./.github/workflows/build-apple.yml
+  android:
+    needs: [select, core]
+    if: needs.select.outputs.android == 'true'
+    uses: ./.github/workflows/framework-android.yml
+    with:
+      depth: ${{ needs.select.outputs.depth }}
+  ios:
+    needs: [select, core, apple-native]
+    if: needs.select.outputs.ios == 'true'
+    uses: ./.github/workflows/framework-apple.yml
+    with:
+      target: ios
+      depth: ${{ needs.select.outputs.depth }}
+  catalyst:
+    needs: [select, core, apple-native]
+    if: needs.select.outputs.catalyst == 'true'
+    uses: ./.github/workflows/framework-apple.yml
+    with:
+      target: maccatalyst
+      depth: ${{ needs.select.outputs.depth }}
+  windows:
+    needs: [select, core]
+    if: needs.select.outputs.windows == 'true'
+    uses: ./.github/workflows/framework-windows.yml
+  result:
+    name: Framework verification result
+    needs: [select, core, apple-native, android, ios, catalyst, windows]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: framework-selection
+          path: artifacts
+      - name: Collect available stage evidence
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          pattern: framework-evidence-*
+          merge-multiple: true
+          path: artifacts/evidence
+      - name: Report compiled and executed evidence
+        env:
+          JOB_RESULTS: ${{ toJSON(needs) }}
+        run: python3 .github/scripts/verification-result.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          overwrite: true
+          name: framework-verification
+          path: artifacts/verification.json
+          retention-days: 7
