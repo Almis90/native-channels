@@ -6,11 +6,13 @@ It does not contain Flutter, Dart, or copied implementation code from those proj
 
 ## Native interoperability
 
-Applications communicate through generic byte-oriented Android and Apple bridges. Native modules
+Applications communicate through generic byte-oriented Android, Apple, and Windows bridges. Native modules
 register explicitly with an instance-scoped session; adapters implement SDK-specific operations
 without generating a C# binding for each method.
 
-Adapters are included explicitly as an unbound AAR or native XCFramework. Packaging a generic bridge
+Android and Apple adapters are included explicitly as an unbound AAR or native XCFramework.
+Windows adapters implement `IWindowsChannelModule` in C# and can call packaged native libraries
+through normal .NET interop. Packaging a generic bridge
 does not remove the application's obligation to package third-party SDKs and native adapters.
 The public sample consumes NuGet packages without project references to verify distribution as well
 as communication. A lower-level bridge regression consumer lives in `tests/PackageConsumer`.
@@ -26,7 +28,8 @@ The generic Android and Apple bindings are separate implementation packages.
 Native sessions are instance-scoped. Explicit module registration replaces global discovery.
 Kotlin modules implement `NativeModule`; Swift modules implement the Objective-C-compatible
 `MCNativeModule` protocol. Only configured modules are instantiated. Apple adapter frameworks
-must be loaded before resolving their Objective-C class names.
+must be loaded before resolving their Objective-C class names. Windows modules are created through
+explicitly registered factories; no assembly scanning is required.
 
 ## Messaging and ownership
 

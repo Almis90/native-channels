@@ -1,10 +1,10 @@
 ---
-description: Design a typed C# API, implement Kotlin and Swift adapters, and package a reusable NativeChannels plugin.
+description: Design a typed C# API, implement Android, Apple, and Windows adapters, and package a reusable NativeChannels plugin.
 ---
 
 # Build a reusable plugin
 
-A NativeChannels plugin packages a typed C# API together with Kotlin and Swift adapters. Applications
+A NativeChannels plugin packages a typed C# API together with platform adapters in Kotlin, Swift, or Windows C#. Applications
 consume that API and configure the plugin at startup. SDK-specific operations stay in native code;
 the existing generic bridge carries their requests and replies.
 
@@ -82,15 +82,17 @@ its own build project and C# interop layer. See the
 | --- | --- | --- |
 | Android | Kotlin class implementing `NativeModule` | Fully qualified class name, with a public parameterless constructor |
 | Apple | Swift `NSObject` class implementing `NativeModule` | Explicit Objective-C class name plus framework name |
+| Windows | C# class implementing `IWindowsChannelModule` | Explicit module factory |
 
-Use the same endpoint, method names, and value types in both implementations. Validate native inputs
+Use the same endpoint, method names, and value types in each implementation. Validate native inputs
 as well as facade inputs: other callers can send directly to the endpoint. Return structured errors
 with a documented code and useful details.
 
 The working Currency adapters are
 [CurrencyModule.kt](../plugins/Plugin.Maui.Currency/native/android/src/main/java/dev/nativechannels/currency/CurrencyModule.kt)
 and [CurrencyModule.swift](../plugins/Plugin.Maui.Currency/native/apple/Sources/CurrencyModule.swift).
-The [Android](android-integration.md) and [Apple](ios-integration.md) guides explain module construction,
+The [Android](android-integration.md), [Apple](ios-integration.md), and
+[Windows](windows-integration.md) guides explain module construction,
 async callbacks, UI dispatch, and cancellation.
 
 Connect cancellation to native SDK work where supported. Observers, timers, and streams need cleanup

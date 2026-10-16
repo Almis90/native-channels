@@ -156,7 +156,8 @@ Use the [release checklist](docs/release-checklist.md) before distribution.
 Pull requests run portable tests and compile affected platforms using one shared Core build.
 Use **Verify framework** for development checks and **Verify distribution** to assemble final packages
 and test their consumers before distribution. Example plugins and benchmarks remain separate, optional
-workflows; see [CI commands](docs/building.md#github-actions). Workflows never publish packages.
+workflows; see [CI commands](docs/building.md#github-actions). Verification workflows do not publish packages. The separate manual
+[NuGet publishing workflow](docs/publishing.md) defaults to a dry run and requires approval to publish.
 
 ## License
 

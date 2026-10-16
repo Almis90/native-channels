@@ -70,6 +70,14 @@ distribution, and third-party SDK integrations remain separate verification gaps
 results before widening platform support claims. Simulator success does not establish device support.
 Publish packages or create a GitHub release only as a separate, explicit release step.
 
+## NuGet publication
+
+Follow [Publishing to NuGet](publishing.md) after the distribution gate passes. Run the publishing
+workflow with `publish=false` first and review its exact package manifest. Confirm the NuGet trust
+policy and GitHub environment are configured for the five framework packages. Publication requires
+a separate explicit decision, a manual run with `publish=true`, and environment approval. Verify
+NuGet.org indexing and fresh public-feed consumers before marking the release accepted.
+
 ## Planned host release acceptance
 
 Avalonia 0.2 and Uno 0.3 must each meet the [host completion criteria](roadmap.md#avalonia-integration).

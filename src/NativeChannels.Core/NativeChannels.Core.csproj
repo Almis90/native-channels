@@ -10,4 +10,8 @@
     >
         <Error Text="Platform CI must consume the shared Core package, not rebuild Core from source." />
     </Target>
+    <ItemGroup>
+        <None Remove="$(MSBuildThisFileDirectory)../../README.md" />
+        <None Include="../../docs/nuget-readme.md" Pack="true" PackagePath="/README.md" />
+    </ItemGroup>
 </Project>

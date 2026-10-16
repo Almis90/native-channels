@@ -59,7 +59,9 @@ artifacts/apple-bridge-tests
 The original generic bridge consumer remains under `tests/PackageConsumer` as an interoperability
 regression test. It contains test-only probes; production channel packages expose generic operations.
 The sample writes `sample-result.txt` and logs `NATIVECHANNELS_SAMPLE`. A compile pass is not a runtime pass.
-See [verification](verification.md). No script publishes packages or creates releases.
+See [verification](verification.md). Build and verification scripts do not publish packages or create releases.
+The separate [publishing workflow](publishing.md) validates by default; uploading requires an explicit
+manual selection and environment approval.
 
 On a compatible Mac, test Catalyst independently:
 ```sh
@@ -354,8 +356,9 @@ Jobs and restore/build steps have deadlines and visible build logging. Separate 
 retries independent, but runner setup, restore, AOT/linking and queues still take time. Shorter workflow
 files do not guarantee shorter builds or lower total runner time. The optional workflows run only when
 dispatched. Automatic framework runs cancel obsolete runs on the same event and branch; manual runs
-do not cancel an active run. Tags do not start duplicate verification. No workflow publishes packages,
-creates releases, or tags commits.
+do not cancel an active run. Tags do not start duplicate verification. Verification workflows do not publish packages,
+create releases, or tag commits. The separate [NuGet publishing workflow](publishing.md) is manual,
+defaults to validation only, and consumes an accepted same-commit distribution feed.
 
 iOS runtime checks give simulator boot and data migration their own five-minute deadline before
 starting the five-minute app execution step. Failures retain app logs and simulator diagnostics.

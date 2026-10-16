@@ -15,4 +15,8 @@
             <SmartLink>false</SmartLink>
         </NativeReference>
     </ItemGroup>
+    <ItemGroup>
+        <None Remove="$(MSBuildThisFileDirectory)../../README.md" />
+        <None Include="../../docs/nuget-readme.md" Pack="true" PackagePath="/README.md" />
+    </ItemGroup>
 </Project>

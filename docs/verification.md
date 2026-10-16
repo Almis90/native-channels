@@ -17,7 +17,7 @@ None of those additional host combinations is accepted on `main` yet. The Androi
 is partial milestone work; it does not establish other contracts, targets, or released support.
 Future records must distinguish unavailable OS/browser capabilities from checks that have not run.
 
-## Current checkout
+## Earlier local checks — 2026-10-15
 
 The initial preview includes all four channel contracts, the MAUI host, four platform transports,
 and four reference plugins. Local checks on 2026-10-15:
@@ -30,7 +30,7 @@ and four reference plugins. Local checks on 2026-10-15:
 | Swift tests | Bridge, codec, cancellation, stream, and Currency checks passed |
 | Android native adapters | Bridge, sample, and all four plugin AARs compiled |
 | Apple native adapters | Bridge, sample, and all four plugin XCFrameworks compiled for device, simulator, and Catalyst slices |
-| Local mobile packages | Five framework and four plugin archives built and passed native-asset and metadata inspection; combined Windows packaging remains pending |
+| Local mobile packages | Five framework and four plugin archives built and passed native-asset and metadata inspection; these local archives did not include Windows; combined packaging passed in later CI |
 | Source formatting and workflows | C#, Kotlin, Swift, and actionlint checks passed |
 | Documentation | 50 pages built; local links, fragments, and assets checked |
 
@@ -39,29 +39,34 @@ packages or GitHub releases have been published.
 
 ## Framework CI verification
 
-On 2026-10-16, [All / Runtime verification](https://github.com/Almis90/native-channels/actions/runs/38870771035)
-passed at source `a8274534d905707460c39a7e9b433707090d2cee`.
+On 2026-10-17, [All / Runtime verification](https://github.com/Almis90/native-channels/actions/runs/38975778574)
+and [Verify distribution](https://github.com/Almis90/native-channels/actions/runs/38977328378)
+passed at source `9baf413e172da7b9b42e5cb0b1b7bb14d6565909`.
 
-| Check | Evidence |
-| --- | --- |
-| Shared Core | 59 Core and eight portable Windows tests; 71 packaging/CI tests; Core packed once |
-| Platform packages | Android, iOS, Catalyst and Windows consumed the exact shared Core archive; fresh consumer caches matched their local feeds |
-| Android | Release package-only sample compiled; saved APK executed on a separate emulator runner |
-| iOS | Release simulator sample compiled; saved app executed on a separate iOS simulator runner |
-| Mac Catalyst | Release sample compiled; saved app launched and passed on a separate Mac runner |
-| Windows | Package-only Release consumers compiled independently for x64 and ARM64; hosted desktop execution was not run |
-| Runtime scope | Framework method, message, event and native-view checks, including 32 reconnect cycles; no example-plugin execution |
-| Combined packages | [Release package gate](https://github.com/Almis90/native-channels/actions/runs/38872653521) passed at the same source revision: five framework packages and symbols assembled and inspected; nothing published |
+The framework run built shared Core once, verified platform feeds, and executed the framework sample
+on Android x64, the iOS simulator, and Mac Catalyst. The distribution run assembled the five final
+framework packages and symbol archives, then verified seven package-only consumer configurations:
 
-The first trial exposed an Apple workflow variable named `PLATFORM` that changed MSBuild output
-paths. The corrected run above passed both Apple artifact handoffs and runtime checks.
-The verification artifact records compilation and execution separately, including successful
-compilation when a later job step fails.
+| Combined-feed consumer | Compiled | Executed |
+| --- | --- | --- |
+| Android x64 | Passed | Passed in emulator |
+| Android ARM64 | Passed | Not run by this workflow |
+| iOS simulator ARM64 | Passed | Passed in simulator |
+| iOS device ARM64 | Passed, unsigned | Not run by this workflow |
+| Mac Catalyst | Passed | Not run with the combined feed |
+| Windows x64 | Passed | Not run by this workflow |
+| Windows ARM64 | Passed | Not run by this workflow |
 
-This evidence applies to the recorded source and platform-specific feeds. Subsequent workflow
-cleanup does not turn it into an exact-commit runtime result for a newer revision. Combined-feed
-consumer checks, iOS device compilation/execution, optional example handoffs, and physical-device
-acceptance remain separate checks before distribution.
+All seven results reference the same feed SHA-256:
+`aae69ddde5c30ce801d1f7eb39b7c2cdcc72b41222f38ba2be31c697f135b5e4`.
+The distribution artifact contains the per-configuration results and package audit. Runtime checks
+cover framework methods, messages, events, and native views, including 32 reconnect cycles;
+example plugins are separate. No packages were published.
+
+This evidence applies only to the recorded source and archives. Later changes, including packaged
+README content, require fresh same-commit validation before publication. Catalyst execution with a
+platform feed does not establish combined-feed runtime acceptance, and compilation does not establish
+physical-device or Windows desktop execution.
 
 ## Automated checks
 
@@ -137,7 +142,7 @@ application, and installer checks. ARM64 cross-compilation does not establish AR
 
 ## Remaining verification
 
-- Execute combined-feed consumers for the intended release revision; compile the iOS device target and record physical-device execution separately.
+- Repeat the successful framework and combined-feed gates for the next release revision when inputs change; retain exact source and package hashes.
 - Run Windows ARM64 applications on ARM64 hardware; broaden OS and deployment coverage as documented.
 - Execute the final combined-feed framework consumer on physical Android/iOS devices and Windows; keep example observations separate from distribution evidence.
 - Verify independent iOS observer counts and additional audio routes; foreground/background example behavior was manually checked as described above.

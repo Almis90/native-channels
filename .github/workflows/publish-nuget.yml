@@ -1,0 +1,103 @@
+name: Release / Publish NuGet
+run-name: NuGet ${{ inputs.version }} · publish=${{ inputs.publish }} · distribution ${{ inputs.distribution_run }}
+on:
+  workflow_dispatch:
+    inputs:
+      distribution_run:
+        description: Successful same-commit Verify distribution run ID
+        type: string
+        required: true
+      version:
+        description: Exact framework version in the verified packages
+        type: string
+        required: true
+      publish:
+        description: Publish to NuGet.org after environment approval (false validates only)
+        type: boolean
+        default: false
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: nuget-publication
+  cancel-in-progress: false
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Require main
+        env:
+          REF: ${{ github.ref }}
+        run: test "$REF" = refs/heads/main
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/verified-artifact
+        with:
+          run-id: ${{ inputs.distribution_run }}
+          workflow: verify-distribution.yml
+          artifact: package-feed
+          path: artifacts/feed
+          token: ${{ github.token }}
+      - uses: ./.github/actions/verified-artifact
+        with:
+          run-id: ${{ inputs.distribution_run }}
+          workflow: verify-distribution.yml
+          artifact: distribution-verification
+          path: artifacts/evidence
+          token: ${{ github.token }}
+      - name: Validate evidence and prepare exact package archives
+        env:
+          DISTRIBUTION_RUN: ${{ inputs.distribution_run }}
+          VERSION: ${{ inputs.version }}
+        run: |
+          python3 .github/scripts/nuget-release.py prepare \
+            --feed artifacts/feed/package-feed.tar.gz \
+            --evidence artifacts/evidence/distribution-verification.json \
+            --directory artifacts/nuget-candidate --source "$GITHUB_SHA" \
+            --run "$DISTRIBUTION_RUN" --version "$VERSION" --summary "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nuget-candidate
+          path: artifacts/nuget-candidate/*
+          retention-days: 7
+          if-no-files-found: error
+          overwrite: true
+  publish:
+    needs: validate
+    if: ${{ inputs.publish && github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: nuget
+    permissions:
+      contents: read
+      actions: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: nuget-candidate
+          path: artifacts/nuget-candidate
+      - name: Recheck candidate before authentication
+        env:
+          DISTRIBUTION_RUN: ${{ inputs.distribution_run }}
+          VERSION: ${{ inputs.version }}
+        run: |
+          python3 .github/scripts/nuget-release.py verify \
+            --directory artifacts/nuget-candidate --source "$GITHUB_SHA" \
+            --run "$DISTRIBUTION_RUN" --version "$VERSION"
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - name: Authenticate with NuGet Trusted Publishing
+        uses: NuGet/login@8d196754b4036150537f80ac539e15c2f1028841 # v1
+        id: login
+        with:
+          user: ${{ vars.NUGET_USER }}
+      - name: Publish verified packages and symbols
+        env:
+          NUGET_API_KEY: ${{ steps.login.outputs.NUGET_API_KEY }}
+          PUBLISH_NUGET: 'true'
+          DISTRIBUTION_RUN: ${{ inputs.distribution_run }}
+          VERSION: ${{ inputs.version }}
+        run: python3 .github/scripts/push-nuget.py artifacts/nuget-candidate

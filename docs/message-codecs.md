@@ -74,7 +74,7 @@ Outgoing DTOs use metadata property names and getters, preserving portable type 
 properties. Incoming DTO conversion uses System.Text.Json metadata. Keep property names consistent
 with the native dictionary keys, including their casing.
 
-## Alpha contract limits
+## Preview contract limits
 
 Use ordinary property-based DTOs. Polymorphic contracts and arbitrary outgoing custom converters are
 not supported: normalization reads metadata properties rather than invoking a custom converter's

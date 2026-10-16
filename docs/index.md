@@ -1,11 +1,11 @@
 ---
 layout: home
 title: Native integrations for .NET MAUI
-description: Call Kotlin and Swift from C#, receive native events, and embed native views through a reusable bridge for .NET MAUI.
+description: Connect C# with Android, Apple, and Windows APIs, receive native events, and embed native views through a reusable bridge for .NET MAUI.
 hero:
   name: NativeChannels
   text: Native APIs. One reusable bridge.
-  tagline: Connect C# with Kotlin and Swift. Build native integrations with asynchronous calls, binary messages, event streams, and native views.
+  tagline: Connect C# with Kotlin, Swift, and Windows APIs. Build native integrations with asynchronous calls, binary messages, event streams, and native views.
   image:
     src: /logo.svg
     alt: NativeChannels bridge connecting two endpoints
@@ -18,7 +18,7 @@ hero:
       link: /examples
 features:
   - title: Keep native code native
-    details: Use the SDK's Kotlin or Swift APIs behind a generic bridge. Expose a typed C# service without binding every SDK method.
+    details: Use the SDK's Android, Apple, or Windows APIs behind a generic bridge. Expose a typed C# service without binding every SDK method.
     link: /architecture
     linkText: Understand the architecture
   - title: Choose your contract

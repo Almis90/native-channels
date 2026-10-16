@@ -271,7 +271,8 @@ with its matching optional example feed:
 | Windows 10 LTSC 2019 x64, minimum build 17763 | Native API tests, applications, and installed MSIX behavior |
 | Windows 10 ARM64 | Native ARM64 execution and OS/deployment validation |
 
-The current preview's acceptance is pending. Use [platform verification](verification.md#windows)
+CI has compiled the combined feed for x64 and ARM64. Physical Windows 11 x64 checks used
+Windows-only packages; the broader OS, architecture, and deployment matrix above remains incomplete. Use [platform verification](verification.md#windows)
 and [Windows plugin verification](windows-plugins-verification.md) to record results. The verifier
 defaults to unpackaged applications; `-Msix` selects separate installer verification. Store
 publication, architecture coverage, and runtime execution must each be reported independently.
