@@ -52,7 +52,6 @@ These are development archives, not combined release packages. No packages are p
 
 This is a Currency method-call proof for Avalonia Android. It does not provide a general Avalonia host
 package, native view hosting, incoming UI callbacks, event-stream lifecycle, iOS or desktop support.
-Those integrations, macOS, Linux, and browser/WebAssembly are remaining work in the
-[complete Avalonia 0.2 milestone](../../docs/roadmap.md). This sample alone does not complete 0.2. See the
+Those integrations remain separate [roadmap](../../docs/roadmap.md) work. See the
 [verification record](../../docs/verification.md) for executed evidence; the presence of this sample
 alone does not establish runtime support.

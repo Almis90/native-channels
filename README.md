@@ -146,9 +146,8 @@ Use `eng/NativeChannels.Platforms.slnx` for platform libraries. Changes to nativ
 dependencies, or packaging require fresh package-consumer verification.
 See [contributing](CONTRIBUTING.md), [testing](docs/testing.md), and [performance](docs/performance.md).
 
-The [roadmap](docs/roadmap.md) covers the initial preview, complete Avalonia integration (including
-browser/WebAssembly) in 0.2, Uno integration in 0.3, and stable API acceptance. Use the
-[release checklist](docs/release-checklist.md) before distribution.
+The [roadmap](docs/roadmap.md) covers the initial preview, shared hosting, Avalonia integration,
+and stable API acceptance. Use the [release checklist](docs/release-checklist.md) before distribution.
 
 Pull requests run portable tests and compile affected platforms using one shared Core build.
 Use **Verify framework** for development checks and **Verify distribution** to assemble final packages

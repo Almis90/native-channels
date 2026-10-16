@@ -44,7 +44,7 @@ and [PdfViewer](pdf-viewer.md) reference plugins each include a sample and verif
 - [Building](building.md), [testing](testing.md), and [performance and stress](performance.md).
 - [Platform verification](verification.md), [release checklist](release-checklist.md), and [changelog](changelog.md).
 - [Contributing](contributing.md) and [editing the documentation site](documentation-site.md).
-- [Roadmap](roadmap.md), including complete Avalonia integration in 0.2, Uno in 0.3, and release acceptance.
+- [Roadmap](roadmap.md), including shared hosting, Avalonia integration, and release acceptance.
 - [FAQ](faq.md) and [Flutter comparison](flutter-comparison.md).
 
 Packages are built locally and

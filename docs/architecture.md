@@ -76,5 +76,4 @@ Currency depends on the platform package rather than the MAUI host. Applications
 explicitly; the MAUI Currency sample references both `Plugin.Maui.Currency` and `NativeChannels.Maui`.
 The [Avalonia Android sample](../samples/Currency.Avalonia.Android/README.md) consumes the same Currency
 package through shared registration and owns disposal at the activity boundary. It is a method-call
-proof; the general Avalonia host, all channel contracts, native/browser view integration, and the
-remaining platforms belong to [milestone 0.2](roadmap.md). Uno integration follows in 0.3.
+proof; a general Avalonia host and native view integration remain [roadmap](roadmap.md) work.
