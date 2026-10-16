@@ -71,15 +71,19 @@ results and CI evidence.
 
 ## Verify a reusable plugin
 
-The [currency sample](../samples/Currency.Sample/README.md) references only `Plugin.Maui.Currency`.
+The [currency sample](../samples/Currency.Sample/README.md) references `Plugin.Maui.Currency` and
+its explicit `NativeChannels.Maui` host through packages. The plugin itself has no MAUI dependency;
+the Windows package tests verify its dependency graph as well as real native currency calls.
 Its AAR and XCFramework arrive through the package's `buildTransitive` imports. Run its fresh-cache
 restore and Release runtime checks after changing the plugin, its native modules, or packaging.
 `plugins/Plugin.Maui.Currency/eng/inspect-package.py` checks the native classes, preservation rules,
 framework slices, dependencies, and import paths inside the actual archive.
 
-The portable solution includes 14 currency facade tests, alongside core channel tests. The facade
-tests compile the production C# source without MAUI workloads; the native app checks remain necessary
-to establish native loading and real platform results.
+The portable solution includes Currency facade and registration tests, alongside core channel tests.
+Shared registration tests exercise lazy session creation, independent providers, captured settings,
+duplicate and invalid configuration, host dispatch and owned disposal. They compile the production
+C# source without MAUI workloads; native app checks remain necessary to establish native loading
+and real platform results.
 
 The message/event tests cover null versus empty payloads, strict UTF-8, bidirectional replies,
 registration ownership, independent enumerations, bounded overflow policies, buffered terminal errors,
