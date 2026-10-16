@@ -41,6 +41,9 @@ public sealed class MainPage : ContentPage
 #elif WINDOWS
         const string platform =
             "Windows output volume · Core Audio observes the default multimedia output device and follows changes to that device.";
+#elif MACCATALYST
+        const string platform =
+            "Mac output volume · Core Audio observes the default output device. Outputs without a volume control report an error.";
 #else
         const string platform =
             "Apple output volume · KVO observes AVAudioSession. Use a physical iPhone to verify changes; the simulator may report only its initial level.";

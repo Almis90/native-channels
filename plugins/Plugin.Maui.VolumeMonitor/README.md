@@ -67,7 +67,15 @@ devices/routes. It does not use the internal `VOLUME_CHANGED_ACTION` broadcast o
 no runtime permission and does not write settings or change volume. The sample directs its foreground
 volume keys to the music stream; the plugin itself does not change activity settings.
 
-**Apple (iOS/Mac Catalyst 15+):** Swift retains a separate `NSKeyValueObservation` for
+**Mac Catalyst (15+):** Core Audio observes the default output device's volume and follows
+default-device changes. Each subscription owns its device and volume listeners and removes both
+on termination. It reads the master scalar where available, otherwise the average of readable
+preferred stereo channels (falling back to channels 1 and 2). Outputs without a readable volume
+control end the stream with `volume_unavailable`; reconnect an adjustable output and restart.
+This reports the volume setting, not measured loudness; mute is separate. The Mac implementation
+does not use or activate `AVAudioSession`.
+
+**iOS (15+):** Swift retains a separate `NSKeyValueObservation` for
 `AVAudioSession.outputVolume`, with `.initial` and `.new`. Each token is invalidated on termination.
 Registration, event emission, and cleanup are serialized on the main queue.
 
