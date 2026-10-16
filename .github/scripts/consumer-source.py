@@ -11,12 +11,17 @@ def resolve(source, run_id, current_id, current_run, sha, repository):
     if source not in WORKFLOWS or not re.fullmatch(r'[1-9][0-9]*', run_id):
         raise ValueError('Choose Release, Distribution or Example and supply a numeric run ID.')
     current = run_id == str(current_id)
+    # GitHub can report the parent as queued/pending while child jobs are executing.
+    # Trust the executing job's run identity and producer dependency, not an
+    # in_progress-only snapshot; terminal runs must still use the external guard.
     if current and (source != 'Distribution'
+                    or str(current_run.get('id')) != str(current_id)
                     or current_run.get('path') != '.github/workflows/verify-distribution.yml'
                     or current_run.get('event') != 'workflow_dispatch'
                     or current_run.get('head_sha') != sha
                     or (current_run.get('head_repository') or {}).get('full_name') != repository
-                    or current_run.get('status') != 'in_progress'):
+                    or current_run.get('status') not in {'queued', 'pending', 'waiting', 'requested', 'in_progress'}
+                    or current_run.get('conclusion') is not None):
         raise ValueError('Only the active distribution coordinator may consume its own package feed.')
     return {'current': str(current).lower(), 'workflow': WORKFLOWS[source],
             'artifact': 'example-package-feed' if source == 'Example' else 'package-feed'}

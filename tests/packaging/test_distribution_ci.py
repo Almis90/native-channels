@@ -21,7 +21,7 @@ results = load('distribution-result')
 class ConsumerSourceTests(unittest.TestCase):
     def setUp(self):
         self.sha = 'a' * 40
-        self.run = {'path': '.github/workflows/verify-distribution.yml', 'head_sha': self.sha,
+        self.run = {'id': 123, 'path': '.github/workflows/verify-distribution.yml', 'head_sha': self.sha,
                     'head_repository': {'full_name': 'owner/repo'}, 'event': 'workflow_dispatch',
                     'status': 'in_progress'}
 
@@ -32,12 +32,18 @@ class ConsumerSourceTests(unittest.TestCase):
         self.assertEqual('true', self.resolve()['current'])
         for field, value in [('path', '.github/workflows/verify-android.yml'), ('head_sha', 'b' * 40),
                              ('head_repository', {'full_name': 'other/repo'}), ('event', 'pull_request'),
-                             ('status', 'completed')]:
+                             ('status', 'completed'), ('id', 456), ('conclusion', 'failure')]:
             with self.subTest(field=field), self.assertRaises(ValueError):
                 self.resolve(metadata={**self.run, field: value})
         for kind in ('Example', 'Release'):
             with self.subTest(kind=kind), self.assertRaises(ValueError):
                 self.resolve(kind=kind)
+
+    def test_nonterminal_parent_status_can_lag_running_consumers(self):
+        # Both Android jobs observed queued after the package producer succeeded.
+        for status in ('queued', 'pending', 'waiting', 'requested', 'in_progress'):
+            with self.subTest(status=status):
+                self.assertEqual('true', self.resolve(metadata={**self.run, 'status': status})['current'])
 
     def test_external_feeds_still_require_existing_verified_artifact_guard(self):
         for kind, workflow in source.WORKFLOWS.items():
