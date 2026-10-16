@@ -137,6 +137,8 @@ Documentation-only changes finish the framework selector and summary without a C
 Project and dependency definitions conservatively select all platforms, except the explicitly
 Windows-owned `native/windows/interop/` and `tests/NativeChannels.Windows.Interop/` trees.
 `eng/verify-windows-interop.ps1` and `.github/workflows/windows-interop.yml` also select Windows.
+The Windows toolchain action/helper and the dedicated `framework-windows.yml` and `windows.yml`
+workflows select Windows as well. Shared workflows, including `build-examples.yml`, still select all.
 Selector changes run the shared job's routing regression tests; shared workflow changes still select
 all platforms. Mixed changes combine their selections, so adding a shared change still selects all.
 Auto compares the entire PR against its base, or a push against its previous commit. A documentation
@@ -177,6 +179,26 @@ successful compilation followed by failed execution. iOS simulator execution doe
 physical-device support; Android ARM64 compilation also does not establish physical-device execution. Catalyst executes directly on macOS, with no simulator.
 
 ### Windows-only framework changes
+
+The Windows framework and standalone consumer jobs use a private ZIP-installed .NET SDK under
+the runner's temporary directory. This avoids importing Visual Studio's installed Android, Apple
+and WebAssembly workloads when installing `maui-windows`. The SDK and workload-set versions come
+from `global.json`; the SDK directory alone is cached, keyed by runner OS, host architecture, image
+family, SDK/workload versions and setup implementation. No partial cache-key fallback is used.
+
+The package job saves the verified toolchain before its dependent x64 and ARM64 compilation jobs
+start. Every installation and cache restore checks the selected executable, SDK and workload-set
+versions, the file-based registration, and that only `maui-windows` is installed with no mobile or
+WebAssembly workload packs. A bad cache fails verification; changing the action's cache revision
+forces a fresh installation. The step summary records cache-hit status and the verified versions.
+
+Consumer NuGet caches, package feeds and build outputs are not part of this cache. Android, Apple,
+the optional example-package workflow and the lightweight C++/Rust probe keep their existing setup
+in this first phase. The probe does not require a MAUI workload.
+
+Before this change, run `38939526252` spent 9m20s installing workloads for Windows packaging,
+5m40s for x64 compilation and 6m40s for ARM64 compilation. Those installs also updated preinstalled
+Android, Apple and WebAssembly workloads; the Windows-only platform selection was already correct.
 
 ```sh
 gh workflow run verify-framework.yml --ref main -f platforms=Windows -f depth=Compile

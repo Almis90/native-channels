@@ -10,12 +10,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/shared-core
-      - uses: actions/setup-dotnet@v4
-        with:
-          global-json-file: global.json
-      - name: Install Windows workload
+      - name: Set up cached Windows toolchain
         timeout-minutes: 10
-        run: dotnet workload install maui-windows --version 10.0.401
+        uses: ./.github/actions/windows-toolchain
       - name: Pack Windows framework using shared Core
         timeout-minutes: 10
         shell: pwsh
@@ -49,9 +46,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - uses: actions/setup-dotnet@v4
-        with:
-          global-json-file: global.json
+      - name: Set up cached Windows toolchain
+        timeout-minutes: 10
+        uses: ./.github/actions/windows-toolchain
       - uses: actions/download-artifact@v4
         with:
           name: framework-packages-windows
@@ -61,9 +58,6 @@ jobs:
         run: |
           tar -xzf artifacts/package-feed.tar.gz
           python eng/package_audit.py artifacts/packages/*.nupkg --platform-only windows --source-commit "$GITHUB_SHA"
-      - name: Install Windows workload
-        timeout-minutes: 10
-        run: dotnet workload install maui-windows --version 10.0.401
       - name: Compile package-only sample
         id: compile
         timeout-minutes: 20

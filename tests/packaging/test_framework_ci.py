@@ -46,6 +46,22 @@ class PlatformSelectionTests(unittest.TestCase):
         self.assertEqual((set(), True), selection.classify(paths))
         self.assertEqual(({'windows'}, True), selection.classify(paths + self.INTEROP_PATHS))
 
+    def test_windows_toolchain_workflows_are_scoped_without_hiding_shared_config(self):
+        paths = [
+            '.github/actions/windows-toolchain/action.yml',
+            '.github/scripts/windows-toolchain.ps1',
+            '.github/workflows/framework-windows.yml',
+            '.github/workflows/windows.yml',
+        ]
+        for path in paths:
+            with self.subTest(path=path):
+                self.assertEqual(({'windows'}, True), selection.classify([path]))
+        self.assertEqual(({'windows'}, True), selection.classify(paths + self.INTEROP_PATHS))
+        for shared in ('global.json', '.github/workflows/build-examples.yml',
+                       '.github/actions/windows-toolchain-shared/action.yml'):
+            with self.subTest(path=shared):
+                self.assertEqual((selection.ALL, True), selection.classify(paths + [shared]))
+
     def test_interop_exception_does_not_hide_shared_or_unknown_changes(self):
         for path in (
             'Directory.Build.props',

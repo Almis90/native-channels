@@ -9,6 +9,12 @@ WINDOWS_INTEROP_FILES = {
     ".github/workflows/windows-interop.yml",
     "eng/verify-windows-interop.ps1",
 }
+WINDOWS_TOOLCHAIN_FILES = {
+    ".github/actions/windows-toolchain/action.yml",
+    ".github/scripts/windows-toolchain.ps1",
+    ".github/workflows/framework-windows.yml",
+    ".github/workflows/windows.yml",
+}
 WINDOWS_INTEROP_DIRECTORIES = (
     "native/windows/interop/",
     "tests/NativeChannels.Windows.Interop/",
@@ -32,7 +38,7 @@ def classify(paths):
             continue
         # These owned paths are Windows-only, including their workflow and test project.
         # Keep this before the conservative shared-config/unknown-path rules.
-        if path in WINDOWS_INTEROP_FILES or path.startswith(WINDOWS_INTEROP_DIRECTORIES):
+        if path in WINDOWS_INTEROP_FILES | WINDOWS_TOOLCHAIN_FILES or path.startswith(WINDOWS_INTEROP_DIRECTORIES):
             selected.add("windows")
             continue
         # Shared config and binding definitions widen the selection even when stored under one platform.
