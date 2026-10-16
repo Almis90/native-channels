@@ -30,11 +30,11 @@ jobs:
       - uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: '26.6'
-      - name: Install selected Apple toolchain
+      - name: Set up cached Apple .NET toolchain
         timeout-minutes: 10
-        run: |
-          bash eng/bootstrap.sh
-          bash eng/dotnet.sh workload install "maui-$TARGET" --version 10.0.401
+        uses: ./.github/actions/mobile-toolchain
+        with:
+          target: ${{ inputs.target }}
       - name: Package framework using shared Core
         timeout-minutes: 15
         run: |

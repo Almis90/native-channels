@@ -192,9 +192,9 @@ versions, the file-based registration, and that only `maui-windows` is installed
 WebAssembly workload packs. A bad cache fails verification; changing the action's cache revision
 forces a fresh installation. The step summary records cache-hit status and the verified versions.
 
-Consumer NuGet caches, package feeds and build outputs are not part of this cache. Android, Apple,
-the optional example-package workflow and the lightweight C++/Rust probe keep their existing setup
-in this first phase. The probe does not require a MAUI workload.
+Consumer NuGet caches, package feeds and build outputs are not part of this cache. The optional
+example-package workflow and the lightweight C++/Rust probe keep their existing setup.
+The probe does not require a MAUI workload.
 
 Before this change, run `38939526252` spent 9m20s installing workloads for Windows packaging,
 5m40s for x64 compilation and 6m40s for ARM64 compilation. Those installs also updated preinstalled
@@ -206,6 +206,25 @@ gh workflow run verify-framework.yml --ref main -f platforms=Windows -f depth=Co
 
 This builds Core once and Windows framework packages once, then compiles both x64 and ARM64 samples.
 For interactive desktop verification, use the local steps in [Windows integration](windows-integration.md).
+
+### Android and Apple SDK caches
+
+Android, iOS and Mac Catalyst framework and standalone consumer jobs use the same isolation and
+exact-cache approach. Each target has its own cache containing a private archive-installed .NET SDK
+and exactly one workload: `maui-android`, `maui-ios` or `maui-maccatalyst`. The private location is
+`.tools/dotnet`, matching `eng/dotnet.sh`; host SDKs are not used. Pins come from `global.json`.
+
+Cache keys include the runner OS, host architecture, image family, target, SDK/workload versions and
+setup implementation. Apple keys also include the selected Xcode version/build fingerprint. There
+are no partial-key fallbacks or cross-target restores. The Android package job saves its verified
+cache before the x64 and ARM64 consumers start; Apple jobs save theirs before packaging and compilation
+so subsequent runs can reuse them. Every restore checks the executable, versions, installed workload,
+file-based registration and absence of unrelated platform packs before any package build begins.
+
+Only the .NET SDK directory is cached. JDK, Android SDK platform/build tools, Xcode and simulator images
+retain their existing setup. Consumer NuGet caches and build outputs remain fresh. Combined release
+and optional example packaging still use their existing multi-platform bootstrap; runtime-only jobs
+continue to execute saved applications without installing an SDK.
 
 ### Release package gate
 

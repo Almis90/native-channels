@@ -19,6 +19,16 @@ WINDOWS_INTEROP_DIRECTORIES = (
     "native/windows/interop/",
     "tests/NativeChannels.Windows.Interop/",
 )
+MOBILE_TOOLCHAIN_FILES = {
+    '.github/actions/mobile-toolchain/action.yml': {'android', 'ios', 'catalyst'},
+    '.github/scripts/mobile-toolchain.py': {'android', 'ios', 'catalyst'},
+    '.github/workflows/framework-android.yml': {'android'},
+    '.github/workflows/verify-android.yml': {'android'},
+    '.github/workflows/framework-apple.yml': {'ios', 'catalyst'},
+    '.github/workflows/verify-ios.yml': {'ios'},
+    '.github/workflows/verify-ios-device.yml': {'ios'},
+    '.github/workflows/verify-catalyst.yml': {'catalyst'},
+}
 
 
 def classify(paths):
@@ -40,6 +50,9 @@ def classify(paths):
         # Keep this before the conservative shared-config/unknown-path rules.
         if path in WINDOWS_INTEROP_FILES | WINDOWS_TOOLCHAIN_FILES or path.startswith(WINDOWS_INTEROP_DIRECTORIES):
             selected.add("windows")
+            continue
+        if path in MOBILE_TOOLCHAIN_FILES:
+            selected |= MOBILE_TOOLCHAIN_FILES[path]
             continue
         # Shared config and binding definitions widen the selection even when stored under one platform.
         if path.endswith((".props", ".targets", ".csproj", ".slnx")) or path.startswith(".github/"):

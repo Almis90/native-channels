@@ -75,6 +75,23 @@ class PlatformSelectionTests(unittest.TestCase):
             with self.subTest(path=path):
                 self.assertEqual((selection.ALL, True), selection.classify(self.INTEROP_PATHS + [path]))
 
+    def test_mobile_toolchain_changes_select_the_affected_platforms(self):
+        cases = {
+            '.github/actions/mobile-toolchain/action.yml': {'android', 'ios', 'catalyst'},
+            '.github/scripts/mobile-toolchain.py': {'android', 'ios', 'catalyst'},
+            '.github/workflows/framework-android.yml': {'android'},
+            '.github/workflows/verify-android.yml': {'android'},
+            '.github/workflows/framework-apple.yml': {'ios', 'catalyst'},
+            '.github/workflows/verify-ios.yml': {'ios'},
+            '.github/workflows/verify-ios-device.yml': {'ios'},
+            '.github/workflows/verify-catalyst.yml': {'catalyst'},
+        }
+        for path, expected in cases.items():
+            with self.subTest(path=path):
+                self.assertEqual((expected, True), selection.classify([path]))
+        self.assertEqual((selection.ALL, True), selection.classify(list(cases) + self.INTEROP_PATHS))
+        self.assertEqual((selection.ALL, True), selection.classify(list(cases) + ['global.json']))
+
     def test_mixed_platform_changes_are_combined(self):
         self.assertEqual(({'windows', 'android'}, True), selection.classify(
             self.INTEROP_PATHS + ['native/android/library/src/Bridge.kt']))
