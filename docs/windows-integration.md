@@ -13,6 +13,11 @@ The [C++ and Rust experiment](https://github.com/Almis90/native-channels/tree/ma
 demonstrates native DLL implementations behind a small shared C# channel adapter.
 Run `./eng/verify-windows-interop.ps1` to build both DLLs and execute their channel
 checks on Windows x64. This is separate from MAUI application and MSIX verification.
+Both examples passed runtime checks on Windows 11 x64 (build 26200) and Windows 10
+LTSC 2019 x64 (build 17763.107), using verified CI-built DLLs. The Rust DLL requires
+`vcruntime140.dll`; the Windows 10 VM needed an application-local copy before Rust
+could load. See the example's [test record and deployment notes](https://github.com/Almis90/native-channels/tree/main/native/windows/interop#rust-runtime-dependency)
+for exact source commits, binary hashes and coverage limits.
 
 ## Build and verify
 
