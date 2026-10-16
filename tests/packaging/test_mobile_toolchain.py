@@ -28,7 +28,6 @@ class MobileToolchainTests(unittest.TestCase):
         self.responses = {
             ('--version',): '10.0.401',
             ('workload', '--version'): '10.0.401',
-            ('workload', 'list', '--machine-readable'): json.dumps({'installed': ['maui-ios']}),
         }
         self.which = patch.object(toolchain.shutil, 'which', return_value=str(self.root / 'dotnet')).start()
         patcher = patch.object(toolchain.subprocess, 'check_output', side_effect=lambda command, **_: self.responses[tuple(command[1:])])
@@ -58,12 +57,14 @@ class MobileToolchainTests(unittest.TestCase):
                     self.verify()
                 self.responses[command] = '10.0.401'
 
-    def test_missing_or_extra_workloads_are_rejected(self):
-        for installed in ([], ['maui-ios', 'maui-android'], ['maui-maccatalyst']):
-            with self.subTest(installed=installed):
-                self.responses[('workload', 'list', '--machine-readable')] = json.dumps({'installed': installed})
+    def test_extra_workload_records_are_rejected(self):
+        for extra in ('maui-android', 'maui-maccatalyst'):
+            with self.subTest(extra=extra):
+                record = self.registration.parent / extra
+                record.touch()
                 with self.assertRaisesRegex(ValueError, 'Unexpected installed workloads'):
                     self.verify()
+                record.unlink()
 
     def test_missing_registration_is_rejected(self):
         self.registration.unlink()

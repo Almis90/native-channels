@@ -92,18 +92,20 @@ def verify(root, target, sdk, workload, band):
         raise ValueError('SDK version differs from global.json.')
     if query('workload', '--version') != workload:
         raise ValueError('Installed workload-set version differs from global.json.')
-    inventory = json.loads(query('workload', 'list', '--machine-readable'))
-    if inventory['installed'] != [f'maui-{target}']:
-        raise ValueError(f'Unexpected installed workloads: {inventory["installed"]}')
     metadata = root / 'metadata' / 'workloads' / band
     if not (metadata / 'InstalledWorkloads' / f'maui-{target}').is_file():
         raise ValueError('Missing file-based workload registration.')
     if (metadata / 'installertype' / 'msi').exists():
         raise ValueError('Unexpected MSI workload registration.')
+    # These are the SDK's file-based workload inventory records. Unlike workload list's
+    # machine-readable mode, reading them does not query online advertising manifests.
+    installed = sorted(record.name for record in (metadata / 'InstalledWorkloads').iterdir())
+    if installed != [f'maui-{target}']:
+        raise ValueError(f'Unexpected installed workloads: {installed}')
     foreign = foreign_packs(root, target)
     if foreign:
         raise ValueError(f'Unexpected unrelated workload packs: {foreign}')
-    return {'sdk': sdk, 'workloadSet': workload, 'installed': inventory['installed'],
+    return {'sdk': sdk, 'workloadSet': workload, 'installed': installed,
             'root': str(root), 'cacheHit': os.environ.get('TOOLCHAIN_CACHE_HIT') == 'true',
             'foreignPlatformPacks': len(foreign)}
 
