@@ -1,5 +1,13 @@
 # Platform verification
 
+The current 0.2 [Avalonia reference sample matrix](../samples/Avalonia/README.md)
+adds AudioStreamer, VolumeMonitor and PdfViewer implementation heads for all six
+targets, including separate C++ Qt/GTK Linux PDF apps. Windows and browser heads
+and the new Linux native adapters/heads have build checks; package audits cover
+those three feeds. Android, iOS and macOS builds and all new runtime behavior
+remain unverified. These implementation checks do not extend the runtime evidence
+recorded below or complete 0.2 acceptance.
+
 This record separates implementation, compilation, runtime checks, and manual observations.
 Package acceptance requires verification of the exact source revision and generated archives.
 

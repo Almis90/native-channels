@@ -6,8 +6,10 @@ Its portable `net10.0` package depends on Core, Avalonia and Microsoft DI. Platf
 and plugin assets come from the platform packages selected by the application head.
 
 This is development work for 0.2, not a published package or complete Avalonia acceptance.
-Native/DOM view hosting, automatic mobile suspend/resume policy, browser page hooks and full
-event/plugin integration remain separate work.
+`AvaloniaChannelView` now owns native/DOM view attachment, per-instance channels and
+asynchronous disposal. The [reference samples](../samples/Avalonia/README.md) implement
+mobile suspension and browser page hooks explicitly; they are sample policies rather than
+automatic application-wide behavior. New heads and adapters still need runtime verification.
 
 ## Register
 

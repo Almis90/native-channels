@@ -3,6 +3,8 @@ using System.Collections.Concurrent;
 using System.Globalization;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Runtime.CompilerServices;
+using System.Threading.Channels;
 
 namespace NativeChannels;
 
@@ -14,6 +16,8 @@ public sealed class LinuxNativeModule : ILinuxChannelModule
     private readonly List<IDisposable> _channels = [];
     private readonly string[] _methods;
     private readonly string[] _binary;
+    private readonly string[] _events;
+    private readonly ConcurrentDictionary<ulong, Channel<object?>> _streams = new();
     private readonly Reply _reply;
     private readonly Request _request;
     private readonly Cancel _cancel;
@@ -21,11 +25,21 @@ public sealed class LinuxNativeModule : ILinuxChannelModule
     private nint _library;
     private nint _module;
     private ulong _next;
+    private readonly ChannelHandlerDispatcher? _dispatcher;
 
-    public LinuxNativeModule(string library, Assembly owner, string[] methodChannels, string[]? binaryChannels = null)
+    public LinuxNativeModule(
+        string library,
+        Assembly owner,
+        string[] methodChannels,
+        string[]? binaryChannels = null,
+        string[]? eventChannels = null,
+        ChannelHandlerDispatcher? dispatcher = null
+    )
     {
         _methods = methodChannels;
+        _dispatcher = dispatcher;
         _binary = binaryChannels ?? [];
+        _events = eventChannels ?? [];
         _reply = Complete;
         _library = NativeLibrary.Load(library, owner, null);
         try
@@ -52,7 +66,7 @@ public sealed class LinuxNativeModule : ILinuxChannelModule
     {
         foreach (var name in _methods)
         {
-            var channel = channels.GetMethodChannel(name);
+            var channel = channels.GetMethodChannel(name, new() { HandlerDispatcher = _dispatcher });
             _channels.Add(channel);
             channel.SetMethodCallHandler((call, token) => Send(name, call.Method, call.Arguments, token));
         }
@@ -61,6 +75,52 @@ public sealed class LinuxNativeModule : ILinuxChannelModule
             var channel = channels.GetBasicMessageChannel(name, new() { Codec = BinaryMessageCodec.Instance });
             _channels.Add(channel);
             channel.SetMessageHandler((value, token) => Send(name, "", value, token));
+        }
+        foreach (var name in _events)
+        {
+            var channel = channels.GetEventChannel(name);
+            _channels.Add(channel);
+            channel.SetStreamHandler((value, token) => Stream(name, value, token));
+        }
+    }
+
+    private async IAsyncEnumerable<object?> Stream(
+        string name,
+        object? value,
+        [EnumeratorCancellation] CancellationToken token
+    )
+    {
+        var buffer = Channel.CreateBounded<object?>(
+            new BoundedChannelOptions(64) { FullMode = BoundedChannelFullMode.DropOldest, SingleReader = true }
+        );
+        var bytes = StandardMessageCodec.Instance.Encode(value).ToArray();
+        ulong id;
+        lock (_gate)
+        {
+            ObjectDisposedException.ThrowIf(_module == 0, this);
+            token.ThrowIfCancellationRequested();
+            id = ++_next;
+            _streams[id] = buffer;
+            _request(
+                _module,
+                id,
+                name,
+                "listen",
+                bytes,
+                (nuint)bytes.Length,
+                CultureInfo.CurrentCulture.Name.Replace('-', '_')
+            );
+        }
+        try
+        {
+            await foreach (var item in buffer.Reader.ReadAllAsync(token).ConfigureAwait(false))
+                yield return item;
+        }
+        finally
+        {
+            lock (_gate)
+                if (_streams.TryRemove(id, out _) && _module != 0)
+                    _cancel(_module, id);
         }
     }
 
@@ -108,6 +168,27 @@ public sealed class LinuxNativeModule : ILinuxChannelModule
 
     private void Complete(ulong id, int status, nint data, nuint size)
     {
+        if (_streams.TryGetValue(id, out var stream))
+        {
+            try
+            {
+                var payload = new byte[checked((int)size)];
+                Marshal.Copy(data, payload, 0, payload.Length);
+                var value = StandardMessageCodec.Instance.Decode(payload);
+                if (status == 3)
+                    stream.Writer.TryWrite(value);
+                else
+                {
+                    _streams.TryRemove(id, out _);
+                    stream.Writer.TryComplete(status == 0 ? null : NativeError(value));
+                }
+            }
+            catch (Exception error)
+            {
+                stream.Writer.TryComplete(error);
+            }
+            return;
+        }
         if (!_pending.TryRemove(id, out var completion))
             return;
         try
@@ -148,6 +229,9 @@ public sealed class LinuxNativeModule : ILinuxChannelModule
             foreach (var pending in _pending.Values)
                 pending.TrySetException(new ObjectDisposedException(nameof(LinuxNativeModule)));
             _pending.Clear();
+            foreach (var stream in _streams.Values)
+                stream.Writer.TryComplete(new ObjectDisposedException(nameof(LinuxNativeModule)));
+            _streams.Clear();
             NativeLibrary.Free(_library);
             _library = 0;
         }
@@ -156,6 +240,42 @@ public sealed class LinuxNativeModule : ILinuxChannelModule
         _channels.Clear();
         GC.KeepAlive(_reply);
     }
+
+    private static Exception NativeError(object? value) =>
+        value is IDictionary<string, object?> error
+            ? new ChannelException(
+                (string)error["code"]!,
+                (string)error["message"]!,
+                error.TryGetValue("details", out var details) ? details : null,
+                "linux"
+            )
+            : new ChannelTransportException("Malformed native event error.");
+
+    // Optional view extension. Toolkit ownership and all UI APIs stay in the native module.
+    public nint CreateView(nint parent, string identity)
+    {
+        lock (_gate)
+        {
+            ObjectDisposedException.ThrowIf(_module == 0, this);
+            var handle = Export<ViewCreate>("nc_view_create")(_module, parent, identity);
+            return handle != 0 ? handle : throw new ChannelTransportException("Native view creation failed.");
+        }
+    }
+
+    public void PollView()
+    {
+        lock (_gate)
+        {
+            ObjectDisposedException.ThrowIf(_module == 0, this);
+            Export<ViewPoll>("nc_view_poll")(_module);
+        }
+    }
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    private delegate nint ViewCreate(nint module, nint parent, [MarshalAs(UnmanagedType.LPUTF8Str)] string identity);
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    private delegate void ViewPoll(nint module);
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     private delegate void Reply(ulong id, int status, nint data, nuint size);

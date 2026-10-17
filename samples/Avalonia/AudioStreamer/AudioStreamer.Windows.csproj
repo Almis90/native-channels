@@ -7,7 +7,7 @@
         <ApplicationManifest>app.manifest</ApplicationManifest>
     </PropertyGroup>
     <ItemGroup>
-        <Compile Remove="Linux/**/*.cs" />
+        <Compile Remove="Linux/**/*.cs;Android/**/*.cs;iOS/**/*.cs;macOS/**/*.cs;Browser/**/*.cs;CrossPlatform/**/*.cs" />
         <PackageReference Include="Avalonia.Desktop" />
         <PackageReference Include="Avalonia.Themes.Fluent" />
         <PackageReference Include="NativeChannels.Avalonia" />

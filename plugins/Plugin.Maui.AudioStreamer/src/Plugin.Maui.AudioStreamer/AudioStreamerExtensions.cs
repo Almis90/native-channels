@@ -20,6 +20,9 @@ public static class AudioStreamerExtensions
 #if LINUX
             LinuxFactory = CreateLinuxModule,
 #endif
+#if BROWSER
+            BrowserModule = "./_content/Plugin.Maui.AudioStreamer/audiostreamer.mjs",
+#endif
 #if WINDOWS
             WindowsFactory = CreateWindowsModule,
 #endif

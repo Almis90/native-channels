@@ -16,6 +16,9 @@
         />
         <PackageVersion Include="Avalonia.Android" Version="12.1.4" />
         <PackageVersion Include="Avalonia.iOS" Version="12.1.4" />
+        <PackageVersion Include="Plugin.Avalonia.PdfViewer" Version="0.1.0-alpha.1" />
+        <PackageVersion Include="System.Drawing.Common" Version="10.0.0" />
+        <PackageVersion Include="Avalonia.Browser" Version="12.1.4" />
         <PackageVersion Include="Avalonia.Desktop" Version="12.1.4" />
         <PackageVersion Include="Avalonia.Themes.Fluent" Version="12.1.4" />
         <PackageVersion Include="NativeChannels.Core" Version="$(NativeChannelsPackageVersion)" />

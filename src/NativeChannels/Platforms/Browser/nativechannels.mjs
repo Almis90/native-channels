@@ -1,5 +1,5 @@
 // Session-scoped, codec-independent byte transport. No application modules are global.
-import { methodHandler, ChannelError, notImplemented } from './json-codec.mjs';
+import { methodHandler, ChannelError, notImplemented, encodeEnvelope, encodeValue, decodeEnvelope } from './json-codec.mjs';
 export const Status = Object.freeze({ success: 0, channelNotFound: 1, handlerError: 2, disposed: 3, cancelled: 4 });
 const maximumPayloadBytes = 16 * 1024 * 1024;
 const encoder = new TextEncoder();
@@ -46,6 +46,21 @@ export function createSession(receive) {
         notImplemented,
         registerMethodHandler(channel, handler) {
             return session.context.registerBinaryHandler(channel, methodHandler(handler));
+        },
+        registerEventHandler(channel, stream) {
+            return session.context.registerMethodHandler(channel, async (method, args, signal) => {
+                if (method !== 'listen') return notImplemented;
+                if (!/^__maui\.events\/[0-9a-f]{32}$/u.test(args?.events ?? ''))
+                    throw new ChannelError('invalid_arguments', 'Invalid event subscription endpoint.');
+                for await (const value of stream(args.arguments, signal)) {
+                    if (signal.aborted) break;
+                    const response = await session.context.send(args.events,
+                        encodeEnvelope({ method: 'event', arguments: encodeValue(value) }), signal);
+                    if (response.status !== Status.success || decodeEnvelope(response.payload).status !== 'success')
+                        throw new ChannelError('event_delivery_failed', 'The event receiver closed or rejected an event.');
+                }
+                return null;
+            });
         },
         registerBinaryHandler(channel, handler) {
             validateName(channel);

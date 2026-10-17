@@ -7,7 +7,8 @@ namespace Plugin.Maui.VolumeMonitor;
 public static class VolumeMonitorExtensions
 {
     /// <summary>Adds the plugin's packaged native module to a NativeChannels session.</summary>
-    public static NativeChannelsOptions AddVolumeMonitor(this NativeChannelsOptions options)
+    public static TOptions AddVolumeMonitor<TOptions>(this TOptions options)
+        where TOptions : ChannelRegistrationOptions
     {
         ArgumentNullException.ThrowIfNull(options);
         var module = new NativeModuleRegistration(
@@ -16,6 +17,12 @@ public static class VolumeMonitorExtensions
             "MauiVolumeMonitorNative"
         )
         {
+#if BROWSER
+            BrowserModule = "./_content/Plugin.Maui.VolumeMonitor/volumemonitor.mjs",
+#endif
+#if LINUX
+            LinuxFactory = CreateLinuxModule,
+#endif
 #if WINDOWS
             WindowsFactory = CreateWindowsModule,
 #endif
@@ -35,6 +42,15 @@ public static class VolumeMonitorExtensions
         return services;
     }
 
+#if LINUX
+    private static ILinuxChannelModule CreateLinuxModule() =>
+        new LinuxNativeModule(
+            "libnc_volume.so",
+            typeof(VolumeMonitorExtensions).Assembly,
+            [],
+            eventChannels: [VolumeMonitor.ChannelName]
+        );
+#endif
 #if WINDOWS
     private static IWindowsChannelModule CreateWindowsModule() => new WindowsVolumeMonitorModule();
 #endif

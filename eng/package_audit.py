@@ -70,7 +70,7 @@ def audit_android_scope(path, record):
     package_id = record["id"]
     permitted = {
         "NativeChannels.Core", "NativeChannels", "NativeChannels.Maui", "NativeChannels.Avalonia", "NativeChannels.Native.Android",
-        "Plugin.Maui.Currency", "Plugin.Maui.AudioStreamer", "Plugin.Maui.VolumeMonitor", "Plugin.Maui.PdfViewer",
+        "Plugin.Maui.Currency", "Plugin.Maui.AudioStreamer", "Plugin.Maui.VolumeMonitor", "Plugin.Maui.PdfViewer", "Plugin.Avalonia.PdfViewer",
     }
     if package_id not in permitted:
         raise ValueError(f"{path.name}: unexpected Android feed package {package_id}")
@@ -104,10 +104,7 @@ def audit_platform_scope(path, record, platform):
     permitted = {"NativeChannels.Core", "NativeChannels", "NativeChannels.Maui", "NativeChannels.Avalonia"}
     if platform in {"macos", "linux", "browser"}:
         permitted.remove("NativeChannels.Maui")
-    if platform in {"linux", "browser"}:
-        permitted.add("Plugin.Maui.Currency")
-    if platform == "linux":
-        permitted.add("Plugin.Maui.AudioStreamer")
+    permitted.update({"Plugin.Maui.Currency", "Plugin.Maui.AudioStreamer", "Plugin.Maui.VolumeMonitor", "Plugin.Avalonia.PdfViewer"})
     if apple:
         permitted.add("NativeChannels.Native.Apple")
     if package_id not in permitted:
@@ -127,16 +124,29 @@ def audit_platform_scope(path, record, platform):
                (not apple and (".xcframework/" in name or name.endswith(".resources.zip"))) for name in files):
             raise ValueError(f"{path.name}: unrelated native payload in {platform} feed")
         if platform == 'linux':
-            expected = {'Plugin.Maui.Currency': 'libnc_currency.so',
-                        'Plugin.Maui.AudioStreamer': 'libnc_audio.so'}.get(package_id)
+            expected = {'Plugin.Maui.Currency': ['libnc_currency.so'],
+                        'Plugin.Maui.AudioStreamer': ['libnc_audio.so'],
+                        'Plugin.Maui.VolumeMonitor': ['libnc_volume.so'],
+                        'Plugin.Avalonia.PdfViewer': ['libnc_pdf_qt.so', 'libnc_pdf_gtk.so']}.get(package_id, [])
             runtime_files = {name for name in files if name.startswith('runtimes/') and not name.endswith('/')}
-            required = {f'runtimes/linux-x64/native/{expected}'} if expected else set()
+            required = {f'runtimes/linux-x64/native/{name}' for name in expected}
             if runtime_files != required:
                 raise ValueError(f'{path.name}: unexpected Linux native runtime assets {sorted(runtime_files)}')
             for name in required:
                 header = archive.read(name)[:20]
                 if len(header) < 20 or header[:6] != b'\x7fELF\x02\x01' or header[18:20] != b'\x3e\x00':
                     raise ValueError(f'{path.name}: expected an ELF64 x86-64 native library')
+        if platform == 'browser':
+            required = {
+                'NativeChannels': ['browser/nativechannels.mjs', 'browser/json-codec.mjs'],
+                'Plugin.Maui.Currency': ['browser/currency.mjs'],
+                'Plugin.Maui.AudioStreamer': ['browser/audiostreamer.mjs'],
+                'Plugin.Maui.VolumeMonitor': ['browser/volumemonitor.mjs'],
+                'Plugin.Avalonia.PdfViewer': ['browser/pdf-dom.mjs', 'browser/pdfviewer.mjs',
+                    'browser/vendor/pdf.mjs', 'browser/vendor/pdf.worker.mjs', 'browser/vendor/LICENSE'],
+            }.get(package_id, [])
+            if any(name not in files or not archive.read(name) for name in required):
+                raise ValueError(f'{path.name}: missing packaged browser adapter or PDF.js assets')
         metadata = ET.fromstring(archive.read(f"{package_id}.nuspec"))
         for element in metadata.iter():
             element.tag = element.tag.rsplit("}", 1)[-1]

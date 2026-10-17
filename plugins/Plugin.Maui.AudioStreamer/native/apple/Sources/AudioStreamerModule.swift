@@ -98,9 +98,11 @@ private final class PcmPlayer {
             }
         }
         do {
+            #if !os(macOS)
             let session = AVAudioSession.sharedInstance()
             try session.setCategory(.playback, mode: .default)
             try session.setActive(true)
+            #endif
             let audio = AVAudioEngine()
             let node = AVAudioPlayerNode()
             let pcm = AVAudioFormat(standardFormatWithSampleRate: 48000, channels: 1)!
@@ -115,6 +117,7 @@ private final class PcmPlayer {
             played = 0
             state = "playing"
             let notifications = NotificationCenter.default
+            #if !os(macOS)
             observers.append(
                 notifications.addObserver(forName: AVAudioSession.interruptionNotification, object: session, queue: nil)
                 {
@@ -137,6 +140,7 @@ private final class PcmPlayer {
                     }
                     self?.interrupt(token)
                 })
+            #endif
             observers.append(
                 notifications.addObserver(forName: .AVAudioEngineConfigurationChange, object: audio, queue: nil) {
                     [weak self] _ in self?.interrupt(token)
@@ -229,7 +233,9 @@ private final class PcmPlayer {
         format = nil
         buffered = 0
         played = 0
+        #if !os(macOS)
         try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+        #endif
         if let completion, !completion.isCancelled {
             if let error {
                 completion.failure(error.code, message: error.message, details: nil)

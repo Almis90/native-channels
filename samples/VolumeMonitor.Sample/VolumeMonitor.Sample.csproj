@@ -44,6 +44,7 @@
     </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="Plugin.Maui.VolumeMonitor" />
+        <PackageReference Include="NativeChannels.Maui" />
     </ItemGroup>
     <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">
         <MauiIcon Include="Platforms/Windows/appicon.svg" />

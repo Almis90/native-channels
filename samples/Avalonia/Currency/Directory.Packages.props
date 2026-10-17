@@ -1,7 +1,6 @@
 <Project>
     <Import Project="../../../Directory.Packages.props" />
     <ItemGroup>
-        <PackageVersion Include="Avalonia.Browser" Version="12.1.4" />
         <PackageVersion Include="Avalonia.Fonts.Inter" Version="12.1.4" />
         <PackageVersion Include="Xamarin.AndroidX.Core.SplashScreen" Version="1.0.1.15" />
     </ItemGroup>

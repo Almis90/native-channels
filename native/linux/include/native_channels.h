@@ -4,11 +4,13 @@
 
 // Language-neutral ABI v1. Each library exports the same four entrypoints.
 // Requests are serialized by the host. Replies may arrive on any thread,
-// exactly once. All input pointers are borrowed for the call; reply bytes are
-// borrowed for the callback. Payloads use StandardMessageCodec. status:
-// 0=value, 1=error map, 2=not implemented. cancel must finish a pending
-// request; destroy joins workers and finishes all requests before returning. No
-// callback may occur after destroy returns. No exception crosses ABI.
+// with exactly one terminal reply (streams may emit events first). All input
+// pointers are borrowed for the call; reply bytes are borrowed for the
+// callback. Payloads use StandardMessageCodec. status: 0=value/end, 1=error
+// map, 2=not implemented, 3=nonterminal event for listen. Event streams end
+// with 0 or 1. cancel must finish a pending request; destroy joins workers and
+// finishes all requests before returning. No callback may occur after destroy
+// returns. No exception crosses ABI.
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -20,6 +22,12 @@ void nc_request(void *module, uint64_t request, const char *channel,
                 const char *locale);
 void nc_cancel(void *module, uint64_t request);
 void nc_destroy(void *module);
+// Optional native-view extension. View modules are created, called, polled and
+// destroyed on the host UI thread. The parent is a borrowed X11 window ID;
+// create returns an owned child window ID (zero on failure). destroy also
+// destroys that child. Poll processes native toolkit events without waiting.
+uintptr_t nc_view_create(void *module, uintptr_t parent, const char *identity);
+void nc_view_poll(void *module);
 #ifdef __cplusplus
 }
 #endif

@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net10.0-android</TargetFramework>
+        <IsPackable>false</IsPackable>
+        <OutputType>Exe</OutputType>
+        <SupportedOSPlatformVersion>31.0</SupportedOSPlatformVersion>
+        <ApplicationId>dev.nativechannels.audiostreamer.avalonia.android</ApplicationId>
+        <ApplicationTitle>AudioStreamer</ApplicationTitle>
+        <ApplicationDisplayVersion>0.1</ApplicationDisplayVersion>
+        <ApplicationVersion>1</ApplicationVersion>
+        <EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="Avalonia.Android" />
+        <PackageReference Include="Avalonia.Themes.Fluent" />
+        <PackageReference Include="NativeChannels.Avalonia" />
+        <PackageReference Include="Plugin.Maui.AudioStreamer" />
+        <Compile Include="../../Shared/SampleApplication.cs" Link="SampleApplication.cs" />
+        <Compile Include="../CrossPlatform/*.cs" Link="%(Filename)%(Extension)" />
+        <Compile
+            Include="../../../AudioStreamer.Sample/MusicGenerator.cs"
+            Link="MusicGenerator.cs"
+        />
+    </ItemGroup>
+</Project>
