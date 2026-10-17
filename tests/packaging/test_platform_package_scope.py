@@ -11,7 +11,7 @@ from package_audit import audit_platform_scope
 
 class PlatformPackageScopeTests(unittest.TestCase):
     def check_package(self, platform, tfm, package_id="NativeChannels.Maui", dependency="NativeChannels",
-                      group=None, extra=None):
+                      group=None, extra=None, native_header=b'\x7fELF\x02\x01' + bytes(12) + b'\x3e\x00'):
         with tempfile.TemporaryDirectory() as folder:
             path = Path(folder) / "package.nupkg"
             with ZipFile(path, "w") as archive:
@@ -21,6 +21,9 @@ class PlatformPackageScopeTests(unittest.TestCase):
 </dependencies></metadata></package>''')
                 if extra:
                     archive.writestr(extra, b"native")
+                if platform == 'linux' and package_id in ('Plugin.Maui.Currency', 'Plugin.Maui.AudioStreamer') and native_header is not None:
+                    library = 'currency' if package_id.endswith('Currency') else 'audio'
+                    archive.writestr(f'runtimes/linux-x64/native/libnc_{library}.so', native_header)
             audit_platform_scope(path, {"id": package_id}, platform)
 
     def test_macos_requires_native_target_without_maui(self):
@@ -31,8 +34,20 @@ class PlatformPackageScopeTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'unexpected macos framework package'):
             self.check_package('macos', 'net10.0-macos26.0')
 
+    def test_linux_plugin_requires_actual_native_library(self):
+        for name in ('Plugin.Maui.Currency', 'Plugin.Maui.AudioStreamer'):
+            with self.subTest(name=name), self.assertRaisesRegex(ValueError, 'native runtime assets'):
+                self.check_package('linux', 'net10.0', package_id=name, native_header=None)
+            with self.subTest(name=name), self.assertRaisesRegex(ValueError, 'ELF64'):
+                self.check_package('linux', 'net10.0', package_id=name, native_header=b'not an ELF binary')
+
+    def test_linux_rejects_foreign_runtime_library(self):
+        with self.assertRaisesRegex(ValueError, 'native runtime assets'):
+            self.check_package('linux', 'net10.0', package_id='Plugin.Maui.Currency',
+                               extra='runtimes/win-x64/native/currency.dll')
+
     def test_linux_requires_portable_assets_and_rejects_other_hosts(self):
-        for name in ('NativeChannels.Core', 'NativeChannels', 'Plugin.Maui.Currency'):
+        for name in ('NativeChannels.Core', 'NativeChannels', 'Plugin.Maui.Currency', 'Plugin.Maui.AudioStreamer'):
             self.check_package('linux', 'net10.0', package_id=name)
         for name in ('NativeChannels.Maui', 'NativeChannels.Native.Apple'):
             with self.subTest(name=name), self.assertRaisesRegex(ValueError, 'unexpected linux'):

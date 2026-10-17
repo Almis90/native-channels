@@ -75,6 +75,7 @@ export default defineConfig({
           { text: 'Implementation', link: '/audio-streamer' },
           { text: 'Sample app', link: '/audio-sample' },
           { text: 'Avalonia Windows sample', link: '/audio-avalonia-windows' },
+          { text: 'Avalonia Linux sample', link: '/audio-avalonia-linux' },
           { text: 'Verification', link: '/audio-verification' },
         ] },
         { text: 'VolumeMonitor', collapsed: true, items: [

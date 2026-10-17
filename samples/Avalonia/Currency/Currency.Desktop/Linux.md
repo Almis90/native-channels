@@ -5,9 +5,10 @@ It consumes Core, NativeChannels and Currency from local NuGet packages. Only th
 application UI is a project reference; no MAUI, mobile binding or WinUI dependency is allowed.
 
 The Linux transport runs serialized channels between two owned .NET endpoints, as the Windows
-transport does. A module supplies `LinuxFactory` / `ILinuxChannelModule` and can call Linux system
-APIs through .NET interop. Currency calls the system ICU C API directly for currency validation
-and localized symbols. It does not bundle a currency table or use a managed lookup substitute.
+transport does. `LinuxNativeModule` forwards requests to a packaged C++ module through a
+language-neutral C ABI. Currency's C++ handler calls ICU directly for validation and localized
+symbols; C# contains no Linux lookup implementation or individual ICU bindings.
+See the [native module contract](../../../../native/linux/README.md).
 `AddNativeChannels(options => options.AddCurrency())` and `AddCurrency()` retain the same API.
 
 ## Build and execute
@@ -16,7 +17,7 @@ On Ubuntu 24.04 x64, install the desktop runtime and test-display dependencies:
 
 ```bash
 sudo apt-get update
-sudo apt-get install -y libicu74 libx11-6 libice6 libsm6 libfontconfig1 libxrandr2 libxi6 libxcursor1 xvfb openbox xdotool wmctrl scrot fonts-dejavu-core
+sudo apt-get install -y g++ pkg-config libicu-dev libicu74 libx11-6 libice6 libsm6 libfontconfig1 libxrandr2 libxi6 libxcursor1 xvfb openbox xdotool wmctrl scrot fonts-dejavu-core
 bash eng/bootstrap.sh
 bash eng/dotnet.sh test -c Release
 bash eng/dotnet.sh test tests/NativeChannels.Linux.Tests -c Release
@@ -44,8 +45,9 @@ bash eng/dotnet.sh run --project samples/Avalonia/Currency/Currency.Desktop -c R
 `CurrencyDesktopTarget=linux` can also select the head explicitly. The Linux development archives
 contain `net10.0` assemblies with Linux adapters and runtime OS checks. They are scoped test feeds,
 not combined multi-platform release packages; do not use them as portable implementations on another OS.
-The ICU loader supports versioned or unversioned system libraries with ICU major versions 60–99;
-Ubuntu 24.04's ICU 74 is the tested version. Missing ICU produces an actionable startup/lookup error.
+The package includes `runtimes/linux-x64/native/libnc_currency.so`, linked against the build
+machine's ICU SONAME. Ubuntu 24.04's ICU 74 is tested; rebuild for a different ICU ABI.
+The application needs the matching ICU runtime, but does not need native development headers.
 The current .NET culture selects the symbol locale. Results and accepted currency codes follow the
 installed ICU data; no guarantee is made that all operating systems return identical symbols.
 
@@ -67,7 +69,7 @@ or Xvfb; these environments must be identified separately in the verification re
 
 This is the Linux **Currency method-call proof** for milestone 0.2. The transport's native unit tests
 do not establish Avalonia messages/events UI integration. A reusable Avalonia host package, native
-view embedding, the other reference plugins, Wayland, ARM64, trimming/AOT and combined NuGet release
+view embedding, remaining reference plugins, Wayland, ARM64, trimming/AOT and combined NuGet release
 acceptance remain separate work. See [executed evidence](../../../../docs/verification.md#avalonia-on-linux).
 
 API references: [ICU currency API](https://unicode-org.github.io/icu-docs/apidoc/released/icu4c/ucurr_8h.html)

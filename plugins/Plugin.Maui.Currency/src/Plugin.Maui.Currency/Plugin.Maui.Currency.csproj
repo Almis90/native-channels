@@ -38,12 +38,20 @@
         />
     </ItemGroup>
     <ItemGroup Condition="'$(NativeChannelsLinuxOnly)' == 'true'">
-        <Compile
-            Include="../../native/linux/**/*.cs"
-            Link="native/linux/%(RecursiveDir)%(Filename)%(Extension)"
+        <None
+            Include="../../../../artifacts/native/linux-x64/libnc_currency.so"
+            Pack="true"
+            PackagePath="runtimes/linux-x64/native/"
         />
         <InternalsVisibleTo Include="NativeChannels.Linux.Tests" />
     </ItemGroup>
+    <Target
+        Name="BuildLinuxCurrency"
+        BeforeTargets="BeforeBuild;GenerateNuspec"
+        Condition="'$(NativeChannelsLinuxOnly)' == 'true'"
+    >
+        <Exec Command="bash &quot;$(MSBuildThisFileDirectory)../../../../eng/build-linux-native.sh&quot; currency" />
+    </Target>
     <ItemGroup>
         <InternalsVisibleTo Include="Plugin.Maui.Currency.Windows.Tests" />
         <PackageReference Include="NativeChannels" />

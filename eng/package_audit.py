@@ -106,6 +106,8 @@ def audit_platform_scope(path, record, platform):
         permitted.remove("NativeChannels.Maui")
     if platform in {"linux", "browser"}:
         permitted.add("Plugin.Maui.Currency")
+    if platform == "linux":
+        permitted.add("Plugin.Maui.AudioStreamer")
     if apple:
         permitted.add("NativeChannels.Native.Apple")
     if package_id not in permitted:
@@ -124,6 +126,17 @@ def audit_platform_scope(path, record, platform):
         if any(name.startswith(forbidden) or name.endswith(".aar") or
                (not apple and (".xcframework/" in name or name.endswith(".resources.zip"))) for name in files):
             raise ValueError(f"{path.name}: unrelated native payload in {platform} feed")
+        if platform == 'linux':
+            expected = {'Plugin.Maui.Currency': 'libnc_currency.so',
+                        'Plugin.Maui.AudioStreamer': 'libnc_audio.so'}.get(package_id)
+            runtime_files = {name for name in files if name.startswith('runtimes/') and not name.endswith('/')}
+            required = {f'runtimes/linux-x64/native/{expected}'} if expected else set()
+            if runtime_files != required:
+                raise ValueError(f'{path.name}: unexpected Linux native runtime assets {sorted(runtime_files)}')
+            for name in required:
+                header = archive.read(name)[:20]
+                if len(header) < 20 or header[:6] != b'\x7fELF\x02\x01' or header[18:20] != b'\x3e\x00':
+                    raise ValueError(f'{path.name}: expected an ELF64 x86-64 native library')
         metadata = ET.fromstring(archive.read(f"{package_id}.nuspec"))
         for element in metadata.iter():
             element.tag = element.tag.rsplit("}", 1)[-1]

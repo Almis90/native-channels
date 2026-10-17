@@ -5,6 +5,16 @@
         <IsTestProject>true</IsTestProject>
         <DefineConstants>$(DefineConstants);LINUX</DefineConstants>
     </PropertyGroup>
+    <Target Name="BuildNativeCurrency" BeforeTargets="BeforeBuild">
+        <Exec Command="bash &quot;$(MSBuildThisFileDirectory)../../eng/build-linux-native.sh&quot; currency" />
+    </Target>
+    <ItemGroup>
+        <None
+            Include="../../artifacts/native/linux-x64/libnc_currency.so"
+            Link="libnc_currency.so"
+            CopyToOutputDirectory="PreserveNewest"
+        />
+    </ItemGroup>
     <ItemGroup>
         <Compile
             Include="../../src/NativeChannels/NativeChannelTransport.cs"
@@ -21,10 +31,6 @@
         <Compile
             Include="../../src/NativeChannels/Hosting/*.cs"
             Link="Hosting/%(Filename)%(Extension)"
-        />
-        <Compile
-            Include="../../plugins/Plugin.Maui.Currency/native/linux/*.cs"
-            Link="Currency/%(Filename)%(Extension)"
         />
         <Compile
             Include="../../plugins/Plugin.Maui.Currency/src/Plugin.Maui.Currency/*.cs"

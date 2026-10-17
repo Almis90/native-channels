@@ -75,7 +75,9 @@ OS-provided form.
 
 For the Linux development feed, see the [Avalonia Linux proof](../../samples/Avalonia/Currency/Currency.Desktop/Linux.md).
 For packaged JavaScript adapters and WebAssembly, see the [Avalonia Browser proof](../../samples/Avalonia/Currency/Currency.Browser/README.md).
-It packages the C# adapter that calls ICU's native currency APIs, without mobile assets or MAUI.
+It packages a C++ channel module that links ICU directly, without mobile assets or MAUI.
+The reusable [Linux bridge](../../native/linux/README.md) uses a language-neutral C ABI;
+no currency-specific C# native bindings are required. Build with `g++`, `pkg-config`, and `libicu-dev`.
 The Linux archives and Ubuntu x64 runtime checks are separate from the mobile build below.
 
 From the repository root, with the pinned SDK/workloads, Xcode, JDK, and Android SDK installed:

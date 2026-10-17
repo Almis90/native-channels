@@ -95,6 +95,18 @@ cleanup completion while destroying a tab. This proof does not complete mileston
 
 ## Avalonia on Linux
 
+**C++ adapter update, 2026-10-17:** the working tree based on `9c1a155` replaces the
+Linux Currency and AudioStreamer C# implementations with C++ modules behind a reusable
+C ABI bridge. Ubuntu 24.04.5 x64 verification passed 18 Currency/transport tests, six
+AudioStreamer integration tests, native C++ audio/codec tests with address and undefined-behavior
+sanitizers, and 171 packaging checks. Both fresh package-only Avalonia applications passed;
+Currency also passed normal window-manager close and AudioStreamer passed paused-playback
+shutdown, host recreation and minimize/restart. Runtime verifiers matched the native `.so`
+files to their local packages. No workflows ran. See the [native module contract](../native/linux/README.md)
+and [AudioStreamer record](audio-verification.md) for scope and local evidence paths.
+
+The earlier Linux proof below predates the C++ conversion.
+
 Local execution on **2026-10-17** used the working tree based on
 `ffe8abe34b0f4d82b46de82457e9bd50ff59e2aa`, plus the Linux implementation changes.
 This is uncommitted development evidence, not a clean-commit CI or release acceptance record.

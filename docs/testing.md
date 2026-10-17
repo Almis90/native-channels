@@ -121,7 +121,9 @@ messages, cancellation, timeout, input, reload and disposal. See its guide for t
 The [Avalonia Linux Currency proof](currency-avalonia-linux.md) adds real system-ICU tests on Linux,
 fresh-package X11 application checks, and normal window-close disposal. Run
 `bash eng/dotnet.sh test tests/NativeChannels.Linux.Tests -c Release` on Linux; this separate suite
-requires system ICU and is intentionally outside the cross-platform portable solution.
+requires `g++`, `pkg-config`, and `libicu-dev` to build the C++ adapter, and is intentionally
+outside the cross-platform portable solution. AudioStreamer has a separate Linux integration
+suite plus sanitizer-enabled C++ queue/lifecycle tests; see the [native guide](../native/linux/README.md).
 The Linux workflow also runs the existing portable and packaging suites. Xvfb execution verifies
 the real X11 backend, but does not establish Wayland or physical desktop input coverage.
 

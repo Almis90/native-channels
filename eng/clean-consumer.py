@@ -14,6 +14,7 @@ CONSUMERS = {
     'samples/Avalonia/Currency/Currency.Browser': 'currency-avalonia-browser',
     'samples/AudioStreamer.Sample': 'audio',
     'samples/Avalonia/AudioStreamer': 'audio-avalonia-windows',
+    'samples/Avalonia/AudioStreamer/Linux': 'audio-avalonia-linux',
     'samples/VolumeMonitor.Sample': 'volume',
     'samples/PdfViewer.Sample': 'pdf',
 }

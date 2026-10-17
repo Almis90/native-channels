@@ -65,8 +65,14 @@ adapter helpers and the other reference plugins still need browser integration.
 The [AudioStreamer Windows sample](audio-avalonia-windows.md) starts the next reference-plugin
 integration: framework-neutral registration and dependencies, a package-only Avalonia consumer,
 and the existing native PCM adapter. Its local verification covers playback, backpressure,
-DI ownership and window shutdown. Other AudioStreamer Avalonia targets remain planned;
+DI ownership and window shutdown. The [Linux head](audio-avalonia-linux.md) shares that UI
+and adds an ALSA adapter, verified locally on Ubuntu 24.04 x64 with PulseAudio and X11.
+Other AudioStreamer Avalonia targets remain planned;
 see its [verification record](audio-verification.md) for the executed scope.
+
+Linux reference adapters use C++ behind the reusable, language-neutral native module ABI.
+For PdfViewer, plan two separate Linux examples: Qt with Qt PDF, and GTK with Poppler,
+both implementing the same PDF channel contract. Neither Linux PDF example is implemented yet.
 
 Milestone **0.2** requires an integrated, documented, and verified Avalonia host on **Android, iOS,
 Windows, macOS, Linux, and browser/WebAssembly**. Every target must satisfy the criteria below.

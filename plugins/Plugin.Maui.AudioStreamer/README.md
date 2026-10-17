@@ -6,9 +6,12 @@ PCM chunks; Kotlin plays them with `AudioTrack`, and Swift plays them with `AVAu
 framework-neutral `NativeChannels` package. The MAUI sample references `NativeChannels.Maui`
 explicitly; the [Avalonia Windows sample](../../samples/Avalonia/AudioStreamer/README.md)
 uses `NativeChannels.Avalonia` with the same facade and Windows native module.
+The [Avalonia Linux head](../../samples/Avalonia/AudioStreamer/Linux/README.md) uses a
+packaged C++ ALSA adapter with the same PCM protocol and bounded buffering.
 
 The example is for plugin authors and has not been published to NuGet.org. It requires Android 12+
-(API 31), iOS/Mac Catalyst 15+, or Windows 10 build 17763+. See [verification](VERIFICATION.md)
+(API 31), iOS/Mac Catalyst 15+, Windows 10 build 17763+, or Linux with a working ALSA
+output supporting pause (verified on Ubuntu 24.04 x64 with PulseAudio and X11). See [verification](VERIFICATION.md)
 for actual execution results.
 
 On Windows, run `./eng/verify-windows.ps1 -Plugin AudioStreamer` from the repository root.
@@ -131,6 +134,7 @@ and route stress need measurement before making those claims.
 - [Kotlin adapter](native/android/src/main/java/dev/nativechannels/audio/AudioStreamerModule.kt): AudioTrack, focus, bounded queue, partial writes.
 - [Swift adapter](native/apple/Sources/AudioStreamerModule.swift): AVAudioEngine scheduling, playback acknowledgements, interruptions.
 - [Windows adapter](native/windows/WindowsAudioStreamerModule.cs): waveOut PCM playback and queue ownership.
+- [Linux adapter](native/linux/audio.cpp) and [channel module](native/linux/audio.hpp): C++ ALSA PCM playback, partial writes and bounded buffering.
 - [Interactive sample](../../samples/AudioStreamer.Sample): original PCM music synthesis and playback controls.
 - [Portable tests](../../tests/Plugin.Maui.AudioStreamer.Tests): exact PCM, backpressure, cancellation, lease cleanup, and malformed replies.
 

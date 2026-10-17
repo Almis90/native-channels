@@ -13,6 +13,8 @@ export const includedPages = {
   'audio-streamer.md': 'plugins/Plugin.Maui.AudioStreamer/README.md',
   'audio-verification.md': 'plugins/Plugin.Maui.AudioStreamer/VERIFICATION.md',
   'audio-sample.md': 'samples/AudioStreamer.Sample/README.md',
+  'audio-avalonia-windows.md': 'samples/Avalonia/AudioStreamer/README.md',
+  'audio-avalonia-linux.md': 'samples/Avalonia/AudioStreamer/Linux/README.md',
   'currency.md': 'plugins/Plugin.Maui.Currency/README.md',
   'currency-verification.md': 'plugins/Plugin.Maui.Currency/VERIFICATION.md',
   'sample.md': 'samples/NativeChannels.Sample/README.md',

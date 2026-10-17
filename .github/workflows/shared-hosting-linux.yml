@@ -2,10 +2,10 @@ name: Verify Avalonia Linux
 on:
   pull_request:
     branches: [main, milestone-0.2-shared-hosting]
-    paths: ['src/**', 'plugins/Plugin.Maui.Currency/**', 'samples/Avalonia/Currency/**', 'samples/Currency.Shared/**', 'tests/**', 'eng/**', 'Directory.*.props', 'global.json', '.github/workflows/shared-hosting-linux.yml', '!**/*.md']
+    paths: ['src/**', 'native/linux/**', 'plugins/Plugin.Maui.Currency/**', 'samples/Avalonia/Currency/**', 'samples/Currency.Shared/**', 'tests/**', 'eng/**', 'Directory.*.props', 'global.json', '.github/workflows/shared-hosting-linux.yml', '!**/*.md']
   push:
     branches: [main, milestone-0.2-shared-hosting]
-    paths: ['src/**', 'plugins/Plugin.Maui.Currency/**', 'samples/Avalonia/Currency/**', 'samples/Currency.Shared/**', 'tests/**', 'eng/**', 'Directory.*.props', 'global.json', '.github/workflows/shared-hosting-linux.yml', '!**/*.md']
+    paths: ['src/**', 'native/linux/**', 'plugins/Plugin.Maui.Currency/**', 'samples/Avalonia/Currency/**', 'samples/Currency.Shared/**', 'tests/**', 'eng/**', 'Directory.*.props', 'global.json', '.github/workflows/shared-hosting-linux.yml', '!**/*.md']
   workflow_dispatch:
 permissions:
   contents: read
@@ -22,7 +22,7 @@ jobs:
       - name: Install runtime and X11 test dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libicu74 libx11-6 libice6 libsm6 libfontconfig1 libxrandr2 libxi6 libxcursor1 xvfb openbox xdotool wmctrl scrot fonts-dejavu-core
+          sudo apt-get install -y g++ pkg-config libicu-dev libicu74 libx11-6 libice6 libsm6 libfontconfig1 libxrandr2 libxi6 libxcursor1 xvfb openbox xdotool wmctrl scrot fonts-dejavu-core
           bash eng/bootstrap.sh
       - name: Run portable, Linux native and packaging tests
         run: |

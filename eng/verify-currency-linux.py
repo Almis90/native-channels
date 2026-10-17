@@ -9,6 +9,7 @@ from pathlib import Path
 import platform
 import subprocess
 import time
+import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
 spec = importlib.util.spec_from_file_location('shared_hosting', ROOT / 'eng/verify-shared-hosting.py')
@@ -101,6 +102,18 @@ def main():
                                                  if '/libicu' in line})
                 if not record['icuLibraries']:
                     raise ValueError('No system ICU library loaded')
+                native_paths = {line.split()[-1] for line in Path(f'/proc/{process.pid}/maps').read_text().splitlines()
+                                if line.split()[-1].endswith('/libnc_currency.so')}
+                if len(native_paths) != 1:
+                    raise ValueError('Expected the loaded C++ Currency adapter')
+                native_path = Path(next(iter(native_paths)))
+                archives = list((ROOT / 'artifacts/packages').glob('Plugin.Maui.Currency.*.nupkg'))
+                if len(archives) != 1:
+                    raise ValueError('Expected one local Currency archive')
+                with zipfile.ZipFile(archives[0]) as archive:
+                    if native_path.read_bytes() != archive.read('runtimes/linux-x64/native/libnc_currency.so'):
+                        raise ValueError('Loaded C++ Currency adapter differs from local archive')
+                record['nativeAdapter'] = {'path': str(native_path), 'sha256': hashlib.sha256(native_path.read_bytes()).hexdigest()}
                 import shutil
                 if shutil.which('scrot'):
                     # Allow the compositor to paint the completed lookup before capturing evidence.

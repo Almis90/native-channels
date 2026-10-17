@@ -6,13 +6,15 @@ It does not contain Flutter, Dart, or copied implementation code from those proj
 
 ## Native interoperability
 
-Applications communicate through generic byte-oriented Android, Apple, and Windows bridges. Native modules
+Applications communicate through generic byte-oriented platform bridges. Native modules
 register explicitly with an instance-scoped session; adapters implement SDK-specific operations
 without generating a C# binding for each method.
 
 Android and Apple adapters are included explicitly as an unbound AAR or native XCFramework.
 Windows adapters implement `IWindowsChannelModule` in C# and can call packaged native libraries
-through normal .NET interop. Packaging a generic bridge
+through normal .NET interop. Linux reference modules are C++ shared libraries, loaded through
+the reusable [language-neutral C ABI bridge](../native/linux/README.md); their platform logic
+does not require individual C# native bindings. Packaging a generic bridge
 does not remove the application's obligation to package third-party SDKs and native adapters.
 The public sample consumes NuGet packages without library project references to verify distribution as well
 as communication. A lower-level bridge regression consumer lives in `tests/PackageConsumer`.

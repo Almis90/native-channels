@@ -83,6 +83,7 @@ its own build project and C# interop layer. See the
 | Android | Kotlin class implementing `NativeModule` | Fully qualified class name, with a public parameterless constructor |
 | Apple | Swift `NSObject` class implementing `NativeModule` | Explicit Objective-C class name plus framework name |
 | Windows | C# class implementing `IWindowsChannelModule` | Explicit module factory |
+| Linux | Native shared library exporting the [C ABI](../native/linux/README.md), demonstrated in C++ | `LinuxFactory` creates the reusable `LinuxNativeModule` bridge |
 
 Use the same endpoint, method names, and value types in each implementation. Validate native inputs
 as well as facade inputs: other callers can send directly to the endpoint. Return structured errors

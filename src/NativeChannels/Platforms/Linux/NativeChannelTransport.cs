@@ -14,8 +14,8 @@ public sealed partial class NativeChannelTransport
     {
         if (!OperatingSystem.IsLinux())
             throw new PlatformNotSupportedException("The Linux transport requires Linux.");
-        // Linux adapters can call native APIs directly from .NET. Separate endpoints still
-        // serialize every message and preserve the same ownership and dispatch rules as mobile.
+        // The owned adapter endpoint forwards requests to native modules through LinuxNativeModule.
+        // Separate endpoints preserve the same serialization, ownership and dispatch rules as mobile.
         var (managed, native) = InMemoryTransport.CreatePair();
         _linuxEndpoint = managed;
         managed.SetMessageHandler(ReceiveAsync);

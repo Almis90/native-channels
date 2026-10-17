@@ -11,8 +11,8 @@ use silent PCM. Minimizing stops and flushes playback; restoring does not restar
 Closing awaits playback, the window's DI session, and the host before exiting.
 
 This first AudioStreamer Avalonia head targets **Windows 10 build 17763+**, with an
-available default audio output. Android/iOS Avalonia heads, native macOS, Linux and
-browser audio integration remain work for 0.2. Existing Android/iOS/Catalyst adapters
+available default audio output. A [Linux head](Linux/README.md) shares this UI and uses ALSA.
+Android/iOS Avalonia heads, native macOS and browser audio integration remain work for 0.2. Existing Android/iOS/Catalyst adapters
 are retained, but their MAUI consumers need fresh acceptance after the dependency change.
 
 ## Build from local packages

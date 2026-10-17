@@ -17,6 +17,9 @@ public static class AudioStreamerExtensions
             "MauiAudioStreamerNative"
         )
         {
+#if LINUX
+            LinuxFactory = CreateLinuxModule,
+#endif
 #if WINDOWS
             WindowsFactory = CreateWindowsModule,
 #endif
@@ -36,6 +39,15 @@ public static class AudioStreamerExtensions
         return services;
     }
 
+#if LINUX
+    private static ILinuxChannelModule CreateLinuxModule() =>
+        new LinuxNativeModule(
+            "libnc_audio.so",
+            typeof(AudioStreamerExtensions).Assembly,
+            [AudioFormat.ControlChannel],
+            [AudioFormat.DataChannel]
+        );
+#endif
 #if WINDOWS
     private static IWindowsChannelModule CreateWindowsModule() => new WindowsAudioStreamerModule();
 #endif

@@ -5,6 +5,23 @@ Fourteen portable facade tests, two Kotlin currency tests, and the Swift currenc
 
 ## Build verification
 
+### Linux C++ adapter — 2026-10-17
+
+Currency's Linux handler now lives in C++ and calls ICU directly. A reusable C ABI bridge
+replaces the previous C# Linux implementation. On Ubuntu 24.04.5 x64 with ICU 74.2 and GCC
+13.3, all 18 Linux tests passed, including localized symbols, error details, malformed
+arguments, cancellation and channel lifecycle checks. All 171 packaging checks passed.
+
+The fresh package-only Avalonia Release app passed both automatic verification and normal
+X11 window-manager close under Xvfb/Openbox. The verifier checked the actually loaded
+`libnc_currency.so` against its NuGet archive, and recorded loaded ICU paths and source hashes.
+Evidence is under `artifacts/shared-hosting-linux/linux-x64/` and `artifacts/linux-cpp/`.
+This run used .NET SDK 10.0.401 and the working tree based on `9c1a155`; no workflows ran
+and no packages were published. Other distributions/ICU ABIs and Linux architectures
+require rebuilding and separate acceptance.
+
+### Mobile native builds
+
 On 2026-10-15 the Android adapter and Apple XCFramework compiled, including iOS device, simulator,
 and Mac Catalyst slices. This is native compilation, not application runtime verification. The
 current preview still requires fresh package-only consumer acceptance on each target. See the

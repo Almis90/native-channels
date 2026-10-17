@@ -46,6 +46,7 @@ public static class CurrencyExtensions
     private static IWindowsChannelModule CreateWindowsModule() => new WindowsCurrencyModule();
 #endif
 #if LINUX
-    private static ILinuxChannelModule CreateLinuxModule() => new LinuxCurrencyModule();
+    private static ILinuxChannelModule CreateLinuxModule() =>
+        new LinuxNativeModule("libnc_currency.so", typeof(CurrencyExtensions).Assembly, ["plugin.maui.currency"]);
 #endif
 }

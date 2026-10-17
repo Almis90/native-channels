@@ -7,6 +7,10 @@
             >net10.0-android</TargetFrameworks>
         <TargetFrameworks Condition="'$(NativeChannelsWindowsOnly)' == 'true'"
             >net10.0-windows10.0.19041.0</TargetFrameworks>
+        <TargetFrameworks Condition="'$(NativeChannelsLinuxOnly)' == 'true'"
+            >net10.0</TargetFrameworks>
+        <DefineConstants Condition="'$(NativeChannelsLinuxOnly)' == 'true'"
+            >$(DefineConstants);LINUX</DefineConstants>
         <PackageId>Plugin.Maui.AudioStreamer</PackageId>
         <Version>0.1.0-alpha.1</Version>
         <Description>Reference plugin demonstrating bounded native PCM audio streaming and reusable packaging with NativeChannels.</Description>
@@ -26,6 +30,20 @@
             Link="native/windows/%(RecursiveDir)%(Filename)%(Extension)"
         />
     </ItemGroup>
+    <ItemGroup Condition="'$(NativeChannelsLinuxOnly)' == 'true'">
+        <None
+            Include="../../../../artifacts/native/linux-x64/libnc_audio.so"
+            Pack="true"
+            PackagePath="runtimes/linux-x64/native/"
+        />
+    </ItemGroup>
+    <Target
+        Name="BuildLinuxAudio"
+        BeforeTargets="BeforeBuild;GenerateNuspec"
+        Condition="'$(NativeChannelsLinuxOnly)' == 'true'"
+    >
+        <Exec Command="bash &quot;$(MSBuildThisFileDirectory)../../../../eng/build-linux-native.sh&quot; audio" />
+    </Target>
     <ItemGroup>
         <InternalsVisibleTo Include="Plugin.Maui.Windows.Tests" />
         <PackageReference Include="NativeChannels" />
@@ -38,13 +56,13 @@
         />
         <None
             Include="../../native/android/build/outputs/aar/audio-release.aar"
-            Condition="'$(NativeChannelsWindowsOnly)' != 'true'"
+            Condition="'$(NativeChannelsWindowsOnly)' != 'true' And '$(NativeChannelsLinuxOnly)' != 'true'"
             Pack="true"
             PackagePath="native/android/audio.aar"
         />
         <None
             Include="../../../../artifacts/native/MauiAudioStreamerNative.xcframework/**/*"
-            Condition="'$(NativeChannelsWindowsOnly)' != 'true' And '$(NativeChannelsAndroidOnly)' != 'true'"
+            Condition="'$(NativeChannelsWindowsOnly)' != 'true' And '$(NativeChannelsLinuxOnly)' != 'true' And '$(NativeChannelsAndroidOnly)' != 'true'"
             Pack="true"
             Exclude="../../../../artifacts/native/MauiAudioStreamerNative.xcframework/**/Modules/MauiAudioStreamerNative.swiftmodule/**/*"
             PackagePath="native/apple/MauiAudioStreamerNative.xcframework/"
@@ -53,7 +71,7 @@
     <Target
         Name="ValidateMauiAudioStreamerNativeAssets"
         BeforeTargets="GenerateNuspec"
-        Condition="'$(NativeChannelsWindowsOnly)' != 'true'"
+        Condition="'$(NativeChannelsWindowsOnly)' != 'true' And '$(NativeChannelsLinuxOnly)' != 'true'"
     >
         <Error
             Condition="!Exists('../../native/android/build/outputs/aar/audio-release.aar')"
