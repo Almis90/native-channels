@@ -63,6 +63,7 @@ export default defineConfig({
           { text: 'Implementation', link: '/currency' },
           { text: 'Sample app', link: '/currency-sample' },
           { text: 'Avalonia Android proof', link: '/currency-avalonia' },
+          { text: 'Avalonia iOS proof', link: '/currency-avalonia-ios' },
           { text: 'Verification', link: '/currency-verification' },
         ] },
         { text: 'AudioStreamer', collapsed: true, items: [

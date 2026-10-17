@@ -91,7 +91,8 @@ platform target such as `net10.0-windows10.0.19041.0` or `net10.0-android`. The 
 native adapters arrive through the plugin dependency. This API supplies channel services; the host
 still controls startup, UI dispatch, and disposal. The
 [Avalonia Android sample](../samples/Currency.Avalonia.Android/README.md) demonstrates activity-owned
-Currency sessions; a general Avalonia application host package is not supplied.
+Currency sessions, while the [iOS sample](../samples/Currency.Avalonia.iOS/README.md) owns one session
+for its application view. A general Avalonia application host package is not supplied.
 
 Registration snapshots module entries, timeout, immutable limits, and a copy of the JSON options.
 Every service provider owns a separate, lazily created session. Use asynchronous provider disposal

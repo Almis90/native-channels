@@ -36,7 +36,10 @@ The [Avalonia Android Currency sample](../samples/Currency.Avalonia.Android/READ
 verification workflow implement the first proof: one Currency package consumed by both MAUI and
 Avalonia. The workflow checks matching archive hashes, separate fresh caches, no MAUI dependencies
 in Avalonia, and matching runtime results. See [verification](verification.md) for executed evidence.
-Extend this proof to messages and event streams before expanding native view hosting. A general
+The [Avalonia iOS sample](../samples/Currency.Avalonia.iOS/README.md) extends the same package and
+method-call scenarios to Apple's simulator with its own required verification job. Its execution
+status is recorded separately in [verification](verification.md).
+Extend these proofs to messages and event streams before expanding native view hosting. A general
 Avalonia host package and other Avalonia platforms remain planned.
 The Android Currency proof is the first part of 0.2: reuse one plugin through packages in MAUI and
 Avalonia Android applications. It establishes a starting point for shared registration and method

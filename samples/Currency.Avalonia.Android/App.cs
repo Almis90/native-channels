@@ -1,6 +1,7 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Themes.Fluent;
+using Currency.AvaloniaSample;
 
 namespace Currency.AvaloniaAndroid;
 

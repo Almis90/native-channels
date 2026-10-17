@@ -20,5 +20,6 @@
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
         <PackageReference Include="Plugin.Maui.Currency" />
         <Compile Include="../Currency.Shared/PluginVerification.cs" Link="PluginVerification.cs" />
+        <Compile Include="../Currency.Avalonia.Shared/*.cs" Link="Shared/%(Filename)%(Extension)" />
     </ItemGroup>
 </Project>

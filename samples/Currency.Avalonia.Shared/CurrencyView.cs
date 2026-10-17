@@ -4,11 +4,12 @@ using Avalonia.Layout;
 using Avalonia.Media;
 using Currency.Verification;
 
-namespace Currency.AvaloniaAndroid;
+namespace Currency.AvaloniaSample;
 
 internal sealed class CurrencyView : UserControl
 {
     private readonly CurrencySession _session = new();
+    private readonly Action<string> _report;
     private readonly CancellationTokenSource _lifetime = new();
     private readonly TextBox _code = new()
     {
@@ -32,8 +33,9 @@ internal sealed class CurrencyView : UserControl
     private bool _started;
     private bool _closed;
 
-    public CurrencyView()
+    public CurrencyView(Action<string>? report = null)
     {
+        _report = report ?? (result => Console.WriteLine("CURRENCY_AVALONIA " + result));
         _lookup.Click += async (_, _) => await LookupAsync();
         Content = new ScrollViewer
         {
@@ -103,7 +105,7 @@ internal sealed class CurrencyView : UserControl
             result = "FAIL " + error;
             _verification.Text = "Native checks failed: " + error.Message;
         }
-        Console.WriteLine("CURRENCY_AVALONIA " + result);
+        _report(result);
         await LookupAsync();
     }
 
@@ -152,7 +154,7 @@ internal sealed class CurrencyView : UserControl
         }
         catch (Exception error)
         {
-            Console.WriteLine("CURRENCY_AVALONIA FAIL shutdown: " + error);
+            _report("FAIL shutdown: " + error);
         }
         finally
         {

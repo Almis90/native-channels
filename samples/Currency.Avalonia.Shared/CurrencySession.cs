@@ -2,7 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using NativeChannels;
 using Plugin.Maui.Currency;
 
-namespace Currency.AvaloniaAndroid;
+namespace Currency.AvaloniaSample;
 
 internal sealed class CurrencySession : IAsyncDisposable
 {

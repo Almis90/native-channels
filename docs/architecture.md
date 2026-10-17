@@ -80,6 +80,8 @@ explicitly; the MAUI Currency sample references both `Plugin.Maui.Currency` and 
 The [Avalonia Android sample](../samples/Currency.Avalonia.Android/README.md) consumes the same Currency
 package through shared registration and owns disposal at the activity boundary. It is a method-call
 proof; a general Avalonia host and native view integration remain [roadmap](roadmap.md) work.
+The [iOS sample](../samples/Currency.Avalonia.iOS/README.md) shares the view and session code, uses
+Avalonia's single-view application lifetime, and verifies its own Apple package/runtime boundary.
 
 The [roadmap](roadmap.md) plans complete Avalonia
 integration in 0.2 and Uno integration in 0.3, each covering Android, iOS, Windows, desktop macOS,

@@ -147,22 +147,38 @@ class PlatformSelectionTests(unittest.TestCase):
 
     def test_shared_currency_proof_selects_android_without_other_platform_builds(self):
         for path in ('samples/Currency.Avalonia.Android/Currency.Avalonia.Android.csproj',
-                     'samples/Currency.Shared/PluginVerification.cs', 'samples/Currency.Sample/MainPage.cs',
-                     'plugins/Plugin.Maui.Currency/src/Plugin.Maui.Currency/CurrencyService.cs',
                      'plugins/Plugin.Maui.Currency/native/android/CurrencyModule.kt',
-                     '.github/workflows/shared-hosting-android.yml', 'eng/verify-shared-hosting.py',
-                     'eng/pack-currency-android.sh', 'eng/restore-currency-avalonia.sh'):
+                     '.github/workflows/shared-hosting-android.yml', 'eng/pack-currency-android.sh',
+                     'eng/verify-shared-hosting-android.sh'):
             with self.subTest(path=path):
                 self.assertEqual(({'android'}, True), selection.classify([path]))
         self.assertEqual((selection.ALL, True), selection.classify([
             'samples/Currency.Avalonia.Android/App.cs', 'src/NativeChannels/Hosting/Registration.cs']))
 
-    def test_currency_docs_and_non_android_adapters_do_not_trigger_android(self):
+    def test_shared_currency_changes_select_both_mobile_hosts(self):
+        for path in ('samples/Currency.Shared/PluginVerification.cs', 'samples/Currency.Sample/MainPage.cs',
+                     'samples/Currency.Avalonia.Shared/CurrencyView.cs',
+                     'plugins/Plugin.Maui.Currency/src/Plugin.Maui.Currency/CurrencyService.cs',
+                     'plugins/Plugin.Maui.Currency/eng/inspect-package.py',
+                     'eng/verify-shared-hosting.py', 'eng/restore-currency-avalonia.sh'):
+            with self.subTest(path=path):
+                self.assertEqual(({'android', 'ios'}, True), selection.classify([path]))
+
+    def test_ios_currency_changes_select_ios_without_android_or_catalyst(self):
+        for path in ('samples/Currency.Avalonia.iOS/Currency.Avalonia.iOS.csproj',
+                     'samples/Currency.Sample/Platforms/iOS/AppDelegate.cs',
+                     'plugins/Plugin.Maui.Currency/native/apple/Sources/CurrencyModule.swift',
+                     'plugins/Plugin.Maui.Currency/eng/build-apple.py',
+                     '.github/workflows/shared-hosting-ios.yml',
+                     'eng/pack-currency-ios.sh', 'eng/verify-shared-hosting-ios.sh'):
+            with self.subTest(path=path):
+                self.assertEqual(({'ios'}, True), selection.classify([path]))
+
+    def test_currency_docs_and_windows_adapter_do_not_trigger_mobile_hosts(self):
         self.assertEqual((set(), False), selection.classify([
             'samples/Currency.Avalonia.Android/README.md',
-            'plugins/Plugin.Maui.Currency/native/windows/WindowsCurrencyModule.cs',
-            'plugins/Plugin.Maui.Currency/native/apple/Sources/CurrencyModule.swift',
-            'samples/Currency.Sample/Platforms/iOS/AppDelegate.cs']))
+            'samples/Currency.Avalonia.iOS/README.md',
+            'plugins/Plugin.Maui.Currency/native/windows/WindowsCurrencyModule.cs']))
 
     def test_failed_comparison_falls_back_to_all(self):
         with patch.object(selection, 'changed_paths', side_effect=ValueError('missing base')):
@@ -207,6 +223,18 @@ class EvidenceTests(unittest.TestCase):
         self.assertEqual(['shared-hosting'], record['failedJobs'])
         needs['shared-hosting']['result'] = 'success'
         self.assertTrue(results.summarize(chosen, needs, [self.compile, self.arm64], self.sha)['success'])
+
+    def test_ios_shared_hosting_must_pass_even_at_compile_depth(self):
+        chosen = {**self.selection, 'platforms': ['ios'], 'depth': 'Compile', 'sharedHostingIos': True}
+        needs = {name: {'result': 'success'} for name in ('select', 'core', 'apple-native', 'ios')}
+        evidence = [{**self.compile, 'platform': 'ios', 'runtime': 'iossimulator-arm64'}]
+        for outcome in ('missing', 'skipped', 'failure', 'cancelled'):
+            with self.subTest(outcome=outcome):
+                record = results.summarize(chosen, {**needs, 'shared-hosting-ios': {'result': outcome}}, evidence, self.sha)
+                self.assertFalse(record['success'])
+                self.assertEqual(['shared-hosting-ios'], record['failedJobs'])
+        needs['shared-hosting-ios'] = {'result': 'success'}
+        self.assertTrue(results.summarize(chosen, needs, evidence, self.sha)['success'])
 
     def test_wrong_source_and_duplicate_evidence_rejected(self):
         for evidence in ([{**self.compile, 'sourceCommit': 'b' * 40}], [self.compile, self.compile]):

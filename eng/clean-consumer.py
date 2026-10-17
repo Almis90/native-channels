@@ -9,6 +9,7 @@ CONSUMERS = {
     'tests/PackageConsumer': 'consumer',
     'samples/Currency.Sample': 'currency',
     'samples/Currency.Avalonia.Android': 'currency-avalonia',
+    'samples/Currency.Avalonia.iOS': 'currency-avalonia-ios',
     'samples/AudioStreamer.Sample': 'audio',
     'samples/VolumeMonitor.Sample': 'volume',
     'samples/PdfViewer.Sample': 'pdf',

@@ -19,6 +19,8 @@ def summarize(selection, needs, evidence, sha):
     required.update(selection["platforms"])
     if selection.get('sharedHosting'):
         required.add('shared-hosting')
+    if selection.get('sharedHostingIos'):
+        required.add('shared-hosting-ios')
     if set(selection["platforms"]) & {"ios", "catalyst"}:
         required.add("apple-native")
     failed = sorted(name for name in required if needs.get(name, {}).get("result") != "success")
@@ -61,6 +63,9 @@ def main():
         if record.get('sharedHosting'):
             outcome = json.loads(os.environ['JOB_RESULTS']).get('shared-hosting', {}).get('result', 'missing')
             summary.write(f"\nShared hosting / Android Currency: **{outcome}**. This separate proof executes both MAUI and Avalonia Currency apps even at Compile depth; see the shared-hosting-android artifact.\n")
+        if record.get('sharedHostingIos'):
+            outcome = json.loads(os.environ['JOB_RESULTS']).get('shared-hosting-ios', {}).get('result', 'missing')
+            summary.write(f"\nShared hosting / iOS Currency: **{outcome}**. This separate proof executes both MAUI and Avalonia Currency apps even at Compile depth; see the shared-hosting-ios artifact. Simulator execution does not establish physical-device support.\n")
     if not record["success"]:
         sys.exit("Incomplete verification: " + ", ".join(record["failedJobs"] + record["unverifiedStages"]))
 

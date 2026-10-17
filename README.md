@@ -150,7 +150,9 @@ dependencies, or packaging require fresh package-consumer verification.
 See [contributing](CONTRIBUTING.md), [testing](docs/testing.md), and [performance](docs/performance.md).
 
 The [roadmap](docs/roadmap.md) covers the initial preview, complete Avalonia and Uno integration,
-and stable API acceptance. The Android Currency proof is only the first part of Avalonia's milestone.
+and stable API acceptance. The Currency samples for
+[Avalonia Android](samples/Currency.Avalonia.Android/README.md) and
+[Avalonia iOS](samples/Currency.Avalonia.iOS/README.md) cover the method-call slice of the milestone.
 Use the [release checklist](docs/release-checklist.md) before distribution.
 
 Pull requests run portable tests and compile affected platforms using one shared Core build.

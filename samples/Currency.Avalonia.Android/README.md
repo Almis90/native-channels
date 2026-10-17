@@ -3,6 +3,8 @@
 This package-only sample looks up native currency symbols using the same `Plugin.Maui.Currency`
 package as the [MAUI sample](../Currency.Sample/README.md). It targets .NET 10 Android and pins
 Avalonia 12.1.4. It has no MAUI package dependency and uses no project references.
+The view and session in `samples/Currency.Avalonia.Shared` are also used by the
+[Avalonia iOS sample](../Currency.Avalonia.iOS/README.md).
 
 ## Registration and lifetime
 
@@ -51,7 +53,9 @@ These are development archives, not combined release packages. No packages are p
 ## Scope
 
 This is a Currency method-call proof for Avalonia Android. It does not provide a general Avalonia host
-package, native view hosting, incoming UI callbacks, event-stream lifecycle, iOS or desktop support.
+package, native view hosting, incoming UI callbacks, event-stream lifecycle, or desktop support.
+The separate [iOS sample](../Currency.Avalonia.iOS/README.md) has its own simulator verification;
+Android execution does not establish iOS support.
 Those integrations remain separate [roadmap](../../docs/roadmap.md) work. See the
 [verification record](../../docs/verification.md) for executed evidence; the presence of this sample
 alone does not establish runtime support.

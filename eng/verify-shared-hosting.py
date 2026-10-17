@@ -1,17 +1,27 @@
 #!/usr/bin/env python3
-"""Prove both Android hosts consume identical local packages and execute the same scenarios."""
+"""Prove MAUI and Avalonia consume identical local packages and execute the same scenarios."""
+import argparse
 import hashlib
 import json
 import os
 from pathlib import Path
 import subprocess
-import sys
 
-SHARED = {'nativechannels.core', 'nativechannels', 'nativechannels.native.android', 'plugin.maui.currency'}
+SHARED = {'nativechannels.core', 'nativechannels', 'plugin.maui.currency'}
 MARKERS = {'maui': 'CURRENCY_SAMPLE', 'avalonia': 'CURRENCY_AVALONIA'}
+PLATFORMS = {
+    'android': {'binding': 'nativechannels.native.android', 'host': 'avalonia.android',
+                'project': 'Currency.Avalonia.Android', 'runtime': 'android-x64',
+                'output': 'shared-hosting', 'result': 'android'},
+    'ios': {'binding': 'nativechannels.native.apple', 'host': 'avalonia.ios',
+            'project': 'Currency.Avalonia.iOS', 'runtime': 'iossimulator-arm64',
+            'output': 'shared-hosting-ios', 'result': 'apple'},
+}
 
 
-def package_proof(assets_by_host, feed):
+def package_proof(assets_by_host, feed, platform='android'):
+    target = PLATFORMS[platform]
+    shared = SHARED | {target['binding']}
     records, caches = {}, {}
     for host in MARKERS:
         assets = assets_by_host[host]
@@ -20,19 +30,19 @@ def package_proof(assets_by_host, feed):
         if host == 'avalonia':
             if any(name == 'nativechannels.maui' or name.startswith('microsoft.maui') for name in ids):
                 raise ValueError('Avalonia resolved a MAUI dependency')
-            if 'avalonia.android' not in ids:
-                raise ValueError('Avalonia Android package is missing')
+            if target['host'] not in ids:
+                raise ValueError(f'Avalonia {platform} package is missing')
         elif 'nativechannels.maui' not in ids:
             raise ValueError('MAUI host package is missing')
-        if not SHARED <= ids:
-            raise ValueError(f'{host}: missing shared packages: {SHARED - ids}')
+        if not shared <= ids:
+            raise ValueError(f'{host}: missing shared packages: {shared - ids}')
         caches[host] = {Path(folder).resolve() for folder in assets['packageFolders']}
         records[host] = {}
         for identity, library in libraries.items():
             if library['type'] != 'package':
                 raise ValueError(f'{host}: project reference: {identity}')
             name, version = identity.split('/')
-            if name.lower() not in SHARED:
+            if name.lower() not in shared:
                 continue
             candidates = [folder / library['path'] for folder in caches[host]
                           if (folder / library['path']).is_dir()]
@@ -54,12 +64,13 @@ def package_proof(assets_by_host, feed):
     return records
 
 
-def runtime_proof(logs):
+def runtime_proof(logs, platform='android'):
+    expected = PLATFORMS[platform]['result']
     results = {}
     for host, marker in MARKERS.items():
         lines = [line.split(marker + ' ', 1)[1].strip() for line in logs[host].splitlines()
                  if marker + ' ' in line]
-        if len(lines) != 1 or not lines[0].startswith('PASS android:'):
+        if len(lines) != 1 or not lines[0].startswith(f'PASS {expected}:'):
             raise ValueError(f'{host}: missing, duplicate or failed runtime result')
         if not lines[0].endswith('; normalization, errors, concurrency, cancellation'):
             raise ValueError(f'{host}: incomplete Currency scenarios')
@@ -70,36 +81,44 @@ def runtime_proof(logs):
 
 
 def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('stage', choices=('packages', 'results'))
+    parser.add_argument('--platform', choices=PLATFORMS, default='android')
+    args = parser.parse_args()
+    target = PLATFORMS[args.platform]
     root = Path(__file__).resolve().parents[1]
-    output = root / 'artifacts/shared-hosting'
+    output = root / 'artifacts' / target['output']
     output.mkdir(parents=True, exist_ok=True)
     sha = os.environ.get('GITHUB_SHA') or subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=root, text=True).strip()
-    if sys.argv[1:] == ['packages']:
+    if args.stage == 'packages':
         for name in ('verification.json', 'packages.json', 'maui-result.txt', 'avalonia-result.txt'):
             (output / name).unlink(missing_ok=True)
-        projects = {'maui': 'Currency.Sample', 'avalonia': 'Currency.Avalonia.Android'}
+        projects = {'maui': 'Currency.Sample', 'avalonia': target['project']}
         assets = {host: json.loads((root / 'samples' / project / 'obj/project.assets.json').read_text())
                   for host, project in projects.items()}
-        record = {'sourceCommit': sha, 'packages': package_proof(assets, root / 'artifacts/packages')}
+        record = {'sourceCommit': sha, 'platform': args.platform, 'runtime': target['runtime'],
+                  'configuration': 'Release',
+                  'packages': package_proof(assets, root / 'artifacts/packages', args.platform)}
         (output / 'packages.json').write_text(json.dumps(record, indent=2) + '\n')
         print('PASS: both hosts resolved identical shared packages; Avalonia has no MAUI dependency')
-    elif sys.argv[1:] == ['results']:
+    else:
         record = json.loads((output / 'packages.json').read_text())
         if record['sourceCommit'] != sha:
             raise ValueError('Package evidence belongs to another commit')
-        record['results'] = runtime_proof({host: (output / f'{host}-result.txt').read_text() for host in MARKERS})
-        record.update(success=True, platform='android', runtime='android-x64', configuration='Release')
+        if record.get('platform') != args.platform or record.get('runtime') != target['runtime']:
+            raise ValueError('Package evidence belongs to another platform or runtime')
+        record['results'] = runtime_proof(
+            {host: (output / f'{host}-result.txt').read_text() for host in MARKERS}, args.platform)
+        record['success'] = True
         (output / 'verification.json').write_text(json.dumps(record, indent=2) + '\n')
         summary = os.environ.get('GITHUB_STEP_SUMMARY')
         if summary:
             with open(summary, 'a') as stream:
-                stream.write('### Shared Currency package — Android runtime proof\n\n')
+                stream.write(f'### Shared Currency package — {args.platform} runtime proof\n\n')
                 for host, result in record['results'].items():
                     stream.write(f'- **{host}**: {result}\n')
                 stream.write('\nBoth fresh caches match the same package hashes. Avalonia contains no MAUI dependency.\n')
         print('PASS: the same Currency package executed successfully in MAUI and Avalonia')
-    else:
-        raise SystemExit('Usage: verify-shared-hosting.py packages|results')
 
 
 if __name__ == '__main__':
