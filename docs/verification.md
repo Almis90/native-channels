@@ -34,14 +34,14 @@ and four reference plugins. Local checks on 2026-10-15:
 | Source formatting and workflows | C#, Kotlin, Swift, and actionlint checks passed |
 | Documentation | 50 pages built; local links, fragments, and assets checked |
 
-These local source-tree checks are separate from the exact-commit CI evidence below. No NuGet
-packages or GitHub releases have been published.
+These local source-tree checks are separate from the exact-commit CI and publication evidence below.
+They did not publish packages or create GitHub releases.
 
 ## Framework CI verification
 
-On 2026-10-17, [All / Runtime verification](https://github.com/Almis90/native-channels/actions/runs/38975778574)
-and [Verify distribution](https://github.com/Almis90/native-channels/actions/runs/38977328378)
-passed at source `9baf413e172da7b9b42e5cb0b1b7bb14d6565909`.
+On 2026-10-17, [All / Runtime verification](https://github.com/Almis90/native-channels/actions/runs/38980871000)
+and [Verify distribution](https://github.com/Almis90/native-channels/actions/runs/38982305944)
+passed at source `09ae4eb862bc142c0281ded67413ea859e179c6d`, the source of the published preview.
 
 The framework run built shared Core once, verified platform feeds, and executed the framework sample
 on Android x64, the iOS simulator, and Mac Catalyst. The distribution run assembled the five final
@@ -58,10 +58,11 @@ framework packages and symbol archives, then verified seven package-only consume
 | Windows ARM64 | Passed | Not run by this workflow |
 
 All seven results reference the same feed SHA-256:
-`aae69ddde5c30ce801d1f7eb39b7c2cdcc72b41222f38ba2be31c697f135b5e4`.
+`10a4e436a17b35d32389d2d9626dfe47b39e60d9dc79aedd7a2425a30255ac4e`.
 The distribution artifact contains the per-configuration results and package audit. Runtime checks
 cover framework methods, messages, events, and native views, including 32 reconnect cycles;
-example plugins are separate. No packages were published.
+example plugins are separate. These verification runs did not publish packages; the separate
+publication is recorded below.
 
 This evidence applies only to the recorded source and archives. Later changes, including packaged
 README content, require fresh same-commit validation before publication. Catalyst execution with a
@@ -89,6 +90,39 @@ All framework compile checks, workflow lint, documentation and Windows C++/Rust 
 that run. This proves the Currency method-call slice of milestone 0.2. It does not establish Avalonia
 native views, incoming UI callbacks, event lifecycle, physical-device or other-platform support;
 combined release-feed acceptance and fresh iOS simulator execution remain separate checks.
+
+## NuGet publication — 2026-10-17 {#nuget-publication-2026-10-17}
+
+Version **0.1.0-preview.1** was published from source
+`09ae4eb862bc142c0281ded67413ea859e179c6d` after the framework and distribution checks above.
+The [candidate dry run](https://github.com/Almis90/native-channels/actions/runs/38983442471)
+and [approved publishing run](https://github.com/Almis90/native-channels/actions/runs/38984024506)
+passed. Publication used NuGet Trusted Publishing with GitHub environment approval.
+
+All five packages and their managed symbol archives are downloadable from NuGet.org:
+[Core](https://www.nuget.org/packages/NativeChannels.Core/0.1.0-preview.1),
+[Android binding](https://www.nuget.org/packages/NativeChannels.Native.Android/0.1.0-preview.1),
+[Apple binding](https://www.nuget.org/packages/NativeChannels.Native.Apple/0.1.0-preview.1),
+[platform transports](https://www.nuget.org/packages/NativeChannels/0.1.0-preview.1), and
+[MAUI integration](https://www.nuget.org/packages/NativeChannels.Maui/0.1.0-preview.1).
+Every downloaded archive's file contents matched the accepted candidate, ignoring only NuGet's
+added repository signature. Example plugins were not published.
+
+Post-publication checks used separate projects outside the repository, a fresh private package cache,
+and NuGet.org as the only package source, with no project references or fallback folders:
+
+| Public-feed check | Result |
+| --- | --- |
+| Portable Core consumer | Restore passed; executed a method-channel round trip returning `42` |
+| New .NET MAUI application | Restore passed; `UseNativeChannels()` compiled into an Android ARM64 Release app with trimming and AOT, with no warnings or errors |
+| Package provenance | All restored packages came from NuGet.org; framework version `0.1.0-preview.1` resolved transitively |
+| Android minimum version | Consumer requires API 24; a lower template setting fails manifest merging, now documented in getting started |
+
+The public-feed MAUI check compiled the integration without a custom native module; it did not run
+on a device. Native round-trip execution comes from the exact-candidate CI results above, whose
+package contents were compared with NuGet.org. No new physical-device, Windows desktop, or
+combined-feed Catalyst execution is claimed. These records describe the published source and
+archives, not later documentation commits.
 
 ## Automated checks
 

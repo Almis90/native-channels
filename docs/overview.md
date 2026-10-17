@@ -47,6 +47,6 @@ and [PdfViewer](pdf-viewer.md) reference plugins each include a sample and verif
 - [Roadmap](roadmap.md): complete Avalonia integration in 0.2, Uno in 0.3, and stable release acceptance. Both planned hosts target Android, iOS, Windows, desktop macOS, Linux, and browser/WebAssembly.
 - [FAQ](faq.md) and [Flutter comparison](flutter-comparison.md).
 
-Packages are built locally and
-have not been published to NuGet.org. Use the [verification record](verification.md) to distinguish
+The framework preview is [available on NuGet.org](https://www.nuget.org/packages/NativeChannels.Maui/0.1.0-preview.1);
+reference plugins are built locally. Use the [verification record](verification.md) to distinguish
 compiled targets, executed scenarios, and remaining gaps.

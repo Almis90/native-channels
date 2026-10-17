@@ -20,8 +20,8 @@ string? reply = await channel.InvokeAsync<string>("echo", "Hello from .NET");
 
 **Preview software.** NativeChannels supports Android, iOS, Mac Catalyst, and Windows through its
 MAUI integration. The core messaging layer is independent of MAUI. Complete Avalonia integration is
-planned for 0.2 and Uno for 0.3; neither is available on `main` yet. Packages are built locally and
-have not been published to NuGet.org.
+planned for 0.2 and Uno for 0.3; neither is available on `main` yet.
+The first preview is [available on NuGet.org](https://www.nuget.org/packages/NativeChannels.Maui/0.1.0-preview.1).
 
 [Documentation](https://almis90.github.io/native-channels/) ·
 [Getting started](docs/getting-started.md) ·
@@ -64,22 +64,18 @@ platform-specific lifecycle behavior. See [architecture](docs/architecture.md).
 
 ## Get started
 
-The [getting-started guide](docs/getting-started.md) walks through building the local packages,
-registering the bundled native adapter, and making a call from a separate MAUI application.
-
-To build both Android and Apple packages, use a Mac with Xcode 26.6, JDK 21, and Android SDK 36.
-The bootstrap installs .NET SDK/workload set 10.0.401 locally; projects use MAUI 10.0.110 and C# 14.
-From the repository root:
+Add the package to a .NET 10 MAUI application:
 
 ```sh
-bash eng/bootstrap.sh --platforms
-bash eng/build-android.sh
-python3 eng/build-apple.py
-bash eng/pack.sh
-python3 eng/inspect-packages.py
+dotnet add package NativeChannels.Maui --version 0.1.0-preview.1
 ```
 
-Packages are written to `artifacts/packages`. Then follow one path:
+Core, platform transports, and the applicable Android or Apple binding are transitive dependencies.
+Windows support is included in `NativeChannels` and `NativeChannels.Maui`. You still provide and
+register the native adapter for your SDK; installing the bridge alone does not add SDK operations.
+
+The [getting-started guide](docs/getting-started.md) walks through package installation,
+adapter registration, and a complete native round trip. Then follow one path:
 
 - **Try the bridge:** run the [framework verification sample](samples/NativeChannels.Sample/README.md).
 - **Integrate a native SDK:** follow [getting started](docs/getting-started.md), then the
@@ -87,7 +83,8 @@ Packages are written to `artifacts/packages`. Then follow one path:
 - **Build a reusable plugin:** follow [plugin authoring](docs/plugin-authoring.md) and study the
   [Currency reference implementation](plugins/Plugin.Maui.Currency/README.md).
 
-For local feeds, device commands, and tool setup, see [building from source](docs/building.md).
+Repository samples use local feeds to test source changes. For those feeds, device commands, and
+the pinned toolchain, see [building from source](docs/building.md).
 
 ## Behavior you can rely on
 

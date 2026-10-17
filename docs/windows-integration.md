@@ -19,6 +19,19 @@ LTSC 2019 x64 (build 17763.107), using verified CI-built DLLs. The Rust DLL requ
 could load. See the example's [test record and deployment notes](https://github.com/Almis90/native-channels/tree/main/native/windows/interop#rust-runtime-dependency)
 for exact source commits, binary hashes and coverage limits.
 
+## Install in an application
+
+Add the published MAUI integration to your .NET 10 Windows MAUI application:
+
+```powershell
+dotnet add package NativeChannels.Maui --version 0.1.0-preview.1
+```
+
+`NativeChannels` and `NativeChannels.Core` resolve transitively. The Windows bridge is managed C#,
+so there is no separate `NativeChannels.Native.Windows` package. Your adapter can call native DLLs
+through P/Invoke and must include their runtime dependencies. Register modules and view factories
+as described below. The source-build commands in the next section are for framework development.
+
 ## Build and verify
 
 On Windows, install the SDK pinned in `global.json` and its `maui-windows` workload:

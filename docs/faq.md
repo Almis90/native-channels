@@ -14,10 +14,10 @@ runtime dependencies. Native types are not passed directly as channel values.
 
 ## Can I install this from NuGet.org?
 
-Not yet. Build `0.1.0-preview.1` into the local feed using [building](building.md), then follow
-[getting started](getting-started.md). Verification workflows upload build artifacts without publishing. The separate
-[NuGet release process](publishing.md) requires explicit publication and approval. A Git tag is not a
-package publication.
+Yes. Add [NativeChannels.Maui](https://www.nuget.org/packages/NativeChannels.Maui/0.1.0-preview.1)
+version `0.1.0-preview.1` to your .NET 10 MAUI application. Its framework dependencies resolve
+automatically. Follow [getting started](getting-started.md) to include and register your native adapter.
+The reference plugins remain local examples rather than published NuGet products.
 
 ## Can I use it without a phone or simulator?
 

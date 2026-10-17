@@ -21,8 +21,10 @@ integration remain planned. Progress on a feature branch does not establish rele
 Implemented features include method calls, binary/value messages, independent event subscriptions,
 and native views with instance channels. The four reference plugins demonstrate these contracts.
 
-Remaining acceptance work includes fresh package-only release validation, Windows ARM64
-execution, broader physical-device and audio-route checks, and long-running native lifecycle tests.
+The framework preview `0.1.0-preview.1` is [published on NuGet.org](https://www.nuget.org/packages/NativeChannels.Maui/0.1.0-preview.1),
+following exact-source distribution validation and fresh public-feed consumer checks.
+Remaining coverage includes Windows ARM64 execution, broader physical-device and audio-route checks,
+and long-running native lifecycle tests. Each future release still requires fresh package-only validation.
 The [verification record](verification.md) distinguishes implemented, compiled, and executed behavior.
 
 ## Shared hosting
