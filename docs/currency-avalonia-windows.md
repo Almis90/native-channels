@@ -1,1 +1,1 @@
-<!--@include: ../samples/Currency.Avalonia.Windows/README.md-->
+<!--@include: ../samples/Avalonia/Currency/Currency.Desktop/Windows.md-->

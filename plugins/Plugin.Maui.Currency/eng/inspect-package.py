@@ -11,7 +11,7 @@ root = Path(__file__).resolve().parents[3]
 parser = argparse.ArgumentParser(description=__doc__)
 scope = parser.add_mutually_exclusive_group()
 scope.add_argument("--android-only", action="store_true")
-scope.add_argument('--platform-only', choices=('ios', 'maccatalyst'), help='Inspect an Apple development package')
+scope.add_argument('--platform-only', choices=('ios', 'maccatalyst', 'macos'), help='Inspect an Apple development package')
 scope.add_argument('--combined', action='store_true', help='Require the Windows target as well')
 args = parser.parse_args()
 versions = ET.parse(root / 'Directory.Packages.props')
@@ -48,6 +48,8 @@ with zipfile.ZipFile(package) as archive:
         prefix = "native/apple/MauiCurrencyNative.xcframework/"
         manifest = plistlib.loads(archive.read(prefix + "Info.plist"))
         expected = {("ios", ""): {"arm64"}, ("ios", "simulator"): {"arm64", "x86_64"}, ("ios", "maccatalyst"): {"arm64", "x86_64"}}
+        if args.platform_only == "macos":
+            expected = {("macos", ""): {"arm64", "x86_64"}}
         actual = {}
         for library in manifest["AvailableLibraries"]:
             key = (library["SupportedPlatform"], library.get("SupportedPlatformVariant", ""))

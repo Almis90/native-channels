@@ -1,4 +1,4 @@
-#if IOS || MACCATALYST
+#if IOS || MACCATALYST || MACOS
 using Foundation;
 using NativeChannels.Native.Apple;
 

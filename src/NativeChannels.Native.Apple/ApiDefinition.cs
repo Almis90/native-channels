@@ -110,7 +110,11 @@ interface NativeViewHost
     );
 
     [NullAllowed, Export("view")]
+#if MACOS
+    AppKit.NSView View { get; }
+#else
     UIKit.UIView View { get; }
+#endif
 
     [Export("close")]
     void Close();

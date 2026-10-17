@@ -90,9 +90,9 @@ Reference `Plugin.Maui.Currency` and `Microsoft.Extensions.DependencyInjection`;
 platform target such as `net10.0-windows10.0.19041.0` or `net10.0-android`. The platform package and
 native adapters arrive through the plugin dependency. This API supplies channel services; the host
 still controls startup, UI dispatch, and disposal. The
-[Avalonia Android sample](../samples/Currency.Avalonia.Android/README.md) demonstrates activity-owned
-Currency sessions, while the [iOS sample](../samples/Currency.Avalonia.iOS/README.md) owns one session
-for its application view. The [Windows sample](../samples/Currency.Avalonia.Windows/README.md)
+[Avalonia Android sample](../samples/Avalonia/Currency/Currency.Android/README.md) demonstrates activity-owned
+Currency sessions, while the [iOS sample](../samples/Avalonia/Currency/Currency.iOS/README.md) owns one session
+for its application view. The [Windows sample](../samples/Avalonia/Currency/Currency.Desktop/Windows.md)
 owns one desktop window and awaits session cleanup on normal close. A general Avalonia application
 host package is not supplied.
 

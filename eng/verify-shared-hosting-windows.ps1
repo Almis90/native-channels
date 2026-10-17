@@ -74,16 +74,16 @@ try {
     }
     $feed = (Resolve-Path -LiteralPath $PackageFeed).Path
     Invoke-Python eng/clean-consumer.py samples/Currency.Sample
-    Invoke-Python eng/clean-consumer.py samples/Currency.Avalonia.Windows
+    Invoke-Python eng/clean-consumer.py samples/Avalonia/Currency/Currency.Desktop
     $mauiCache = Join-Path $repoRoot ('.tools/wn/' + [Guid]::NewGuid().ToString('N').Substring(0, 12))
     $avaloniaCache = Join-Path $repoRoot ('.tools/wn/' + [Guid]::NewGuid().ToString('N').Substring(0, 12))
     $mauiRoot = Join-Path $runRoot 'maui'
     & ./eng/verify-windows.ps1 -Currency -PackageFeed $feed -WindowsOnlyFeed -BuildOnly `
         -RuntimeIdentifier $RuntimeIdentifier -PackageCache $mauiCache -VerificationDirectory $mauiRoot
 
-    $project = 'samples/Currency.Avalonia.Windows/Currency.Avalonia.Windows.csproj'
+    $project = 'samples/Avalonia/Currency/Currency.Desktop/Currency.Desktop.csproj'
     $app = Join-Path $runRoot 'avalonia/app'
-    $settings = @("-p:RestorePackagesPath=$avaloniaCache", "-p:RuntimeIdentifier=$RuntimeIdentifier", '-p:SelfContained=true', '-p:Configuration=Release')
+    $settings = @("-p:RestorePackagesPath=$avaloniaCache", "-p:RuntimeIdentifier=$RuntimeIdentifier", '-p:CurrencyDesktopTarget=windows', '-p:SelfContained=true', '-p:Configuration=Release')
     Invoke-Dotnet restore $project @settings --configfile (Join-Path $mauiRoot 'NuGet.Config') --force --no-http-cache
     $proof = @('--platform', 'windows', '--runtime', $RuntimeIdentifier, '--feed', $feed, '--output', $runRoot)
     Invoke-Python eng/verify-shared-hosting.py packages @proof
@@ -108,7 +108,7 @@ try {
     }
 
     Invoke-Host 'maui' (Join-Path $mauiRoot 'app/Currency.Sample.exe') 'CURRENCY_SAMPLE_RESULT'
-    Invoke-Host 'avalonia' (Join-Path $app 'Currency.Avalonia.Windows.exe') 'CURRENCY_AVALONIA_RESULT'
+    Invoke-Host 'avalonia' (Join-Path $app 'Currency.Desktop.exe') 'CURRENCY_AVALONIA_RESULT'
     Invoke-Python eng/verify-shared-hosting.py results @proof
     Write-Output "RUNTIME PASS: both Windows Currency hosts executed; evidence at $runRoot"
 }

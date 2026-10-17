@@ -23,6 +23,14 @@ class PlatformPackageScopeTests(unittest.TestCase):
                     archive.writestr(extra, b"native")
             audit_platform_scope(path, {"id": package_id}, platform)
 
+    def test_macos_requires_native_target_without_maui(self):
+        self.check_package('macos', 'net10.0-macos26.0', package_id='NativeChannels')
+        self.check_package('macos', 'net10.0-macos26.0', package_id='NativeChannels.Native.Apple')
+        with self.assertRaisesRegex(ValueError, 'frameworks'):
+            self.check_package('macos', 'net10.0-maccatalyst26.0', package_id='NativeChannels')
+        with self.assertRaisesRegex(ValueError, 'unexpected macos framework package'):
+            self.check_package('macos', 'net10.0-macos26.0')
+
     def test_each_platform_accepts_its_own_framework(self):
         for platform, tfm in [("ios", "net10.0-ios26.0"), ("maccatalyst", "net10.0-maccatalyst26.0"),
                               ("windows", "net10.0-windows10.0.19041")]:

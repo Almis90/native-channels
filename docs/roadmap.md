@@ -13,8 +13,8 @@ frameworks, while keeping platform lifecycle and native view hosting explicit.
 
 These are planned milestones, not a support matrix. MAUI remains the general application host;
 [verification](verification.md) records compiled and executed configurations, including the initial
-Avalonia Android Currency proof. Complete Avalonia, Uno, desktop macOS, Linux, and browser/WebAssembly
-integration remain planned. Progress on a feature branch does not establish release acceptance.
+Avalonia Android Currency proof. Complete Avalonia, Uno, Linux, and browser/WebAssembly integration
+remain planned; desktop macOS has an initial Currency proof only. Progress on a feature branch does not establish release acceptance.
 
 ## Initial preview
 
@@ -34,15 +34,18 @@ and DI registration now live in the platform package; the MAUI host adds startup
 integration. Currency uses this shared registration without depending on MAUI. Framework hosts
 supply dispatchers, startup/shutdown integration, and native view containers.
 
-The [Avalonia Android Currency sample](../samples/Currency.Avalonia.Android/README.md) and its dedicated
+The [Avalonia Android Currency sample](../samples/Avalonia/Currency/Currency.Android/README.md) and its dedicated
 verification workflow implement the first proof: one Currency package consumed by both MAUI and
 Avalonia. The workflow checks matching archive hashes, separate fresh caches, no MAUI dependencies
 in Avalonia, and matching runtime results. See [verification](verification.md) for executed evidence.
-The [Avalonia iOS sample](../samples/Currency.Avalonia.iOS/README.md) extends the same package and
+The [Avalonia iOS sample](../samples/Avalonia/Currency/Currency.iOS/README.md) extends the same package and
 method-call scenarios to Apple's simulator with its own required verification job. Its execution
 status is recorded separately in [verification](verification.md).
+The [Avalonia native macOS sample](../samples/Avalonia/Currency/Currency.Desktop/README.md) uses `net10.0-macos`,
+AppKit and a macOS Swift XCFramework through the same Apple channel contracts. Its separate workflow
+builds x64/ARM64 and executes ARM64; it does not use the MAUI Mac Catalyst host.
 Extend these proofs to messages and event streams before expanding native view hosting. A general
-Avalonia host package and other Avalonia platforms remain planned.
+Avalonia host package and the remaining Avalonia platforms remain planned.
 The Android Currency proof is the first part of 0.2: reuse one plugin through packages in MAUI and
 Avalonia Android applications. It establishes a starting point for shared registration and method
 calls only. It does not complete Avalonia integration, prove the other channel contracts, or verify

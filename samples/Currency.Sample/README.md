@@ -19,7 +19,7 @@ writes `currency-result.txt` to its app data directory, and logs `CURRENCY_SAMPL
 `CURRENCY_SAMPLE PASS apple: …` / `CURRENCY_SAMPLE PASS windows: …`.
 The verification scripts fail if the result is absent or reports failure.
 
-The [Avalonia Android sample](../Currency.Avalonia.Android/README.md) compiles the same verification
+The [Avalonia Android sample](../Avalonia/Currency/Currency.Android/README.md) compiles the same verification
 source from `samples/Currency.Shared`. The shared-hosting workflow executes both Android Release apps
 against identical Currency package bytes and checks that Avalonia has no MAUI dependency.
 

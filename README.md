@@ -147,10 +147,11 @@ dependencies, or packaging require fresh package-consumer verification.
 See [contributing](CONTRIBUTING.md), [testing](docs/testing.md), and [performance](docs/performance.md).
 
 The [roadmap](docs/roadmap.md) covers the initial preview, complete Avalonia and Uno integration,
-and stable API acceptance. The Currency samples for
-[Avalonia Android](samples/Currency.Avalonia.Android/README.md),
-[Avalonia iOS](samples/Currency.Avalonia.iOS/README.md), and
-[Avalonia Windows](samples/Currency.Avalonia.Windows/README.md) cover the method-call slice of the milestone.
+and stable API acceptance. The [template-generated Avalonia solution](samples/Avalonia/Currency/README.md) contains
+[Avalonia Android](samples/Avalonia/Currency/Currency.Android/README.md),
+[Avalonia iOS](samples/Avalonia/Currency/Currency.iOS/README.md),
+[Avalonia Windows](docs/currency-avalonia-windows.md), and
+[Avalonia native macOS](samples/Avalonia/Currency/Currency.Desktop/README.md), covering the method-call slice of the milestone.
 Use the [release checklist](docs/release-checklist.md) before distribution.
 
 Pull requests run portable tests and compile affected platforms using one shared Core build.

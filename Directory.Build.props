@@ -9,7 +9,7 @@
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <RepositoryType>git</RepositoryType>
         <RepositoryUrl>https://github.com/Almis90/native-channels</RepositoryUrl>
-        <PackageProjectUrl>https://github.com/Almis90/native-channels</PackageProjectUrl>
+        <PackageProjectUrl>https://almis90.github.io/native-channels/</PackageProjectUrl>
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>

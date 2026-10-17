@@ -6,18 +6,25 @@ import json
 import os
 from pathlib import Path
 import subprocess
+import sys
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from consumer_projects import verify_project_references
 
 SHARED = {'nativechannels.core', 'nativechannels', 'plugin.maui.currency'}
 MARKERS = {'maui': 'CURRENCY_SAMPLE', 'avalonia': 'CURRENCY_AVALONIA'}
 PLATFORMS = {
     'android': {'binding': 'nativechannels.native.android', 'host': 'avalonia.android',
-                'project': 'Currency.Avalonia.Android', 'runtime': 'android-x64',
+                'project': 'Avalonia/Currency/Currency.Android', 'runtime': 'android-x64',
                 'output': 'shared-hosting', 'result': 'android'},
+    'macos': {'binding': 'nativechannels.native.apple', 'host': 'avalonia.desktop',
+              'project': 'Avalonia/Currency/Currency.Desktop', 'runtime': 'osx-arm64',
+              'output': 'shared-hosting-macos', 'result': 'apple'},
     'ios': {'binding': 'nativechannels.native.apple', 'host': 'avalonia.ios',
-            'project': 'Currency.Avalonia.iOS', 'runtime': 'iossimulator-arm64',
+            'project': 'Avalonia/Currency/Currency.iOS', 'runtime': 'iossimulator-arm64',
             'output': 'shared-hosting-ios', 'result': 'apple'},
     'windows': {'binding': None, 'host': 'avalonia.win32',
-                'project': 'Currency.Avalonia.Windows', 'runtime': 'win-x64',
+                'project': 'Avalonia/Currency/Currency.Desktop', 'runtime': 'win-x64',
                 'output': 'shared-hosting-windows', 'result': 'windows'},
 }
 
@@ -26,9 +33,14 @@ def package_proof(assets_by_host, feed, platform='android'):
     target = PLATFORMS[platform]
     shared = SHARED | ({target['binding']} if target['binding'] else set())
     records, caches = {}, {}
-    for host in MARKERS:
+    for host in ({'avalonia': MARKERS['avalonia']} if platform == 'macos' else MARKERS):
         assets = assets_by_host[host]
+        if platform == 'macos':
+            targets = assets.get('targets', {})
+            if not targets or any(not name.startswith('net10.0-macos') for name in targets):
+                raise ValueError('Expected a native macOS target, not Catalyst or portable .NET')
         libraries = assets['libraries']
+        verify_project_references(assets, allow_avalonia_app=host == 'avalonia')
         ids = {identity.split('/')[0].lower() for identity in libraries}
         if platform == 'windows' and ids & {'nativechannels.native.android', 'nativechannels.native.apple'}:
             raise ValueError(f'{host}: mobile binding entered the Windows consumer')
@@ -46,8 +58,8 @@ def package_proof(assets_by_host, feed, platform='android'):
         caches[host] = {Path(folder).resolve() for folder in assets['packageFolders']}
         records[host] = {}
         for identity, library in libraries.items():
-            if library['type'] != 'package':
-                raise ValueError(f'{host}: project reference: {identity}')
+            if library['type'] == 'project':
+                continue
             name, version = identity.split('/')
             if name.lower() not in shared:
                 continue
@@ -64,9 +76,9 @@ def package_proof(assets_by_host, feed, platform='android'):
             if digest != hashlib.sha256(local.read_bytes()).hexdigest():
                 raise ValueError(f'{host}: package bytes differ from feed: {identity}')
             records[host][identity] = digest
-    if caches['maui'] & caches['avalonia']:
+    if 'maui' in caches and caches['maui'] & caches['avalonia']:
         raise ValueError('Consumers must restore into separate fresh package caches')
-    if records['maui'] != records['avalonia']:
+    if 'maui' in records and records['maui'] != records['avalonia']:
         raise ValueError('Hosts resolved different package identities or bytes')
     return records
 
@@ -74,7 +86,7 @@ def package_proof(assets_by_host, feed, platform='android'):
 def runtime_proof(logs, platform='android'):
     expected = PLATFORMS[platform]['result']
     results = {}
-    for host, marker in MARKERS.items():
+    for host, marker in ({'avalonia': MARKERS['avalonia']} if platform == 'macos' else MARKERS).items():
         lines = [line.split(marker + ' ', 1)[1].strip() for line in logs[host].splitlines()
                  if marker + ' ' in line]
         if len(lines) != 1 or not lines[0].startswith(f'PASS {expected}:'):
@@ -82,7 +94,7 @@ def runtime_proof(logs, platform='android'):
         if not lines[0].endswith('; normalization, errors, concurrency, cancellation'):
             raise ValueError(f'{host}: incomplete Currency scenarios')
         results[host] = lines[0]
-    if results['maui'] != results['avalonia']:
+    if 'maui' in results and results['maui'] != results['avalonia']:
         raise ValueError('Hosts returned different native Currency results')
     return results
 
@@ -98,7 +110,7 @@ def runtime_identifier(platform, requested):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('stage', choices=('packages', 'results'))
-    parser.add_argument('--platform', choices=PLATFORMS, default='android')
+    parser.add_argument('--platform', choices=('android', 'ios', 'windows'), default='android')
     parser.add_argument('--runtime')
     parser.add_argument('--feed', type=Path)
     parser.add_argument('--output', type=Path)

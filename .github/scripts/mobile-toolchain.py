@@ -1,4 +1,4 @@
-"""Install and verify a single file-based MAUI workload without using the host SDK."""
+"""Install and verify a single file-based Apple or Android workload without using the host SDK."""
 import argparse
 import hashlib
 import json
@@ -10,7 +10,11 @@ import shutil
 import subprocess
 
 REPO = Path(__file__).resolve().parents[2]
-TARGETS = {'android', 'ios', 'maccatalyst'}
+TARGETS = {'android', 'ios', 'maccatalyst', 'macos'}
+
+
+def workload_id(target):
+    return 'macos' if target == 'macos' else f'maui-{target}'
 
 
 def versions(repo):
@@ -62,7 +66,7 @@ def install(root, target, sdk, workload, architecture):
                     'https://dot.net/v1/dotnet-install.sh', '-o', str(installer)], check=True)
     subprocess.run(['bash', str(installer), '--version', sdk, '--architecture', architecture,
                     '--install-dir', str(root), '--no-path'], check=True)
-    subprocess.run([str(root / 'dotnet'), 'workload', 'install', f'maui-{target}',
+    subprocess.run([str(root / 'dotnet'), 'workload', 'install', workload_id(target),
                     '--version', workload], check=True, cwd=REPO)
 
 
@@ -74,7 +78,7 @@ def foreign_packs(root, target):
         name = pack.name.lower()
         platforms = {value for value in TARGETS | {'tvos', 'macos', 'browser'}
                      if re.search(r'(?:^|[.-])' + value + r'(?:$|[.-])', name)}
-        if platforms - {target} or any(value in name for value in ('emscripten', 'webassembly', 'winui', 'windowsdesktop')):
+        if (target == 'macos' and 'maui' in name) or platforms - {target} or any(value in name for value in ('emscripten', 'webassembly', 'winui', 'windowsdesktop')):
             foreign.append(pack.name)
     return sorted(foreign)
 
@@ -93,14 +97,14 @@ def verify(root, target, sdk, workload, band):
     if query('workload', '--version') != workload:
         raise ValueError('Installed workload-set version differs from global.json.')
     metadata = root / 'metadata' / 'workloads' / band
-    if not (metadata / 'InstalledWorkloads' / f'maui-{target}').is_file():
+    if not (metadata / 'InstalledWorkloads' / workload_id(target)).is_file():
         raise ValueError('Missing file-based workload registration.')
     if (metadata / 'installertype' / 'msi').exists():
         raise ValueError('Unexpected MSI workload registration.')
     # These are the SDK's file-based workload inventory records. Unlike workload list's
     # machine-readable mode, reading them does not query online advertising manifests.
     installed = sorted(record.name for record in (metadata / 'InstalledWorkloads').iterdir())
-    if installed != [f'maui-{target}']:
+    if installed != [workload_id(target)]:
         raise ValueError(f'Unexpected installed workloads: {installed}')
     foreign = foreign_packs(root, target)
     if foreign:
@@ -132,7 +136,7 @@ def main():
         print(json.dumps(record, indent=2))
         if os.environ.get('GITHUB_STEP_SUMMARY'):
             append_env_file('GITHUB_STEP_SUMMARY', [f'### {target} toolchain', '',
-                f'SDK: {sdk}; workload set: {workload}; installed: maui-{target}.',
+                f'SDK: {sdk}; workload set: {workload}; installed: {workload_id(target)}.',
                 f'Exact cache hit: {record["cacheHit"]}. Unrelated workload packs: 0.',
                 'Only the SDK directory is cached; consumer NuGet caches and build outputs remain separate.'])
 

@@ -146,18 +146,19 @@ class PlatformSelectionTests(unittest.TestCase):
             'samples/AudioStreamer.Sample/MainPage.cs', 'benchmarks/Benchmarks.cs']))
 
     def test_shared_currency_proof_selects_android_without_other_platform_builds(self):
-        for path in ('samples/Currency.Avalonia.Android/Currency.Avalonia.Android.csproj',
+        for path in ('samples/Avalonia/Currency/Currency.Android/Currency.Android.csproj',
                      'plugins/Plugin.Maui.Currency/native/android/CurrencyModule.kt',
                      '.github/workflows/shared-hosting-android.yml', 'eng/pack-currency-android.sh',
                      'eng/verify-shared-hosting-android.sh'):
             with self.subTest(path=path):
                 self.assertEqual(({'android'}, True), selection.classify([path]))
         self.assertEqual((selection.ALL, True), selection.classify([
-            'samples/Currency.Avalonia.Android/App.cs', 'src/NativeChannels/Hosting/Registration.cs']))
+            'samples/Avalonia/Currency/Currency.Android/Application.cs', 'src/NativeChannels/Hosting/Registration.cs']))
 
     def test_shared_currency_changes_select_all_three_hosts(self):
-        for path in ('samples/Currency.Shared/PluginVerification.cs', 'samples/Currency.Sample/MainPage.cs',
-                     'samples/Currency.Avalonia.Shared/CurrencyView.cs',
+        for path in ('samples/Avalonia/Currency/Directory.Packages.props', 'samples/Avalonia/Currency/Currency.slnx',
+                     'samples/Currency.Shared/PluginVerification.cs', 'samples/Currency.Sample/MainPage.cs',
+                     'samples/Avalonia/Currency/Currency/Views/MainView.axaml.cs',
                      'plugins/Plugin.Maui.Currency/src/Plugin.Maui.Currency/CurrencyService.cs',
                      'plugins/Plugin.Maui.Currency/eng/inspect-package.py',
                      'eng/verify-shared-hosting.py', 'eng/restore-currency-avalonia.sh'):
@@ -165,7 +166,7 @@ class PlatformSelectionTests(unittest.TestCase):
                 self.assertEqual(({'android', 'ios', 'windows'}, True), selection.classify([path]))
 
     def test_ios_currency_changes_select_ios_without_android_or_catalyst(self):
-        for path in ('samples/Currency.Avalonia.iOS/Currency.Avalonia.iOS.csproj',
+        for path in ('samples/Avalonia/Currency/Currency.iOS/Currency.iOS.csproj',
                      'samples/Currency.Sample/Platforms/iOS/AppDelegate.cs',
                      'plugins/Plugin.Maui.Currency/native/apple/Sources/CurrencyModule.swift',
                      'plugins/Plugin.Maui.Currency/eng/build-apple.py',
@@ -175,8 +176,8 @@ class PlatformSelectionTests(unittest.TestCase):
                 self.assertEqual(({'ios'}, True), selection.classify([path]))
 
     def test_windows_currency_changes_do_not_trigger_mobile_hosts(self):
-        for path in ('samples/Currency.Avalonia.Windows/App.cs',
-                     'samples/Currency.Avalonia.Windows/Currency.Avalonia.Windows.csproj',
+        for path in ('samples/Avalonia/Currency/Currency.Desktop/Program.cs',
+                     'samples/Avalonia/Currency/Currency.Desktop/Currency.Desktop.csproj',
                      'samples/Currency.Sample/Platforms/Windows/App.xaml.cs',
                      'plugins/Plugin.Maui.Currency/native/windows/WindowsCurrencyModule.cs',
                      'eng/verify-windows.ps1', 'eng/verify-shared-hosting-windows.ps1',
@@ -186,9 +187,9 @@ class PlatformSelectionTests(unittest.TestCase):
 
     def test_currency_docs_do_not_trigger_platform_builds(self):
         self.assertEqual((set(), False), selection.classify([
-            'samples/Currency.Avalonia.Android/README.md',
-            'samples/Currency.Avalonia.iOS/README.md',
-            'samples/Currency.Avalonia.Windows/README.md']))
+            'samples/Avalonia/Currency/Currency.Android/README.md',
+            'samples/Avalonia/Currency/Currency.iOS/README.md',
+            'samples/Avalonia/Currency/Currency.Desktop/README.md']))
 
     def test_failed_comparison_falls_back_to_all(self):
         with patch.object(selection, 'changed_paths', side_effect=ValueError('missing base')):

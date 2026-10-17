@@ -134,7 +134,7 @@ If your app already calls `UseNativeChannels`, add `options.AddCurrency()` to th
 A platform application that supplies its own lifecycle can instead use
 `services.AddNativeChannels(options => options.AddCurrency())` and `services.AddCurrency()`.
 See [shared registration](../../docs/configuration.md#registration-without-a-maui-host) for ownership
-and package references. The [Avalonia Android sample](../../samples/Currency.Avalonia.Android/README.md)
+and package references. The [Avalonia Android sample](../../samples/Avalonia/Currency/Currency.Android/README.md)
 uses the same package through shared registration, with dedicated CI checking both hosts together.
 
 Inject `ICurrencyService` into a page or view model:
@@ -146,6 +146,14 @@ public sealed class PriceViewModel(ICurrencyService currency)
         => currency.GetSymbolAsync("USD", cancellationToken);
 }
 ```
+
+## Native macOS development target
+
+The [Avalonia macOS sample](../../samples/Avalonia/Currency/Currency.Desktop/README.md) consumes the Currency
+API through `net10.0-macos`, AppKit and a macOS build of the same Swift adapter. Select
+`NativeChannelsAppleTarget=macos` when packing; the guide includes native framework build and
+package verification steps. This scoped development feed is separate from the published mobile
+preview and does not add macOS to the default combined release feed.
 
 ## Package layout
 

@@ -1,3 +1,3 @@
-<!-- Content is maintained in samples/Currency.Avalonia.iOS/README.md. -->
+<!-- Content is maintained in samples/Avalonia/Currency/Currency.iOS/README.md. -->
 
-<!--@include: ../samples/Currency.Avalonia.iOS/README.md-->
+<!--@include: ../samples/Avalonia/Currency/Currency.iOS/README.md-->

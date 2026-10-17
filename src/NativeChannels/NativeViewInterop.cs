@@ -18,7 +18,7 @@ public sealed partial class NativeChannelTransport
         ObjectDisposedException.ThrowIf(_disposed, this);
         return new(factory.AndroidClass, context, _bridge, instanceId, channelName, arguments);
     }
-#elif IOS || MACCATALYST
+#elif IOS || MACCATALYST || MACOS
     internal Native.Apple.NativeViewHost CreateView(
         NativeModuleRegistration factory,
         string instanceId,

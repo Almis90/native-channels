@@ -60,7 +60,7 @@ python3 -m unittest discover -s tests/packaging
 
 Use the [package-only sample](../samples/NativeChannels.Sample/README.md) after changing a bridge,
 binding, native dependency, or packaging rule. Restore into a fresh package cache and rebuild clean
-consumer outputs. The scripts verify source mapping, archive hashes, and absence of project references.
+consumer outputs. The scripts verify source mapping, archive hashes, and absence of library project references.
 
 Run Release consumers on Android and iOS simulators to exercise shrinking/linking and actual framework
 loading. Compile device/Catalyst targets separately and record runtime execution separately. Shared
@@ -79,8 +79,8 @@ restore and Release runtime checks after changing the plugin, its native modules
 `plugins/Plugin.Maui.Currency/eng/inspect-package.py` checks the native classes, preservation rules,
 framework slices, dependencies, and import paths inside the actual archive.
 
-The [Avalonia Android proof](../samples/Currency.Avalonia.Android/README.md) and
-[iOS proof](../samples/Currency.Avalonia.iOS/README.md) check host independence. Each reusable workflow
+The [Avalonia Android proof](../samples/Avalonia/Currency/Currency.Android/README.md) and
+[iOS proof](../samples/Avalonia/Currency/Currency.iOS/README.md) check host independence. Each reusable workflow
 runs after its platform's framework verification, reuses those packages, and builds Currency once.
 MAUI and Avalonia restore separately and execute the shared scenarios in the same emulator or
 simulator. Package hashes must match and Avalonia's dependency graph must exclude MAUI. Each runtime
@@ -89,7 +89,7 @@ Compile/Runtime depth. A failure blocks the framework result. Logs and hashes ar
 `shared-hosting-android` and `shared-hosting-ios`; iOS also retains app screenshots. Simulator success
 does not establish physical-device support.
 
-The [Windows proof](../samples/Currency.Avalonia.Windows/README.md) compares the three shared
+The [Windows proof](../samples/Avalonia/Currency/Currency.Desktop/Windows.md) compares the three shared
 archives in separate fresh MAUI and Avalonia caches and rejects mobile bindings or WinUI dependencies
 in Avalonia. Its required CI job builds both hosts for x64 and ARM64 and runs the native Currency API
 tests on the x64 runner. Desktop application execution is separate: run

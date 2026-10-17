@@ -14,7 +14,7 @@ Android and Apple adapters are included explicitly as an unbound AAR or native X
 Windows adapters implement `IWindowsChannelModule` in C# and can call packaged native libraries
 through normal .NET interop. Packaging a generic bridge
 does not remove the application's obligation to package third-party SDKs and native adapters.
-The public sample consumes NuGet packages without project references to verify distribution as well
+The public sample consumes NuGet packages without library project references to verify distribution as well
 as communication. A lower-level bridge regression consumer lives in `tests/PackageConsumer`.
 
 ## Package boundaries
@@ -77,12 +77,12 @@ registration and adds startup integration and native view handlers. Its existing
 
 Currency depends on the platform package rather than the MAUI host. Applications choose their host
 explicitly; the MAUI Currency sample references both `Plugin.Maui.Currency` and `NativeChannels.Maui`.
-The [Avalonia Android sample](../samples/Currency.Avalonia.Android/README.md) consumes the same Currency
+The [Avalonia Android sample](../samples/Avalonia/Currency/Currency.Android/README.md) consumes the same Currency
 package through shared registration and owns disposal at the activity boundary. It is a method-call
 proof; a general Avalonia host and native view integration remain [roadmap](roadmap.md) work.
-The [iOS sample](../samples/Currency.Avalonia.iOS/README.md) shares the view and session code, uses
+The [iOS sample](../samples/Avalonia/Currency/Currency.iOS/README.md) shares the view and session code, uses
 Avalonia's single-view application lifetime, and verifies its own Apple package/runtime boundary.
-The [Windows sample](../samples/Currency.Avalonia.Windows/README.md) uses the same view and session
+The [Windows sample](../samples/Avalonia/Currency/Currency.Desktop/Windows.md) uses the same view and session
 with Avalonia's Win32 desktop backend. It reuses the Windows transport and Currency adapter without
 depending on MAUI or WinUI; native view embedding remains separate work.
 

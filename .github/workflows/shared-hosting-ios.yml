@@ -46,7 +46,7 @@ jobs:
         timeout-minutes: 15
         run: |
           bash eng/dotnet.sh build samples/Currency.Sample -c Release -f net10.0-ios -r iossimulator-arm64 --no-restore --disable-build-servers
-          bash eng/dotnet.sh build samples/Currency.Avalonia.iOS -c Release -r iossimulator-arm64 --no-restore --disable-build-servers
+          bash eng/dotnet.sh build samples/Avalonia/Currency/Currency.iOS -c Release -r iossimulator-arm64 --no-restore --disable-build-servers
       - name: Prepare iOS simulator
         id: simulator
         timeout-minutes: 5

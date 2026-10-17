@@ -23,10 +23,10 @@ class SharedHostingTests(unittest.TestCase):
         self.assets = {}
         self.names = ['NativeChannels.Core', 'NativeChannels', 'Plugin.Maui.Currency']
         if platform != 'windows':
-            self.names.append('NativeChannels.Native.Apple' if platform == 'ios' else 'NativeChannels.Native.Android')
-        for host in ('maui', 'avalonia'):
+            self.names.append('NativeChannels.Native.Apple' if platform in {'ios', 'macos'} else 'NativeChannels.Native.Android')
+        for host in (['avalonia'] if platform == 'macos' else ['maui', 'avalonia']):
             cache = self.root / host
-            self.assets[host] = {'packageFolders': {str(cache): {}}, 'libraries': {}}
+            self.assets[host] = {'packageFolders': {str(cache): {}}, 'libraries': {}, 'targets': {f'net10.0-{platform}26.0': {}}}
             for name in self.names:
                 relative = name.lower() + '/1.0.0'
                 directory = cache / relative
@@ -37,6 +37,22 @@ class SharedHostingTests(unittest.TestCase):
                 self.assets[host]['libraries'][name + '/1.0.0'] = {'type': 'package', 'path': relative}
             host_package = 'NativeChannels.Maui' if host == 'maui' else proof.PLATFORMS[platform]['host']
             self.assets[host]['libraries'][host_package + '/1.0.0'] = {'type': 'package'}
+
+    def test_macos_proof_requires_appkit_target_and_desktop_packages(self):
+        self.create_assets('macos')
+        records = proof.package_proof(self.assets, self.feed, 'macos')
+        self.assertEqual({'avalonia'}, set(records))
+        self.assertEqual(4, len(records['avalonia']))
+        for target in ('net10.0-maccatalyst26.0', 'net10.0', 'net10.0-ios26.0'):
+            self.assets['avalonia']['targets'] = {target: {}}
+            with self.subTest(target=target), self.assertRaisesRegex(ValueError, 'native macOS target'):
+                proof.package_proof(self.assets, self.feed, 'macos')
+
+    def test_macos_cannot_resolve_a_maui_dependency(self):
+        self.create_assets('macos')
+        self.assets['avalonia']['libraries']['Microsoft.Maui.Core/1.0'] = {'type': 'package'}
+        with self.assertRaisesRegex(ValueError, 'MAUI dependency'):
+            proof.package_proof(self.assets, self.feed, 'macos')
 
     def test_identical_archives_from_separate_caches_pass(self):
         records = proof.package_proof(self.assets, self.feed)
@@ -119,6 +135,41 @@ class SharedHostingTests(unittest.TestCase):
     def test_shared_cache_is_rejected(self):
         self.assets['avalonia']['packageFolders'] = self.assets['maui']['packageFolders']
         with self.assertRaisesRegex(ValueError, 'separate fresh'):
+            proof.package_proof(self.assets, self.feed)
+
+    def add_shared_app(self, host='avalonia', project_path='../Currency/Currency.csproj'):
+        self.assets[host]['project'] = {'restore': {'projectPath': str(
+            Path(__file__).resolve().parents[2] / 'samples/Avalonia/Currency/Currency.Android/Currency.Android.csproj')}}
+        self.assets[host]['libraries']['Currency/1.0.0'] = {
+            'type': 'project', 'path': project_path, 'msbuildProject': project_path}
+
+    def test_template_shared_ui_project_is_allowed_for_avalonia(self):
+        self.add_shared_app()
+        self.assertEqual(4, len(proof.package_proof(self.assets, self.feed)['avalonia']))
+
+    def test_windows_desktop_head_accepts_shared_ui_and_still_checks_three_archives(self):
+        self.create_assets('windows')
+        self.add_shared_app()
+        self.assets['avalonia']['project']['restore']['projectPath'] = str(
+            Path(__file__).resolve().parents[2]
+            / 'samples/Avalonia/Currency/Currency.Desktop/Currency.Desktop.csproj')
+        self.assertEqual(3, len(proof.package_proof(self.assets, self.feed, 'windows')['avalonia']))
+
+    def test_shared_ui_allowance_cannot_bypass_native_package_checks(self):
+        self.add_shared_app()
+        for path in ('../../../src/NativeChannels/NativeChannels.csproj', '../Other/Currency.csproj'):
+            self.add_shared_app(project_path=path)
+            with self.subTest(path=path), self.assertRaisesRegex(ValueError, 'project reference'):
+                proof.package_proof(self.assets, self.feed)
+
+    def test_maui_and_unknown_heads_cannot_use_shared_ui_allowance(self):
+        self.add_shared_app(host='maui')
+        with self.assertRaisesRegex(ValueError, 'project reference'):
+            proof.package_proof(self.assets, self.feed)
+        del self.assets['maui']['libraries']['Currency/1.0.0']
+        self.add_shared_app()
+        self.assets['avalonia']['project']['restore']['projectPath'] = '/tmp/Unknown.csproj'
+        with self.assertRaisesRegex(ValueError, 'project reference'):
             proof.package_proof(self.assets, self.feed)
 
     def test_success_requires_matching_complete_runtime_results(self):

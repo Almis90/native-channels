@@ -7,7 +7,12 @@ mkdir -p "$OUTPUT"
 
 run_host() {
     local host="$1" project="$2" package="$3" filename="$4" marker="$5"
-    local app="$ROOT/samples/$project/bin/Release/net10.0-ios/iossimulator-arm64/$project.app"
+    local apps=("$ROOT/samples/$project/bin/Release/net10.0-ios/iossimulator-arm64/"*.app)
+    if [[ ${#apps[@]} != 1 || ! -d "${apps[0]}" ]]; then
+        printf 'Expected exactly one iOS app bundle for %s; restore and rebuild first.\n' "$project" >&2
+        return 1
+    fi
+    local app="${apps[0]}"
     local container
     xcrun simctl install "$DEVICE" "$app" || return 1
     container="$(xcrun simctl get_app_container "$DEVICE" "$package" data)" || return 1
@@ -35,7 +40,7 @@ run_host() {
 # Attempt both hosts so a failed app still leaves diagnostics for its peer.
 status=0
 run_host maui Currency.Sample dev.nativechannels.currency.sample currency-result.txt CURRENCY_SAMPLE || status=1
-run_host avalonia Currency.Avalonia.iOS dev.nativechannels.currency.avalonia currency-avalonia-result.txt CURRENCY_AVALONIA || status=1
+run_host avalonia Avalonia/Currency/Currency.iOS dev.nativechannels.currency.avalonia currency-avalonia-result.txt CURRENCY_AVALONIA || status=1
 if (( status )); then
     exit "$status"
 fi
