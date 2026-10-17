@@ -36,6 +36,7 @@ jobs:
         timeout-minutes: 10
         run: |
           bash eng/pack-currency-android.sh
+          bash eng/pack-avalonia.sh
           python3 eng/package_audit.py artifacts/packages/*.nupkg --android-only --source-commit "$GITHUB_SHA"
       - name: Restore both package-only hosts into separate fresh caches
         timeout-minutes: 10

@@ -5,12 +5,15 @@ using Avalonia.Input.TextInput;
 using Avalonia.Layout;
 using Avalonia.Media;
 using Currency.Services;
+using Microsoft.Extensions.DependencyInjection;
+using NativeChannels;
 
 namespace Currency.Views;
 
 public sealed partial class MainView : UserControl
 {
     private readonly CurrencySession? _session;
+    private readonly AvaloniaChannelSession? _hostSession;
     private readonly Action<string> _report = result => Console.WriteLine("CURRENCY_AVALONIA " + result);
     private readonly CancellationTokenSource _lifetime = new();
     private readonly TextBox _code = new()
@@ -47,11 +50,18 @@ public sealed partial class MainView : UserControl
     };
     private bool _started;
     private bool _closed;
+    private Task? _closeTask;
 
-    public MainView(CurrencySession session, Action<string>? report = null)
+    public MainView(AvaloniaChannelSession session, Action<string>? report = null)
         : this()
     {
-        _session = session;
+        _hostSession = session;
+        _session = session.Services.GetRequiredService<CurrencySession>();
+        session.Stopping.Register(() =>
+        {
+            _closed = true;
+            _lifetime.Cancel();
+        });
         if (report is not null)
             _report = report;
     }
@@ -219,12 +229,10 @@ public sealed partial class MainView : UserControl
         }
     }
 
-    public async Task CloseAsync()
+    public Task CloseAsync() => _closeTask ??= CloseCoreAsync();
+
+    private async Task CloseCoreAsync()
     {
-        if (_closed)
-        {
-            return;
-        }
         _closed = true;
         try
         {
@@ -234,8 +242,8 @@ public sealed partial class MainView : UserControl
             }
             finally
             {
-                if (_session is not null)
-                    await _session.DisposeAsync();
+                if (_hostSession is not null)
+                    await _hostSession.DisposeAsync();
             }
         }
         catch (Exception error)

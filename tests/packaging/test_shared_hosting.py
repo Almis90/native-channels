@@ -31,7 +31,7 @@ class SharedHostingTests(unittest.TestCase):
                 self.assets[host]['targets'] = {'net10.0': {}, 'net10.0/linux-x64': {}}
             if platform == 'browser':
                 self.assets[host]['targets'] = {'net10.0-browser': {}, 'net10.0-browser/browser-wasm': {}}
-            for name in self.names:
+            for name in self.names + (['NativeChannels.Avalonia'] if host == 'avalonia' else []):
                 relative = name.lower() + '/1.0.0'
                 directory = cache / relative
                 directory.mkdir(parents=True, exist_ok=True)
@@ -48,7 +48,7 @@ class SharedHostingTests(unittest.TestCase):
         self.assets['avalonia']['project']['restore']['projectPath'] = str(
             Path(__file__).resolve().parents[2]
             / 'samples/Avalonia/Currency/Currency.Browser/Currency.Browser.csproj')
-        self.assertEqual(3, len(proof.package_proof(self.assets, self.feed, 'browser')['avalonia']))
+        self.assertEqual(4, len(proof.package_proof(self.assets, self.feed, 'browser')['avalonia']))
         for name in ('NativeChannels.Native.Apple', 'NativeChannels.Native.Android', 'Microsoft.Maui.Core', 'Microsoft.WindowsAppSDK'):
             assets = copy.deepcopy(self.assets)
             assets['avalonia']['libraries'][name + '/1.0'] = {'type': 'package'}
@@ -69,7 +69,7 @@ class SharedHostingTests(unittest.TestCase):
         self.create_assets('linux')
         records = proof.package_proof(self.assets, self.feed, 'linux')
         self.assertEqual({'avalonia'}, set(records))
-        self.assertEqual(3, len(records['avalonia']))
+        self.assertEqual(4, len(records['avalonia']))
         for name in ('NativeChannels.Native.Apple', 'NativeChannels.Native.Android', 'Microsoft.Maui.Core', 'Microsoft.WindowsAppSDK'):
             assets = copy.deepcopy(self.assets)
             assets['avalonia']['libraries'][name + '/1.0.0'] = {'type': 'package'}
@@ -90,7 +90,7 @@ class SharedHostingTests(unittest.TestCase):
         self.create_assets('macos')
         records = proof.package_proof(self.assets, self.feed, 'macos')
         self.assertEqual({'avalonia'}, set(records))
-        self.assertEqual(4, len(records['avalonia']))
+        self.assertEqual(5, len(records['avalonia']))
         for target in ('net10.0-maccatalyst26.0', 'net10.0', 'net10.0-ios26.0'):
             self.assets['avalonia']['targets'] = {target: {}}
             with self.subTest(target=target), self.assertRaisesRegex(ValueError, 'native macOS target'):
@@ -104,13 +104,13 @@ class SharedHostingTests(unittest.TestCase):
 
     def test_identical_archives_from_separate_caches_pass(self):
         records = proof.package_proof(self.assets, self.feed)
-        self.assertEqual(records['maui'], records['avalonia'])
-        self.assertEqual(4, len(records['avalonia']))
+        self.assertEqual(records['maui'], {key: value for key, value in records['avalonia'].items() if not key.startswith('NativeChannels.Avalonia/')})
+        self.assertEqual(5, len(records['avalonia']))
 
     def test_ios_proof_requires_apple_binding_and_ios_avalonia_host(self):
         self.create_assets('ios')
         records = proof.package_proof(self.assets, self.feed, 'ios')
-        self.assertEqual(records['maui'], records['avalonia'])
+        self.assertEqual(records['maui'], {key: value for key, value in records['avalonia'].items() if not key.startswith('NativeChannels.Avalonia/')})
         self.assertIn('NativeChannels.Native.Apple/1.0.0', records['avalonia'])
         with self.assertRaisesRegex(ValueError, 'missing shared packages'):
             proof.package_proof(self.assets, self.feed, 'android')
@@ -126,8 +126,8 @@ class SharedHostingTests(unittest.TestCase):
     def test_windows_proof_uses_three_shared_archives_without_mobile_bindings(self):
         self.create_assets('windows')
         records = proof.package_proof(self.assets, self.feed, 'windows')
-        self.assertEqual(records['maui'], records['avalonia'])
-        self.assertEqual(3, len(records['avalonia']))
+        self.assertEqual(records['maui'], {key: value for key, value in records['avalonia'].items() if not key.startswith('NativeChannels.Avalonia/')})
+        self.assertEqual(4, len(records['avalonia']))
         for name in ('NativeChannels.Native.Apple', 'NativeChannels.Native.Android'):
             assets = copy.deepcopy(self.assets)
             assets['maui']['libraries'][name + '/1.0.0'] = {'type': 'package'}
@@ -193,7 +193,17 @@ class SharedHostingTests(unittest.TestCase):
 
     def test_template_shared_ui_project_is_allowed_for_avalonia(self):
         self.add_shared_app()
-        self.assertEqual(4, len(proof.package_proof(self.assets, self.feed)['avalonia']))
+        self.assertEqual(5, len(proof.package_proof(self.assets, self.feed)['avalonia']))
+
+    def test_avalonia_host_archive_is_required_and_matches_the_local_feed(self):
+        assets = copy.deepcopy(self.assets)
+        del assets['avalonia']['libraries']['NativeChannels.Avalonia/1.0.0']
+        with self.assertRaisesRegex(ValueError, 'host package is missing'):
+            proof.package_proof(assets, self.feed)
+        archive = self.root / 'avalonia/nativechannels.avalonia/1.0.0/nativechannels.avalonia.1.0.0.nupkg'
+        archive.write_bytes(b'stale host')
+        with self.assertRaisesRegex(ValueError, 'bytes differ'):
+            proof.package_proof(self.assets, self.feed)
 
     def test_windows_desktop_head_accepts_shared_ui_and_still_checks_three_archives(self):
         self.create_assets('windows')
@@ -201,7 +211,7 @@ class SharedHostingTests(unittest.TestCase):
         self.assets['avalonia']['project']['restore']['projectPath'] = str(
             Path(__file__).resolve().parents[2]
             / 'samples/Avalonia/Currency/Currency.Desktop/Currency.Desktop.csproj')
-        self.assertEqual(3, len(proof.package_proof(self.assets, self.feed, 'windows')['avalonia']))
+        self.assertEqual(4, len(proof.package_proof(self.assets, self.feed, 'windows')['avalonia']))
 
     def test_shared_ui_allowance_cannot_bypass_native_package_checks(self):
         self.add_shared_app()

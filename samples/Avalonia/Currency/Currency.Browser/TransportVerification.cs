@@ -1,3 +1,4 @@
+using Avalonia.Threading;
 using NativeChannels;
 
 namespace Currency.Browser;
@@ -8,8 +9,11 @@ internal static class TransportVerification
     {
         await VerifyCancellationDuringInitializationAsync();
         var module = new NativeModuleRegistration("", "") { BrowserModule = "./verification.mjs" };
-        await using var transport = new NativeChannelTransport([module]);
-        await using var channels = new ChannelService(new BinaryMessenger(transport));
+        await using var host = AvaloniaChannelHost.Create(services =>
+            services.AddNativeChannels(options => options.Modules.Add(module))
+        );
+        await using var session = host.CreateSession();
+        var channels = session.Channels;
         using var methods = channels.GetMethodChannel("verify.methods");
         Check(await methods.InvokeAsync<long>("echo", long.MaxValue) == long.MaxValue, "Int64 maximum");
         Check(await methods.InvokeAsync<long>("echo", long.MinValue) == long.MinValue, "Int64 minimum");
@@ -34,9 +38,16 @@ internal static class TransportVerification
         );
         Check(await standardEcho.SendAsync<long>(long.MaxValue) == long.MaxValue, "Standard binary codec");
 
-        using var managed = channels.GetMethodChannel("verify.managed");
+        using var managed = channels.GetMethodChannel(
+            "verify.managed",
+            new() { HandlerDispatcher = AvaloniaChannelDispatchers.UIThread }
+        );
         using var registration = managed.SetMethodCallHandler(
-            (call, _) => ValueTask.FromResult<object?>(call.Arguments)
+            async (call, token) =>
+            {
+                Check(Dispatcher.UIThread.CheckAccess(), "Avalonia UI callback dispatch");
+                return await methods.InvokeAsync<long>("echo", call.Arguments, cancellationToken: token);
+            }
         );
         using var callback = channels.GetMethodChannel("verify.callback");
         Check(await callback.InvokeAsync<long>("echo", long.MaxValue) == long.MaxValue, "JS to managed callback");
@@ -80,10 +91,14 @@ internal static class TransportVerification
         await ExpectAsync<ChannelNotFoundException>(() => isolatedMethod.InvokeAsync("echo", 1));
         var pending = methods.InvokeAsync("slow");
         await Task.Delay(10);
-        await channels.DisposeAsync();
-        await channels.DisposeAsync();
+        await session.DisposeAsync();
+        await session.DisposeAsync();
+        Check(session.Stopping.IsCancellationRequested, "Host session stopping token");
         await ExpectAsync<ObjectDisposedException>(() => pending);
         await ExpectAsync<ObjectDisposedException>(() => methods.InvokeAsync("echo", 1));
+        await using var restarted = host.CreateSession();
+        using var restartedMethod = restarted.Channels.GetMethodChannel("verify.methods");
+        Check(await restartedMethod.InvokeAsync<int>("echo", 42) == 42, "Fresh session after disposal");
 
         await using var broken = new ChannelService(
             new BinaryMessenger(
@@ -94,7 +109,7 @@ internal static class TransportVerification
         );
         using var brokenMethod = broken.GetMethodChannel("missing");
         await ExpectAsync<ChannelTransportException>(() => brokenMethod.InvokeAsync("echo"));
-        return "PASS browser transport: Int64, binary, concurrency, callbacks, errors, cancellation, timeout, isolation, disposal, initialization failure";
+        return "PASS browser transport: Int64, binary, concurrency, Avalonia UI callbacks, errors, cancellation, timeout, isolation, host session disposal/restart, initialization failure";
     }
 
     private static void Check(bool condition, string scenario)

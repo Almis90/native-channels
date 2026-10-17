@@ -3,4 +3,6 @@
     <Project Path="../tests/NativeChannels.Core.Tests/NativeChannels.Core.Tests.csproj" />
     <Project Path="../tests/NativeChannels.Windows.Tests/NativeChannels.Windows.Tests.csproj" />
     <Project Path="../tests/Plugin.Maui.Currency.Tests/Plugin.Maui.Currency.Tests.csproj" />
+    <Project Path="../src/NativeChannels.Avalonia/NativeChannels.Avalonia.csproj" />
+    <Project Path="../tests/NativeChannels.Avalonia.Tests/NativeChannels.Avalonia.Tests.csproj" />
 </Solution>

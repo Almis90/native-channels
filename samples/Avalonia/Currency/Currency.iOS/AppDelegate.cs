@@ -2,6 +2,7 @@ using System.IO;
 using Avalonia;
 using Avalonia.iOS;
 using Foundation;
+using NativeChannels;
 using UIKit;
 
 namespace Currency.iOS;
@@ -11,7 +12,6 @@ public sealed class AppDelegate : AvaloniaAppDelegate<App>
 {
     protected override AppBuilder CustomizeAppBuilder(AppBuilder builder)
     {
-        App.SessionFactory = NativeCurrency.CreateSession;
         App.ResultReported = result =>
         {
             var directory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
@@ -20,7 +20,7 @@ public sealed class AppDelegate : AvaloniaAppDelegate<App>
             File.WriteAllText(temporary, result);
             File.Move(temporary, destination, overwrite: true);
         };
-        return base.CustomizeAppBuilder(builder);
+        return base.CustomizeAppBuilder(builder).UseNativeChannels(NativeCurrency.ConfigureServices);
     }
 
     [Export("applicationWillTerminate:")]

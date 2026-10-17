@@ -15,8 +15,12 @@ for environments actually executed.
 
 ## Registration and lifetime
 
+`AppBuilder.UseNativeChannels(NativeCurrency.ConfigureServices)` registers the reusable
+`NativeChannels.Avalonia` host. It owns the service provider for each view session and awaits
+remaining sessions during explicit application shutdown.
+
 The application uses `IClassicDesktopStyleApplicationLifetime` with one window. Its `MainView`
-and `CurrencySession` are shared with the Android and iOS samples. The platform `NativeCurrency` factory registers
+and `CurrencySession` are shared with the Android and iOS samples. The platform `NativeCurrency.ConfigureServices` callback registers
 `AddNativeChannels(options => options.AddCurrency())` and `AddCurrency()` in a service provider.
 Normal window closing cancels outstanding work and awaits provider/session disposal before closing.
 Forced process termination and OS shutdown can prevent managed cleanup; those paths are not claimed

@@ -6,6 +6,7 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.VisualTree;
 using Currency;
 using Currency.Browser;
+using NativeChannels;
 
 internal sealed partial class Program
 {
@@ -13,7 +14,6 @@ internal sealed partial class Program
 
     private static Task Main(string[] args)
     {
-        App.SessionFactory = NativeCurrency.CreateSession;
         App.ResultReported = result => _result = result;
         return BuildAvaloniaApp().StartBrowserAppAsync("out");
     }
@@ -35,5 +35,6 @@ internal sealed partial class Program
             .Select(block => block.Text ?? "")
             .ToArray();
 
-    public static AppBuilder BuildAvaloniaApp() => AppBuilder.Configure<App>().WithInterFont();
+    public static AppBuilder BuildAvaloniaApp() =>
+        AppBuilder.Configure<App>().WithInterFont().UseNativeChannels(NativeCurrency.ConfigureServices);
 }

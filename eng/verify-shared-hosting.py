@@ -61,6 +61,8 @@ def package_proof(assets_by_host, feed, platform='android'):
         if host == 'avalonia':
             if any(name == 'nativechannels.maui' or name.startswith('microsoft.maui') for name in ids):
                 raise ValueError('Avalonia resolved a MAUI dependency')
+            if 'nativechannels.avalonia' not in ids:
+                raise ValueError('NativeChannels Avalonia host package is missing')
             if target['host'] not in ids:
                 raise ValueError(f'Avalonia {platform} package is missing')
             if platform in {'windows', 'linux', 'browser'} and any(name.startswith('microsoft.windowsappsdk') for name in ids):
@@ -70,12 +72,14 @@ def package_proof(assets_by_host, feed, platform='android'):
         if not shared <= ids:
             raise ValueError(f'{host}: missing shared packages: {shared - ids}')
         caches[host] = {Path(folder).resolve() for folder in assets['packageFolders']}
+        if 'maui' in caches and 'avalonia' in caches and caches['maui'] & caches['avalonia']:
+            raise ValueError('Consumers must restore into separate fresh package caches')
         records[host] = {}
         for identity, library in libraries.items():
             if library['type'] == 'project':
                 continue
             name, version = identity.split('/')
-            if name.lower() not in shared:
+            if name.lower() not in (shared | ({'nativechannels.avalonia'} if host == 'avalonia' else set())):
                 continue
             candidates = [folder / library['path'] for folder in caches[host]
                           if (folder / library['path']).is_dir()]
@@ -92,7 +96,7 @@ def package_proof(assets_by_host, feed, platform='android'):
             records[host][identity] = digest
     if 'maui' in caches and caches['maui'] & caches['avalonia']:
         raise ValueError('Consumers must restore into separate fresh package caches')
-    if 'maui' in records and records['maui'] != records['avalonia']:
+    if 'maui' in records and records['maui'] != {key: value for key, value in records['avalonia'].items() if key.split('/')[0].lower() in shared}:
         raise ValueError('Hosts resolved different package identities or bytes')
     return records
 

@@ -69,7 +69,7 @@ def audit_android_scope(path, record):
     """Reject other platform payloads/dependencies in an Android development feed."""
     package_id = record["id"]
     permitted = {
-        "NativeChannels.Core", "NativeChannels", "NativeChannels.Maui", "NativeChannels.Native.Android",
+        "NativeChannels.Core", "NativeChannels", "NativeChannels.Maui", "NativeChannels.Avalonia", "NativeChannels.Native.Android",
         "Plugin.Maui.Currency", "Plugin.Maui.AudioStreamer", "Plugin.Maui.VolumeMonitor", "Plugin.Maui.PdfViewer",
     }
     if package_id not in permitted:
@@ -77,7 +77,7 @@ def audit_android_scope(path, record):
     with zipfile.ZipFile(path) as archive:
         files = archive.namelist()
         frameworks = {name.split("/")[1] for name in files if name.startswith("lib/") and name.endswith(".dll")}
-        if package_id == "NativeChannels.Core":
+        if package_id in {"NativeChannels.Core", "NativeChannels.Avalonia"}:
             valid = frameworks == {"net10.0"}
         else:
             valid = len(frameworks) == 1 and all(re.fullmatch(r"net10\.0-android(?:[0-9]+(?:\.[0-9]+)*)?", tfm) for tfm in frameworks)
@@ -101,7 +101,7 @@ def audit_platform_scope(path, record, platform):
         raise ValueError(f"Unsupported development platform: {platform}")
     package_id = record["id"]
     apple = platform in {"ios", "maccatalyst", "macos"}
-    permitted = {"NativeChannels.Core", "NativeChannels", "NativeChannels.Maui"}
+    permitted = {"NativeChannels.Core", "NativeChannels", "NativeChannels.Maui", "NativeChannels.Avalonia"}
     if platform in {"macos", "linux", "browser"}:
         permitted.remove("NativeChannels.Maui")
     if platform in {"linux", "browser"}:
@@ -113,7 +113,7 @@ def audit_platform_scope(path, record, platform):
     with zipfile.ZipFile(path) as archive:
         files = archive.namelist()
         frameworks = {name.split("/")[1] for name in files if name.startswith("lib/") and name.endswith(".dll")}
-        if package_id == "NativeChannels.Core" or platform == "linux":
+        if package_id in {"NativeChannels.Core", "NativeChannels.Avalonia"} or platform == "linux":
             valid = frameworks == {"net10.0"}
         else:
             pattern = rf"net10\.0-{platform}(?:[0-9]+(?:\.[0-9]+)*)?"

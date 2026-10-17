@@ -69,6 +69,13 @@ class PlatformPackageScopeTests(unittest.TestCase):
             with self.subTest(platform=platform):
                 self.check_package(platform, "net10.0", package_id="NativeChannels.Core")
 
+    def test_portable_avalonia_host_is_accepted_on_each_platform(self):
+        for platform in ('ios', 'maccatalyst', 'macos', 'windows', 'linux', 'browser'):
+            with self.subTest(platform=platform):
+                self.check_package(platform, 'net10.0', package_id='NativeChannels.Avalonia', dependency='NativeChannels.Core')
+                with self.assertRaisesRegex(ValueError, 'frameworks'):
+                    self.check_package(platform, 'net10.0-android36.0', package_id='NativeChannels.Avalonia')
+
     def test_apple_binding_is_accepted_on_apple(self):
         self.check_package("ios", "net10.0-ios26.0", package_id="NativeChannels.Native.Apple")
 

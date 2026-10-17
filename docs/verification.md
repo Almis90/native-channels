@@ -17,6 +17,36 @@ None of those additional host combinations is accepted on `main` yet. The Curren
 are partial milestone work; they do not establish other contracts, targets, or released support.
 Future records must distinguish unavailable OS/browser capabilities from checks that have not run.
 
+## Reusable Avalonia host foundation — 2026-10-17
+
+The working tree based on `cde99a8b7616255e66ade57cde1d6adfcd870c38` adds
+`NativeChannels.Avalonia`: portable AppBuilder registration, independent owned sessions,
+awaited shutdown and asynchronous UI dispatch. All Currency heads now configure this host;
+the shared UI consumes it through a NuGet package. Core remains independent of Avalonia.
+
+| Check | Executed result |
+| --- | --- |
+| Avalonia 12.1.4 headless host tests | 12 passed: registration validation, provider isolation, 32 session recreation cycles, shared disposal completion, startup/cleanup failures, pending requests, final plugin stop requests, UI dispatch/cancellation and reentrancy |
+| Existing portable / Linux regressions | 114 portable and 18 Linux tests passed |
+| Packaging regressions | 168 passed, including required host archive provenance/hash checks |
+| Linux x64, Ubuntu 24.04.5, X11/Xvfb + Openbox | Fresh package-only Release build had no warnings/errors; ICU Currency checks, verification exit and normal window close passed |
+| Chrome 155.0.8059.80 / Firefox 157.0 on Windows 11 x64 | Fresh Release WebAssembly consumer passed Currency, binary/transport, actual Avalonia UI callback dispatch with a nested native request, session disposal/recreation, UI input and two loads with orderly disposal per engine |
+| Windows 11 x64, build 26200 | Fresh package-only self-contained Release consumer, cross-built on Ubuntu with SDK 10.0.401, executed Currency checks and normal shutdown locally; exit code 0 and exactly one close marker |
+
+Each consumer restored four local archives, including the new host. The host itself compiled
+against the feed's Core archive in a fresh cache. Browser module bytes and the complete publish
+output were checked; Windows published managed assemblies matched their package bytes.
+Build/runtime logs, package hashes, source manifests and runtime records are retained under
+`artifacts/avalonia-host`. Evidence is explicitly marked as a working-tree development build.
+Documentation written after execution does not become part of an earlier source snapshot.
+
+The current browser preview serves this host-based consumer. Workflow lint, source formatting
+and the documentation build/link checks passed. No packages were published and no GitHub workflow
+execution is claimed. The Windows check covered the Avalonia consumer; it did not repeat the MAUI
+runtime proof. Android, iOS, Catalyst and native macOS runtime checks have not been repeated after
+this host migration. Native/DOM views, broader suspension/resumption and multi-window acceptance,
+events and the remaining plugins are still part of 0.2. See the [host guide](avalonia-host.md).
+
 ## Avalonia in the browser
 
 Local verification on 2026-10-17 used source `4612d48323ce66123d3c1c94852b7bd593071700`

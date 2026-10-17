@@ -44,8 +44,8 @@ status is recorded separately in [verification](verification.md).
 The [Avalonia native macOS sample](../samples/Avalonia/Currency/Currency.Desktop/README.md) uses `net10.0-macos`,
 AppKit and a macOS Swift XCFramework through the same Apple channel contracts. Its separate workflow
 builds x64/ARM64 and executes ARM64; it does not use the MAUI Mac Catalyst host.
-Extend these proofs to messages and event streams before expanding native view hosting. A general
-Avalonia host package and the remaining Avalonia platforms remain planned.
+Extend these proofs to messages and event streams before expanding native view hosting. The [Avalonia host package](avalonia-host.md) now supplies portable registration, owned sessions
+and UI dispatch. Native/DOM view integration and the broader lifecycle/contract matrix remain planned.
 The Android Currency proof is the first part of 0.2: reuse one plugin through packages in MAUI and
 Avalonia Android applications. It establishes a starting point for shared registration and method
 calls only. It does not complete Avalonia integration, prove the other channel contracts, or verify

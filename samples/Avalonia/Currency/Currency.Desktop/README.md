@@ -12,11 +12,15 @@ the existing UIKit/Mac Catalyst host.
 
 ## Registration and lifetime
 
+`AppBuilder.UseNativeChannels(NativeCurrency.ConfigureServices)` registers the reusable
+`NativeChannels.Avalonia` host. It owns the service provider for each view session and awaits
+remaining sessions during explicit application shutdown.
+
 `Program` initializes AppKit and starts Avalonia's classic desktop lifetime. `App` creates a window
 containing the same `MainView` and `CurrencySession` used by the Android and iOS samples.
 The shared view follows the MAUI sample's page layout, colors and help text, including
 USD/EUR/GBP/JPY shortcut buttons and Enter/Go submission from the currency field.
-The platform head’s `NativeCurrency` factory registers `AddNativeChannels(options => options.AddCurrency())` and `AddCurrency()`.
+The platform head’s `NativeCurrency.ConfigureServices` callback registers `AddNativeChannels(options => options.AddCurrency())` and `AddCurrency()`.
 The Currency package brings its Swift framework and the shared channel packages into the app bundle.
 
 Window close and application quit both cancel pending work and await asynchronous session disposal
@@ -39,6 +43,7 @@ bash eng/dotnet.sh workload install macos --version 10.0.401
 python3 eng/build-apple.py --macos-only
 bash eng/pack-apple.sh macos
 bash eng/pack-currency-ios.sh macos
+bash eng/pack-avalonia.sh
 bash eng/restore-currency-avalonia.sh macos -r osx-arm64
 bash eng/dotnet.sh build samples/Avalonia/Currency/Currency.Desktop -c Release -r osx-arm64 --no-restore
 python3 eng/verify-currency-macos.py --runtime osx-arm64

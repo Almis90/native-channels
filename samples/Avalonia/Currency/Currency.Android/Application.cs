@@ -2,6 +2,7 @@ using Android.App;
 using Android.Runtime;
 using Avalonia;
 using Avalonia.Android;
+using NativeChannels;
 
 namespace Currency.Android;
 
@@ -11,7 +12,6 @@ public sealed class Application(nint handle, JniHandleOwnership ownership)
 {
     protected override AppBuilder CustomizeAppBuilder(AppBuilder builder)
     {
-        App.SessionFactory = NativeCurrency.CreateSession;
-        return base.CustomizeAppBuilder(builder);
+        return base.CustomizeAppBuilder(builder).UseNativeChannels(NativeCurrency.ConfigureServices);
     }
 }

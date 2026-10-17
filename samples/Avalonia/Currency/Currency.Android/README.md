@@ -10,8 +10,12 @@ The view and session in `samples/Avalonia/Currency/Currency` are also used by th
 
 ## Registration and lifetime
 
-The platform head’s `NativeCurrency` factory creates an `IServiceCollection`, calls `AddNativeChannels(options => options.AddCurrency())`
-and `AddCurrency()`, and passes its operations and disposal to the shared `CurrencySession`. Avalonia's Android activity view factory
+`AppBuilder.UseNativeChannels(NativeCurrency.ConfigureServices)` registers the reusable
+`NativeChannels.Avalonia` host. It owns the service provider for each view session and awaits
+remaining sessions during explicit application shutdown.
+
+The platform headâ€™s `NativeCurrency.ConfigureServices` callback calls `AddNativeChannels(options => options.AddCurrency())`
+and `AddCurrency()`. It registers the portable `CurrencySession` facade; the Avalonia host owns disposal. Avalonia's Android activity view factory
 creates a new view/session for each activity. `MainActivity.OnDestroy` cancels outstanding view work and
 starts asynchronous provider disposal, allowing the native bridge to close without blocking Android's
 UI thread. Android process termination does not promise a managed cleanup callback.
@@ -19,7 +23,7 @@ UI thread. Android process termination does not promise a managed cleanup callba
 The view starts verification when loaded and displays native lookup results. Both applications compile
 `samples/Currency.Shared/PluginVerification.cs`, which checks concurrent USD/EUR/GBP/JPY lookups,
 normalization, native structured errors, invalid input, cancellation and recovery. The Avalonia app
-logs `CURRENCY_AVALONIA PASS android: …` only after those scenarios succeed.
+logs `CURRENCY_AVALONIA PASS android: â€¦` only after those scenarios succeed.
 
 ## Verify the same package in both hosts
 
@@ -41,6 +45,7 @@ locally on a configured Android development machine, start with a clean Android-
 bash eng/build-android.sh
 bash eng/pack-android.sh
 bash eng/pack-currency-android.sh
+bash eng/pack-avalonia.sh
 bash eng/restore-currency-sample.sh -p:TargetFrameworks=net10.0-android -r android-x64
 bash eng/restore-currency-avalonia.sh -r android-x64
 python3 eng/verify-shared-hosting.py packages

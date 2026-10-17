@@ -26,7 +26,9 @@ The platform projects reference the shared `Currency` application project normal
 the template. Android, iOS, native macOS, Windows, Linux, Browser and Catalyst use the same view and behavior. The
 existing C# view layout is preserved in `Currency/Views/MainView.axaml.cs`; its XAML file
 is the template's view entry point. Native registration stays in each platform head's
-`NativeCurrency` factory, with delegates passed to the portable `CurrencySession`.
+`NativeCurrency.ConfigureServices` method, registered through `AppBuilder.UseNativeChannels`.
+The shared UI consumes the `NativeChannels.Avalonia` package, creates an owned session per view,
+and awaits the host during application shutdown. See the [host guide](../../../docs/avalonia-host.md).
 
 The deliberate changes from an empty template are the Currency UI, native plugin registration,
 central package versions, and `Currency.Desktop` selecting `net10.0-macos` for AppKit or

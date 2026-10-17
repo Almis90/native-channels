@@ -1,5 +1,6 @@
 using System.IO;
 using Avalonia;
+using NativeChannels;
 #if MACOS
 using AppKit;
 #endif
@@ -29,7 +30,6 @@ internal static class Program
 
     public static AppBuilder BuildAvaloniaApp()
     {
-        App.SessionFactory = NativeCurrency.CreateSession;
-        return AppBuilder.Configure<App>().UsePlatformDetect();
+        return AppBuilder.Configure<App>().UsePlatformDetect().UseNativeChannels(NativeCurrency.ConfigureServices);
     }
 }

@@ -9,8 +9,12 @@ library project references. The shared `Currency` application project contains t
 
 ## Registration and lifetime
 
+`AppBuilder.UseNativeChannels(NativeCurrency.ConfigureServices)` registers the reusable
+`NativeChannels.Avalonia` host. It owns the service provider for each view session and awaits
+remaining sessions during explicit application shutdown.
+
 `AppDelegate` uses `AvaloniaAppDelegate<App>`. `App` assigns a `MainView` to the iOS
-`ISingleViewApplicationLifetime`. The view owns a `CurrencySession`. The platform head’s `NativeCurrency` factory registers
+`ISingleViewApplicationLifetime`. The view owns a `CurrencySession`. The platform head’s `NativeCurrency.ConfigureServices` callback registers
 `AddNativeChannels(options => options.AddCurrency())` and `AddCurrency()` in a service provider.
 The Currency package supplies the native Apple adapter and the shared channel dependencies.
 
@@ -47,6 +51,7 @@ with the [pinned Xcode, SDK and iOS workload](../../../../docs/building.md), use
 python3 eng/build-apple.py
 bash eng/pack-apple.sh ios
 bash eng/pack-currency-ios.sh
+bash eng/pack-avalonia.sh
 bash eng/restore-currency-sample.sh -p:TargetFrameworks=net10.0-ios -r iossimulator-arm64
 bash eng/restore-currency-avalonia.sh ios -r iossimulator-arm64
 python3 eng/verify-shared-hosting.py packages --platform ios
@@ -70,6 +75,7 @@ for this target; preserve an existing `artifacts/packages` feed before switching
 python3 eng/build-apple.py
 bash eng/pack-apple.sh maccatalyst
 bash eng/pack-currency-ios.sh maccatalyst
+bash eng/pack-avalonia.sh
 bash eng/restore-currency-avalonia.sh catalyst -r maccatalyst-arm64
 bash eng/dotnet.sh build samples/Avalonia/Currency/Currency.iOS -c Release \
   -p:CurrencyAppleTarget=maccatalyst -r maccatalyst-arm64 --no-restore

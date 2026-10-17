@@ -72,6 +72,7 @@ jobs:
         run: |
           bash eng/pack-apple.sh macos
           bash eng/pack-currency-ios.sh macos
+          bash eng/pack-avalonia.sh
           python3 eng/package_audit.py artifacts/packages/*.nupkg --source-commit "$GITHUB_SHA"
       - name: Build x64 package consumer
         timeout-minutes: 10

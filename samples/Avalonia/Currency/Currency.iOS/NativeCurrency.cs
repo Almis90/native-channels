@@ -8,17 +8,14 @@ namespace Currency.iOS;
 
 internal static class NativeCurrency
 {
-    public static CurrencySession CreateSession()
+    public static void ConfigureServices(IServiceCollection services)
     {
-        var services = new ServiceCollection();
         services.AddNativeChannels(options => options.AddCurrency());
         services.AddCurrency();
-        var provider = services.BuildServiceProvider();
-        var currency = provider.GetRequiredService<ICurrencyService>();
-        return new CurrencySession(
-            currency.GetSymbolAsync,
-            token => PluginVerification.RunAsync(currency, token),
-            provider.DisposeAsync
-        );
+        services.AddSingleton(provider =>
+        {
+            var currency = provider.GetRequiredService<ICurrencyService>();
+            return new CurrencySession(currency.GetSymbolAsync, token => PluginVerification.RunAsync(currency, token));
+        });
     }
 }

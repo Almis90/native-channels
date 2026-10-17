@@ -7,6 +7,13 @@
             >1.1.0-alpha.1</CurrencyPackageVersion>
     </PropertyGroup>
     <ItemGroup>
+        <PackageVersion Include="Avalonia" Version="12.1.4" />
+        <PackageVersion Include="Avalonia.Headless.XUnit" Version="12.1.4" />
+        <PackageVersion Include="xunit.v3" Version="3.2.2" />
+        <PackageVersion
+            Include="NativeChannels.Avalonia"
+            Version="$(NativeChannelsPackageVersion)"
+        />
         <PackageVersion Include="Avalonia.Android" Version="12.1.4" />
         <PackageVersion Include="Avalonia.iOS" Version="12.1.4" />
         <PackageVersion Include="Avalonia.Desktop" Version="12.1.4" />

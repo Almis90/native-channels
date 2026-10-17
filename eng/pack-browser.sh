@@ -10,6 +10,7 @@ if compgen -G 'artifacts/packages/*.nupkg' >/dev/null; then
 fi
 bash eng/dotnet.sh pack src/NativeChannels.Core -c Release -o artifacts/packages
 bash eng/dotnet.sh pack src/NativeChannels -c Release -p:NativeChannelsBrowserOnly=true -o artifacts/packages
+bash eng/pack-avalonia.sh
 python3 eng/cache-dependencies.py
 CACHE="$(mktemp -d "$ROOT/artifacts/consumer-packages.XXXXXX")"
 python3 eng/consumer-config.py "$CACHE/NuGet.Config"

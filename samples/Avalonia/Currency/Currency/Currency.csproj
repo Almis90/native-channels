@@ -7,5 +7,6 @@
         <AvaloniaResource Include="Assets/**" />
         <PackageReference Include="Avalonia" />
         <PackageReference Include="Avalonia.Themes.Fluent" />
+        <PackageReference Include="NativeChannels.Avalonia" />
     </ItemGroup>
 </Project>

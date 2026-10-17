@@ -132,3 +132,16 @@ registration cleanup. The package-only sample additionally creates actual native
 creation parameters and bidirectional clicks, unloads/reloads a view, rejects background reconnect,
 and verifies fresh instance IDs and stale-channel failure. Both Android and Apple verification
 scripts require the `native views:` result. Native UI and framework loading still require platform execution.
+
+## Avalonia host foundation
+
+`tests/NativeChannels.Avalonia.Tests` runs against Avalonia 12.1.4 headless UI dispatch with xUnit v3.
+It tests application registration, independent providers, repeated asynchronous disposal, cancellation,
+startup/cleanup failures, final native stop requests, session recreation and reentrant UI handlers.
+Run `bash eng/dotnet.sh test tests/NativeChannels.Avalonia.Tests -c Release`; the project is also in the
+portable solutions. Platform consumers must restore `NativeChannels.Avalonia` from the same local
+feed, with its archive hash checked separately from the packages shared with MAUI.
+
+Use `bash eng/pack-avalonia.sh` after building a platform/Core feed. The host itself restores the
+exact Core archive from that feed through a fresh package cache. Linux/browser pack scripts and the
+shared-hosting workflows include this step. Runtime evidence remains scoped to its recorded source.

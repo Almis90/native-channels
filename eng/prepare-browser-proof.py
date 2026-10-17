@@ -62,7 +62,7 @@ def main():
     args.output.mkdir(parents=True, exist_ok=True)
     (args.output / 'inputs.json').write_text(json.dumps(record, indent=2) + '\n')
     (args.output / 'source-files.json').write_text(json.dumps(sources, indent=2) + '\n')
-    print(f'PASS browser inputs: 3 local packages, {len(record["packagedModules"])} identical packaged modules, {len(files)} published files')
+    print(f'PASS browser inputs: 4 local packages, {len(record["packagedModules"])} identical packaged modules, {len(files)} published files')
 
 
 if __name__ == '__main__':

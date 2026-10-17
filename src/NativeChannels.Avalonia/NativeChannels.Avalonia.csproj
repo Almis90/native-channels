@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <Description>Avalonia application registration, owned channel sessions and asynchronous UI dispatch for NativeChannels.</Description>
+    </PropertyGroup>
+    <ItemGroup>
+        <ProjectReference
+            Include="../NativeChannels.Core/NativeChannels.Core.csproj"
+            Condition="'$(NativeChannelsUseCorePackage)' != 'true'"
+        />
+        <PackageReference
+            Include="NativeChannels.Core"
+            Condition="'$(NativeChannelsUseCorePackage)' == 'true'"
+        />
+        <PackageReference Include="Avalonia" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+        <None Remove="$(MSBuildThisFileDirectory)../../README.md" />
+        <None Include="../../docs/avalonia-host.md" Pack="true" PackagePath="/README.md" />
+    </ItemGroup>
+</Project>

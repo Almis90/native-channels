@@ -9,4 +9,6 @@
         <Project Path="tests/Plugin.Maui.Currency.Tests/Plugin.Maui.Currency.Tests.csproj" />
     </Folder>
     <Project Path="tests/Plugin.Maui.VolumeMonitor.Tests/Plugin.Maui.VolumeMonitor.Tests.csproj" />
+    <Project Path="src/NativeChannels.Avalonia/NativeChannels.Avalonia.csproj" />
+    <Project Path="tests/NativeChannels.Avalonia.Tests/NativeChannels.Avalonia.Tests.csproj" />
 </Solution>
