@@ -94,9 +94,13 @@ jobs:
     needs: [select, ios]
     if: needs.select.outputs.ios == 'true'
     uses: ./.github/workflows/shared-hosting-ios.yml
+  shared-hosting-windows:
+    needs: [select, windows]
+    if: needs.select.outputs.windows == 'true'
+    uses: ./.github/workflows/shared-hosting-windows.yml
   result:
     name: Framework verification result
-    needs: [select, core, apple-native, android, ios, catalyst, windows, shared-hosting, shared-hosting-ios]
+    needs: [select, core, apple-native, android, ios, catalyst, windows, shared-hosting, shared-hosting-ios, shared-hosting-windows]
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 5

@@ -155,14 +155,14 @@ class PlatformSelectionTests(unittest.TestCase):
         self.assertEqual((selection.ALL, True), selection.classify([
             'samples/Currency.Avalonia.Android/App.cs', 'src/NativeChannels/Hosting/Registration.cs']))
 
-    def test_shared_currency_changes_select_both_mobile_hosts(self):
+    def test_shared_currency_changes_select_all_three_hosts(self):
         for path in ('samples/Currency.Shared/PluginVerification.cs', 'samples/Currency.Sample/MainPage.cs',
                      'samples/Currency.Avalonia.Shared/CurrencyView.cs',
                      'plugins/Plugin.Maui.Currency/src/Plugin.Maui.Currency/CurrencyService.cs',
                      'plugins/Plugin.Maui.Currency/eng/inspect-package.py',
                      'eng/verify-shared-hosting.py', 'eng/restore-currency-avalonia.sh'):
             with self.subTest(path=path):
-                self.assertEqual(({'android', 'ios'}, True), selection.classify([path]))
+                self.assertEqual(({'android', 'ios', 'windows'}, True), selection.classify([path]))
 
     def test_ios_currency_changes_select_ios_without_android_or_catalyst(self):
         for path in ('samples/Currency.Avalonia.iOS/Currency.Avalonia.iOS.csproj',
@@ -174,11 +174,21 @@ class PlatformSelectionTests(unittest.TestCase):
             with self.subTest(path=path):
                 self.assertEqual(({'ios'}, True), selection.classify([path]))
 
-    def test_currency_docs_and_windows_adapter_do_not_trigger_mobile_hosts(self):
+    def test_windows_currency_changes_do_not_trigger_mobile_hosts(self):
+        for path in ('samples/Currency.Avalonia.Windows/App.cs',
+                     'samples/Currency.Avalonia.Windows/Currency.Avalonia.Windows.csproj',
+                     'samples/Currency.Sample/Platforms/Windows/App.xaml.cs',
+                     'plugins/Plugin.Maui.Currency/native/windows/WindowsCurrencyModule.cs',
+                     'eng/verify-windows.ps1', 'eng/verify-shared-hosting-windows.ps1',
+                     '.github/workflows/shared-hosting-windows.yml'):
+            with self.subTest(path=path):
+                self.assertEqual(({'windows'}, True), selection.classify([path]))
+
+    def test_currency_docs_do_not_trigger_platform_builds(self):
         self.assertEqual((set(), False), selection.classify([
             'samples/Currency.Avalonia.Android/README.md',
             'samples/Currency.Avalonia.iOS/README.md',
-            'plugins/Plugin.Maui.Currency/native/windows/WindowsCurrencyModule.cs']))
+            'samples/Currency.Avalonia.Windows/README.md']))
 
     def test_failed_comparison_falls_back_to_all(self):
         with patch.object(selection, 'changed_paths', side_effect=ValueError('missing base')):
@@ -240,6 +250,20 @@ class EvidenceTests(unittest.TestCase):
         for evidence in ([{**self.compile, 'sourceCommit': 'b' * 40}], [self.compile, self.compile]):
             with self.assertRaises(ValueError):
                 results.summarize(self.selection, self.needs, evidence, self.sha)
+
+    def test_windows_shared_hosting_is_required_without_claiming_ui_execution(self):
+        chosen = {**self.selection, 'platforms': ['windows'], 'depth': 'Compile', 'sharedHostingWindows': True}
+        needs = {name: {'result': 'success'} for name in ('select', 'core', 'windows')}
+        evidence = [{**self.compile, 'platform': 'windows', 'runtime': rid} for rid in ('win-x64', 'win-arm64')]
+        for outcome in ('missing', 'skipped', 'failure', 'cancelled'):
+            with self.subTest(outcome=outcome):
+                record = results.summarize(chosen, {**needs, 'shared-hosting-windows': {'result': outcome}}, evidence, self.sha)
+                self.assertFalse(record['success'])
+                self.assertEqual(['shared-hosting-windows'], record['failedJobs'])
+        needs['shared-hosting-windows'] = {'result': 'success'}
+        record = results.summarize(chosen, needs, evidence, self.sha)
+        self.assertTrue(record['success'])
+        self.assertFalse(record['results'][3]['executed'])
 
     def test_windows_requires_both_architectures_but_no_runtime(self):
         chosen = {**self.selection, 'platforms': ['windows']}

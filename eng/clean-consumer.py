@@ -10,6 +10,7 @@ CONSUMERS = {
     'samples/Currency.Sample': 'currency',
     'samples/Currency.Avalonia.Android': 'currency-avalonia',
     'samples/Currency.Avalonia.iOS': 'currency-avalonia-ios',
+    'samples/Currency.Avalonia.Windows': 'currency-avalonia-windows',
     'samples/AudioStreamer.Sample': 'audio',
     'samples/VolumeMonitor.Sample': 'volume',
     'samples/PdfViewer.Sample': 'pdf',

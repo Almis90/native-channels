@@ -1,0 +1,56 @@
+name: Shared hosting / Windows Currency
+on:
+  workflow_call:
+permissions:
+  contents: read
+jobs:
+  currency:
+    name: Compile both Currency hosts (${{ matrix.runtime }})
+    runs-on: windows-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        runtime: [win-x64, win-arm64]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          name: framework-packages-windows
+          path: artifacts
+      - name: Reuse this run's Windows framework packages
+        shell: bash
+        run: |
+          tar -xzf artifacts/package-feed.tar.gz
+          python eng/package_audit.py artifacts/packages/*.nupkg --platform-only windows --source-commit "$GITHUB_SHA"
+      - name: Set up cached Windows toolchain
+        timeout-minutes: 10
+        uses: ./.github/actions/windows-toolchain
+      - name: Pack Currency once for both hosts
+        timeout-minutes: 5
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force artifacts/windows/packages | Out-Null
+          Copy-Item artifacts/packages/* artifacts/windows/packages
+          ./.github/scripts/pack-windows.ps1 -Scope Plugin -Plugin Currency
+      - name: Restore and compile both hosts; run native API tests
+        timeout-minutes: 15
+        shell: pwsh
+        env:
+          RUNTIME: ${{ matrix.runtime }}
+          PYTHONUTF8: '1'
+        run: ./eng/verify-shared-hosting-windows.ps1 -PackageFeed artifacts/windows/packages -RuntimeIdentifier $env:RUNTIME -BuildOnly
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: shared-hosting-windows-${{ matrix.runtime }}
+          path: |
+            artifacts/shared-hosting-windows/**/packages.json
+            artifacts/shared-hosting-windows/**/compilation.json
+            artifacts/shared-hosting-windows/**/verification.json
+            artifacts/shared-hosting-windows/**/*.trx
+          retention-days: 7
+          if-no-files-found: warn

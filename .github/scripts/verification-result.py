@@ -21,6 +21,8 @@ def summarize(selection, needs, evidence, sha):
         required.add('shared-hosting')
     if selection.get('sharedHostingIos'):
         required.add('shared-hosting-ios')
+    if selection.get('sharedHostingWindows'):
+        required.add('shared-hosting-windows')
     if set(selection["platforms"]) & {"ios", "catalyst"}:
         required.add("apple-native")
     failed = sorted(name for name in required if needs.get(name, {}).get("result") != "success")
@@ -66,6 +68,9 @@ def main():
         if record.get('sharedHostingIos'):
             outcome = json.loads(os.environ['JOB_RESULTS']).get('shared-hosting-ios', {}).get('result', 'missing')
             summary.write(f"\nShared hosting / iOS Currency: **{outcome}**. This separate proof executes both MAUI and Avalonia Currency apps even at Compile depth; see the shared-hosting-ios artifact. Simulator execution does not establish physical-device support.\n")
+        if record.get('sharedHostingWindows'):
+            outcome = json.loads(os.environ['JOB_RESULTS']).get('shared-hosting-windows', {}).get('result', 'missing')
+            summary.write(f"\nShared hosting / Windows Currency: **{outcome}**. Both hosts compile for x64 and ARM64 with identical shared archives per architecture; native API tests execute on the x64 runner. Desktop application execution is a separate local check, not claimed by this job. See shared-hosting-windows-* artifacts.\n")
     if not record["success"]:
         sys.exit("Incomplete verification: " + ", ".join(record["failedJobs"] + record["unverifiedStages"]))
 

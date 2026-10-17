@@ -89,6 +89,13 @@ Compile/Runtime depth. A failure blocks the framework result. Logs and hashes ar
 `shared-hosting-android` and `shared-hosting-ios`; iOS also retains app screenshots. Simulator success
 does not establish physical-device support.
 
+The [Windows proof](../samples/Currency.Avalonia.Windows/README.md) compares the three shared
+archives in separate fresh MAUI and Avalonia caches and rejects mobile bindings or WinUI dependencies
+in Avalonia. Its required CI job builds both hosts for x64 and ARM64 and runs the native Currency API
+tests on the x64 runner. Desktop application execution is separate: run
+`./eng/verify-shared-hosting-windows.ps1` on Windows to execute both applications and check Avalonia's
+normal window/session shutdown. `-BuildOnly` never creates a runtime-success record.
+
 The portable solution includes Currency facade and registration tests, alongside core channel tests.
 Shared registration tests exercise lazy session creation, independent providers, captured settings,
 duplicate and invalid configuration, host dispatch and owned disposal. They compile the production

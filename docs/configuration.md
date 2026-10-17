@@ -92,7 +92,9 @@ native adapters arrive through the plugin dependency. This API supplies channel 
 still controls startup, UI dispatch, and disposal. The
 [Avalonia Android sample](../samples/Currency.Avalonia.Android/README.md) demonstrates activity-owned
 Currency sessions, while the [iOS sample](../samples/Currency.Avalonia.iOS/README.md) owns one session
-for its application view. A general Avalonia application host package is not supplied.
+for its application view. The [Windows sample](../samples/Currency.Avalonia.Windows/README.md)
+owns one desktop window and awaits session cleanup on normal close. A general Avalonia application
+host package is not supplied.
 
 Registration snapshots module entries, timeout, immutable limits, and a copy of the JSON options.
 Every service provider owns a separate, lazily created session. Use asynchronous provider disposal

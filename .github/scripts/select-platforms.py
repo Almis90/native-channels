@@ -14,6 +14,9 @@ WINDOWS_TOOLCHAIN_FILES = {
     ".github/scripts/windows-toolchain.ps1",
     ".github/workflows/framework-windows.yml",
     ".github/workflows/windows.yml",
+    ".github/workflows/shared-hosting-windows.yml",
+    "eng/verify-shared-hosting-windows.ps1",
+    "eng/verify-windows.ps1",
 }
 WINDOWS_INTEROP_DIRECTORIES = (
     "native/windows/interop/",
@@ -37,6 +40,11 @@ def classify(paths):
     selected = set()
     core = False
     for path in paths:
+        if not path.endswith('.md') and path.startswith(('samples/Currency.Avalonia.Windows/',
+                'samples/Currency.Sample/Platforms/Windows/', 'plugins/Plugin.Maui.Currency/native/windows/')):
+            selected.add('windows')
+            core = True
+            continue
         if not path.endswith('.md') and (path.startswith(('samples/Currency.Avalonia.Android/',
                 'samples/Currency.Sample/Platforms/Android/', 'plugins/Plugin.Maui.Currency/native/android/'))
                 or path in {'eng/pack-currency-android.sh', 'eng/verify-shared-hosting-android.sh'}):
@@ -55,7 +63,7 @@ def classify(paths):
                 or (path.startswith('samples/Currency.Sample/') and '/Platforms/' not in path)
                 or path in {'eng/restore-currency-avalonia.sh', 'eng/restore-currency-sample.sh',
                             'eng/verify-shared-hosting.py', 'plugins/Plugin.Maui.Currency/eng/inspect-package.py'}):
-            selected |= {'android', 'ios'}
+            selected |= {'android', 'ios', 'windows'}
             core = True
             continue
         if path.startswith(("docs/", "plugins/", "benchmarks/", "tests/Plugin.Maui.")):
@@ -141,7 +149,7 @@ def main():
     selected, core, reason = choose(requested, base)
     record = {"sourceCommit": os.environ["GITHUB_SHA"], "platforms": sorted(selected),
               "core": core, "depth": depth, "reason": reason, "sharedHosting": "android" in selected,
-              "sharedHostingIos": "ios" in selected}
+              "sharedHostingIos": "ios" in selected, "sharedHostingWindows": "windows" in selected}
     Path("artifacts").mkdir(exist_ok=True)
     Path("artifacts/selection.json").write_text(json.dumps(record, indent=2) + "\n")
     with open(os.environ["GITHUB_OUTPUT"], "a") as output:
