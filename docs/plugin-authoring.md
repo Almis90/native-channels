@@ -163,7 +163,7 @@ bash plugins/Plugin.Maui.Currency/eng/pack.sh
 python3 plugins/Plugin.Maui.Currency/eng/inspect-package.py
 
 bash eng/restore-currency-sample.sh -p:TargetFrameworks=net10.0-ios -r iossimulator-arm64
-bash eng/dotnet.sh build samples/Currency.Sample -c Release -f net10.0-ios -r iossimulator-arm64 --no-restore
+bash eng/dotnet.sh build samples/Maui/Currency -c Release -f net10.0-ios -r iossimulator-arm64 --no-restore
 bash eng/verify-ios-currency.sh SIMULATOR_UDID Release
 ```
 

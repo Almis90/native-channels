@@ -1,3 +1,4 @@
+using Currency.Verification;
 using NativeChannels;
 using Xunit;
 
@@ -104,6 +105,48 @@ public sealed class CurrencyServiceTests : IAsyncLifetime
     }
 
     public Task InitializeAsync() => Task.CompletedTask;
+
+    [Fact]
+    public async Task SharedVerificationRunsWithoutAUiFramework()
+    {
+        using var registration = _endpoint.SetMethodCallHandler(
+            (call, _) =>
+                ValueTask.FromResult<object?>(
+                    call.Arguments switch
+                    {
+                        "USD" => "$",
+                        "EUR" => "€",
+                        "GBP" => "£",
+                        "JPY" => "¥",
+                        _ => throw new ChannelException("invalid_currency_code", "Invalid currency", "ZZZ", "apple"),
+                    }
+                )
+        );
+        var result = await PluginVerification.RunAsync(_currency, CancellationToken.None);
+        Assert.Equal(
+            "PASS apple: USD=$, EUR=€, GBP=£, JPY=¥; normalization, errors, concurrency, cancellation",
+            result
+        );
+    }
+
+    [Fact]
+    public async Task SharedVerificationHonorsTheHostLifetime()
+    {
+        var entered = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        using var registration = _endpoint.SetMethodCallHandler(
+            async (_, token) =>
+            {
+                entered.TrySetResult();
+                await Task.Delay(Timeout.InfiniteTimeSpan, token);
+                return "$";
+            }
+        );
+        using var lifetime = new CancellationTokenSource();
+        var pending = PluginVerification.RunAsync(_currency, lifetime.Token);
+        await entered.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        lifetime.Cancel();
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => pending.WaitAsync(TimeSpan.FromSeconds(5)));
+    }
 
     public async Task DisposeAsync()
     {

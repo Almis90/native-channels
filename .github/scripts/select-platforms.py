@@ -37,7 +37,7 @@ def classify(paths):
     for path in paths:
         if path.startswith(("docs/", "plugins/", "benchmarks/", "tests/Plugin.Maui.")):
             continue
-        if path.startswith("samples/") and not path.startswith("samples/NativeChannels.Sample/"):
+        if path.startswith("samples/") and not path.startswith("samples/Maui/ChannelExplorer/"):
             continue
         if path.endswith(".md") or path in {"LICENSE", "package.json", "package-lock.json", "eng/check-docs.mjs", ".github/workflows/pages.yml"}:
             continue

@@ -58,7 +58,7 @@ python3 -m unittest discover -s tests/packaging
 
 ## Verify the native boundary
 
-Use the [package-only sample](../samples/NativeChannels.Sample/README.md) after changing a bridge,
+Use the [package-only sample](../samples/Maui/ChannelExplorer/README.md) after changing a bridge,
 binding, native dependency, or packaging rule. Restore into a fresh package cache and rebuild clean
 consumer outputs. The scripts verify source mapping, archive hashes, and absence of project references.
 
@@ -71,7 +71,7 @@ results and CI evidence.
 
 ## Verify a reusable plugin
 
-The [currency sample](../samples/Currency.Sample/README.md) references only `Plugin.Maui.Currency`.
+The [currency sample](../samples/Maui/Currency/README.md) references only `Plugin.Maui.Currency`.
 Its AAR and XCFramework arrive through the package's `buildTransitive` imports. Run its fresh-cache
 restore and Release runtime checks after changing the plugin, its native modules, or packaging.
 `plugins/Plugin.Maui.Currency/eng/inspect-package.py` checks the native classes, preservation rules,

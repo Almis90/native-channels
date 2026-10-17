@@ -105,7 +105,7 @@ bash plugins/Plugin.Maui.VolumeMonitor/eng/pack.sh
 python3 plugins/Plugin.Maui.VolumeMonitor/eng/inspect-package.py
 
 bash eng/restore-volume-sample.sh -p:TargetFrameworks=net10.0-android -r android-arm64
-bash eng/dotnet.sh build samples/VolumeMonitor.Sample -c Release -f net10.0-android -r android-arm64 --no-restore
+bash eng/dotnet.sh build samples/Maui/VolumeMonitor -c Release -f net10.0-android -r android-arm64 --no-restore
 bash eng/verify-android-volume.sh EMULATOR_SERIAL Release android-arm64
 ```
 
@@ -125,7 +125,7 @@ the observer; Start creates a fresh one. Backgrounding stops observation, and re
 - [Kotlin observer](native/android/src/main/java/dev/nativechannels/volume/VolumeMonitorModule.kt)
 - [Swift observer](native/apple/Sources/VolumeMonitorModule.swift)
 - [Windows observer](native/windows/WindowsVolumeMonitorModule.cs)
-- [Sample app](../../samples/VolumeMonitor.Sample)
+- [Sample app](../../samples/Maui/VolumeMonitor)
 - [Portable tests](../../tests/Plugin.Maui.VolumeMonitor.Tests)
 - [Recorded verification](VERIFICATION.md)
 

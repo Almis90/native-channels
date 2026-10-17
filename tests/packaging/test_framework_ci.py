@@ -130,7 +130,7 @@ class PlatformSelectionTests(unittest.TestCase):
             ('src/NativeChannels/Platforms/Android/Transport.cs', {'android'}),
             ('native/apple/Bridge.swift', {'ios', 'catalyst'}),
             ('native/windows/sample/Bridge.cs', {'windows'}),
-            ('samples/NativeChannels.Sample/Platforms/iOS/AppDelegate.cs', {'ios'}),
+            ('samples/Maui/ChannelExplorer/Platforms/iOS/AppDelegate.cs', {'ios'}),
         ):
             with self.subTest(path=path):
                 self.assertEqual((platforms, True), selection.classify([path]))
@@ -143,7 +143,7 @@ class PlatformSelectionTests(unittest.TestCase):
     def test_docs_examples_and_benchmarks_do_not_build_framework(self):
         self.assertEqual((set(), False), selection.classify([
             'docs/building.md', 'plugins/Plugin.Maui.Currency/native/Foo.kt',
-            'samples/Currency.Sample/MainPage.cs', 'benchmarks/Benchmarks.cs']))
+            'samples/Maui/Currency/MainPage.cs', 'benchmarks/Benchmarks.cs']))
 
     def test_failed_comparison_falls_back_to_all(self):
         with patch.object(selection, 'changed_paths', side_effect=ValueError('missing base')):

@@ -46,11 +46,11 @@ jobs:
       - name: Compile sample once (Release)
         id: compile
         timeout-minutes: 20
-        run: bash eng/dotnet.sh build samples/NativeChannels.Sample -c Release -f "net10.0-$TARGET" -r "$RID" --no-restore --disable-build-servers --verbosity normal
+        run: bash eng/dotnet.sh build samples/Maui/ChannelExplorer -c Release -f "net10.0-$TARGET" -r "$RID" --no-restore --disable-build-servers --verbosity normal
       - name: Preserve compiled application with signatures and permissions
         if: inputs.depth == 'Runtime'
         run: |
-          tar -czf "artifacts/$TARGET-app.tar.gz" samples/NativeChannels.Sample/bin/Release/net10.0-"$TARGET"/"$RID"/*.app
+          tar -czf "artifacts/$TARGET-app.tar.gz" samples/Maui/ChannelExplorer/bin/Release/net10.0-"$TARGET"/"$RID"/*.app
           shasum -a 256 "artifacts/$TARGET-app.tar.gz" > "artifacts/$TARGET-app.sha256"
       - uses: actions/upload-artifact@v4
         if: inputs.depth == 'Runtime'

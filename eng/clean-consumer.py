@@ -5,12 +5,12 @@ import shutil
 import sys
 
 CONSUMERS = {
-    'samples/NativeChannels.Sample': 'sample',
+    'samples/Maui/ChannelExplorer': 'sample',
     'tests/PackageConsumer': 'consumer',
-    'samples/Currency.Sample': 'currency',
-    'samples/AudioStreamer.Sample': 'audio',
-    'samples/VolumeMonitor.Sample': 'volume',
-    'samples/PdfViewer.Sample': 'pdf',
+    'samples/Maui/Currency': 'currency',
+    'samples/Maui/AudioStreamer': 'audio',
+    'samples/Maui/VolumeMonitor': 'volume',
+    'samples/Maui/PdfViewer': 'pdf',
 }
 
 

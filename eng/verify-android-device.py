@@ -66,7 +66,7 @@ def verify(serial, apk, source_commit, adb, output_root):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('serial', help='Explicit authorized ADB device serial or wireless address')
-    parser.add_argument('--apk', type=Path, default=ROOT / 'samples/NativeChannels.Sample/bin/Release/net10.0-android/android-arm64/dev.nativechannels.sample-Signed.apk')
+    parser.add_argument('--apk', type=Path, default=ROOT / 'samples/Maui/ChannelExplorer/bin/Release/net10.0-android/android-arm64/dev.nativechannels.sample-Signed.apk')
     parser.add_argument('--source-commit', required=True, help='Full source SHA from the APK build run')
     args = parser.parse_args()
     sdk = Path(os.environ.get('ANDROID_HOME') or os.environ.get('ANDROID_SDK_ROOT') or Path.home() / 'Library/Android/sdk')

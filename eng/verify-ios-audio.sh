@@ -3,7 +3,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 DEVICE="${1:?Usage: verify-ios-audio.sh SIMULATOR_UDID [Debug|Release]}"
 CONFIGURATION="${2:-Debug}"
-APP="$ROOT/samples/AudioStreamer.Sample/bin/$CONFIGURATION/net10.0-ios/iossimulator-arm64/AudioStreamer.Sample.app"
+APP="$ROOT/samples/Maui/AudioStreamer/bin/$CONFIGURATION/net10.0-ios/iossimulator-arm64/AudioStreamer.Sample.app"
 xcrun simctl install "$DEVICE" "$APP"
 CONTAINER="$(xcrun simctl get_app_container "$DEVICE" dev.nativechannels.audio.sample data)"
 rm -f "$CONTAINER/Library/audio-result.txt" "$CONTAINER/Documents/audio-result.txt"

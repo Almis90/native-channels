@@ -1,1 +1,1 @@
-<!--@include: ../samples/AudioStreamer.Sample/README.md-->
+<!--@include: ../samples/Maui/AudioStreamer/README.md-->

@@ -18,5 +18,9 @@
             Include="../../plugins/Plugin.Maui.Currency/src/Plugin.Maui.Currency/ICurrencyService.cs"
             Link="ICurrencyService.cs"
         />
+        <Compile
+            Include="../../samples/Currency.Shared/PluginVerification.cs"
+            Link="PluginVerification.cs"
+        />
     </ItemGroup>
 </Project>

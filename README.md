@@ -77,7 +77,8 @@ register the native adapter for your SDK; installing the bridge alone does not a
 The [getting-started guide](docs/getting-started.md) walks through package installation,
 adapter registration, and a complete native round trip. Then follow one path:
 
-- **Try the bridge:** run the [framework verification sample](samples/NativeChannels.Sample/README.md).
+- **Browse MAUI samples:** see the [sample applications](samples/Maui/README.md).
+- **Try the bridge:** run the [ChannelExplorer sample](samples/Maui/ChannelExplorer/README.md).
 - **Integrate a native SDK:** follow [getting started](docs/getting-started.md), then the
   [Android](docs/android-integration.md) and [Apple](docs/ios-integration.md) adapter guides.
 - **Build a reusable plugin:** follow [plugin authoring](docs/plugin-authoring.md) and study the

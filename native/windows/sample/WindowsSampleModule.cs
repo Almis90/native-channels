@@ -1,7 +1,8 @@
 using System.Runtime.CompilerServices;
 using Microsoft.Maui.ApplicationModel;
+using NativeChannels;
 
-namespace NativeChannels.Sample;
+namespace ChannelExplorer;
 
 internal sealed class WindowsSampleModule : IWindowsChannelModule
 {

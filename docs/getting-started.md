@@ -176,7 +176,7 @@ Keep `bin` and `obj` out of your app's version control.
 ## Build from source
 
 To test changes to NativeChannels itself, use [building from source](building.md) and the
-[framework sample](../samples/NativeChannels.Sample/README.md). Those development checks intentionally
+[framework sample](../samples/Maui/ChannelExplorer/README.md). Those development checks intentionally
 use local packages and isolated caches. When replacing a local package with the same version, clean
 consumer outputs and use a fresh cache; see [troubleshooting](troubleshooting.md).
 

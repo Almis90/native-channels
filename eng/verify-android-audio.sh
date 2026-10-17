@@ -10,7 +10,7 @@ if [[ ! "$RUNS" =~ ^([1-9]|1[0-9]|20)$ ]]; then
     echo 'AUDIO_VERIFICATION_RUNS must be between 1 and 20' >&2
     exit 2
 fi
-APK="$ROOT/samples/AudioStreamer.Sample/bin/$CONFIGURATION/net10.0-android/${RID:+$RID/}dev.nativechannels.audio.sample-Signed.apk"
+APK="$ROOT/samples/Maui/AudioStreamer/bin/$CONFIGURATION/net10.0-android/${RID:+$RID/}dev.nativechannels.audio.sample-Signed.apk"
 "$ADB" -s "$DEVICE" install --no-incremental -r "$APK"
 ACTIVITY="$("$ADB" -s "$DEVICE" shell cmd package resolve-activity --brief dev.nativechannels.audio.sample | tr -d '\r' | tail -1)"
 mkdir -p "$ROOT/artifacts/android-consumers"

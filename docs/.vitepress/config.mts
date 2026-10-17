@@ -80,7 +80,7 @@ export default defineConfig({
           { text: 'Sample app', link: '/pdf-sample' },
           { text: 'Verification', link: '/pdf-verification' },
         ] },
-        { text: 'Framework verification app', link: '/sample' },
+        { text: 'ChannelExplorer', link: '/sample' },
       ] },
       { text: 'Understand the bridge', collapsed: true, items: [
         { text: 'Architecture', link: '/architecture' },

@@ -3,7 +3,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 DEVICE="${1:?Usage: verify-ios-currency.sh SIMULATOR_UDID [Debug|Release]}"
 CONFIGURATION="${2:-Debug}"
-APP="$ROOT/samples/Currency.Sample/bin/$CONFIGURATION/net10.0-ios/iossimulator-arm64/Currency.Sample.app"
+APP="$ROOT/samples/Maui/Currency/bin/$CONFIGURATION/net10.0-ios/iossimulator-arm64/Currency.Sample.app"
 xcrun simctl install "$DEVICE" "$APP"
 CONTAINER="$(xcrun simctl get_app_container "$DEVICE" dev.nativechannels.currency.sample data)"
 rm -f "$CONTAINER/Library/currency-result.txt" "$CONTAINER/Documents/currency-result.txt"

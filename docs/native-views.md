@@ -88,7 +88,7 @@ The working factories show creation parameters, updating a native button, click 
 
 - [Android ButtonViewFactory](../native/android/sample/src/main/java/dev/nativechannels/sample/ButtonViewFactory.kt)
 - [Apple ButtonViewFactory](../native/apple/Samples/ButtonViewFactory.swift)
-- [Managed lifecycle verification](../samples/NativeChannels.Sample/ViewVerification.cs)
+- [Managed lifecycle verification](../samples/Maui/ChannelExplorer/ViewVerification.cs)
 
 Only generic view-host operations are bound to C#. Keep your adapter class reachable: the Android
 bridge ships a consumer rule for `NativeViewFactory` implementors, and Apple factories need their

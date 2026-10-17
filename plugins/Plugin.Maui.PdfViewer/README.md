@@ -70,7 +70,7 @@ bash plugins/Plugin.Maui.PdfViewer/eng/pack.sh
 python3 plugins/Plugin.Maui.PdfViewer/eng/inspect-package.py
 
 bash eng/restore-pdf-sample.sh -p:TargetFrameworks=net10.0-android -r android-arm64
-bash eng/dotnet.sh build samples/PdfViewer.Sample -c Release -f net10.0-android -r android-arm64 --no-restore
+bash eng/dotnet.sh build samples/Maui/PdfViewer -c Release -f net10.0-android -r android-arm64 --no-restore
 bash eng/verify-android-pdf.sh EMULATOR_SERIAL Release android-arm64
 ```
 
@@ -79,7 +79,7 @@ For iOS use `net10.0-ios` / `iossimulator-arm64`, then
 The sample has only package references; restore uses a new cache and verifies archive hashes.
 The plugin package carries the AAR, all XCFramework slices and transitive native imports.
 
-See [the sample](../../samples/PdfViewer.Sample/README.md) and [verification status](VERIFICATION.md).
+See [the sample](../../samples/Maui/PdfViewer/README.md) and [verification status](VERIFICATION.md).
 
 ## Native adapters
 

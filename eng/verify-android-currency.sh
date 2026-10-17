@@ -5,7 +5,7 @@ DEVICE="${1:?Usage: verify-android-currency.sh EMULATOR_SERIAL [Debug|Release] [
 CONFIGURATION="${2:-Debug}"
 ADB="${ANDROID_HOME:-$HOME/Library/Android/sdk}/platform-tools/adb"
 RID="${3:-}"
-APK="$ROOT/samples/Currency.Sample/bin/$CONFIGURATION/net10.0-android/${RID:+$RID/}dev.nativechannels.currency.sample-Signed.apk"
+APK="$ROOT/samples/Maui/Currency/bin/$CONFIGURATION/net10.0-android/${RID:+$RID/}dev.nativechannels.currency.sample-Signed.apk"
 "$ADB" -s "$DEVICE" install -r "$APK"
 "$ADB" -s "$DEVICE" shell am force-stop dev.nativechannels.currency.sample
 "$ADB" -s "$DEVICE" logcat -c

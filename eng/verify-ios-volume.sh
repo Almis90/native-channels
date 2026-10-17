@@ -3,7 +3,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 DEVICE="${1:?Usage: verify-ios-volume.sh SIMULATOR_UDID [Debug|Release]}"
 CONFIGURATION="${2:-Debug}"
-APP="$ROOT/samples/VolumeMonitor.Sample/bin/$CONFIGURATION/net10.0-ios/iossimulator-arm64/VolumeMonitor.Sample.app"
+APP="$ROOT/samples/Maui/VolumeMonitor/bin/$CONFIGURATION/net10.0-ios/iossimulator-arm64/VolumeMonitor.Sample.app"
 xcrun simctl install "$DEVICE" "$APP"
 CONTAINER="$(xcrun simctl get_app_container "$DEVICE" dev.nativechannels.volume.sample data)"
 rm -f "$CONTAINER/Library/volume-result.txt" "$CONTAINER/Documents/volume-result.txt"

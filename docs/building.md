@@ -31,11 +31,11 @@ all NativeChannels packages. Library packages always come from `artifacts/packag
 
 ```sh
 bash eng/restore-sample.sh -p:TargetFrameworks=net10.0-ios -r iossimulator-arm64
-bash eng/dotnet.sh build samples/NativeChannels.Sample -f net10.0-ios -r iossimulator-arm64 --no-restore
+bash eng/dotnet.sh build samples/Maui/ChannelExplorer -f net10.0-ios -r iossimulator-arm64 --no-restore
 bash eng/verify-ios-sample.sh SIMULATOR_UDID
 
 bash eng/restore-sample.sh -p:TargetFrameworks=net10.0-android
-bash eng/dotnet.sh build samples/NativeChannels.Sample -f net10.0-android --no-restore
+bash eng/dotnet.sh build samples/Maui/ChannelExplorer -f net10.0-android --no-restore
 bash eng/verify-android-sample.sh EMULATOR_SERIAL
 ```
 
@@ -66,7 +66,7 @@ manual selection and environment approval.
 On a compatible Mac, test Catalyst independently:
 ```sh
 bash eng/restore-sample.sh -p:TargetFrameworks=net10.0-maccatalyst -r maccatalyst-arm64
-bash eng/dotnet.sh build samples/NativeChannels.Sample -f net10.0-maccatalyst -r maccatalyst-arm64 --no-restore
+bash eng/dotnet.sh build samples/Maui/ChannelExplorer -f net10.0-maccatalyst -r maccatalyst-arm64 --no-restore
 bash eng/verify-catalyst-sample.sh
 ```
 The script launches the sample, checks its output, and closes its process after the result.
@@ -376,5 +376,5 @@ a fresh cache. A successful incremental binding compilation alone does not estab
 ## PDF viewer example
 
 After packing the framework, follow the [PdfViewer build steps](../plugins/Plugin.Maui.PdfViewer/README.md#build-and-verify)
-to build its native adapters, pack the local plugin, and restore the separate [sample](../samples/PdfViewer.Sample/README.md).
+to build its native adapters, pack the local plugin, and restore the separate [sample](../samples/Maui/PdfViewer/README.md).
 This exercises native views through a package-only consumer. No publication is needed.

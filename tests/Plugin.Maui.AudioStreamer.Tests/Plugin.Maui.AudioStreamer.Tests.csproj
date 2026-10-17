@@ -13,6 +13,6 @@
             Include="../../plugins/Plugin.Maui.AudioStreamer/src/Plugin.Maui.AudioStreamer/*.cs"
             Exclude="../../plugins/Plugin.Maui.AudioStreamer/src/Plugin.Maui.AudioStreamer/AudioStreamerExtensions.cs"
         />
-        <Compile Include="../../samples/AudioStreamer.Sample/MusicGenerator.cs" />
+        <Compile Include="../../samples/Maui/AudioStreamer/MusicGenerator.cs" />
     </ItemGroup>
 </Project>
