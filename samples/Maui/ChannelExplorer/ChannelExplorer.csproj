@@ -11,6 +11,8 @@
         <UseMaui>true</UseMaui>
         <SingleProject>true</SingleProject>
         <IsPackable>false</IsPackable>
+        <NativeChannelsProfileSeconds Condition="'$(NativeChannelsProfileSeconds)' == ''"
+            >0</NativeChannelsProfileSeconds>
         <EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
         <ApplicationTitle>ChannelExplorer</ApplicationTitle>
         <ApplicationId>dev.nativechannels.sample</ApplicationId>
@@ -60,6 +62,14 @@
         />
     </ItemGroup>
     <ItemGroup>
+        <AssemblyMetadata
+            Include="NativeChannelsProfileSeconds"
+            Value="$(NativeChannelsProfileSeconds)"
+        />
+        <AssemblyMetadata
+            Include="NativeChannelsProfileRunId"
+            Value="$(NativeChannelsProfileRunId)"
+        />
         <PackageReference Include="Microsoft.Maui.Controls" />
         <PackageReference Include="NativeChannels.Maui" />
     </ItemGroup>

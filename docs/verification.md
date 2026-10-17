@@ -37,6 +37,35 @@ and four reference plugins. Local checks on 2026-10-15:
 These local source-tree checks are separate from the exact-commit CI and publication evidence below.
 They did not publish packages or create GitHub releases.
 
+## Preview 2 preparation — local checks
+
+The `0.1.0-preview.2` changes have local validation, separate from the published-preview evidence
+below. The five mobile framework packages passed metadata/native-asset inspection and API comparison
+against the hash-pinned NuGet.org `0.1.0-preview.1` archives. A deliberately removed method signature
+was rejected with `CP0002`. The combined Windows package comparison still requires the distribution gate.
+
+The native profile executed on ARM64 Mac Catalyst in Release using local package references,
+.NET 10.0.12 and Mac Catalyst 26.2.0. It measured a working tree based on
+`5d5a83f7f9f9eec8974108de39d2758a8f053480` with the profiling changes still uncommitted.
+The [recorded summary](https://almis90.github.io/native-channels/verification/native-profile-catalyst-preview2.json)
+includes that dirty-tree flag, package hashes, adapter hashes and measurements. It is a development
+observation, not final-source or combined-feed release acceptance.
+
+| Native profile check | Result |
+| --- | --- |
+| Catalyst execution | 300-second workload plus five seconds idle; 2,532 cycles, 284 memory samples, zero active subscriptions at completion |
+| Round trips | 256 measured calls after 32 warmups each: Int32 echo, reentrant method, and reentrant 4 KiB binary message |
+| Cleanup | Handle disposal, live subscription teardown, cooperative cancellation, and 254 native view recreation cycles completed |
+| Native compilation | Kotlin AAR and Swift iOS device/simulator/Catalyst framework slices compiled with the memory endpoints |
+| Windows profile integration | Implemented; compilation and execution on Windows remain unverified |
+| Not yet executed | Profiling on Android and iOS; the new hosted profiling workflow; longer repeated native soaks |
+
+Physical footprint rose from 66,307,080 to 87,098,376 bytes, while resident size fell and managed
+retained bytes grew. These are different counters, not an isolated native leak measurement.
+No GC was forced. Longer comparable runs and heap inspection are needed to explain retention;
+this run does not establish leak-free behavior or device-wide performance guarantees.
+See [performance](performance.md#measure-real-native-round-trips-and-memory) for reproducible commands.
+
 ## Framework CI verification
 
 On 2026-10-17, [All / Runtime verification](https://github.com/Almis90/native-channels/actions/runs/38980871000)
@@ -181,7 +210,8 @@ application, and installer checks. ARM64 cross-compilation does not establish AR
 - Execute the final combined-feed framework consumer on physical Android/iOS devices and Windows; keep example observations separate from distribution evidence.
 - Verify independent iOS observer counts and additional audio routes; foreground/background example behavior was manually checked as described above.
 - Verify Catalyst output-device switching, Bluetooth/headphone routes, and audio interruptions.
-- Complete long-running native heap/lifecycle stress and measured end-to-end performance checks.
+- Repeat longer native memory/lifecycle soaks, investigate retention, and extend the Catalyst profile
+  to Android, iOS and Windows; record physical-device and hosted execution separately.
 - Verify every planned Avalonia and Uno host/target combination against the [roadmap completion criteria](roadmap.md#avalonia-integration), including desktop macOS, Linux, and JavaScript/DOM browser adapters. None is supported on `main` yet.
 
 Use the [release checklist](release-checklist.md) before tagging or distribution. Keep implementation,

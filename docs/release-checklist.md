@@ -14,6 +14,8 @@ execution are separate evidence. No workflow publishes packages automatically.
 - A regression test for throwing cancellation callbacks during in-memory transport disposal.
 - A separate benchmark project for codec throughput/allocations and managed channel round trips.
 - Repeated native view reconnect verification in the real package-only MAUI sample.
+- Opt-in real-platform round-trip measurements and a paced native lifecycle/memory soak, with raw
+  measurements, package hashes and a separate manual runtime workflow.
 - Package metadata and source-revision checks with SHA-256 manifests, alongside existing native-asset inspections.
 - Separate manual stress and benchmark workflows; ordinary CI retains one bounded pass of the portable stress tests.
 
@@ -64,7 +66,7 @@ an example, verify its own packages and applicable consumers separately.
 | Windows | Combined package consumers compile for x64/ARM64; execute on supported Windows hosts and record remaining architecture gaps |
 | Apple builds | Unsigned iOS device and Mac Catalyst Release consumers compile; Catalyst framework sample executes on the Mac runner; physical-device status recorded separately |
 | Packages | All framework inspectors pass, exact-commit metadata audit passes, separate consumers restore from fresh caches |
-| Performance | Record benchmark host, runtime, source revision, allocations, uncertainty, and workload; investigate measured regressions |
+| Performance | Record native profile source, package hashes, host/runtime, duration, percentiles and memory series; investigate regressions across comparable repeated runs |
 | Documentation | API, protocol, lifecycle, threading, errors, plugin authoring, troubleshooting, build and verification guides match shipped behavior |
 | Release | Update framework version and package references together, review compatibility, wait for applicable CI, then tag the verified revision |
 

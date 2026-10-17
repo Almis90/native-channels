@@ -135,6 +135,22 @@ internal sealed class ViewVerification
         }
     }
 
+    internal Task ProfileCycleAsync() =>
+        MainThread.InvokeOnMainThreadAsync(async () =>
+        {
+            var stale = First.Channel!;
+            var oldId = First.InstanceId;
+            await First.DisconnectAsync();
+            First.Reconnect();
+            Check(First.InstanceId != oldId, "profile fresh view ID");
+            await ExpectDisposed(stale.InvokeAsync("getState"));
+            Check((await State(First))["uiThread"] is true, "profile native UI dispatch");
+            Check(
+                await First.Channel!.InvokeAsync<string>("simulateTap") == "managed acknowledgement",
+                "profile callback"
+            );
+        });
+
     private static void CheckLayout(PlatformChannelView view)
     {
 #if ANDROID

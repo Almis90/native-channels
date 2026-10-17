@@ -55,5 +55,23 @@ public sealed class MainPage(IChannelService channels) : ContentPage
         resultPath = Environment.GetEnvironmentVariable("NATIVECHANNELS_SAMPLE_RESULT") ?? resultPath;
 #endif
         File.WriteAllText(resultPath, report);
+        if (report.StartsWith("PASS ", StringComparison.Ordinal) && NativeProfile.Seconds > 0)
+        {
+            reconnect.IsEnabled = false;
+            _status.Text = $"Measuring native channels for {NativeProfile.Seconds} seconds…";
+            try
+            {
+                await Task.Run(() => new NativeProfile(channels, _views).RunAsync());
+                _status.Text = "PASS native performance and stability run. Report saved to native-performance.jsonl.";
+            }
+            catch (Exception exception)
+            {
+                _status.Text = "FAIL native profile: " + exception.Message;
+            }
+            finally
+            {
+                reconnect.IsEnabled = true;
+            }
+        }
     }
 }

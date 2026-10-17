@@ -9,6 +9,8 @@
   and include package-specific descriptions and release notes.
 - Managed public API comparisons against the hash-pinned published preview, with a fast Core check
   and a required all-platform comparison of final distribution packages.
+- Optional native round-trip profiling and longer lifecycle soaks in the package-only sample,
+  including OS/native memory counters, raw results and a separate manual workflow using verified feeds.
 
 ## 0.1.0-preview.1 — 2026-10-17
 

@@ -1,6 +1,7 @@
 package dev.nativechannels.sample
 
 import android.os.Build
+import android.os.Debug
 import android.os.Looper
 import dev.nativechannels.*
 
@@ -42,6 +43,16 @@ class SampleModule : NativeModule {
         channel.setHandler { call, result ->
             when (call.method) {
                 "activeStreams" -> result.success(activeStreams.get())
+                "memory" -> {
+                    val runtime = Runtime.getRuntime()
+                    result.success(
+                        mapOf(
+                            "processPss" to Debug.getPss() * 1024L,
+                            "nativeHeapAllocated" to Debug.getNativeHeapAllocatedSize(),
+                            "jvmUsed" to runtime.totalMemory() - runtime.freeMemory(),
+                        )
+                    )
+                }
                 "add" -> result.success((call.argument("a") as Int) + (call.argument("b") as Int))
                 "device" ->
                     result.success(

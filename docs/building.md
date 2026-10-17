@@ -341,7 +341,11 @@ applicable platforms when changing or releasing it. Framework sample results cov
 contracts, not an example's SDK-specific behavior.
 
 [Verify / Lifecycle stress](../.github/workflows/performance.yml) and
-[Verify / Benchmarks](../.github/workflows/benchmarks.yml) are separate manual workflows. The normal
+[Verify / Benchmarks](../.github/workflows/benchmarks.yml) are separate manual workflows.
+[Verify / Native performance](../.github/workflows/native-performance.yml) consumes a successful
+same-source distribution feed to measure one native target, with a selectable soak duration.
+See [performance measurements](performance.md#measure-real-native-round-trips-and-memory) for commands,
+memory metrics and interpretation. The normal
 Core suite retains its bounded lifecycle tests. Full local `NativeChannels.slnx` also includes portable
 example tests; CI's shared job uses `eng/NativeChannels.Core.slnx`.
 
