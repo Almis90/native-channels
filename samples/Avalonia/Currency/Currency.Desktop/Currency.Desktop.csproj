@@ -3,6 +3,9 @@
         <CurrencyDesktopTarget
             Condition="'$(CurrencyDesktopTarget)' == '' And $([MSBuild]::IsOSPlatform('Windows'))"
             >windows</CurrencyDesktopTarget>
+        <CurrencyDesktopTarget
+            Condition="'$(CurrencyDesktopTarget)' == '' And $([MSBuild]::IsOSPlatform('Linux'))"
+            >linux</CurrencyDesktopTarget>
         <CurrencyDesktopTarget Condition="'$(CurrencyDesktopTarget)' == ''"
             >macos</CurrencyDesktopTarget>
         <TargetFramework>net10.0-macos</TargetFramework>
@@ -16,6 +19,12 @@
         <ApplicationDisplayVersion>0.1</ApplicationDisplayVersion>
         <ApplicationVersion>1</ApplicationVersion>
         <SupportedOSPlatformVersion>14.0</SupportedOSPlatformVersion>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(CurrencyDesktopTarget)' == 'linux'">
+        <TargetFramework>net10.0</TargetFramework>
+        <SupportedOSPlatformVersion />
+        <DefineConstants>$(DefineConstants);LINUX</DefineConstants>
+        <ApplicationId>dev.nativechannels.currency.avalonia.linux</ApplicationId>
     </PropertyGroup>
     <PropertyGroup Condition="'$(CurrencyDesktopTarget)' == 'windows'">
         <OutputType>WinExe</OutputType>

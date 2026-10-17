@@ -17,12 +17,15 @@ CONSUMERS = {
 }
 
 
-def clean(root, relative):
+def clean(root, relative, cache_marker=None):
     if relative not in CONSUMERS:
         raise ValueError('Unknown package consumer')
+    if cache_marker is not None and (relative != 'samples/Avalonia/Currency/Currency.Desktop'
+                                     or cache_marker not in {'currency-avalonia-macos', 'currency-avalonia-linux'}):
+        raise ValueError('Unknown desktop cache marker')
     root = root.resolve()
     artifacts = root / 'artifacts'
-    marker = artifacts / (CONSUMERS[relative] + '-cache-path.txt')
+    marker = artifacts / ((cache_marker or CONSUMERS[relative]) + '-cache-path.txt')
     previous = None
     if marker.exists():
         previous = Path(marker.read_text().strip())
@@ -48,4 +51,4 @@ def clean(root, relative):
 
 
 if __name__ == '__main__':
-    clean(Path(__file__).resolve().parent.parent, sys.argv[1])
+    clean(Path(__file__).resolve().parent.parent, sys.argv[1], sys.argv[2] if len(sys.argv) > 2 else None)

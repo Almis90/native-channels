@@ -1,6 +1,6 @@
 # Plugin.Maui.Currency
 
-A reference implementation for developers building reusable plugins with NativeChannels. It looks up currency symbols using Android's `java.util.Currency`, Apple's `NSLocale`, or Windows' `CurrencyFormatter` and demonstrates a typed C# API, native module registration, and reusable packaging.
+A reference implementation for developers building reusable plugins with NativeChannels. It looks up currency symbols using Android's `java.util.Currency`, Apple's `NSLocale`, Windows' `CurrencyFormatter`, or Linux's system ICU library and demonstrates a typed C# API, native module registration, and reusable packaging.
 
 You do not need this plugin to use NativeChannels. Start with the framework's [getting-started guide](https://github.com/Almis90/native-channels/blob/main/docs/getting-started.md) to integrate your own native code.
 
@@ -72,6 +72,10 @@ Windows 10 22H2 and LTSC 2019 VMs and `￥` on the verified Windows 11 host. The
 OS-provided form.
 
 ## Build and run from source
+
+For the Linux development feed, see the [Avalonia Linux proof](../../samples/Avalonia/Currency/Currency.Desktop/Linux.md).
+It packages the C# adapter that calls ICU's native currency APIs, without mobile assets or MAUI.
+The Linux archives and Ubuntu x64 runtime checks are separate from the mobile build below.
 
 From the repository root, with the pinned SDK/workloads, Xcode, JDK, and Android SDK installed:
 

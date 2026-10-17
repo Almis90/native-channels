@@ -7,4 +7,8 @@ public sealed record NativeModuleRegistration(string AndroidClass, string AppleC
     /// <summary>Creates a fresh Windows adapter for each transport. The transport owns its disposal.</summary>
     public Func<IWindowsChannelModule>? WindowsFactory { get; init; }
 #endif
+#if LINUX
+    /// <summary>Creates a fresh Linux adapter for each transport. The transport owns its disposal.</summary>
+    public Func<ILinuxChannelModule>? LinuxFactory { get; init; }
+#endif
 }

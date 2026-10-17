@@ -22,11 +22,13 @@ class SharedHostingTests(unittest.TestCase):
     def create_assets(self, platform='android'):
         self.assets = {}
         self.names = ['NativeChannels.Core', 'NativeChannels', 'Plugin.Maui.Currency']
-        if platform != 'windows':
+        if platform not in {'windows', 'linux'}:
             self.names.append('NativeChannels.Native.Apple' if platform in {'ios', 'macos'} else 'NativeChannels.Native.Android')
-        for host in (['avalonia'] if platform == 'macos' else ['maui', 'avalonia']):
+        for host in (['avalonia'] if platform in {'macos', 'linux'} else ['maui', 'avalonia']):
             cache = self.root / host
             self.assets[host] = {'packageFolders': {str(cache): {}}, 'libraries': {}, 'targets': {f'net10.0-{platform}26.0': {}}}
+            if platform == 'linux':
+                self.assets[host]['targets'] = {'net10.0': {}, 'net10.0/linux-x64': {}}
             for name in self.names:
                 relative = name.lower() + '/1.0.0'
                 directory = cache / relative
@@ -37,6 +39,27 @@ class SharedHostingTests(unittest.TestCase):
                 self.assets[host]['libraries'][name + '/1.0.0'] = {'type': 'package', 'path': relative}
             host_package = 'NativeChannels.Maui' if host == 'maui' else proof.PLATFORMS[platform]['host']
             self.assets[host]['libraries'][host_package + '/1.0.0'] = {'type': 'package'}
+
+    def test_linux_requires_x11_packages_without_mobile_or_maui_dependencies(self):
+        self.create_assets('linux')
+        records = proof.package_proof(self.assets, self.feed, 'linux')
+        self.assertEqual({'avalonia'}, set(records))
+        self.assertEqual(3, len(records['avalonia']))
+        for name in ('NativeChannels.Native.Apple', 'NativeChannels.Native.Android', 'Microsoft.Maui.Core', 'Microsoft.WindowsAppSDK'):
+            assets = copy.deepcopy(self.assets)
+            assets['avalonia']['libraries'][name + '/1.0.0'] = {'type': 'package'}
+            with self.subTest(name=name), self.assertRaises(ValueError):
+                proof.package_proof(assets, self.feed, 'linux')
+        del self.assets['avalonia']['libraries']['avalonia.x11/1.0.0']
+        with self.assertRaisesRegex(ValueError, 'Avalonia linux package is missing'):
+            proof.package_proof(self.assets, self.feed, 'linux')
+
+    def test_linux_rejects_other_runtime_and_framework_assets(self):
+        self.create_assets('linux')
+        for target in ('net10.0/win-x64', 'net10.0/linux-arm64', 'net10.0-macos26.0'):
+            self.assets['avalonia']['targets'] = {target: {}}
+            with self.subTest(target=target), self.assertRaisesRegex(ValueError, 'Linux net10.0'):
+                proof.package_proof(self.assets, self.feed, 'linux')
 
     def test_macos_proof_requires_appkit_target_and_desktop_packages(self):
         self.create_assets('macos')

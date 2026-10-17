@@ -1,0 +1,50 @@
+name: Verify Avalonia Linux
+on:
+  pull_request:
+    branches: [main, milestone-0.2-shared-hosting]
+    paths: ['src/**', 'plugins/Plugin.Maui.Currency/**', 'samples/Avalonia/Currency/**', 'samples/Currency.Shared/**', 'tests/**', 'eng/**', 'Directory.*.props', 'global.json', '.github/workflows/shared-hosting-linux.yml', '!**/*.md']
+  push:
+    branches: [main, milestone-0.2-shared-hosting]
+    paths: ['src/**', 'plugins/Plugin.Maui.Currency/**', 'samples/Avalonia/Currency/**', 'samples/Currency.Shared/**', 'tests/**', 'eng/**', 'Directory.*.props', 'global.json', '.github/workflows/shared-hosting-linux.yml', '!**/*.md']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: avalonia-linux-${{ github.event_name }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name != 'workflow_dispatch' }}
+jobs:
+  currency:
+    name: Package and execute Currency on Linux X11
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install runtime and X11 test dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libicu74 libx11-6 libice6 libsm6 libfontconfig1 libxrandr2 libxi6 libxcursor1 xvfb openbox xdotool wmctrl scrot fonts-dejavu-core
+          bash eng/bootstrap.sh
+      - name: Run portable, Linux native and packaging tests
+        run: |
+          python3 -m unittest discover -s tests/packaging
+          bash eng/dotnet.sh test -c Release --disable-build-servers
+          bash eng/dotnet.sh test tests/NativeChannels.Linux.Tests -c Release --disable-build-servers
+      - name: Build packages and restore a fresh consumer
+        run: |
+          bash eng/pack-linux.sh
+          bash eng/restore-currency-avalonia.sh linux -r linux-x64
+          bash eng/dotnet.sh build samples/Avalonia/Currency/Currency.Desktop -c Release -r linux-x64 --no-restore --disable-build-servers
+      - name: Execute verification and normal window close
+        timeout-minutes: 5
+        run: |
+          xvfb-run -a python3 eng/verify-currency-linux.py --display-kind xvfb
+          xvfb-run -a -s '-screen 0 1280x900x24' bash -c 'openbox > /tmp/nativechannels-openbox.log 2>&1 & python3 eng/verify-currency-linux.py --display-kind xvfb --interactive-close'
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: shared-hosting-linux
+          path: |
+            artifacts/shared-hosting-linux/**
+            artifacts/package-audit.json
+          retention-days: 7
+          if-no-files-found: warn

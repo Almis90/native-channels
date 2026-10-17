@@ -150,8 +150,9 @@ The [roadmap](docs/roadmap.md) covers the initial preview, complete Avalonia and
 and stable API acceptance. The [template-generated Avalonia solution](samples/Avalonia/Currency/README.md) contains
 [Avalonia Android](samples/Avalonia/Currency/Currency.Android/README.md),
 [Avalonia iOS](samples/Avalonia/Currency/Currency.iOS/README.md),
-[Avalonia Windows](docs/currency-avalonia-windows.md), and
-[Avalonia native macOS](samples/Avalonia/Currency/Currency.Desktop/README.md), covering the method-call slice of the milestone.
+[Avalonia Windows](docs/currency-avalonia-windows.md),
+[Avalonia native macOS](samples/Avalonia/Currency/Currency.Desktop/README.md), and
+[Avalonia Linux](docs/currency-avalonia-linux.md), covering the method-call slice of the milestone.
 Use the [release checklist](docs/release-checklist.md) before distribution.
 
 Pull requests run portable tests and compile affected platforms using one shared Core build.

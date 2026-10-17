@@ -17,6 +17,47 @@ None of those additional host combinations is accepted on `main` yet. The Curren
 are partial milestone work; they do not establish other contracts, targets, or released support.
 Future records must distinguish unavailable OS/browser capabilities from checks that have not run.
 
+## Avalonia on Linux
+
+Local execution on **2026-10-17** used the working tree based on
+`ffe8abe34b0f4d82b46de82457e9bd50ff59e2aa`, plus the Linux implementation changes.
+This is uncommitted development evidence, not a clean-commit CI or release acceptance record.
+
+| Configuration | Executed result |
+| --- | --- |
+| VirtualBox 7.0.20, Ubuntu 24.04.5 x64, kernel 6.8.0-142, .NET SDK 10.0.401, ICU 74.2 | Linux VM booted; all checks below executed inside the guest |
+| Portable Release suite | 114 passed, including existing Windows transport regressions |
+| Linux native Release suite | 18 passed: real ICU lookups and errors, reentrant calls, messages, streams, cancellation, concurrency and disposal |
+| Packaging/CI tooling | 161 passed |
+| Fresh-cache package consumer, `linux-x64`, Avalonia 12.1.4 | All three archives matched the local feed; no MAUI/mobile/WinUI dependencies; build had zero warnings/errors |
+| X11 through Xvfb, verification mode | Complete native Currency scenarios passed; exactly one disposal marker; exit code zero |
+| X11 through Xvfb and Openbox, interactive mode | Window remained open after verification; window-manager close completed asynchronous disposal and exited zero; screenshot captured |
+
+The native runtime result was:
+
+```text
+PASS linux: USD=US$, EUR=€, GBP=£, JPY=JP¥; normalization, errors, concurrency, cancellation
+```
+
+The dedicated VM is `NativeChannels-Ubuntu-24.04`, with the checkout at
+`/home/ubuntu/native-channels`. SSH is restricted to host loopback port 22223 and uses the host's
+existing SSH key (`ssh -p 22223 ubuntu@127.0.0.1`). The older `Ubuntu` VM was inspected and shut down;
+its installed system was not modified. The new VM uses a checksum-verified official Ubuntu cloud image.
+
+Evidence is retained in `artifacts/shared-hosting-linux/linux-x64/verification` and `window-close`:
+runtime logs, package/source/executable hashes, environment metadata, loaded ICU paths and screenshot.
+The source-file manifest records the exact tested working tree; documentation added after a run
+does not retroactively become part of that run. The [Linux guide](currency-avalonia-linux.md) gives
+reproduction commands, and the dedicated workflow is implemented but has not been executed on GitHub.
+
+An initial Alt+F4 automation attempt intermittently failed to close the window. Its failed log is
+retained under `artifacts/shared-hosting-linux/failed-alt-f4`. The runner now waits for an EWMH
+window manager and requests normal closure through `wmctrl`, avoiding keyboard-focus dependence.
+
+Xvfb is a real X11 server with a virtual display. These results do not establish physical desktop
+input/graphics behavior, Wayland, Linux ARM64, native view hosting, other reference plugins,
+trimming/AOT, or completion of milestone 0.2. No packages were published.
+
 ## Current local Avalonia checks — 2026-10-17
 
 These runs used the local working tree on `milestone-0.2-shared-hosting`, based on

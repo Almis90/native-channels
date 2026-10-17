@@ -31,6 +31,20 @@ class PlatformPackageScopeTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'unexpected macos framework package'):
             self.check_package('macos', 'net10.0-macos26.0')
 
+    def test_linux_requires_portable_assets_and_rejects_other_hosts(self):
+        for name in ('NativeChannels.Core', 'NativeChannels', 'Plugin.Maui.Currency'):
+            self.check_package('linux', 'net10.0', package_id=name)
+        for name in ('NativeChannels.Maui', 'NativeChannels.Native.Apple'):
+            with self.subTest(name=name), self.assertRaisesRegex(ValueError, 'unexpected linux'):
+                self.check_package('linux', 'net10.0', package_id=name)
+        for dependency in ('NativeChannels.Native.Android', 'NativeChannels.Maui', 'Microsoft.Maui.Core'):
+            with self.subTest(dependency=dependency), self.assertRaisesRegex(ValueError, 'dependency'):
+                self.check_package('linux', 'net10.0', package_id='NativeChannels', dependency=dependency)
+        with self.assertRaisesRegex(ValueError, 'frameworks'):
+            self.check_package('linux', 'net10.0-windows10.0.19041', package_id='NativeChannels')
+        with self.assertRaisesRegex(ValueError, 'native payload'):
+            self.check_package('linux', 'net10.0', package_id='Plugin.Maui.Currency', extra='native/apple/test.xcframework/library')
+
     def test_each_platform_accepts_its_own_framework(self):
         for platform, tfm in [("ios", "net10.0-ios26.0"), ("maccatalyst", "net10.0-maccatalyst26.0"),
                               ("windows", "net10.0-windows10.0.19041")]:

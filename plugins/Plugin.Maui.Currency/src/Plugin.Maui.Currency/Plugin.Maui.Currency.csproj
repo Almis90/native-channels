@@ -9,6 +9,10 @@
             >net10.0-$(NativeChannelsAppleTarget)</TargetFrameworks>
         <TargetFrameworks Condition="'$(NativeChannelsWindowsOnly)' == 'true'"
             >net10.0-windows10.0.19041.0</TargetFrameworks>
+        <TargetFrameworks Condition="'$(NativeChannelsLinuxOnly)' == 'true'"
+            >net10.0</TargetFrameworks>
+        <DefineConstants Condition="'$(NativeChannelsLinuxOnly)' == 'true'"
+            >$(DefineConstants);LINUX</DefineConstants>
         <PackageId>Plugin.Maui.Currency</PackageId>
         <Version>1.1.0-alpha.1</Version>
         <Description>Reference plugin demonstrating native currency symbols and reusable packaging with NativeChannels.</Description>
@@ -31,6 +35,13 @@
             Link="native/windows/%(RecursiveDir)%(Filename)%(Extension)"
         />
     </ItemGroup>
+    <ItemGroup Condition="'$(NativeChannelsLinuxOnly)' == 'true'">
+        <Compile
+            Include="../../native/linux/**/*.cs"
+            Link="native/linux/%(RecursiveDir)%(Filename)%(Extension)"
+        />
+        <InternalsVisibleTo Include="NativeChannels.Linux.Tests" />
+    </ItemGroup>
     <ItemGroup>
         <InternalsVisibleTo Include="Plugin.Maui.Currency.Windows.Tests" />
         <PackageReference Include="NativeChannels" />
@@ -43,13 +54,13 @@
         />
         <None
             Include="../../native/android/build/outputs/aar/currency-release.aar"
-            Condition="'$(NativeChannelsWindowsOnly)' != 'true' And '$(NativeChannelsAppleTarget)' == ''"
+            Condition="'$(NativeChannelsWindowsOnly)' != 'true' And '$(NativeChannelsLinuxOnly)' != 'true' And '$(NativeChannelsAppleTarget)' == ''"
             Pack="true"
             PackagePath="native/android/currency.aar"
         />
         <None
             Include="../../../../artifacts/native/MauiCurrencyNative.xcframework/**/*"
-            Condition="'$(NativeChannelsWindowsOnly)' != 'true' And '$(NativeChannelsAndroidOnly)' != 'true'"
+            Condition="'$(NativeChannelsWindowsOnly)' != 'true' And '$(NativeChannelsLinuxOnly)' != 'true' And '$(NativeChannelsAndroidOnly)' != 'true'"
             Pack="true"
             Exclude="../../../../artifacts/native/MauiCurrencyNative.xcframework/**/Modules/MauiCurrencyNative.swiftmodule/**/*"
             PackagePath="native/apple/MauiCurrencyNative.xcframework/"
@@ -58,7 +69,7 @@
     <Target
         Name="ValidateMauiCurrencyNativeAssets"
         BeforeTargets="GenerateNuspec"
-        Condition="'$(NativeChannelsWindowsOnly)' != 'true'"
+        Condition="'$(NativeChannelsWindowsOnly)' != 'true' And '$(NativeChannelsLinuxOnly)' != 'true'"
     >
         <Error
             Condition="'$(NativeChannelsAppleTarget)' == '' And !Exists('../../native/android/build/outputs/aar/currency-release.aar')"

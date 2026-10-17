@@ -108,6 +108,15 @@ service/handle cancellation, and cleanup after typed conversion failures. Native
 exercise the producer queue and its one-shot termination cleanup. The MAUI sample repeats the
 message/stream contract through actual packaged Kotlin and Swift adapters.
 
+## Linux Currency
+
+The [Avalonia Linux Currency proof](currency-avalonia-linux.md) adds real system-ICU tests on Linux,
+fresh-package X11 application checks, and normal window-close disposal. Run
+`bash eng/dotnet.sh test tests/NativeChannels.Linux.Tests -c Release` on Linux; this separate suite
+requires system ICU and is intentionally outside the cross-platform portable solution.
+The Linux workflow also runs the existing portable and packaging suites. Xvfb execution verifies
+the real X11 backend, but does not establish Wayland or physical desktop input coverage.
+
 ## Native view lifecycle
 
 Portable tests exercise view-channel ownership, cooperative cancellation, isolated instances, and

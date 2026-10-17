@@ -20,6 +20,9 @@ public static class CurrencyExtensions
 #if WINDOWS
             WindowsFactory = CreateWindowsModule,
 #endif
+#if LINUX
+            LinuxFactory = CreateLinuxModule,
+#endif
         };
         if (!options.Modules.Contains(module))
         {
@@ -38,5 +41,8 @@ public static class CurrencyExtensions
 
 #if WINDOWS
     private static IWindowsChannelModule CreateWindowsModule() => new WindowsCurrencyModule();
+#endif
+#if LINUX
+    private static ILinuxChannelModule CreateLinuxModule() => new LinuxCurrencyModule();
 #endif
 }
