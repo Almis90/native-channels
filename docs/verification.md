@@ -17,6 +17,54 @@ None of those additional host combinations is accepted on `main` yet. The Androi
 is partial milestone work; it does not establish other contracts, targets, or released support.
 Future records must distinguish unavailable OS/browser capabilities from checks that have not run.
 
+## NuGet preview 2 — 2026-10-17 {#nuget-preview-2}
+
+Version **0.1.0-preview.2** is published from source
+[`b342e501fc64ec80e43a6974984ec26fa3e4a291`](https://github.com/Almis90/native-channels/tree/b342e501fc64ec80e43a6974984ec26fa3e4a291).
+These exact-source gates passed on their first attempt:
+
+| Gate | Result |
+| --- | --- |
+| [All / Runtime](https://github.com/Almis90/native-channels/actions/runs/39025734636) | Core and native checks passed; platform-feed consumers executed on Android x64, iOS simulator ARM64 and Mac Catalyst ARM64; Windows x64/ARM64 compiled |
+| [Verify distribution](https://github.com/Almis90/native-channels/actions/runs/39026686762) | All seven combined-feed consumers passed: Android x64/ARM64, iOS simulator/device ARM64, Catalyst, and Windows x64/ARM64; execution covered Android x64 and iOS simulator ARM64 |
+| Managed API compatibility | All five final packages passed comparison against the hash-pinned published `0.1.0-preview.1` baseline, including Windows assemblies |
+| [Publishing dry run](https://github.com/Almis90/native-channels/actions/runs/39027642340) | Five framework packages and five symbol archives passed candidate validation |
+| [NuGet publication](https://github.com/Almis90/native-channels/actions/runs/39027833088) | The identical candidate passed validation and was uploaded through Trusted Publishing and the protected environment |
+
+All seven distribution results use feed SHA-256
+`ea9a33d18951bca26cfbbc9418f34d206eabb516ad1d20d4f58fc946dd531806`.
+iOS device compilation was unsigned. Compilation does not establish physical-device or Windows
+desktop execution, and Catalyst execution with a platform feed is separate from combined-feed runtime acceptance.
+
+All five packages and their symbols are downloadable from NuGet.org:
+[Core](https://www.nuget.org/packages/NativeChannels.Core/0.1.0-preview.2),
+[Android binding](https://www.nuget.org/packages/NativeChannels.Native.Android/0.1.0-preview.2),
+[Apple binding](https://www.nuget.org/packages/NativeChannels.Native.Apple/0.1.0-preview.2),
+[platform transports](https://www.nuget.org/packages/NativeChannels/0.1.0-preview.2), and
+[MAUI integration](https://www.nuget.org/packages/NativeChannels.Maui/0.1.0-preview.2).
+All ten downloaded archives matched the reviewed candidate's file contents, excluding only the
+NuGet-added repository signature. The project URL, icon, README, descriptions and release notes were
+checked in the package archives; NuGet lists the version as a prerelease. Reference plugins were not published.
+
+Post-publication checks use separate projects outside the repository, a fresh private package cache,
+NuGet.org as the only source, and no project references or fallback folders:
+
+| Public-feed check | Result |
+| --- | --- |
+| Portable Core consumer | Restore and execution passed: method-channel result `42`, with matching diagnostic start and successful completion notifications |
+| New .NET MAUI application | Restore and Android ARM64 Release build passed with trimming and AOT, zero warnings and errors; `UseNativeChannels()` and diagnostics configuration compiled |
+| Package provenance | All dependencies came from NuGet.org; all resolved NativeChannels packages used `0.1.0-preview.2` |
+
+The [release evidence](https://almis90.github.io/native-channels/verification/nuget-preview2-release.json)
+records the exact runs, package hashes, public-download comparisons and consumer results.
+The public-feed MAUI application compiled without a custom native module and did not run on a device.
+Native round-trip execution comes from the exact-candidate CI above, whose package contents matched
+NuGet.org. Later documentation commits do not change the recorded release source or archives.
+
+The native performance harness is included, with local Catalyst observations recorded below.
+Android/iOS performance profiling is deferred; Windows profiling and the hosted profiling workflow
+remain unexecuted. Functional runtime CI and compilation do not establish long-running memory stability.
+
 ## Earlier local checks — 2026-10-15
 
 The initial preview includes all four channel contracts, the MAUI host, four platform transports,
@@ -39,10 +87,12 @@ They did not publish packages or create GitHub releases.
 
 ## Preview 2 preparation — local checks
 
-The `0.1.0-preview.2` changes have local validation, separate from the published-preview evidence
-below. The five mobile framework packages passed metadata/native-asset inspection and API comparison
+The `0.1.0-preview.2` changes first received local validation, separate from the exact-source
+publication evidence recorded on this page. The five mobile framework packages passed
+metadata/native-asset inspection and API comparison
 against the hash-pinned NuGet.org `0.1.0-preview.1` archives. A deliberately removed method signature
-was rejected with `CP0002`. The combined Windows package comparison still requires the distribution gate.
+was rejected with `CP0002`. The later release distribution gate passed API comparison for all five
+combined packages, including their Windows targets.
 
 The native profile executed on ARM64 Mac Catalyst in Release using local package references,
 .NET 10.0.12 and Mac Catalyst 26.2.0. It measured a working tree based on
@@ -57,8 +107,8 @@ observation, not final-source or combined-feed release acceptance.
 | Round trips | 256 measured calls after 32 warmups each: Int32 echo, reentrant method, and reentrant 4 KiB binary message |
 | Cleanup | Handle disposal, live subscription teardown, cooperative cancellation, and 254 native view recreation cycles completed |
 | Native compilation | Kotlin AAR and Swift iOS device/simulator/Catalyst framework slices compiled with the memory endpoints |
-| Windows profile integration | Implemented; compilation and execution on Windows remain unverified |
-| Not yet executed | Profiling on Android and iOS; the new hosted profiling workflow; longer repeated native soaks |
+| Windows profile integration | Compiled for x64 and ARM64 in the preview 2 framework CI; profiling execution remains unverified |
+| Not yet executed | Profiling on Android, iOS and Windows; the new hosted profiling workflow; repeated multi-hour native soaks |
 
 Physical footprint rose from 66,307,080 to 87,098,376 bytes, while resident size fell and managed
 retained bytes grew. These are different counters, not an isolated native leak measurement.
@@ -66,11 +116,21 @@ No GC was forced. Longer comparable runs and heap inspection are needed to expla
 this run does not establish leak-free behavior or device-wide performance guarantees.
 See [performance](performance.md#measure-real-native-round-trips-and-memory) for reproducible commands.
 
-## Framework CI verification
+A [15-minute Catalyst follow-up](https://almis90.github.io/native-channels/verification/native-profile-catalyst-preview2-followup.json)
+at clean source `9db8abff17b18f70a65da64f45ccdfc04f102c26` completed 7,371 cycles with zero active
+subscriptions at completion. Physical footprint grew from 76.19 to 118.75 MiB; native malloc stayed
+around 46–48 MiB and native bridge/view-host counts stayed constant across four heap snapshots.
+A separate five-minute diagnostic run returned the managed heap near its startup size after forced
+collection. This supports delayed collection as one contributor to growth; the unforced run did not
+reach a memory plateau, and small unattributed malloc blocks remain unexplained. The collection
+instrumentation was removed. These development observations do not establish indefinite memory
+stability or performance on Android, iOS or Windows.
+
+## First-preview framework CI verification {#framework-ci-verification}
 
 On 2026-10-17, [All / Runtime verification](https://github.com/Almis90/native-channels/actions/runs/38980871000)
 and [Verify distribution](https://github.com/Almis90/native-channels/actions/runs/38982305944)
-passed at source `09ae4eb862bc142c0281ded67413ea859e179c6d`, the source of the published preview.
+passed at source `09ae4eb862bc142c0281ded67413ea859e179c6d`, the source of published `0.1.0-preview.1`.
 
 The framework run built shared Core once, verified platform feeds, and executed the framework sample
 on Android x64, the iOS simulator, and Mac Catalyst. The distribution run assembled the five final

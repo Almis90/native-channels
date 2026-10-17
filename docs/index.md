@@ -39,7 +39,7 @@ features:
 **Native calls, messages, streams, and views**
 
 MAUI integration for Android, iOS, Mac Catalyst, and Windows.
-Install [NativeChannels.Maui 0.1.0-preview.1](https://www.nuget.org/packages/NativeChannels.Maui/0.1.0-preview.1)
+Install [NativeChannels.Maui 0.1.0-preview.2](https://www.nuget.org/packages/NativeChannels.Maui/0.1.0-preview.2)
 from NuGet.org and follow [getting started](getting-started.md).
 [Platform verification](verification.md) · [Roadmap](roadmap.md)
 

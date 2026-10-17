@@ -3,7 +3,7 @@
 For Windows, use [Windows integration](windows-integration.md).
 `./eng/verify-windows.ps1` builds Windows packages and runs a fresh-cache consumer; add `-BuildOnly`
 for environments without an interactive desktop. The commands below cover Android and Apple.
-Source packages use unreleased framework `0.1.0-preview.2` and Currency `1.1.0-alpha.1`. The package-feed workflow
+Source packages use framework `0.1.0-preview.2` and Currency `1.1.0-alpha.1`. The package-feed workflow
 assembles [combined Windows/mobile packages](windows-integration.md#combined-platform-packages)
 before consumer verification; local builds on one host produce only that host's platform inputs.
 
@@ -115,7 +115,7 @@ gh workflow run verify-framework.yml --ref main -f platforms=Auto -f base=BASE_S
 
 Choose `iOS`, `Catalyst`, or `Windows` to target those platforms. `Compile` is the default depth;
 `Runtime` adds execution on Android, the iOS simulator, and the Mac runner. Windows remains compile-only
-on hosted CI. The framework path has passed [recorded CI verification](verification.md#framework-ci-verification).
+on hosted CI. The framework path has passed [recorded CI verification](verification.md#nuget-preview-2).
 Deadlines remain limits, not performance promises.
 
 ### Automatic checks

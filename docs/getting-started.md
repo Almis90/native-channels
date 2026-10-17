@@ -6,7 +6,7 @@ follow [Windows integration](windows-integration.md); to distribute your own int
 with [plugin authoring](plugin-authoring.md).
 
 ::: info Preview release
-[NativeChannels.Maui 0.1.0-preview.1](https://www.nuget.org/packages/NativeChannels.Maui/0.1.0-preview.1)
+[NativeChannels.Maui 0.1.0-preview.2](https://www.nuget.org/packages/NativeChannels.Maui/0.1.0-preview.2)
 is available on NuGet.org. It supports MAUI on Android, iOS, Mac Catalyst, and Windows.
 See the [verification record](verification.md) for executed checks and remaining platform gaps.
 :::
@@ -30,7 +30,7 @@ Set `JAVA_HOME` and `ANDROID_HOME` if your tools use nondefault locations.
 From your MAUI application's directory:
 
 ```sh
-dotnet add package NativeChannels.Maui --version 0.1.0-preview.1
+dotnet add package NativeChannels.Maui --version 0.1.0-preview.2
 ```
 
 Use NuGet.org as a package source. No local feed or reference to the NativeChannels source projects
@@ -38,7 +38,7 @@ is needed. The resulting project reference is:
 
 ```xml
 <ItemGroup>
-  <PackageReference Include="NativeChannels.Maui" Version="0.1.0-preview.1" />
+  <PackageReference Include="NativeChannels.Maui" Version="0.1.0-preview.2" />
 </ItemGroup>
 ```
 
@@ -71,8 +71,8 @@ Windows requires a minimum of Windows 10 build 17763; see its integration guide 
 
 The package supplies the bridge. Your adapter supplies the named operations and any third-party SDK
 dependencies. For this walkthrough, clone the repository beside your app and build its sample adapters.
-Use [source revision `09ae4eb`](https://github.com/Almis90/native-channels/tree/09ae4eb862bc142c0281ded67413ea859e179c6d)
-to match the published `0.1.0-preview.1` bridge.
+Use [source revision `b342e50`](https://github.com/Almis90/native-channels/tree/b342e501fc64ec80e43a6974984ec26fa3e4a291)
+to match the published `0.1.0-preview.2` bridge.
 Run these commands from the repository root on a Mac for both platforms, or just the Android build
 for Android:
 

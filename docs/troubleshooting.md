@@ -5,8 +5,8 @@ Start with the [build instructions](building.md) and compare your target with th
 identifier, configuration, tool versions, and relevant error when opening an issue.
 
 For call names, timings, timeouts, and structured error codes, enable
-[channel diagnostics](diagnostics.md) in the current source. The guide distinguishes this unreleased
-API from the published preview and explains how to route notifications to your existing logger.
+[channel diagnostics](diagnostics.md), available from `0.1.0-preview.2`. The guide explains how to
+route notifications to your existing logger.
 
 ## Checking a native round trip
 

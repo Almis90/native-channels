@@ -75,7 +75,7 @@ See [configuration](configuration.md) for timeouts and dispatchers.
 
 `UseNativeChannels(Action<NativeChannelsOptions>?)` configures one native session and its services.
 `NativeChannelsOptions` exposes `Modules`, `ViewFactories`, `DefaultTimeout`, `Limits`, and `Json` metadata options.
-The current source also exposes optional `Diagnostics`; this addition is not in `0.1.0-preview.1`.
+Optional `Diagnostics` is available from `0.1.0-preview.2`.
 
 <<< ../src/NativeChannels/NativeModuleRegistration.cs
 

@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.1.0-preview.2 — Unreleased
+## 0.1.0-preview.2 — 2026-10-17
 
 - Opt-in, metadata-only diagnostics for method calls, basic messages, event protocol operations,
   and per-instance native view channels. Reports starts, duration, outcomes, and structured error codes
@@ -11,6 +11,9 @@
   and a required all-platform comparison of final distribution packages.
 - Optional native round-trip profiling and longer lifecycle soaks in the package-only sample,
   including OS/native memory counters, raw results and a separate manual workflow using verified feeds.
+- Published all five framework packages and managed symbols to NuGet.org after exact-source framework,
+  distribution and API compatibility gates. Clean public-feed Core execution and Android MAUI Release
+  installation checks passed.
 
 ## 0.1.0-preview.1 — 2026-10-17
 

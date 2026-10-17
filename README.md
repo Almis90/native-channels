@@ -26,7 +26,7 @@ string? reply = await channel.InvokeAsync<string>("echo", "Hello from .NET");
 **Preview software.** NativeChannels supports Android, iOS, Mac Catalyst, and Windows through its
 MAUI integration. The core messaging layer is independent of MAUI. Complete Avalonia integration is
 planned for 0.2 and Uno for 0.3; neither is available on `main` yet.
-The first preview is [available on NuGet.org](https://www.nuget.org/packages/NativeChannels.Maui/0.1.0-preview.1).
+The latest preview is [available on NuGet.org](https://www.nuget.org/packages/NativeChannels.Maui/0.1.0-preview.2).
 
 [Documentation](https://almis90.github.io/native-channels/) ·
 [Getting started](docs/getting-started.md) ·
@@ -72,7 +72,7 @@ platform-specific lifecycle behavior. See [architecture](docs/architecture.md).
 Add the package to a .NET 10 MAUI application:
 
 ```sh
-dotnet add package NativeChannels.Maui --version 0.1.0-preview.1
+dotnet add package NativeChannels.Maui --version 0.1.0-preview.2
 ```
 
 Core, platform transports, and the applicable Android or Apple binding are transitive dependencies.
@@ -134,7 +134,7 @@ the current support matrix; browser integration will require JavaScript adapters
 | Package an integration for other applications | [Build a plugin](docs/plugin-authoring.md) |
 | Configure codecs, DTOs, timeouts, and dispatch | [Codecs](docs/message-codecs.md) · [Configuration](docs/configuration.md) |
 | Diagnose startup or runtime failures | [Troubleshooting](docs/troubleshooting.md) |
-| Log channel timings and outcomes | [Diagnostics](docs/diagnostics.md) (current source; next preview) |
+| Log channel timings and outcomes | [Diagnostics](docs/diagnostics.md) |
 | Explore the public C# surface | [API reference](docs/api-reference.md) |
 
 The [documentation website](https://almis90.github.io/native-channels/) includes searchable guides,

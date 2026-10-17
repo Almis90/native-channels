@@ -1,0 +1,271 @@
+{
+  "version": "0.1.0-preview.2",
+  "sourceCommit": "b342e501fc64ec80e43a6974984ec26fa3e4a291",
+  "date": "2026-10-17",
+  "workflowRuns": {
+    "framework": {
+      "id": 39025734636,
+      "url": "https://github.com/Almis90/native-channels/actions/runs/39025734636",
+      "conclusion": "success"
+    },
+    "distribution": {
+      "id": 39026686762,
+      "url": "https://github.com/Almis90/native-channels/actions/runs/39026686762",
+      "conclusion": "success"
+    },
+    "publishingDryRun": {
+      "id": 39027642340,
+      "url": "https://github.com/Almis90/native-channels/actions/runs/39027642340",
+      "conclusion": "success"
+    },
+    "publication": {
+      "id": 39027833088,
+      "url": "https://github.com/Almis90/native-channels/actions/runs/39027833088",
+      "conclusion": "success"
+    }
+  },
+  "feedSha256": "ea9a33d18951bca26cfbbc9418f34d206eabb516ad1d20d4f58fc946dd531806",
+  "distribution": {
+    "sourceCommit": "b342e501fc64ec80e43a6974984ec26fa3e4a291",
+    "runId": "39026686762",
+    "success": true,
+    "failedJobs": [],
+    "unverifiedConsumers": [],
+    "sameFeed": true,
+    "results": [
+      {
+        "configuration": "android-x64",
+        "sourceCommit": "b342e501fc64ec80e43a6974984ec26fa3e4a291",
+        "packageRun": "39026686762",
+        "packageSource": "Distribution",
+        "sample": "Framework",
+        "feedSha256": "ea9a33d18951bca26cfbbc9418f34d206eabb516ad1d20d4f58fc946dd531806",
+        "compiled": true,
+        "executed": true
+      },
+      {
+        "configuration": "android-arm64",
+        "sourceCommit": "b342e501fc64ec80e43a6974984ec26fa3e4a291",
+        "packageRun": "39026686762",
+        "packageSource": "Distribution",
+        "sample": "Framework",
+        "feedSha256": "ea9a33d18951bca26cfbbc9418f34d206eabb516ad1d20d4f58fc946dd531806",
+        "compiled": true,
+        "executed": false
+      },
+      {
+        "configuration": "ios-simulator",
+        "sourceCommit": "b342e501fc64ec80e43a6974984ec26fa3e4a291",
+        "packageRun": "39026686762",
+        "packageSource": "Distribution",
+        "sample": "Framework",
+        "feedSha256": "ea9a33d18951bca26cfbbc9418f34d206eabb516ad1d20d4f58fc946dd531806",
+        "compiled": true,
+        "executed": true
+      },
+      {
+        "configuration": "ios-device",
+        "sourceCommit": "b342e501fc64ec80e43a6974984ec26fa3e4a291",
+        "packageRun": "39026686762",
+        "packageSource": "Distribution",
+        "sample": "Framework",
+        "feedSha256": "ea9a33d18951bca26cfbbc9418f34d206eabb516ad1d20d4f58fc946dd531806",
+        "compiled": true,
+        "executed": false
+      },
+      {
+        "configuration": "catalyst",
+        "sourceCommit": "b342e501fc64ec80e43a6974984ec26fa3e4a291",
+        "packageRun": "39026686762",
+        "packageSource": "Distribution",
+        "sample": "Framework",
+        "feedSha256": "ea9a33d18951bca26cfbbc9418f34d206eabb516ad1d20d4f58fc946dd531806",
+        "compiled": true,
+        "executed": false
+      },
+      {
+        "configuration": "win-x64",
+        "sourceCommit": "b342e501fc64ec80e43a6974984ec26fa3e4a291",
+        "packageRun": "39026686762",
+        "packageSource": "Distribution",
+        "sample": "Framework",
+        "feedSha256": "ea9a33d18951bca26cfbbc9418f34d206eabb516ad1d20d4f58fc946dd531806",
+        "compiled": true,
+        "executed": false
+      },
+      {
+        "configuration": "win-arm64",
+        "sourceCommit": "b342e501fc64ec80e43a6974984ec26fa3e4a291",
+        "packageRun": "39026686762",
+        "packageSource": "Distribution",
+        "sample": "Framework",
+        "feedSha256": "ea9a33d18951bca26cfbbc9418f34d206eabb516ad1d20d4f58fc946dd531806",
+        "compiled": true,
+        "executed": false
+      }
+    ]
+  },
+  "apiCompatibility": {
+    "candidateVersion": "0.1.0-preview.2",
+    "baselineVersion": "0.1.0-preview.1",
+    "scope": "combined",
+    "success": true,
+    "packages": [
+      {
+        "id": "NativeChannels.Core",
+        "candidateSha256": "9a19472ebad44ef51b11d616f062b82e5c11a75135f7ffa6d82b7118963a2f28",
+        "baselineSha256": "a58b6f69689ba1c39c27933f52efdd025a1285e1909aa3e5a511cbf395900a51",
+        "compatible": true
+      },
+      {
+        "id": "NativeChannels.Native.Android",
+        "candidateSha256": "f9678cf02b7cdbb2985ff787bfb5b7b17a2c1aa474c9219e6ae46a5f69992f81",
+        "baselineSha256": "69e9a6494c89380080c29c3a7088893c2fea32f391771cc4add42725c6e4cd03",
+        "compatible": true
+      },
+      {
+        "id": "NativeChannels.Native.Apple",
+        "candidateSha256": "2235b1a384e3a147306e2f6110c5138312b6c56190e935d59e539cf3ac76b902",
+        "baselineSha256": "6217e9d4e815f0393525261368c13fb68a4a739fe01494ccc3f6c2ecd90e4099",
+        "compatible": true
+      },
+      {
+        "id": "NativeChannels",
+        "candidateSha256": "44a88d7a61e2cd5cc4a23a267effaa2b11a290e522be989a2212ba0ecb46d71b",
+        "baselineSha256": "9fc61717699eb91e0c4cb70ce21a0363adb483ea95352af8ca57d26447397e68",
+        "compatible": true
+      },
+      {
+        "id": "NativeChannels.Maui",
+        "candidateSha256": "5c43b147d48f1fcb8b2c7a2ce4b2050e9cd8f682ecf5145d926822dd3a275348",
+        "baselineSha256": "c37472fac693b694af4c7cfbec0e86c277ef2068a8ba744fb188e7e02937ff88",
+        "compatible": true
+      }
+    ]
+  },
+  "publicArchives": [
+    {
+      "file": "NativeChannels.Core.0.1.0-preview.2.snupkg",
+      "url": "https://www.nuget.org/api/v2/symbolpackage/NativeChannels.Core/0.1.0-preview.2",
+      "candidateSha256": "6e0b6535752183008d9bfb273059835338d1bd95ca448e8275b1b79c31937e97",
+      "downloadSha256": "6e0b6535752183008d9bfb273059835338d1bd95ca448e8275b1b79c31937e97",
+      "contentsMatch": true
+    },
+    {
+      "file": "NativeChannels.Native.Apple.0.1.0-preview.2.snupkg",
+      "url": "https://www.nuget.org/api/v2/symbolpackage/NativeChannels.Native.Apple/0.1.0-preview.2",
+      "candidateSha256": "eb49fd9e60e48374580a449871db03251675c83a06a018c1c0eb2505f5d24872",
+      "downloadSha256": "eb49fd9e60e48374580a449871db03251675c83a06a018c1c0eb2505f5d24872",
+      "contentsMatch": true
+    },
+    {
+      "file": "NativeChannels.Core.0.1.0-preview.2.nupkg",
+      "url": "https://api.nuget.org/v3-flatcontainer/nativechannels.core/0.1.0-preview.2/nativechannels.core.0.1.0-preview.2.nupkg",
+      "candidateSha256": "9a19472ebad44ef51b11d616f062b82e5c11a75135f7ffa6d82b7118963a2f28",
+      "downloadSha256": "1ba4c678c73418506d0b802566b6c4610103025054393c4a20e6a99f6dd80bcd",
+      "contentsMatch": true
+    },
+    {
+      "file": "NativeChannels.Native.Android.0.1.0-preview.2.nupkg",
+      "url": "https://api.nuget.org/v3-flatcontainer/nativechannels.native.android/0.1.0-preview.2/nativechannels.native.android.0.1.0-preview.2.nupkg",
+      "candidateSha256": "f9678cf02b7cdbb2985ff787bfb5b7b17a2c1aa474c9219e6ae46a5f69992f81",
+      "downloadSha256": "28ca736c3e02dcc120dfd184e98ed59e8e7eea648c3fe5682d679f8fc1f5e127",
+      "contentsMatch": true
+    },
+    {
+      "file": "NativeChannels.Native.Apple.0.1.0-preview.2.nupkg",
+      "url": "https://api.nuget.org/v3-flatcontainer/nativechannels.native.apple/0.1.0-preview.2/nativechannels.native.apple.0.1.0-preview.2.nupkg",
+      "candidateSha256": "2235b1a384e3a147306e2f6110c5138312b6c56190e935d59e539cf3ac76b902",
+      "downloadSha256": "baa804c675647e8283be5a94da703523ec0a83a46d107914999b29dd195ba2fa",
+      "contentsMatch": true
+    },
+    {
+      "file": "NativeChannels.0.1.0-preview.2.nupkg",
+      "url": "https://api.nuget.org/v3-flatcontainer/nativechannels/0.1.0-preview.2/nativechannels.0.1.0-preview.2.nupkg",
+      "candidateSha256": "44a88d7a61e2cd5cc4a23a267effaa2b11a290e522be989a2212ba0ecb46d71b",
+      "downloadSha256": "969ee98377513e14cf6840970b7e67310944c18d5d9ceba1e664274431ac3434",
+      "contentsMatch": true
+    },
+    {
+      "file": "NativeChannels.Maui.0.1.0-preview.2.nupkg",
+      "url": "https://api.nuget.org/v3-flatcontainer/nativechannels.maui/0.1.0-preview.2/nativechannels.maui.0.1.0-preview.2.nupkg",
+      "candidateSha256": "5c43b147d48f1fcb8b2c7a2ce4b2050e9cd8f682ecf5145d926822dd3a275348",
+      "downloadSha256": "3d41a35e9a88d42f43dc91e2ba9004cfc485974a581194538d348756299b2005",
+      "contentsMatch": true
+    },
+    {
+      "file": "NativeChannels.Maui.0.1.0-preview.2.snupkg",
+      "url": "https://www.nuget.org/api/v2/symbolpackage/NativeChannels.Maui/0.1.0-preview.2",
+      "candidateSha256": "93236cc9b986ce456e8e5a584213980ea4efa7188113bf3664c8944535fd732f",
+      "downloadSha256": "93236cc9b986ce456e8e5a584213980ea4efa7188113bf3664c8944535fd732f",
+      "contentsMatch": true
+    },
+    {
+      "file": "NativeChannels.Native.Android.0.1.0-preview.2.snupkg",
+      "url": "https://www.nuget.org/api/v2/symbolpackage/NativeChannels.Native.Android/0.1.0-preview.2",
+      "candidateSha256": "c5e690560fde47fd7a68e198b50a8d0c0e5299ed38fbf05350fc064317247b39",
+      "downloadSha256": "c5e690560fde47fd7a68e198b50a8d0c0e5299ed38fbf05350fc064317247b39",
+      "contentsMatch": true
+    },
+    {
+      "file": "NativeChannels.0.1.0-preview.2.snupkg",
+      "url": "https://www.nuget.org/api/v2/symbolpackage/NativeChannels/0.1.0-preview.2",
+      "candidateSha256": "7300db879942bd7faee16bdb8a58bbdcf2ca6639e97a68e5554dfc0d6ba74678",
+      "downloadSha256": "7300db879942bd7faee16bdb8a58bbdcf2ca6639e97a68e5554dfc0d6ba74678",
+      "contentsMatch": true
+    }
+  ],
+  "archiveComparison": "All ZIP entry bytes match; only NuGet-added repository signature excluded.",
+  "publicConsumers": {
+    "provenance": [
+      {
+        "project": "PublicCoreConsumer",
+        "packageSource": "https://api.nuget.org/v3/index.json",
+        "freshPrivateCache": true,
+        "fallbackFolders": false,
+        "projectReferences": false,
+        "frameworkPackages": [
+          "NativeChannels.Core/0.1.0-preview.2"
+        ],
+        "totalRestoredPackages": 1
+      },
+      {
+        "project": "PublicMauiConsumer",
+        "packageSource": "https://api.nuget.org/v3/index.json",
+        "freshPrivateCache": true,
+        "fallbackFolders": false,
+        "projectReferences": false,
+        "frameworkPackages": [
+          "NativeChannels/0.1.0-preview.2",
+          "NativeChannels.Core/0.1.0-preview.2",
+          "NativeChannels.Maui/0.1.0-preview.2",
+          "NativeChannels.Native.Android/0.1.0-preview.2"
+        ],
+        "totalRestoredPackages": 118
+      }
+    ],
+    "core": {
+      "executed": true,
+      "methodResult": 42,
+      "matchingDiagnosticsStartSuccessPair": true
+    },
+    "maui": {
+      "targetFramework": "net10.0-android",
+      "runtime": "android-arm64",
+      "configuration": "Release",
+      "compiled": true,
+      "executed": false,
+      "trimming": true,
+      "aot": true,
+      "warnings": 0,
+      "errors": 0,
+      "customNativeModule": false
+    }
+  },
+  "limitations": [
+    "Public-feed MAUI installation check compiled but did not execute an application.",
+    "Combined-feed runtime checks executed Android x64 and iOS simulator ARM64 only.",
+    "Catalyst runtime CI used its platform feed. Physical-device, Windows desktop and combined-feed Catalyst execution were not repeated for this release.",
+    "Android/iOS native performance profiling was deferred. Windows profiling and hosted profiling remain unexecuted."
+  ]
+}

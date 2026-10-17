@@ -13,7 +13,7 @@ Use these guides to integrate an SDK, package a reusable plugin, or contribute t
 | Package an SDK behind a C# API | [Build a plugin](plugin-authoring.md) |
 | Find a member or option | [C# API reference](api-reference.md) |
 | Fix a setup or runtime failure | [Troubleshooting](troubleshooting.md) |
-| Observe call timings and outcomes | [Diagnostics](diagnostics.md) (current source) |
+| Observe call timings and outcomes | [Diagnostics](diagnostics.md) |
 
 ## Channel guides
 
@@ -48,6 +48,6 @@ and [PdfViewer](pdf-viewer.md) reference plugins each include a sample and verif
 - [Roadmap](roadmap.md): complete Avalonia integration in 0.2, Uno in 0.3, and stable release acceptance. Both planned hosts target Android, iOS, Windows, desktop macOS, Linux, and browser/WebAssembly.
 - [FAQ](faq.md) and [Flutter comparison](flutter-comparison.md).
 
-The framework preview is [available on NuGet.org](https://www.nuget.org/packages/NativeChannels.Maui/0.1.0-preview.1);
+The framework preview is [available on NuGet.org](https://www.nuget.org/packages/NativeChannels.Maui/0.1.0-preview.2);
 reference plugins are built locally. Use the [verification record](verification.md) to distinguish
 compiled targets, executed scenarios, and remaining gaps.

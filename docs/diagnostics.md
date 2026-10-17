@@ -1,8 +1,8 @@
 # Channel diagnostics
 
 ::: info Availability
-These APIs are implemented in the current source and are not included in the published
-`0.1.0-preview.1` packages. Build from source until the next package release.
+These APIs are available in `0.1.0-preview.2` and later.
+See [getting started](getting-started.md) to install the package.
 :::
 
 Enable diagnostics to see which channel operations start, how long they take, and how they finish.

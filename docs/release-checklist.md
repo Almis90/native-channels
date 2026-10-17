@@ -47,7 +47,7 @@ Run [Verify framework](building.md#github-actions) with `All / Runtime`, then
 at the same commit. The coordinator assembles the combined feed and runs all seven framework consumers.
 Keep both successful run URLs and their stage evidence. Development feeds do not establish
 combined-package acceptance, and compilation does not establish physical-device execution.
-See the [recorded CI evidence](verification.md#framework-ci-verification) for tested source revisions;
+See the [recorded CI evidence](verification.md#nuget-preview-2) for tested source revisions;
 repeat applicable acceptance checks for the revision being released.
 
 These workflows currently verify the MAUI integration; they do not establish acceptance for the

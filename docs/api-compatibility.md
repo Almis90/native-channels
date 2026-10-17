@@ -1,6 +1,6 @@
 # API compatibility checks
 
-The unreleased `0.1.0-preview.2` source checks managed public APIs against the five packages published
+The `0.1.0-preview.2` release checks managed public APIs against the five packages published
 as `0.1.0-preview.1`. New APIs are allowed. Removing or changing existing signatures, including adding
 an optional parameter in place of an existing overload, fails validation.
 
