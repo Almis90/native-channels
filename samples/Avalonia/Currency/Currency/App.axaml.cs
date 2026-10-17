@@ -59,7 +59,6 @@ public partial class App : Avalonia.Application
     {
         if (SessionFactory is null)
         {
-            // The generated Browser head is retained as a scaffold until its native adapter exists.
             return new TextBlock
             {
                 Text = "Currency lookups are not available on this platform yet.",

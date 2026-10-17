@@ -5,7 +5,7 @@ ROOT = Path(__file__).resolve().parents[1]
 AVALONIA_APP = ROOT / 'samples/Avalonia/Currency/Currency/Currency.csproj'
 AVALONIA_HEADS = {
     ROOT / f'samples/Avalonia/Currency/Currency.{head}/Currency.{head}.csproj'
-    for head in ('Android', 'iOS', 'Desktop')
+    for head in ('Android', 'iOS', 'Desktop', 'Browser')
 }
 
 

@@ -67,6 +67,7 @@ export default defineConfig({
           { text: 'Avalonia Windows proof', link: '/currency-avalonia-windows' },
           { text: 'Avalonia macOS proof', link: '/currency-avalonia-macos' },
           { text: 'Avalonia Linux proof', link: '/currency-avalonia-linux' },
+          { text: 'Avalonia Browser proof', link: '/currency-avalonia-browser' },
           { text: 'Verification', link: '/currency-verification' },
         ] },
         { text: 'AudioStreamer', collapsed: true, items: [

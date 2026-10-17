@@ -96,15 +96,15 @@ def audit_android_scope(path, record):
 
 
 def audit_platform_scope(path, record, platform):
-    """Validate a scoped Apple, Windows, or Linux development archive."""
-    if platform not in {"ios", "maccatalyst", "macos", "windows", "linux"}:
+    """Validate a scoped Apple, Windows, Linux, or browser development archive."""
+    if platform not in {"ios", "maccatalyst", "macos", "windows", "linux", "browser"}:
         raise ValueError(f"Unsupported development platform: {platform}")
     package_id = record["id"]
     apple = platform in {"ios", "maccatalyst", "macos"}
     permitted = {"NativeChannels.Core", "NativeChannels", "NativeChannels.Maui"}
-    if platform in {"macos", "linux"}:
+    if platform in {"macos", "linux", "browser"}:
         permitted.remove("NativeChannels.Maui")
-    if platform == "linux":
+    if platform in {"linux", "browser"}:
         permitted.add("Plugin.Maui.Currency")
     if apple:
         permitted.add("NativeChannels.Native.Apple")
@@ -132,7 +132,7 @@ def audit_platform_scope(path, record, platform):
             raise ValueError(f"{path.name}: dependency groups do not match {platform} assemblies")
         for dependency in metadata.iter("dependency"):
             name = dependency.get("id", "")
-            if platform == "linux" and (name == "NativeChannels.Maui" or name.startswith(("Microsoft.Maui", "Microsoft.WindowsAppSDK"))):
+            if platform in {"linux", "browser"} and (name == "NativeChannels.Maui" or name.startswith(("Microsoft.Maui", "Microsoft.WindowsAppSDK"))):
                 raise ValueError(f"{path.name}: unrelated host dependency {name}")
             if name.startswith("NativeChannels.Native.") and (not apple or name != "NativeChannels.Native.Apple"):
                 raise ValueError(f"{path.name}: unrelated binding dependency {name}")
@@ -144,7 +144,7 @@ def main():
     parser.add_argument("--source-commit", help="Require this exact Git source commit for release validation")
     parser.add_argument("--output", type=Path, default=Path("artifacts/package-audit.json"))
     scope = parser.add_mutually_exclusive_group()
-    scope.add_argument("--platform-only", choices=("ios", "maccatalyst", "macos", "windows", "linux"), help="Require a single-platform framework development feed")
+    scope.add_argument("--platform-only", choices=("ios", "maccatalyst", "macos", "windows", "linux", "browser"), help="Require a single-platform framework development feed")
     scope.add_argument("--android-only", action="store_true", help="Require Android development packages, not a combined release feed")
     args = parser.parse_args()
     if args.source_commit is not None and not re.fullmatch(r"[0-9a-f]{40}", args.source_commit):

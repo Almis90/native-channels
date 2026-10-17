@@ -14,7 +14,7 @@ frameworks, while keeping platform lifecycle and native view hosting explicit.
 These are planned milestones, not a support matrix. MAUI remains the general application host;
 [verification](verification.md) records compiled and executed configurations, including the initial
 Avalonia Android Currency proof. Complete Avalonia, Uno, and browser/WebAssembly integration
-remain planned; desktop macOS and Linux have initial Currency proofs only. Progress on a feature branch does not establish release acceptance.
+remain planned; desktop macOS, Linux and Browser have initial Currency proofs only. Progress on a feature branch does not establish release acceptance.
 
 ## Initial preview
 
@@ -56,6 +56,11 @@ any other target. Shared hosting is part of the complete 0.2 milestone, not a se
 The [Linux Currency proof](currency-avalonia-linux.md) extends the Desktop head with a Linux
 transport and a system-ICU adapter, package-only X11 execution, and a dedicated runtime workflow.
 It is a method-call sample, not completion of Linux hosting or the broader milestone.
+
+The [Browser Currency proof](currency-avalonia-browser.md) adds a packaged ES-module bridge and
+Intl adapter, with package-only WebAssembly execution and a Chromium/Firefox workflow. It also
+exercises binary/value messages, managed callbacks and transport cleanup. DOM views, event-stream
+adapter helpers and the other reference plugins still need browser integration.
 
 Milestone **0.2** requires an integrated, documented, and verified Avalonia host on **Android, iOS,
 Windows, macOS, Linux, and browser/WebAssembly**. Every target must satisfy the criteria below.

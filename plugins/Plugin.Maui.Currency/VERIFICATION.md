@@ -32,6 +32,14 @@ or Windows App SDK dependencies and exited after normal window/session cleanup. 
 Currency native API tests passed. See the [Windows shared-hosting evidence](../../docs/verification.md#shared-hosting-on-windows)
 for exact package hashes and limits; ARM64 compilation is separate from physical ARM64 execution.
 
+## Browser development proof
+
+The [Browser proof](../../docs/verification.md#avalonia-in-the-browser) was executed locally in
+Chrome and Firefox on 2026-10-17 using package-only Release WebAssembly output. Both engines passed
+the shared Currency scenarios with the real Intl adapter. Packaged JavaScript hashes, runtime
+versions, source snapshots, reload and disposal evidence are recorded separately from mobile and
+desktop-native results. The browser workflow has not yet been run on GitHub.
+
 ## Windows development preview
 
 The Windows adapter uses WinRT `CurrencyIdentifiers` and `CurrencyFormatter` and exposes the same currency-code lookup contract. Native

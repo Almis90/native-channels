@@ -8,6 +8,10 @@ if [[ "${1:-}" == ios ]]; then
     TARGET=iOS
     MARKER=currency-avalonia-ios
     shift
+elif [[ "${1:-}" == browser ]]; then
+    TARGET=Browser
+    MARKER=currency-avalonia-browser
+    shift
 elif [[ "${1:-}" == linux ]]; then
     TARGET=Desktop
     MARKER=currency-avalonia-linux

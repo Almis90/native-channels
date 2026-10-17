@@ -11,4 +11,8 @@ public sealed record NativeModuleRegistration(string AndroidClass, string AppleC
     /// <summary>Creates a fresh Linux adapter for each transport. The transport owns its disposal.</summary>
     public Func<ILinuxChannelModule>? LinuxFactory { get; init; }
 #endif
+#if BROWSER
+    /// <summary>Packaged ES module URL, relative to the document base. Exports register(context), returning a disposer.</summary>
+    public string? BrowserModule { get; init; }
+#endif
 }

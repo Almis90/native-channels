@@ -117,7 +117,8 @@ MAUI is the current application host. Mac Catalyst support does not provide an A
 See [platform verification](docs/verification.md) for executed scenarios and remaining gaps,
 and the [roadmap](docs/roadmap.md) for planned Avalonia (0.2) and Uno (0.3) integration across Android,
 iOS, Windows, desktop macOS, Linux, and browser/WebAssembly. These planned targets do not extend
-the current support matrix; browser integration will require JavaScript adapters and DOM views.
+the current support matrix. Browser Currency has an initial packaged JavaScript proof; DOM views
+and complete browser hosting remain planned.
 
 ## Documentation
 
@@ -151,8 +152,9 @@ and stable API acceptance. The [template-generated Avalonia solution](samples/Av
 [Avalonia Android](samples/Avalonia/Currency/Currency.Android/README.md),
 [Avalonia iOS](samples/Avalonia/Currency/Currency.iOS/README.md),
 [Avalonia Windows](docs/currency-avalonia-windows.md),
-[Avalonia native macOS](samples/Avalonia/Currency/Currency.Desktop/README.md), and
-[Avalonia Linux](docs/currency-avalonia-linux.md), covering the method-call slice of the milestone.
+[Avalonia native macOS](samples/Avalonia/Currency/Currency.Desktop/README.md),
+[Avalonia Linux](docs/currency-avalonia-linux.md), and
+[Avalonia Browser](docs/currency-avalonia-browser.md), covering the Currency method-call slice of the milestone.
 Use the [release checklist](docs/release-checklist.md) before distribution.
 
 Pull requests run portable tests and compile affected platforms using one shared Core build.

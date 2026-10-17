@@ -22,6 +22,7 @@ export const includedPages = {
   'currency-avalonia-windows.md': 'samples/Avalonia/Currency/Currency.Desktop/Windows.md',
   'currency-avalonia-macos.md': 'samples/Avalonia/Currency/Currency.Desktop/README.md',
   'currency-avalonia-linux.md': 'samples/Avalonia/Currency/Currency.Desktop/Linux.md',
+  'currency-avalonia-browser.md': 'samples/Avalonia/Currency/Currency.Browser/README.md',
   'changelog.md': 'CHANGELOG.md',
   'contributing.md': 'CONTRIBUTING.md',
 }

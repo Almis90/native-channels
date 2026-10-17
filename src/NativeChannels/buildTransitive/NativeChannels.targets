@@ -1,0 +1,10 @@
+<Project>
+    <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'browser'">
+        <Content
+            Include="$(MSBuildThisFileDirectory)../browser/*.mjs"
+            Link="wwwroot/_content/NativeChannels/%(Filename)%(Extension)"
+            CopyToOutputDirectory="PreserveNewest"
+            CopyToPublishDirectory="PreserveNewest"
+        />
+    </ItemGroup>
+</Project>

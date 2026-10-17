@@ -14,6 +14,9 @@ from consumer_projects import verify_project_references
 SHARED = {'nativechannels.core', 'nativechannels', 'plugin.maui.currency'}
 MARKERS = {'maui': 'CURRENCY_SAMPLE', 'avalonia': 'CURRENCY_AVALONIA'}
 PLATFORMS = {
+    'browser': {'binding': None, 'host': 'avalonia.browser',
+                'project': 'Avalonia/Currency/Currency.Browser', 'runtime': 'browser-wasm',
+                'output': 'shared-hosting-browser', 'result': 'browser'},
     'linux': {'binding': None, 'host': 'avalonia.x11',
               'project': 'Avalonia/Currency/Currency.Desktop', 'runtime': 'linux-x64',
               'output': 'shared-hosting-linux', 'result': 'linux'},
@@ -36,7 +39,7 @@ def package_proof(assets_by_host, feed, platform='android'):
     target = PLATFORMS[platform]
     shared = SHARED | ({target['binding']} if target['binding'] else set())
     records, caches = {}, {}
-    for host in ({'avalonia': MARKERS['avalonia']} if platform in {'macos', 'linux'} else MARKERS):
+    for host in ({'avalonia': MARKERS['avalonia']} if platform in {'macos', 'linux', 'browser'} else MARKERS):
         assets = assets_by_host[host]
         if platform == 'macos':
             targets = assets.get('targets', {})
@@ -46,17 +49,21 @@ def package_proof(assets_by_host, feed, platform='android'):
             targets = assets.get('targets', {})
             if not targets or any(name != 'net10.0' and name != 'net10.0/linux-x64' for name in targets):
                 raise ValueError('Expected a Linux net10.0 / linux-x64 target')
+        if platform == 'browser':
+            targets = assets.get('targets', {})
+            if not targets or any(name not in {'net10.0-browser', 'net10.0-browser/browser-wasm', 'net10.0-browser1.0', 'net10.0-browser1.0/browser-wasm'} for name in targets):
+                raise ValueError('Expected a browser WebAssembly target')
         libraries = assets['libraries']
         verify_project_references(assets, allow_avalonia_app=host == 'avalonia')
         ids = {identity.split('/')[0].lower() for identity in libraries}
-        if platform in {'windows', 'linux'} and ids & {'nativechannels.native.android', 'nativechannels.native.apple'}:
+        if platform in {'windows', 'linux', 'browser'} and ids & {'nativechannels.native.android', 'nativechannels.native.apple'}:
             raise ValueError(f'{host}: mobile binding entered the desktop consumer')
         if host == 'avalonia':
             if any(name == 'nativechannels.maui' or name.startswith('microsoft.maui') for name in ids):
                 raise ValueError('Avalonia resolved a MAUI dependency')
             if target['host'] not in ids:
                 raise ValueError(f'Avalonia {platform} package is missing')
-            if platform in {'windows', 'linux'} and any(name.startswith('microsoft.windowsappsdk') for name in ids):
+            if platform in {'windows', 'linux', 'browser'} and any(name.startswith('microsoft.windowsappsdk') for name in ids):
                 raise ValueError('Avalonia resolved a Windows App SDK dependency')
         elif 'nativechannels.maui' not in ids:
             raise ValueError('MAUI host package is missing')
@@ -93,7 +100,7 @@ def package_proof(assets_by_host, feed, platform='android'):
 def runtime_proof(logs, platform='android'):
     expected = PLATFORMS[platform]['result']
     results = {}
-    for host, marker in ({'avalonia': MARKERS['avalonia']} if platform in {'macos', 'linux'} else MARKERS).items():
+    for host, marker in ({'avalonia': MARKERS['avalonia']} if platform in {'macos', 'linux', 'browser'} else MARKERS).items():
         lines = [line.split(marker + ' ', 1)[1].strip() for line in logs[host].splitlines()
                  if marker + ' ' in line]
         if len(lines) != 1 or not lines[0].startswith(f'PASS {expected}:'):

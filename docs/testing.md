@@ -108,6 +108,14 @@ service/handle cancellation, and cleanup after typed conversion failures. Native
 exercise the producer queue and its one-shot termination cleanup. The MAUI sample repeats the
 message/stream contract through actual packaged Kotlin and Swift adapters.
 
+## Browser Currency
+
+The [Browser Currency proof](currency-avalonia-browser.md) uses packaged ES modules, a fresh
+WebAssembly consumer and real Chromium/Firefox execution. JavaScript tests run with
+`node --test tests/NativeChannels.Browser.Tests/*.test.mjs`. The browser workflow publishes Release,
+checks archive and static-asset hashes, then verifies Currency, bidirectional callbacks, binary/value
+messages, cancellation, timeout, input, reload and disposal. See its guide for the full commands.
+
 ## Linux Currency
 
 The [Avalonia Linux Currency proof](currency-avalonia-linux.md) adds real system-ICU tests on Linux,

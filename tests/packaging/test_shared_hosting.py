@@ -22,13 +22,15 @@ class SharedHostingTests(unittest.TestCase):
     def create_assets(self, platform='android'):
         self.assets = {}
         self.names = ['NativeChannels.Core', 'NativeChannels', 'Plugin.Maui.Currency']
-        if platform not in {'windows', 'linux'}:
+        if platform not in {'windows', 'linux', 'browser'}:
             self.names.append('NativeChannels.Native.Apple' if platform in {'ios', 'macos'} else 'NativeChannels.Native.Android')
-        for host in (['avalonia'] if platform in {'macos', 'linux'} else ['maui', 'avalonia']):
+        for host in (['avalonia'] if platform in {'macos', 'linux', 'browser'} else ['maui', 'avalonia']):
             cache = self.root / host
             self.assets[host] = {'packageFolders': {str(cache): {}}, 'libraries': {}, 'targets': {f'net10.0-{platform}26.0': {}}}
             if platform == 'linux':
                 self.assets[host]['targets'] = {'net10.0': {}, 'net10.0/linux-x64': {}}
+            if platform == 'browser':
+                self.assets[host]['targets'] = {'net10.0-browser': {}, 'net10.0-browser/browser-wasm': {}}
             for name in self.names:
                 relative = name.lower() + '/1.0.0'
                 directory = cache / relative
@@ -39,6 +41,29 @@ class SharedHostingTests(unittest.TestCase):
                 self.assets[host]['libraries'][name + '/1.0.0'] = {'type': 'package', 'path': relative}
             host_package = 'NativeChannels.Maui' if host == 'maui' else proof.PLATFORMS[platform]['host']
             self.assets[host]['libraries'][host_package + '/1.0.0'] = {'type': 'package'}
+
+    def test_browser_requires_wasm_packages_and_rejects_mobile_hosts(self):
+        self.create_assets('browser')
+        self.add_shared_app()
+        self.assets['avalonia']['project']['restore']['projectPath'] = str(
+            Path(__file__).resolve().parents[2]
+            / 'samples/Avalonia/Currency/Currency.Browser/Currency.Browser.csproj')
+        self.assertEqual(3, len(proof.package_proof(self.assets, self.feed, 'browser')['avalonia']))
+        for name in ('NativeChannels.Native.Apple', 'NativeChannels.Native.Android', 'Microsoft.Maui.Core', 'Microsoft.WindowsAppSDK'):
+            assets = copy.deepcopy(self.assets)
+            assets['avalonia']['libraries'][name + '/1.0'] = {'type': 'package'}
+            with self.subTest(name=name), self.assertRaises(ValueError):
+                proof.package_proof(assets, self.feed, 'browser')
+        self.assets['avalonia']['targets'] = {'net10.0': {}}
+        with self.assertRaisesRegex(ValueError, 'browser WebAssembly'):
+            proof.package_proof(self.assets, self.feed, 'browser')
+
+    def test_browser_runtime_requires_complete_currency_result(self):
+        result = 'PASS browser: USD=$, EUR=€, GBP=£, JPY=¥; normalization, errors, concurrency, cancellation'
+        self.assertEqual({'avalonia': result}, proof.runtime_proof({'avalonia': 'CURRENCY_AVALONIA ' + result}, 'browser'))
+        for invalid in ('CURRENCY_AVALONIA PASS browser: USD=$', 'CURRENCY_AVALONIA ' + result.replace('browser:', 'linux:')):
+            with self.assertRaises(ValueError):
+                proof.runtime_proof({'avalonia': invalid}, 'browser')
 
     def test_linux_requires_x11_packages_without_mobile_or_maui_dependencies(self):
         self.create_assets('linux')

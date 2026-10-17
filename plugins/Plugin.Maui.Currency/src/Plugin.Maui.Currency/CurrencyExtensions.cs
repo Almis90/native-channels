@@ -23,6 +23,9 @@ public static class CurrencyExtensions
 #if LINUX
             LinuxFactory = CreateLinuxModule,
 #endif
+#if BROWSER
+            BrowserModule = "./_content/Plugin.Maui.Currency/currency.mjs",
+#endif
         };
         if (!options.Modules.Contains(module))
         {

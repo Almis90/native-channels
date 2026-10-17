@@ -51,6 +51,19 @@ class PlatformPackageScopeTests(unittest.TestCase):
             with self.subTest(platform=platform):
                 self.check_package(platform, tfm)
 
+    def test_browser_requires_browser_framework_without_native_payloads(self):
+        for name in ('NativeChannels', 'Plugin.Maui.Currency'):
+            self.check_package('browser', 'net10.0-browser', package_id=name, extra='browser/module.mjs')
+        self.check_package('browser', 'net10.0', package_id='NativeChannels.Core')
+        for tfm in ('net10.0', 'net10.0-android36.0'):
+            with self.assertRaisesRegex(ValueError, 'frameworks'):
+                self.check_package('browser', tfm, package_id='NativeChannels')
+        with self.assertRaisesRegex(ValueError, 'native payload'):
+            self.check_package('browser', 'net10.0-browser', package_id='NativeChannels', extra='native/android/test.aar')
+        for dependency in ('NativeChannels.Native.Android', 'Microsoft.Maui.Core', 'Microsoft.WindowsAppSDK'):
+            with self.assertRaisesRegex(ValueError, 'dependency'):
+                self.check_package('browser', 'net10.0-browser', package_id='NativeChannels', dependency=dependency)
+
     def test_portable_core_is_accepted_on_each_platform(self):
         for platform in ("ios", "maccatalyst", "windows"):
             with self.subTest(platform=platform):

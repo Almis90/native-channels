@@ -17,6 +17,52 @@ None of those additional host combinations is accepted on `main` yet. The Curren
 are partial milestone work; they do not establish other contracts, targets, or released support.
 Future records must distinguish unavailable OS/browser capabilities from checks that have not run.
 
+## Avalonia in the browser
+
+Local verification on 2026-10-17 used source `4612d48323ce66123d3c1c94852b7bd593071700`
+(the committed Linux proof), plus the browser working-tree changes. These are development-feed
+results; no combined NuGet release or GitHub Actions execution is claimed for this browser change.
+
+| Check | Executed result |
+| --- | --- |
+| Build host | VirtualBox Ubuntu 24.04.5 x64, .NET SDK 10.0.401, wasm-tools runtime 10.0.12 |
+| Package-only Release publish | Core, browser transport and Currency restored from local archives into a fresh cache; no MAUI/mobile/WinUI dependencies |
+| JavaScript packaging | All three published ES modules matched their NuGet archive bytes; the entire static publish output was fingerprinted |
+| Google Chrome 155.0.8059.80, Windows 11 x64, `en-US` | Currency and managed/JavaScript transport checks passed; reload and orderly disposal passed |
+| Playwright Firefox 157.0, Windows 11 x64, `en-US` | Same Currency and transport scenarios, reload and orderly disposal passed |
+| JavaScript unit/protocol tests | 16 passed, including shared codec fixtures, Int64 extremes, cancellation races, registration rollback and callback cleanup |
+| Portable / Linux regression suites | 114 portable and 18 Linux tests passed |
+| Packaging regression suite | 166 passed |
+| Browser input | Mouse selection of GBP, keyboard submission of `ZZZ`, and recovery with EUR passed in both engines |
+
+Both engines returned:
+
+```text
+PASS browser: USD=$, EUR=€, GBP=£, JPY=¥; normalization, errors, concurrency, cancellation
+```
+
+The transport scenarios execute inside the published .NET WebAssembly app. They cover binary and
+standard-codec messages, exact Int64 roundtrips, concurrent replies, JavaScript-to-managed callbacks,
+structured errors, cancellation in both directions, timeouts, independent sessions, pending-request
+disposal and failed module initialization. Each engine loads the app twice under `/currency/` and
+produces exactly one `CURRENCY_AVALONIA_CLOSED` marker per load, despite repeated close calls.
+
+Evidence is retained under `artifacts/shared-hosting-browser`: `inputs.json`, `source-files.json`,
+per-engine `verification.json`, console logs and screenshots. The build and browser hosts are
+recorded separately. The browser runner verifies every published file against the build manifest
+before serving it; each result includes that manifest's SHA-256. Source snapshots are explicitly
+marked dirty and documentation added afterward does not become part of an earlier run.
+
+Chrome logged Avalonia WebGL renderer-query warnings; Firefox logged a deprecation warning for the
+.NET-generated WebAssembly `try` instruction. Neither engine reported a runtime, network or console
+error during the passing checks. The [Browser guide](currency-avalonia-browser.md) documents the
+static-host MIME requirements, main-thread scope, lifecycle behavior and reproduction commands.
+
+The new browser workflow is defined but has not been run on GitHub. DOM views, event-stream adapter
+helpers, other plugins, Safari/WebKit, mobile browsers, worker hosting and BFCache behavior require
+separate acceptance. Explicitly awaited cleanup is tested; a browser cannot guarantee asynchronous
+cleanup completion while destroying a tab. This proof does not complete milestone 0.2.
+
 ## Avalonia on Linux
 
 Local execution on **2026-10-17** used the working tree based on

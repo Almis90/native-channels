@@ -4,11 +4,19 @@
         <IsPackable>false</IsPackable>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
         <OverrideHtmlAssetPlaceholders>true</OverrideHtmlAssetPlaceholders>
     </PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="Avalonia.Browser" />
+        <PackageReference Include="Avalonia.Fonts.Inter" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+        <PackageReference Include="Plugin.Maui.Currency" />
+        <Compile
+            Include="../../../Currency.Shared/PluginVerification.cs"
+            Link="PluginVerification.cs"
+        />
     </ItemGroup>
 
     <ItemGroup>
