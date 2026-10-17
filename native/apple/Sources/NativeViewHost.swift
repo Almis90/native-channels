@@ -1,10 +1,16 @@
-#if os(iOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(macOS)
     import Foundation
-    import UIKit
+    #if os(macOS)
+        import AppKit
+        public typealias PlatformView = NSView
+    #else
+        import UIKit
+        public typealias PlatformView = UIView
+    #endif
 
     @objc(MCNativeViewInstance)
     public protocol NativeViewInstance: AnyObject {
-        var view: UIView { get }
+        var view: PlatformView { get }
         func close()
     }
 
@@ -39,7 +45,7 @@
             return NativeViewHost(created)
         }
 
-        @objc public var view: UIView? {
+        @objc public var view: PlatformView? {
             precondition(Thread.isMainThread, "Native views require the UI thread")
             return instance?.view
         }

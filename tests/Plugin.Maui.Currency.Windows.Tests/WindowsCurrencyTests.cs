@@ -6,6 +6,25 @@ namespace Plugin.Maui.Currency.Tests;
 
 public sealed class WindowsCurrencyTests
 {
+    [Fact]
+    public void PackagedPluginHasNoMauiDependency()
+    {
+        var path = Path.ChangeExtension(typeof(WindowsCurrencyTests).Assembly.Location, ".deps.json");
+        using var dependencies = System.Text.Json.JsonDocument.Parse(File.ReadAllText(path));
+        var packages = dependencies
+            .RootElement.GetProperty("libraries")
+            .EnumerateObject()
+            .Select(item => item.Name)
+            .ToArray();
+        Assert.Contains(packages, name => name.StartsWith("NativeChannels/", StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            packages,
+            name =>
+                name.StartsWith("NativeChannels.Maui/", StringComparison.Ordinal)
+                || name.StartsWith("Microsoft.Maui.", StringComparison.Ordinal)
+        );
+    }
+
     [Theory]
     [InlineData("USD", "en-US", "US", "$")]
     [InlineData("EUR", "en-US", "US", "€")]
@@ -39,7 +58,7 @@ public sealed class WindowsCurrencyTests
     [Fact]
     public async Task PackagedRegistrationIsIdempotentAndCreatesIndependentSessions()
     {
-        var options = new NativeChannelsOptions();
+        var options = new ChannelRegistrationOptions();
         options.AddCurrency().AddCurrency();
         var registration = Assert.Single(options.Modules);
         Assert.NotNull(registration.WindowsFactory);
@@ -103,24 +122,23 @@ public sealed class WindowsCurrencyTests
     private sealed class Session : IAsyncDisposable
     {
         private readonly ServiceProvider _provider;
-        public ChannelService Channels { get; }
+        public IChannelService Channels { get; }
         public ICurrencyService Currency { get; }
 
-        public Session(NativeChannelsOptions? options = null)
+        public Session(ChannelRegistrationOptions? options = null)
         {
-            options ??= new NativeChannelsOptions().AddCurrency();
-            Channels = new(new BinaryMessenger(new NativeChannelTransport(options.Modules)));
+            options ??= new ChannelRegistrationOptions().AddCurrency();
             var services = new ServiceCollection();
-            services.AddSingleton<IChannelService>(Channels);
+            services.AddNativeChannels(options);
             services.AddCurrency().AddCurrency();
             _provider = services.BuildServiceProvider();
+            Channels = _provider.GetRequiredService<IChannelService>();
             Currency = _provider.GetRequiredService<ICurrencyService>();
         }
 
         public async ValueTask DisposeAsync()
         {
             await _provider.DisposeAsync();
-            await Channels.DisposeAsync();
         }
     }
 }

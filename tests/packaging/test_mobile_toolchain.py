@@ -37,6 +37,19 @@ class MobileToolchainTests(unittest.TestCase):
     def verify(self):
         return toolchain.verify(self.root, 'ios', '10.0.401', '10.0.401', '10.0.400')
 
+    def test_macos_installs_the_native_workload_without_maui(self):
+        self.assertEqual('macos', toolchain.workload_id('macos'))
+        self.registration.unlink()
+        (self.registration.parent / 'macos').touch()
+        (self.root / 'packs/Microsoft.iOS.Sdk.net10.0_26.0').rmdir()
+        (self.root / 'packs/Microsoft.Maui.Sdk').rmdir()
+        (self.root / 'packs/Microsoft.macOS.Sdk.net10.0_26.0').mkdir()
+        record = toolchain.verify(self.root, 'macos', '10.0.401', '10.0.401', '10.0.400')
+        self.assertEqual(['macos'], record['installed'])
+        (self.root / 'packs/Microsoft.Maui.Sdk').mkdir()
+        with self.assertRaisesRegex(ValueError, 'unrelated workload packs'):
+            toolchain.verify(self.root, 'macos', '10.0.401', '10.0.401', '10.0.400')
+
     def test_exact_restored_toolchain_is_accepted(self):
         with patch.dict(os.environ, {'TOOLCHAIN_CACHE_HIT': 'true'}):
             result = self.verify()
@@ -96,7 +109,7 @@ class MobileToolchainTests(unittest.TestCase):
             with self.subTest(target=target), tempfile.TemporaryDirectory() as temporary:
                 root = Path(temporary)
                 for name in (f'Microsoft.{target}.Sdk.net10', f'Microsoft.NETCore.App.Runtime.Mono.{target}-arm64',
-                             f'Microsoft.NETCore.App.Runtime.AOT.osx-arm64.Cross.{target}-arm64', 'Microsoft.Maui.Sdk'):
+                             f'Microsoft.NETCore.App.Runtime.AOT.osx-arm64.Cross.{target}-arm64', *(() if target == 'macos' else ('Microsoft.Maui.Sdk',))):
                     (root / 'packs' / name).mkdir(parents=True)
                 self.assertEqual([], toolchain.foreign_packs(root, target))
 

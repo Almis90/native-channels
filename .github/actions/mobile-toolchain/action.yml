@@ -1,8 +1,8 @@
 name: Isolated Android and Apple .NET toolchain
-description: Cache one pinned MAUI workload in the private SDK used by eng/dotnet.sh.
+description: Cache one pinned Android or Apple workload in the private SDK used by eng/dotnet.sh.
 inputs:
   target:
-    description: android, ios or maccatalyst
+    description: android, ios, maccatalyst or macos (native AppKit)
     required: true
 outputs:
   cache-hit:

@@ -14,14 +14,14 @@ Android and Apple adapters are included explicitly as an unbound AAR or native X
 Windows adapters implement `IWindowsChannelModule` in C# and can call packaged native libraries
 through normal .NET interop. Packaging a generic bridge
 does not remove the application's obligation to package third-party SDKs and native adapters.
-The public sample consumes NuGet packages without project references to verify distribution as well
+The public sample consumes NuGet packages without library project references to verify distribution as well
 as communication. A lower-level bridge regression consumer lives in `tests/PackageConsumer`.
 
 ## Package boundaries
 
 `NativeChannels.Core` has no MAUI or native runtime dependencies. It owns named endpoints,
 request correlation, cancellation, timeout handling, serialization, and channel contracts.
-`NativeChannels` supplies platform transports and native registration.
+`NativeChannels` supplies platform transports, shared service registration, and native module configuration.
 `NativeChannels.Maui` supplies DI/startup integration and native view handlers.
 The generic Android and Apple bindings are separate implementation packages.
 
@@ -70,12 +70,28 @@ Two views with the same factory name receive different instance IDs and MethodCh
 
 ## Additional application hosts
 
-The core messaging layer is independent of MAUI. The [roadmap](roadmap.md) plans complete Avalonia
-integration in 0.2 and Uno integration in 0.3, each covering Android, iOS, Windows, desktop macOS,
-Linux, and browser/WebAssembly. These hosts are not implemented on `main`; the Android Currency
-proof is an initial part of the Avalonia milestone, not full host or platform acceptance.
+The core messaging layer is independent of MAUI. `AddNativeChannels` registers a session from
+`ChannelRegistrationOptions` in the platform package. MAUI's `UseNativeChannels` delegates to that
+registration and adds startup integration and native view handlers. Its existing
+`NativeChannelsOptions` extends the shared settings with MAUI view factories.
 
-Shared registration and plugin contracts will remain independent of application frameworks.
+Currency depends on the platform package rather than the MAUI host. Applications choose their host
+explicitly; the MAUI Currency sample references both `Plugin.Maui.Currency` and `NativeChannels.Maui`.
+The [Avalonia Android sample](../samples/Avalonia/Currency/Currency.Android/README.md) consumes the same Currency
+package through shared registration and owns disposal at the activity boundary. It is a method-call
+proof; a general Avalonia host and native view integration remain [roadmap](roadmap.md) work.
+The [iOS sample](../samples/Avalonia/Currency/Currency.iOS/README.md) shares the view and session code, uses
+Avalonia's single-view application lifetime, and verifies its own Apple package/runtime boundary.
+The [Windows sample](../samples/Avalonia/Currency/Currency.Desktop/Windows.md) uses the same view and session
+with Avalonia's Win32 desktop backend. It reuses the Windows transport and Currency adapter without
+depending on MAUI or WinUI; native view embedding remains separate work.
+
+The [roadmap](roadmap.md) plans complete Avalonia
+integration in 0.2 and Uno integration in 0.3, each covering Android, iOS, Windows, desktop macOS,
+Linux, and browser/WebAssembly. The Android Currency proof is an initial part of the Avalonia
+milestone, not full host or platform acceptance.
+
+Shared registration and plugin contracts remain independent of application frameworks.
 Each host must supply startup/lifecycle integration, dispatchers, and native or DOM view containers.
 Browser support requires JavaScript adapters and web asset packaging, with an explicit capability
 matrix; desktop macOS and Linux require their own native integration. The existing MAUI handlers

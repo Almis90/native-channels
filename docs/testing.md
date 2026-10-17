@@ -60,7 +60,7 @@ python3 -m unittest discover -s tests/packaging
 
 Use the [package-only sample](../samples/NativeChannels.Sample/README.md) after changing a bridge,
 binding, native dependency, or packaging rule. Restore into a fresh package cache and rebuild clean
-consumer outputs. The scripts verify source mapping, archive hashes, and absence of project references.
+consumer outputs. The scripts verify source mapping, archive hashes, and absence of library project references.
 
 Run Release consumers on Android and iOS simulators to exercise shrinking/linking and actual framework
 loading. Compile device/Catalyst targets separately and record runtime execution separately. Shared
@@ -71,15 +71,36 @@ results and CI evidence.
 
 ## Verify a reusable plugin
 
-The [currency sample](../samples/Currency.Sample/README.md) references only `Plugin.Maui.Currency`.
+The [currency sample](../samples/Currency.Sample/README.md) references `Plugin.Maui.Currency` and
+its explicit `NativeChannels.Maui` host through packages. The plugin itself has no MAUI dependency;
+the Windows package tests verify its dependency graph as well as real native currency calls.
 Its AAR and XCFramework arrive through the package's `buildTransitive` imports. Run its fresh-cache
 restore and Release runtime checks after changing the plugin, its native modules, or packaging.
 `plugins/Plugin.Maui.Currency/eng/inspect-package.py` checks the native classes, preservation rules,
 framework slices, dependencies, and import paths inside the actual archive.
 
-The portable solution includes 14 currency facade tests, alongside core channel tests. The facade
-tests compile the production C# source without MAUI workloads; the native app checks remain necessary
-to establish native loading and real platform results.
+The [Avalonia Android proof](../samples/Avalonia/Currency/Currency.Android/README.md) and
+[iOS proof](../samples/Avalonia/Currency/Currency.iOS/README.md) check host independence. Each reusable workflow
+runs after its platform's framework verification, reuses those packages, and builds Currency once.
+MAUI and Avalonia restore separately and execute the shared scenarios in the same emulator or
+simulator. Package hashes must match and Avalonia's dependency graph must exclude MAUI. Each runtime
+proof is mandatory when its platform is selected, independently of the framework sample's
+Compile/Runtime depth. A failure blocks the framework result. Logs and hashes are retained as
+`shared-hosting-android` and `shared-hosting-ios`; iOS also retains app screenshots. Simulator success
+does not establish physical-device support.
+
+The [Windows proof](../samples/Avalonia/Currency/Currency.Desktop/Windows.md) compares the three shared
+archives in separate fresh MAUI and Avalonia caches and rejects mobile bindings or WinUI dependencies
+in Avalonia. Its required CI job builds both hosts for x64 and ARM64 and runs the native Currency API
+tests on the x64 runner. Desktop application execution is separate: run
+`./eng/verify-shared-hosting-windows.ps1` on Windows to execute both applications and check Avalonia's
+normal window/session shutdown. `-BuildOnly` never creates a runtime-success record.
+
+The portable solution includes Currency facade and registration tests, alongside core channel tests.
+Shared registration tests exercise lazy session creation, independent providers, captured settings,
+duplicate and invalid configuration, host dispatch and owned disposal. They compile the production
+C# source without MAUI workloads; native app checks remain necessary to establish native loading
+and real platform results.
 
 The message/event tests cover null versus empty payloads, strict UTF-8, bidirectional replies,
 registration ownership, independent enumerations, bounded overflow policies, buffered terminal errors,

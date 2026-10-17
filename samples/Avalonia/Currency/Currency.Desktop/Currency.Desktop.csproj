@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <CurrencyDesktopTarget
+            Condition="'$(CurrencyDesktopTarget)' == '' And $([MSBuild]::IsOSPlatform('Windows'))"
+            >windows</CurrencyDesktopTarget>
+        <CurrencyDesktopTarget Condition="'$(CurrencyDesktopTarget)' == ''"
+            >macos</CurrencyDesktopTarget>
+        <TargetFramework>net10.0-macos</TargetFramework>
+        <TargetFramework Condition="'$(CurrencyDesktopTarget)' == 'windows'"
+            >net10.0-windows10.0.19041.0</TargetFramework>
+        <OutputType>Exe</OutputType>
+        <IsPackable>false</IsPackable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <ApplicationId>dev.nativechannels.currency.avalonia.macos</ApplicationId>
+        <ApplicationTitle>Currency Symbols — Avalonia</ApplicationTitle>
+        <ApplicationDisplayVersion>0.1</ApplicationDisplayVersion>
+        <ApplicationVersion>1</ApplicationVersion>
+        <SupportedOSPlatformVersion>14.0</SupportedOSPlatformVersion>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(CurrencyDesktopTarget)' == 'windows'">
+        <OutputType>WinExe</OutputType>
+        <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
+        <ApplicationManifest>app.manifest</ApplicationManifest>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="Avalonia.Desktop" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+        <PackageReference Include="Plugin.Maui.Currency" />
+        <Compile
+            Include="../../../Currency.Shared/PluginVerification.cs"
+            Link="PluginVerification.cs"
+        />
+        <ProjectReference Include="../Currency/Currency.csproj" />
+    </ItemGroup>
+</Project>

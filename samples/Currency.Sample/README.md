@@ -1,7 +1,7 @@
 # Currency Symbols sample
 
-A separate MAUI app consuming **only** the `Plugin.Maui.Currency` reference plugin through
-the local NuGet feed. This example verifies reusable plugin packaging; it is optional for applications
+A separate MAUI app consuming the `Plugin.Maui.Currency` reference plugin and its explicit
+`NativeChannels.Maui` host through the local NuGet feed. This example verifies reusable plugin packaging; it is optional for applications
 using NativeChannels, and the plugin has not been published to NuGet.org. It has no project
 references, native source references, explicit AAR imports, or explicit XCFramework imports.
 
@@ -19,7 +19,11 @@ writes `currency-result.txt` to its app data directory, and logs `CURRENCY_SAMPL
 `CURRENCY_SAMPLE PASS apple: …` / `CURRENCY_SAMPLE PASS windows: …`.
 The verification scripts fail if the result is absent or reports failure.
 
-## Windows (0.5 framework preview)
+The [Avalonia Android sample](../Avalonia/Currency/Currency.Android/README.md) compiles the same verification
+source from `samples/Currency.Shared`. The shared-hosting workflow executes both Android Release apps
+against identical Currency package bytes and checks that Avalonia has no MAUI dependency.
+
+## Windows preview
 
 ```powershell
 ./eng/verify-windows.ps1 -Currency
@@ -27,7 +31,7 @@ The verification scripts fail if the result is absent or reports failure.
 
 Run from the repository root with the pinned SDK and `maui-windows` workload. This builds the Windows
 `Plugin.Maui.Currency` 1.1.0-alpha.1 development package, runs its Windows tests, restores this app from
-the local feed, and executes the Release x64 app. The app still has only one direct package reference.
+the local feed, and executes the Release x64 app. The plugin and host are both package references.
 Use `-BuildOnly` for adapter tests and compilation without UI execution. See the
 [Windows plugin guide](../../plugins/Plugin.Maui.Currency/README.md#windows-development-preview).
 

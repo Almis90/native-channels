@@ -8,6 +8,9 @@ CONSUMERS = {
     'samples/NativeChannels.Sample': 'sample',
     'tests/PackageConsumer': 'consumer',
     'samples/Currency.Sample': 'currency',
+    'samples/Avalonia/Currency/Currency.Android': 'currency-avalonia',
+    'samples/Avalonia/Currency/Currency.iOS': 'currency-avalonia-ios',
+    'samples/Avalonia/Currency/Currency.Desktop': 'currency-avalonia-macos',
     'samples/AudioStreamer.Sample': 'audio',
     'samples/VolumeMonitor.Sample': 'volume',
     'samples/PdfViewer.Sample': 'pdf',
@@ -27,6 +30,8 @@ def clean(root, relative):
                 or not previous.name.startswith('consumer-packages.')):
             raise ValueError('Refusing to remove a package cache outside artifacts/consumer-packages.*')
     outputs = [root / relative / name for name in ('bin', 'obj')]
+    if relative.startswith('samples/Avalonia/Currency/'):
+        outputs += [root / 'samples/Avalonia/Currency/Currency' / name for name in ('bin', 'obj')]
     if any(output.is_symlink() or not output.resolve().is_relative_to(root) for output in outputs):
         raise ValueError('Refusing to remove symlinked or external consumer outputs')
     # Another consumer may explicitly share this cache; preserve that reference.

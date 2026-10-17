@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
-"""Prove a consumer resolves only packages and uses this build's NativeChannels archives."""
+"""Prove native libraries come from this build's packages; allow the shared sample UI."""
 from pathlib import Path
 import hashlib, json, sys
+from consumer_projects import verify_project_references
 root = Path(__file__).resolve().parent.parent
 assets_path = Path(sys.argv[1])
 assets = json.loads(assets_path.read_text())
+verify_project_references(assets, allow_avalonia_app=True)
 count = 0
 for identity, library in assets['libraries'].items():
-    assert library['type'] == 'package', f'Project reference found: {identity}'
+    if library['type'] == 'project':
+        continue
     if not identity.lower().startswith(('nativechannels', 'plugin.maui.currency/', 'plugin.maui.audiostreamer/', 'plugin.maui.volumemonitor/', 'plugin.maui.pdfviewer/')):
         continue
     package_id, version = identity.split('/')

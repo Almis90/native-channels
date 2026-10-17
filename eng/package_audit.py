@@ -96,12 +96,14 @@ def audit_android_scope(path, record):
 
 
 def audit_platform_scope(path, record, platform):
-    """Validate an iOS, Catalyst, or Windows framework development archive."""
-    if platform not in {"ios", "maccatalyst", "windows"}:
+    """Validate a single Apple or Windows framework development archive."""
+    if platform not in {"ios", "maccatalyst", "macos", "windows"}:
         raise ValueError(f"Unsupported development platform: {platform}")
     package_id = record["id"]
-    apple = platform in {"ios", "maccatalyst"}
+    apple = platform in {"ios", "maccatalyst", "macos"}
     permitted = {"NativeChannels.Core", "NativeChannels", "NativeChannels.Maui"}
+    if platform == "macos":
+        permitted.remove("NativeChannels.Maui")
     if apple:
         permitted.add("NativeChannels.Native.Apple")
     if package_id not in permitted:
@@ -138,7 +140,7 @@ def main():
     parser.add_argument("--source-commit", help="Require this exact Git source commit for release validation")
     parser.add_argument("--output", type=Path, default=Path("artifacts/package-audit.json"))
     scope = parser.add_mutually_exclusive_group()
-    scope.add_argument("--platform-only", choices=("ios", "maccatalyst", "windows"), help="Require a single-platform framework development feed")
+    scope.add_argument("--platform-only", choices=("ios", "maccatalyst", "macos", "windows"), help="Require a single-platform framework development feed")
     scope.add_argument("--android-only", action="store_true", help="Require Android development packages, not a combined release feed")
     args = parser.parse_args()
     if args.source_commit is not None and not re.fullmatch(r"[0-9a-f]{40}", args.source_commit):

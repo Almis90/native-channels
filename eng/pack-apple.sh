@@ -3,8 +3,8 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 TARGET="${1:-ios}"
-if [[ $# -gt 1 || ( "$TARGET" != ios && "$TARGET" != maccatalyst ) ]]; then
-    echo 'Usage: bash eng/pack-apple.sh [ios|maccatalyst] (framework only)' >&2
+if [[ $# -gt 1 || ( "$TARGET" != ios && "$TARGET" != maccatalyst && "$TARGET" != macos ) ]]; then
+    echo 'Usage: bash eng/pack-apple.sh [ios|maccatalyst|macos] (framework only)' >&2
     exit 2
 fi
 shopt -s nullglob
@@ -22,11 +22,13 @@ if [[ "${NATIVECHANNELS_SHARED_CORE:-false}" == true ]]; then
 else
     bash eng/dotnet.sh pack src/NativeChannels.Core -c Release -o artifacts/packages
 fi
-for project in NativeChannels.Native.Apple NativeChannels NativeChannels.Maui; do
-    bash eng/dotnet.sh pack "src/$project" -c Release "-p:NativeChannelsAppleTarget=$TARGET" -o artifacts/packages "${shared_args[@]}"
+projects=(NativeChannels.Native.Apple NativeChannels)
+if [[ "$TARGET" != macos ]]; then projects+=(NativeChannels.Maui); fi
+for project in "${projects[@]}"; do
+    bash eng/dotnet.sh pack "src/$project" -c Release "-p:NativeChannelsAppleTarget=$TARGET" -o artifacts/packages ${shared_args[@]+"${shared_args[@]}"}
 done
 python3 eng/inspect-packages.py --platform-only "$TARGET"
 python3 eng/package_audit.py artifacts/packages/*.nupkg --platform-only "$TARGET"
 if [[ "${NATIVECHANNELS_SHARED_CORE:-false}" == true ]]; then
-    python3 .github/scripts/shared-core.py verify
+    python3 .github/scripts/shared-core.py verify --platform "$TARGET"
 fi

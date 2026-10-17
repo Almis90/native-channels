@@ -41,6 +41,13 @@ class SharedCoreTests(unittest.TestCase):
     def test_exact_archive_passes(self):
         shared.verify(self.feed)
 
+    def test_macos_does_not_require_a_maui_project(self):
+        (self.root / 'src/NativeChannels.Maui/obj/project.assets.json').unlink()
+        shared.verify(self.feed, 'macos')
+        self.cached.write_bytes(b'stale macos cache')
+        with self.assertRaisesRegex(ValueError, 'different Core bytes'):
+            shared.verify(self.feed, 'macos')
+
     def test_stale_cache_is_rejected(self):
         self.cached.write_bytes(b'stale same-version archive')
         with self.assertRaisesRegex(ValueError, 'different Core bytes'):

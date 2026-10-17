@@ -1,0 +1,10 @@
+<Window
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Class="Currency.Views.MainWindow"
+    Title="Currency Symbols — Avalonia"
+    Width="540"
+    Height="720"
+    MinWidth="320"
+    MinHeight="480"
+/>

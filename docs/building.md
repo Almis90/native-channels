@@ -42,7 +42,7 @@ bash eng/verify-android-sample.sh EMULATOR_SERIAL
 Repeat with `-c Release` for build and `Release` as the verification script's second argument.
 For a smaller Android build targeting a single ABI, restore/build with `-r android-arm64` and pass
 `android-arm64` as the verification script's third argument. CI uses `android-x64` for its emulator.
-Restore also checks that no project references entered the graph and that cached NativeChannels archives
+Restore also checks that no library project references entered the graph and that cached NativeChannels archives
 are byte-for-byte identical to the local packages. `python3 eng/inspect-packages.py` inspects native assets.
 For compile checks use `-r ios-arm64 -p:EnableCodeSigning=false` or `-r maccatalyst-arm64`, restoring
 with that same target/RID first. Device execution requires provisioning and actual hardware.
@@ -70,6 +70,18 @@ bash eng/dotnet.sh build samples/NativeChannels.Sample -f net10.0-maccatalyst -r
 bash eng/verify-catalyst-sample.sh
 ```
 The script launches the sample, checks its output, and closes its process after the result.
+
+## Avalonia native macOS development target
+
+The [macOS Currency sample](currency-avalonia-macos.md) targets `net10.0-macos` and uses AppKit.
+Install the pinned `macos` workload, build Swift with `python3 eng/build-apple.py --macos-only`,
+and pack a clean development feed with `bash eng/pack-apple.sh macos` and
+`bash eng/pack-currency-ios.sh macos`. The sample guide includes fresh-cache restore and execution.
+
+These switches select desktop macOS explicitly. Default mobile packaging and the four-platform
+MAUI release distribution remain unchanged. **Verify Avalonia native macOS** is a separate workflow
+that compiles x64/ARM64 and executes ARM64; its SDK cache installs `macos` without MAUI workloads.
+Do not infer desktop macOS runtime support from Catalyst evidence.
 
 ## Local disk usage
 
