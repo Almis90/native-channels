@@ -62,6 +62,12 @@ Intl adapter, with package-only WebAssembly execution and a Chromium/Firefox wor
 exercises binary/value messages, managed callbacks and transport cleanup. DOM views, event-stream
 adapter helpers and the other reference plugins still need browser integration.
 
+The [AudioStreamer Windows sample](audio-avalonia-windows.md) starts the next reference-plugin
+integration: framework-neutral registration and dependencies, a package-only Avalonia consumer,
+and the existing native PCM adapter. Its local verification covers playback, backpressure,
+DI ownership and window shutdown. Other AudioStreamer Avalonia targets remain planned;
+see its [verification record](audio-verification.md) for the executed scope.
+
 Milestone **0.2** requires an integrated, documented, and verified Avalonia host on **Android, iOS,
 Windows, macOS, Linux, and browser/WebAssembly**. Every target must satisfy the criteria below.
 Record supported OS versions, architectures, desktop backends, browser engines, and their tested

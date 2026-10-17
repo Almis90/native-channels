@@ -43,6 +43,7 @@
         <AndroidLinkTool>r8</AndroidLinkTool>
     </PropertyGroup>
     <ItemGroup>
+        <PackageReference Include="NativeChannels.Maui" />
         <PackageReference Include="Plugin.Maui.AudioStreamer" />
     </ItemGroup>
     <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">

@@ -2,8 +2,10 @@
 
 A foreground audio reference plugin demonstrating useful binary transfer with NativeChannels. C# generates
 PCM chunks; Kotlin plays them with `AudioTrack`, and Swift plays them with `AVAudioEngine` and
-`AVAudioPlayerNode`. Windows uses WinMM's `waveOut` PCM queue. The separate MAUI app references
-**only the local plugin package**.
+`AVAudioPlayerNode`. Windows uses WinMM's `waveOut` PCM queue. The plugin depends on the
+framework-neutral `NativeChannels` package. The MAUI sample references `NativeChannels.Maui`
+explicitly; the [Avalonia Windows sample](../../samples/Avalonia/AudioStreamer/README.md)
+uses `NativeChannels.Avalonia` with the same facade and Windows native module.
 
 The example is for plugin authors and has not been published to NuGet.org. It requires Android 12+
 (API 31), iOS/Mac Catalyst 15+, or Windows 10 build 17763+. See [verification](VERIFICATION.md)
@@ -45,8 +47,9 @@ native buffer occupancy and mean enqueue wait. System media volume controls audi
 ## Use the facade
 
 Following the Currency reference plugin's packaging pattern, configure the local feed and reference
-`Plugin.Maui.AudioStreamer`. Native adapters and framework dependencies arrive transitively.
-Register it once alongside your other modules:
+`Plugin.Maui.AudioStreamer` plus the host package (`NativeChannels.Maui` or
+`NativeChannels.Avalonia`). Native adapters and transport dependencies arrive transitively.
+In MAUI, register it once alongside your other modules:
 
 ```csharp
 builder.UseNativeChannels(options => options.AddAudioStreamer());
@@ -79,7 +82,7 @@ producer: the bounded buffer provides backpressure. Cancel writes/drains or disp
 | Property | Contract |
 | --- | --- |
 | Audio format | Signed PCM16, little-endian, mono, 48,000 frames/second |
-| Chunk size | 1–4,800 whole frames (2–9,600 PCM bytes); sample uses 960 frames / 20 ms |
+| Chunk size | 1–4,800 whole frames (2–9,600 PCM bytes); music samples use 2,400 frames / 50 ms |
 | Native capacity | At most 24,000 submitted PCM frames / 500 ms, including queued and scheduled frames |
 | Data channel | `plugin.maui.audio.pcm`, BasicMessageChannel + BinaryMessageCodec |
 | Control channel | `plugin.maui.audio.control`, MethodChannel |

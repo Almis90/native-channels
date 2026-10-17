@@ -9,7 +9,7 @@ public sealed class AudioStreamerTests
     [Fact]
     public void RegistrationIsIdempotentAndCreatesSeparateModules()
     {
-        var options = new NativeChannelsOptions().AddAudioStreamer().AddAudioStreamer();
+        var options = new ChannelRegistrationOptions().AddAudioStreamer().AddAudioStreamer();
         var registration = Assert.Single(options.Modules);
         using var first = registration.WindowsFactory!();
         using var second = registration.WindowsFactory();
@@ -114,7 +114,9 @@ public sealed class AudioStreamerTests
     }
 
     private static ChannelService CreateChannels() =>
-        new(new BinaryMessenger(new NativeChannelTransport(new NativeChannelsOptions().AddAudioStreamer().Modules)));
+        new(
+            new BinaryMessenger(new NativeChannelTransport(new ChannelRegistrationOptions().AddAudioStreamer().Modules))
+        );
 
     private static async Task WaitForPlaying(MethodChannel control, object arguments)
     {

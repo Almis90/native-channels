@@ -6,8 +6,10 @@ them with Kotlin AudioTrack or Swift AVAudioEngine. Choose Play for one pass or 
 native buffer occupancy, and mean enqueue wait.
 
 See the [plugin guide](../../plugins/Plugin.Maui.AudioStreamer/README.md) for build/run instructions,
-format, backpressure, and lifecycle. The app references only the plugin package; its native adapters
-and NativeChannels dependencies arrive transitively. Android requires API 31+.
+format, backpressure, and lifecycle. The app references the plugin package and `NativeChannels.Maui`;
+its native adapters arrive transitively. Android requires API 31+.
+The [Avalonia Windows sample](../Avalonia/AudioStreamer/README.md) reuses the music generator,
+native verification scenarios, and plugin without a MAUI dependency.
 
 Startup silently verifies native playback, queue bounds, pause/resume, cancellation, drain, and a clean
 restart. It logs `AUDIO_SAMPLE PASS …` and writes `audio-result.txt` in application data. The foreground

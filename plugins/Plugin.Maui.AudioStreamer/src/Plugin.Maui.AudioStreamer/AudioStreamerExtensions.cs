@@ -7,7 +7,8 @@ namespace Plugin.Maui.AudioStreamer;
 public static class AudioStreamerExtensions
 {
     /// <summary>Adds the plugin's packaged native module to a NativeChannels session.</summary>
-    public static NativeChannelsOptions AddAudioStreamer(this NativeChannelsOptions options)
+    public static TOptions AddAudioStreamer<TOptions>(this TOptions options)
+        where TOptions : ChannelRegistrationOptions
     {
         ArgumentNullException.ThrowIfNull(options);
         var module = new NativeModuleRegistration(
@@ -27,7 +28,7 @@ public static class AudioStreamerExtensions
         return options;
     }
 
-    /// <summary>Registers the audio streamer. Also call options.AddAudioStreamer inside UseNativeChannels.</summary>
+    /// <summary>Registers the audio streamer. Also call options.AddAudioStreamer when registering the channel session.</summary>
     public static IServiceCollection AddAudioStreamer(this IServiceCollection services)
     {
         ArgumentNullException.ThrowIfNull(services);

@@ -74,6 +74,7 @@ export default defineConfig({
         { text: 'AudioStreamer', collapsed: true, items: [
           { text: 'Implementation', link: '/audio-streamer' },
           { text: 'Sample app', link: '/audio-sample' },
+          { text: 'Avalonia Windows sample', link: '/audio-avalonia-windows' },
           { text: 'Verification', link: '/audio-verification' },
         ] },
         { text: 'VolumeMonitor', collapsed: true, items: [
