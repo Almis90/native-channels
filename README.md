@@ -1,7 +1,12 @@
+<p>
+  <img src="https://raw.githubusercontent.com/Almis90/native-channels/main/assets/package-icon.png" alt="NativeChannels logo" width="80" height="80">
+</p>
+
 # NativeChannels
 
+[![NuGet preview](https://img.shields.io/nuget/vpre/NativeChannels.Maui?label=NuGet&logo=nuget&color=6554c0)](https://www.nuget.org/packages/NativeChannels.Maui/)
 [![Documentation](https://img.shields.io/badge/docs-GitHub%20Pages-6554c0)](https://almis90.github.io/native-channels/)
-[![.NET 10](https://img.shields.io/badge/.NET-10-512BD4)](docs/building.md)
+[![Verify distribution](https://github.com/Almis90/native-channels/actions/workflows/verify-distribution.yml/badge.svg?branch=main&event=workflow_dispatch)](https://github.com/Almis90/native-channels/actions/workflows/verify-distribution.yml)
 [![MIT license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 **Native integrations for .NET MAUI, through one reusable bridge.**
