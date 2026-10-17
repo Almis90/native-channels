@@ -1,9 +1,12 @@
 # Publishing to NuGet
 
-The first framework candidate is `0.1.0-preview.1`. Packages have **not** been published to NuGet.org.
-This guide describes the maintainer release process. Applications currently use the
-[local feed](getting-started.md); after publication they will install `NativeChannels.Maui`
-from NuGet.org, with its framework dependencies resolved automatically.
+The first framework preview, `0.1.0-preview.1`, is
+[available on NuGet.org](https://www.nuget.org/packages/NativeChannels.Maui/0.1.0-preview.1).
+Applications install `NativeChannels.Maui`, with framework dependencies resolved automatically;
+see [getting started](getting-started.md).
+
+This guide describes the maintainer release process. The [verification record](verification.md#nuget-publication-2026-10-17)
+identifies the published source, accepted archives, and public-feed checks.
 
 ## Release contents
 

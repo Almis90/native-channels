@@ -56,7 +56,9 @@ Use the [sample build file](../native/android/sample/build.gradle.kts) as a star
 your SDK dependencies. Build with `bash eng/build-android.sh`. Its sample artifact is
 `native/android/sample/build/outputs/aar/sample-release.aar`.
 
-In the MAUI app, reference `NativeChannels.Maui` and include the adapter with binding disabled:
+In the MAUI app, reference `NativeChannels.Maui`, set Android's `SupportedOSPlatformVersion` to
+`24` or higher, and include the adapter with binding disabled. See [getting started](getting-started.md)
+for the package and minimum-version settings.
 
 ```xml
 <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">

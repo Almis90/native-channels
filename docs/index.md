@@ -38,8 +38,9 @@ features:
 
 **Native calls, messages, streams, and views**
 
-MAUI integration for Android, iOS, Mac Catalyst, and Windows. Build using the local package feed;
-packages are not yet on NuGet.org.
+MAUI integration for Android, iOS, Mac Catalyst, and Windows.
+Install [NativeChannels.Maui 0.1.0-preview.1](https://www.nuget.org/packages/NativeChannels.Maui/0.1.0-preview.1)
+from NuGet.org and follow [getting started](getting-started.md).
 [Platform verification](verification.md) · [Roadmap](roadmap.md)
 
 Planned next: complete Avalonia integration in 0.2, then Uno in 0.3, each across Android, iOS,

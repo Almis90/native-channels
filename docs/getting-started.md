@@ -1,13 +1,14 @@
 # Getting started
 
-Make a native `echo` call from a separate MAUI application using the bundled Kotlin and Swift adapters.
-Try the framework sample in step 1, then follow the remaining steps to configure your own application.
-To distribute an integration to other apps, continue with [plugin authoring](plugin-authoring.md).
+Install NativeChannels in a .NET 10 MAUI application, register a native adapter, and make your first
+call. The walkthrough uses the repository's Kotlin and Swift `echo` adapters. For a Windows adapter,
+follow [Windows integration](windows-integration.md); to distribute your own integration, continue
+with [plugin authoring](plugin-authoring.md).
 
-::: info Local packages
-NativeChannels has not been published to NuGet.org. This guide builds the packages from source and
-uses a local feed. Source builds use `0.1.0-preview.1`; see the [verification record](verification.md)
-for executed checks and remaining platform gaps.
+::: info Preview release
+[NativeChannels.Maui 0.1.0-preview.1](https://www.nuget.org/packages/NativeChannels.Maui/0.1.0-preview.1)
+is available on NuGet.org. It supports MAUI on Android, iOS, Mac Catalyst, and Windows.
+See the [verification record](verification.md) for executed checks and remaining platform gaps.
 :::
 
 ## Prerequisites
@@ -21,63 +22,19 @@ for executed checks and remaining platform gaps.
 | JDK | 21 |
 | Android SDK platform / build tools | 36 / 36.0.0 |
 
-A Mac is needed to build the Apple frameworks. The portable core requires only the pinned .NET SDK.
+A Mac is needed to build Apple applications and native adapters. The portable core requires only the pinned .NET SDK.
 Set `JAVA_HOME` and `ANDROID_HOME` if your tools use nondefault locations.
 
-## 1. Build and try the sample
+## 1. Install the package
 
-From the repository root:
+From your MAUI application's directory:
 
 ```sh
-bash eng/bootstrap.sh --platforms
-bash eng/build-android.sh
-python3 eng/build-apple.py
-bash eng/pack.sh
-python3 eng/inspect-packages.py
+dotnet add package NativeChannels.Maui --version 0.1.0-preview.1
 ```
 
-The packages are in `artifacts/packages`. They have not been published to NuGet.org.
-Follow the [sample instructions](../samples/NativeChannels.Sample/README.md) to restore, build, and run
-on an emulator or simulator before adding your own adapter.
-
-## 2. Reference NativeChannels in your application
-
-Keep your application outside the library's project-reference graph. For example:
-
-```text
-workspace/
-  native-channels/
-    artifacts/packages/
-  MyApp/
-    MyApp.csproj
-    NuGet.Config
-    Native/
-```
-
-For that layout, create `MyApp/NuGet.Config`:
-
-```xml
-<?xml version="1.0" encoding="utf-8"?>
-<configuration>
-  <packageSources>
-    <clear />
-    <add key="nativechannels-local" value="../native-channels/artifacts/packages" />
-    <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
-  </packageSources>
-  <packageSourceMapping>
-    <clear />
-    <packageSource key="nativechannels-local"><package pattern="NativeChannels*" /></packageSource>
-    <packageSource key="nuget.org"><package pattern="*" /></packageSource>
-  </packageSourceMapping>
-</configuration>
-```
-
-The local feed supplies NativeChannels; NuGet.org supplies external dependencies. Copy the repository's
-`global.json` into `MyApp` to keep SDK/workload selection consistent, and use MAUI 10.0.110 in the app.
-Target `net10.0-android`, `net10.0-ios`, and/or `net10.0-maccatalyst` for Apple and Android applications.
-For Windows, follow [Windows integration](windows-integration.md).
-
-Add this item to your app project:
+Use NuGet.org as a package source. No local feed or reference to the NativeChannels source projects
+is needed. The resulting project reference is:
 
 ```xml
 <ItemGroup>
@@ -88,9 +45,48 @@ Add this item to your app project:
 If your app uses central package management, put the version in its `Directory.Packages.props` instead.
 The checked-in sample demonstrates that form.
 
-## 3. Include the native adapters
+`NativeChannels.Core`, `NativeChannels`, and the applicable native binding resolve transitively.
+The Android binding contains the generic Kotlin bridge; the Apple binding covers iOS and Mac Catalyst.
+Windows support lives in `NativeChannels` and `NativeChannels.Maui`, without a separate binding package.
 
-Copy these generated artifacts into `MyApp/Native`:
+Use the toolchain above for the verified configuration; the repository's `global.json` pins its SDK
+and workload set. Use MAUI 10.0.110 in your app.
+Target `net10.0-android`, `net10.0-ios`, and/or `net10.0-maccatalyst` for Apple and Android applications.
+For Windows, follow [Windows integration](windows-integration.md).
+
+Set the app's minimum platform versions to match the bridge. In a new MAUI template, **change the
+existing Android `SupportedOSPlatformVersion` to `24`**; the template's lower default causes a
+manifest merge error. The corresponding project settings are:
+
+```xml
+<PropertyGroup>
+  <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">24</SupportedOSPlatformVersion>
+  <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios' Or $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">15.0</SupportedOSPlatformVersion>
+</PropertyGroup>
+```
+
+Windows requires a minimum of Windows 10 build 17763; see its integration guide for deployment details.
+
+## 2. Include the native adapters
+
+The package supplies the bridge. Your adapter supplies the named operations and any third-party SDK
+dependencies. For this walkthrough, clone the repository beside your app and build its sample adapters.
+Use [source revision `09ae4eb`](https://github.com/Almis90/native-channels/tree/09ae4eb862bc142c0281ded67413ea859e179c6d)
+to match the published `0.1.0-preview.1` bridge.
+Run these commands from the repository root on a Mac for both platforms, or just the Android build
+for Android:
+
+```sh
+bash eng/bootstrap.sh --platforms
+bash eng/build-android.sh
+python3 eng/build-apple.py
+```
+
+This compiles the native bridge and adapter inputs; your app continues to consume the published
+framework packages. You do not need to run `eng/pack.sh` for this walkthrough. For your own adapter,
+use the [Android](android-integration.md) or [Apple](ios-integration.md) guide instead.
+
+Copy these generated artifacts from the repository into your application's `Native` directory:
 
 - `native/android/sample/build/outputs/aar/sample-release.aar`
 - `artifacts/native/NativeChannelsSample.xcframework` (the whole directory)
@@ -112,7 +108,7 @@ Add platform-specific project items:
 The generic bridge comes through NuGet; these assets supply the sample-specific operations. An adapter
 AAR or XCFramework does not automatically supply every third-party native dependency your SDK needs.
 
-## 4. Register the native module
+## 3. Register the native module
 
 In `MauiProgram.CreateMauiApp`, after creating the builder and before `builder.Build()`:
 
@@ -136,7 +132,7 @@ Call `UseNativeChannels` once. If other plugins use it too, add their module or 
 inside the same configuration callback. Plugin packages can supply the native assets transitively;
 manual adapter imports above are for this direct integration with the sample module.
 
-## 5. Make a call through dependency injection
+## 4. Make a call through dependency injection
 
 Register a service alongside the module configuration:
 
@@ -162,20 +158,27 @@ public sealed class NativeEchoService(IChannelService channels)
 `EchoAsync("Hello")` returns `"Hello"` after a native round trip. The per-call handle is suitable for
 outgoing calls; keep a longer-lived handle when you need an incoming handler.
 
-## 6. Restore and build your application
+## 5. Restore and build your application
 
-For the sibling-directory layout above, run these commands from the NativeChannels repository root.
-They use its locally installed SDK and a package cache inside your application:
+From your application's directory, build for an Android ARM64 device:
 
 ```sh
-bash eng/dotnet.sh restore ../MyApp/MyApp.csproj --configfile ../MyApp/NuGet.Config --packages ../MyApp/.nuget/packages -p:TargetFrameworks=net10.0-android -r android-arm64
-bash eng/dotnet.sh build ../MyApp/MyApp.csproj -c Release -f net10.0-android -r android-arm64 --no-restore
+dotnet restore -p:TargetFrameworks=net10.0-android -r android-arm64
+dotnet build -c Release -f net10.0-android -r android-arm64 --no-restore
 ```
 
 Use the matching runtime identifier for your emulator/device, then deploy through your MAUI tooling.
 The repository's verification scripts target its sample application ID, not your application's ID.
-Keep `.nuget`, `bin`, and `obj` out of your app's version control. When replacing a local package with
-the same version, clean consumer outputs and use a fresh cache; see [troubleshooting](troubleshooting.md).
+If you installed the SDK through the repository bootstrap, replace `dotnet` with
+`bash ../native-channels/eng/dotnet.sh` for that sibling-directory layout.
+Keep `bin` and `obj` out of your app's version control.
+
+## Build from source
+
+To test changes to NativeChannels itself, use [building from source](building.md) and the
+[framework sample](../samples/NativeChannels.Sample/README.md). Those development checks intentionally
+use local packages and isolated caches. When replacing a local package with the same version, clean
+consumer outputs and use a fresh cache; see [troubleshooting](troubleshooting.md).
 
 ## Next steps
 
