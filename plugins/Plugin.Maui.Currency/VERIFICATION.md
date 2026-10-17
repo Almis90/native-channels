@@ -26,6 +26,12 @@ MAUI built with zero warnings/errors; Avalonia iOS had one `IL2104` trimming war
 [iOS evidence](../../docs/verification.md#shared-hosting-on-ios) for exact revisions, package hash,
 CI jobs and limits. This is simulator method-call evidence, not full Avalonia lifecycle acceptance.
 
+At clean source `3118288` on 2026-10-17, both Windows Release applications passed on a physical
+Windows 11 x64 PC with matching Currency archives and results. Avalonia used Win32 without MAUI
+or Windows App SDK dependencies and exited after normal window/session cleanup. All 17 Windows
+Currency native API tests passed. See the [Windows shared-hosting evidence](../../docs/verification.md#shared-hosting-on-windows)
+for exact package hashes and limits; ARM64 compilation is separate from physical ARM64 execution.
+
 ## Windows development preview
 
 The Windows adapter uses WinRT `CurrencyIdentifiers` and `CurrencyFormatter` and exposes the same currency-code lookup contract. Native

@@ -127,6 +127,42 @@ does not establish physical iPhone execution, signing or App Store distribution,
 background lifecycle behavior, other channel contracts/native views, or final combined-feed release
 acceptance. It does not complete milestone 0.2 or publish a new framework version.
 
+## Shared hosting on Windows
+
+On 2026-10-17, `eng/verify-shared-hosting-windows.ps1` passed on a physical Windows 11 x64 PC
+(OS build 26200), from clean source `3118288465f6988493627067718e5db8b2a81d27`. This was local
+desktop execution, separate from the hosted Windows compilation jobs.
+
+Fresh Windows-only framework and Currency packages were built from that revision. Both package-only
+applications published in Release for `win-x64` without reported warnings or errors. MAUI and
+Avalonia executed and returned `USD=$, EUR=€, GBP=£, JPY=¥`; both passed normalization, structured
+native errors, invalid input, concurrent calls, cancellation and recovery. Avalonia's verification
+mode closed the actual window through its normal closing handler, awaited session disposal, and
+exited with code zero. All 17 Windows Currency native API tests also passed.
+
+Separate fresh caches contained identical shared archives:
+
+| Package | Version | SHA-256 in both hosts |
+| --- | --- | --- |
+| NativeChannels.Core | 0.1.0-preview.1 | `7694351f5aad6e405bcc92e9383e6f24269fc1f62d14d392e1bd46c6cd43526c` |
+| NativeChannels | 0.1.0-preview.1 | `912fd9dc65762fa3032574d288e79c084bb345531a5a67ec0fb870ff0ecb4209` |
+| Plugin.Maui.Currency | 1.1.0-alpha.1 | `c3937dac7f5acb9f16951ac9dc7558195c8352a229eed04da94e48c2975bc343` |
+
+Both graphs contained no library project references or mobile channel bindings. Avalonia used its
+Win32 backend with no MAUI or Windows App SDK dependency. Framework package metadata matched the
+source commit. The local run `bb3c43c47daa4acc8351eb4753eee2c3` under
+`artifacts/shared-hosting-windows/win-x64/` retains package/compilation records, native test results
+and per-host output; `verification.json` records `sourceDirty: false` and `success: true`.
+The local regression suite also passed 114 .NET tests and 145 packaging/CI tests.
+
+These archives are development builds, distinct from the published NuGet preview despite reusing
+its framework version. Both applications were unpackaged and self-contained. This does not establish
+Windows 10 execution, Windows ARM64 runtime support, MSIX deployment, interactive/manual acceptance,
+multi-window or OS-shutdown behavior, native view embedding, or final combined-feed release
+acceptance. The required Windows shared-hosting CI job compiles x64 and ARM64 and executes native
+API tests on the x64 runner; it does not claim desktop application execution. This Currency proof
+does not complete Avalonia milestone 0.2. See the [Windows sample](currency-avalonia-windows.md).
+
 ## NuGet publication — 2026-10-17 {#nuget-publication-2026-10-17}
 
 Version **0.1.0-preview.1** was published from source
@@ -240,7 +276,7 @@ application, and installer checks. ARM64 cross-compilation does not establish AR
 - Verify independent iOS observer counts and additional audio routes; foreground/background example behavior was manually checked as described above.
 - Verify Catalyst output-device switching, Bluetooth/headphone routes, and audio interruptions.
 - Complete long-running native heap/lifecycle stress and measured end-to-end performance checks.
-- Verify every planned Avalonia and Uno host/target combination against the [roadmap completion criteria](roadmap.md#avalonia-integration), including desktop macOS, Linux, and JavaScript/DOM browser adapters. The Android and iOS Currency proofs do not establish other contracts or platforms.
+- Verify every planned Avalonia and Uno host/target combination against the [roadmap completion criteria](roadmap.md#avalonia-integration), including desktop macOS, Linux, and JavaScript/DOM browser adapters. The Android, iOS and Windows Currency proofs do not establish other contracts or platforms.
 
 Use the [release checklist](release-checklist.md) before tagging or distribution. Keep implementation,
 compilation, runtime results, and manual observations separate in future updates.

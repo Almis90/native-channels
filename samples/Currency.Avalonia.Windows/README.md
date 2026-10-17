@@ -7,7 +7,7 @@ existing WinRT adapter through the shared channel transport.
 
 The project targets `net10.0-windows10.0.19041.0` to access the Windows Currency package. Its declared
 minimum OS is Windows 10 build 17763; this is a build setting, not evidence that every Avalonia
-version or OS/architecture combination was tested. See the [verification record](../../docs/verification.md)
+version or OS/architecture combination was tested. See the [verification record](../../docs/verification.md#shared-hosting-on-windows)
 for environments actually executed.
 
 ## Registration and lifetime
