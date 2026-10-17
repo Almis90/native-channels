@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Opt-in, metadata-only diagnostics for method calls, basic messages, event protocol operations,
+  and per-instance native view channels. Reports starts, duration, outcomes, and structured error codes
+  without payloads or exception messages. Logging failures do not affect channel results or cleanup.
+
 ## 0.1.0-preview.1 — 2026-10-17
 
 - Method calls, basic messages, event streams, and native views through a shared channel API.

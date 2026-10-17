@@ -7,6 +7,7 @@ internal sealed class NativeViewSettings
     internal ChannelLimits Limits { get; }
     internal TimeSpan Timeout { get; }
     internal JsonMessageCodec Codec { get; }
+    internal ChannelDiagnostics? Diagnostics { get; }
 
     internal NativeViewSettings(NativeChannelsOptions options)
     {
@@ -14,6 +15,7 @@ internal sealed class NativeViewSettings
         Limits = options.Limits;
         Timeout = options.DefaultTimeout;
         Codec = new(Serializer, Limits);
+        Diagnostics = options.Diagnostics;
         foreach (var factory in options.ViewFactories)
         {
             if (

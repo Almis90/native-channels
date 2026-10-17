@@ -14,6 +14,9 @@ public sealed class ChannelService : IChannelService, IDisposable
     private bool _disposed;
     private Task? _disposeTask;
 
+    /// <summary>Optional metadata-only diagnostics, configured before creating handles. Disabled by default.</summary>
+    public ChannelDiagnostics? Diagnostics { get; init; }
+
     public ChannelService(
         IBinaryMessenger messenger,
         ChannelSerializer? serializer = null,
@@ -48,7 +51,8 @@ public sealed class ChannelService : IChannelService, IDisposable
                 _serializer,
                 timeout,
                 channel => Release(channel, channel.Name),
-                options?.HandlerDispatcher
+                options?.HandlerDispatcher,
+                Diagnostics
             );
             _handles.Add(handle);
             return handle;
@@ -72,7 +76,8 @@ public sealed class ChannelService : IChannelService, IDisposable
                 _serializer,
                 timeout,
                 channel => Release(channel, channel.Name),
-                options?.HandlerDispatcher
+                options?.HandlerDispatcher,
+                Diagnostics
             );
             _handles.Add(handle);
             return handle;
@@ -97,7 +102,8 @@ public sealed class ChannelService : IChannelService, IDisposable
                 _codec,
                 _serializer,
                 options,
-                channel => Release(channel, channel.Name)
+                channel => Release(channel, channel.Name),
+                Diagnostics
             );
             _handles.Add(handle);
             return handle;

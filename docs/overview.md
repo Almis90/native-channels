@@ -13,6 +13,7 @@ Use these guides to integrate an SDK, package a reusable plugin, or contribute t
 | Package an SDK behind a C# API | [Build a plugin](plugin-authoring.md) |
 | Find a member or option | [C# API reference](api-reference.md) |
 | Fix a setup or runtime failure | [Troubleshooting](troubleshooting.md) |
+| Observe call timings and outcomes | [Diagnostics](diagnostics.md) (current source) |
 
 ## Channel guides
 

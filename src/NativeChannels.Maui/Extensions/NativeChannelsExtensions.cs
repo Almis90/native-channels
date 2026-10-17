@@ -32,7 +32,10 @@ public static class NativeChannelsExtensions
             serializer,
             options.DefaultTimeout,
             options.Limits
-        ));
+        )
+        {
+            Diagnostics = options.Diagnostics,
+        });
         builder.Services.AddSingleton<IMauiInitializeService, Initializer>();
         return builder;
     }

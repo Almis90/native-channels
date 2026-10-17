@@ -14,6 +14,9 @@ builder.UseNativeChannels(options =>
 });
 ```
 
+For opt-in operation logging in the current source, configure `options.Diagnostics`.
+See [channel diagnostics](diagnostics.md) for setup, privacy, and availability.
+
 ## Timeout precedence
 
 | Level | Setting | Default |

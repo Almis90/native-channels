@@ -4,6 +4,10 @@ Start with the [build instructions](building.md) and compare your target with th
 [verified platform matrix](verification.md). Report the package version, target framework, runtime
 identifier, configuration, tool versions, and relevant error when opening an issue.
 
+For call names, timings, timeouts, and structured error codes, enable
+[channel diagnostics](diagnostics.md) in the current source. The guide distinguishes this unreleased
+API from the published preview and explains how to route notifications to your existing logger.
+
 ## Checking a native round trip
 
 The package-only sample reports `NATIVECHANNELS_SAMPLE PASS` or a failure and writes

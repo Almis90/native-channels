@@ -9,6 +9,7 @@ public sealed class BasicMessageChannel : IDisposable, IAsyncDisposable
     private readonly TimeSpan _timeout;
     private readonly Action<BasicMessageChannel> _release;
     private readonly ChannelHandlerDispatcher? _dispatcher;
+    private readonly ChannelDiagnostics? _diagnostics;
     private readonly CancellationTokenSource _closed = new();
     private readonly object _gate = new();
     private IDisposable? _registration;
@@ -21,7 +22,8 @@ public sealed class BasicMessageChannel : IDisposable, IAsyncDisposable
         ChannelSerializer serializer,
         TimeSpan timeout,
         Action<BasicMessageChannel> release,
-        ChannelHandlerDispatcher? dispatcher
+        ChannelHandlerDispatcher? dispatcher,
+        ChannelDiagnostics? diagnostics
     )
     {
         _messenger = messenger;
@@ -31,43 +33,64 @@ public sealed class BasicMessageChannel : IDisposable, IAsyncDisposable
         _timeout = timeout;
         _release = release;
         _dispatcher = dispatcher;
+        _diagnostics = diagnostics;
     }
 
     public string Name { get; }
 
-    public async Task<object?> SendAsync(
+    public Task<object?> SendAsync(
         object? message,
         CancellationToken cancellationToken = default,
         ChannelInvocationOptions? options = null
+    ) => SendCoreAsync<object>(message, cancellationToken, options);
+
+    public Task<T?> SendAsync<T>(
+        object? message,
+        CancellationToken cancellationToken = default,
+        ChannelInvocationOptions? options = null
+    ) => SendCoreAsync<T>(message, cancellationToken, options);
+
+    private async Task<T?> SendCoreAsync<T>(
+        object? message,
+        CancellationToken cancellationToken,
+        ChannelInvocationOptions? options
     )
     {
-        lock (_gate)
-            ObjectDisposedException.ThrowIf(_disposed, this);
         var timeout = options?.Timeout ?? _timeout;
-        ChannelLimits.ValidateTimeout(timeout);
-        using var linked = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _closed.Token);
+        using var diagnostic = _diagnostics?.Start(
+            ChannelDiagnosticKind.Message,
+            ChannelDiagnosticDirection.Outgoing,
+            Name,
+            timeout: timeout
+        );
         try
         {
-            var reply = await _messenger
-                .SendAsync(Name, _codec.Encode(message), timeout, linked.Token)
-                .ConfigureAwait(false);
-            return _codec.Decode(reply);
+            lock (_gate)
+                ObjectDisposedException.ThrowIf(_disposed, this);
+            ChannelLimits.ValidateTimeout(timeout);
+            using var linked = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _closed.Token);
+            try
+            {
+                var reply = await _messenger
+                    .SendAsync(Name, _codec.Encode(message), timeout, linked.Token)
+                    .ConfigureAwait(false);
+                return _serializer.ConvertResult<T>(_codec.Decode(reply));
+            }
+            catch (OperationCanceledException) when (_closed.IsCancellationRequested)
+            {
+                throw new ObjectDisposedException(nameof(BasicMessageChannel));
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                throw new OperationCanceledException(cancellationToken);
+            }
         }
-        catch (OperationCanceledException) when (_closed.IsCancellationRequested)
+        catch (Exception error)
         {
-            throw new ObjectDisposedException(nameof(BasicMessageChannel));
-        }
-        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
-        {
-            throw new OperationCanceledException(cancellationToken);
+            diagnostic?.Fail(error);
+            throw;
         }
     }
-
-    public async Task<T?> SendAsync<T>(
-        object? message,
-        CancellationToken cancellationToken = default,
-        ChannelInvocationOptions? options = null
-    ) => _serializer.ConvertResult<T>(await SendAsync(message, cancellationToken, options).ConfigureAwait(false));
 
     public IDisposable SetMessageHandler(Func<object?, CancellationToken, ValueTask<object?>> handler)
     {
@@ -79,11 +102,28 @@ public sealed class BasicMessageChannel : IDisposable, IAsyncDisposable
                 Name,
                 async (payload, cancellation) =>
                 {
-                    var message = _codec.Decode(payload);
-                    var result = _dispatcher is null
-                        ? await handler(message, cancellation).ConfigureAwait(false)
-                        : await _dispatcher(() => handler(message, cancellation), cancellation).ConfigureAwait(false);
-                    return _codec.Encode(result);
+                    using var diagnostic = _diagnostics?.Start(
+                        ChannelDiagnosticKind.Message,
+                        ChannelDiagnosticDirection.Incoming,
+                        Name
+                    );
+                    using var cancelled = diagnostic?.ObserveCancellation(cancellation) ?? default;
+                    try
+                    {
+                        var message = _codec.Decode(payload);
+                        var result = _dispatcher is null
+                            ? await handler(message, cancellation).ConfigureAwait(false)
+                            : await _dispatcher(() => handler(message, cancellation), cancellation)
+                                .ConfigureAwait(false);
+                        var response = _codec.Encode(result);
+                        diagnostic?.Dispose();
+                        return response;
+                    }
+                    catch (Exception error)
+                    {
+                        diagnostic?.Fail(error);
+                        throw;
+                    }
                 }
             );
         }

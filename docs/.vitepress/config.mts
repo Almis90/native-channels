@@ -47,6 +47,7 @@ export default defineConfig({
         { text: 'Configuration', link: '/configuration' },
         { text: 'Codecs and typed values', link: '/message-codecs' },
         { text: 'Error handling', link: '/error-handling' },
+        { text: 'Diagnostics', link: '/diagnostics' },
         { text: 'Threading', link: '/threading' },
         { text: 'Lifecycle', link: '/lifecycle' },
         { text: 'C# API reference', link: '/api-reference' },

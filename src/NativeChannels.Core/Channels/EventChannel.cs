@@ -16,6 +16,7 @@ public sealed class EventChannel : IDisposable, IAsyncDisposable
     private readonly object _gate = new();
     private readonly HashSet<Subscription> _subscriptions = [];
     private readonly MethodChannel _control;
+    private readonly ChannelDiagnostics? _diagnostics;
     private bool _disposed;
     private Task? _disposeTask;
 
@@ -25,7 +26,8 @@ public sealed class EventChannel : IDisposable, IAsyncDisposable
         IMethodCodec codec,
         ChannelSerializer serializer,
         EventChannelOptions options,
-        Action<EventChannel> release
+        Action<EventChannel> release,
+        ChannelDiagnostics? diagnostics
     )
     {
         _messenger = messenger;
@@ -34,6 +36,7 @@ public sealed class EventChannel : IDisposable, IAsyncDisposable
         _serializer = serializer;
         _options = options;
         _release = release;
+        _diagnostics = diagnostics;
         _control = CreateMethodChannel(name);
     }
 
@@ -108,7 +111,7 @@ public sealed class EventChannel : IDisposable, IAsyncDisposable
     public void RemoveStreamHandler() => _control.RemoveMethodCallHandler();
 
     private MethodChannel CreateMethodChannel(string name) =>
-        new(_messenger, name, _codec, _serializer, Timeout.InfiniteTimeSpan, _ => { }, null);
+        new(_messenger, name, _codec, _serializer, Timeout.InfiniteTimeSpan, _ => { }, null, _diagnostics);
 
     public void Dispose() => Disposal.Observe(DisposeAsync());
 

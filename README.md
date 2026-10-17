@@ -128,6 +128,7 @@ the current support matrix; browser integration will require JavaScript adapters
 | Package an integration for other applications | [Build a plugin](docs/plugin-authoring.md) |
 | Configure codecs, DTOs, timeouts, and dispatch | [Codecs](docs/message-codecs.md) · [Configuration](docs/configuration.md) |
 | Diagnose startup or runtime failures | [Troubleshooting](docs/troubleshooting.md) |
+| Log channel timings and outcomes | [Diagnostics](docs/diagnostics.md) (current source; next preview) |
 | Explore the public C# surface | [API reference](docs/api-reference.md) |
 
 The [documentation website](https://almis90.github.io/native-channels/) includes searchable guides,

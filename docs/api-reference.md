@@ -75,6 +75,7 @@ See [configuration](configuration.md) for timeouts and dispatchers.
 
 `UseNativeChannels(Action<NativeChannelsOptions>?)` configures one native session and its services.
 `NativeChannelsOptions` exposes `Modules`, `ViewFactories`, `DefaultTimeout`, `Limits`, and `Json` metadata options.
+The current source also exposes optional `Diagnostics`; this addition is not in `0.1.0-preview.1`.
 
 <<< ../src/NativeChannels/NativeModuleRegistration.cs
 
@@ -83,6 +84,13 @@ framework names omit the `.framework` extension. See the native guides for compi
 
 `MauiChannelDispatchers.MainThread` runs a managed incoming handler through MAUI's UI dispatcher.
 See [threading](threading.md) for FIFO handler entry and asynchronous completion.
+
+## Diagnostics
+
+Assign a `ChannelDiagnostics` instance to `NativeChannelsOptions.Diagnostics`, or initialize
+`ChannelService.Diagnostics` when using Core directly. Its observer receives metadata-only
+`ChannelDiagnosticEvent` records for method/message starts and completions. Diagnostics are disabled
+by default. See [diagnostics](diagnostics.md) for the fields, coverage, and callback threading contract.
 
 ## Native views
 
