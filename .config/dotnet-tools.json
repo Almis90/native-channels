@@ -8,6 +8,13 @@
         "csharpier"
       ],
       "rollForward": false
+    },
+    "microsoft.dotnet.apicompat.tool": {
+      "version": "10.0.401",
+      "commands": [
+        "apicompat"
+      ],
+      "rollForward": false
     }
   }
 }

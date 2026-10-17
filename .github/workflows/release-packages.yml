@@ -105,6 +105,8 @@ jobs:
           mv artifacts/packages artifacts/mobile-packages
           mv artifacts/combined-packages artifacts/packages
           python3 eng/inspect-packages.py --combined
+          bash eng/dotnet.sh tool restore
+          python3 eng/verify-api-compatibility.py --scope combined
           python3 eng/package_audit.py artifacts/packages/*.nupkg --source-commit "$GITHUB_SHA"
           tar -czf artifacts/package-feed.tar.gz artifacts/packages artifacts/package-audit.json \
             artifacts/verification.json native/android/sample/build/outputs/aar/sample-release.aar artifacts/native/NativeChannelsSample.xcframework
@@ -116,6 +118,15 @@ jobs:
           path: artifacts/package-feed.tar.gz
           retention-days: 7
           if-no-files-found: error
+      - name: Preserve API comparison results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-compatibility
+          overwrite: true
+          path: artifacts/api-compatibility/result.json
+          retention-days: 7
+          if-no-files-found: ignore
       - name: Preserve mobile framework inputs for optional examples
         uses: actions/upload-artifact@v4
         with:

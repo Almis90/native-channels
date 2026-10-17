@@ -91,6 +91,7 @@ export default defineConfig({
       { text: 'Development', collapsed: true, items: [
         { text: 'Building from source', link: '/building' },
         { text: 'Testing', link: '/testing' },
+        { text: 'API compatibility', link: '/api-compatibility' },
         { text: 'Performance and stress', link: '/performance' },
         { text: 'Release checklist', link: '/release-checklist' },
         { text: 'Publishing to NuGet', link: '/publishing' },

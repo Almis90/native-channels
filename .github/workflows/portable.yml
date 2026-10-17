@@ -14,6 +14,10 @@ jobs:
       - run: bash eng/dotnet.sh test eng/NativeChannels.Core.slnx -c Release --logger trx --results-directory artifacts/test-results
       - run: python3 -m unittest discover -s tests/packaging
       - run: bash eng/dotnet.sh pack src/NativeChannels.Core -c Release --no-build --no-restore -o artifacts/packages
+      - name: Compare Core with the published API and verify the breaking-change guard
+        run: |
+          python3 eng/verify-api-compatibility.py --scope core
+          bash eng/test-api-compatibility.sh
       - run: python3 eng/package_audit.py artifacts/packages/*.nupkg --source-commit "$GITHUB_SHA"
       - uses: actions/upload-artifact@v4
         with:
@@ -33,3 +37,4 @@ jobs:
           path: |
             artifacts/test-results/**
             artifacts/package-audit.json
+            artifacts/api-compatibility/result.json

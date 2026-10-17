@@ -1,5 +1,8 @@
 # Release checklist
 
+Before distribution, require the [API compatibility gate](api-compatibility.md) against the published
+baseline. The final combined packages must pass; a local mobile-only comparison is partial evidence.
+
 Use these checks before tagging or distributing NativeChannels. Record the exact source revision,
 package hashes, and platform results in [verification](verification.md). Compilation and runtime
 execution are separate evidence. No workflow publishes packages automatically.

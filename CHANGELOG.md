@@ -7,6 +7,8 @@
   without payloads or exception messages. Logging failures do not affect channel results or cleanup.
 - NuGet packages use the documentation website as their project link, embed the NativeChannels icon,
   and include package-specific descriptions and release notes.
+- Managed public API comparisons against the hash-pinned published preview, with a fast Core check
+  and a required all-platform comparison of final distribution packages.
 
 ## 0.1.0-preview.1 — 2026-10-17
 
