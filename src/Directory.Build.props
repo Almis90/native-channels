@@ -1,0 +1,15 @@
+<Project>
+    <Import Project="../Directory.Build.props" />
+    <PropertyGroup>
+        <PackageIcon>icon.png</PackageIcon>
+        <PackageTags>nativechannels;dotnet;maui;android;ios;maccatalyst;windows;interop</PackageTags>
+        <PackageReleaseNotes>Opt-in channel diagnostics with operation timing and structured outcomes. Updated package documentation, icons, and descriptions. Full notes: https://almis90.github.io/native-channels/changelog</PackageReleaseNotes>
+    </PropertyGroup>
+    <ItemGroup>
+        <None
+            Include="$(MSBuildThisFileDirectory)../assets/package-icon.png"
+            Pack="true"
+            PackagePath="/icon.png"
+        />
+    </ItemGroup>
+</Project>

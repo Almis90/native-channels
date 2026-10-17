@@ -65,7 +65,7 @@ For example, replace `DISTRIBUTION_RUN_ID` with the actual numeric run ID:
 ```sh
 gh workflow run publish-nuget.yml --ref main \
   -f distribution_run=DISTRIBUTION_RUN_ID \
-  -f version=0.1.0-preview.1 -F publish=false
+  -f version=0.1.0-preview.2 -F publish=false
 ```
 
 The dry run checks the successful workflow's repository, event, source, and artifacts. It requires

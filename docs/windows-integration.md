@@ -48,12 +48,12 @@ It publishes an unpackaged x64 app, runs its verification, captures `sample-resu
 the process it started. An interactive Windows desktop is needed for runtime verification.
 
 Use `./eng/verify-windows.ps1 -BuildOnly` for a compile-only check, as the Windows CI job does.
-Packages default to `0.1.0-preview.1`; `-Version` overrides the development version. These packages contain
+Source packages default to unreleased `0.1.0-preview.2`; `-Version` overrides the development version. These packages contain
 Windows assets only and are kept separate from the mobile release feed. Do not publish them as a
 combined platform release.
 
 Use `-Currency -PackOnly` to produce framework and Currency inputs for package assembly without
-publishing or running the apps. Source builds use framework `0.1.0-preview.1` and Currency `1.1.0-alpha.1`
+publishing or running the apps. Source builds use framework `0.1.0-preview.2` and Currency `1.1.0-alpha.1`
 on both the Windows and mobile hosts.
 
 To build just the library:

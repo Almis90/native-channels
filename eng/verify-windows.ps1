@@ -1,5 +1,5 @@
 param(
-    [string]$Version = '0.1.0-preview.1',
+    [string]$Version = '0.1.0-preview.2',
     [string]$CurrencyVersion = '1.1.0-alpha.1',
     [string]$PackageFeed,
     [switch]$WindowsOnlyFeed,

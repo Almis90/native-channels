@@ -2,6 +2,7 @@
 """Assert native payload and dependency packaging without relying on project outputs."""
 from pathlib import Path
 import argparse, io, zipfile, xml.etree.ElementTree as ET
+from package_metadata import validate as validate_metadata
 root = Path(__file__).resolve().parent.parent
 packages = root / 'artifacts/packages'
 parser = argparse.ArgumentParser(description=__doc__)
@@ -20,6 +21,7 @@ if 'ios' in platforms or 'maccatalyst' in platforms:
 for name in names:
     path = packages / f'{name}.{version}.nupkg'
     with zipfile.ZipFile(path) as archive:
+        validate_metadata(archive)
         files = archive.namelist()
         assert 'README.md' in files
         assert any(f.endswith(f'/{name}.dll') for f in files)

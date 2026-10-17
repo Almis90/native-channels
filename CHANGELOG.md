@@ -1,10 +1,12 @@
 # Changelog
 
-## Unreleased
+## 0.1.0-preview.2 — Unreleased
 
 - Opt-in, metadata-only diagnostics for method calls, basic messages, event protocol operations,
   and per-instance native view channels. Reports starts, duration, outcomes, and structured error codes
   without payloads or exception messages. Logging failures do not affect channel results or cleanup.
+- NuGet packages use the documentation website as their project link, embed the NativeChannels icon,
+  and include package-specific descriptions and release notes.
 
 ## 0.1.0-preview.1 — 2026-10-17
 

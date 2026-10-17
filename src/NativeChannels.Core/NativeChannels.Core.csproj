@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <TargetFramework>net10.0</TargetFramework>
+        <Description>Platform-independent channel contracts, messaging, codecs, typed serialization, and opt-in diagnostics for .NET. Use directly for in-process communication or with a NativeChannels platform host.</Description>
         <IsTrimmable>true</IsTrimmable>
     </PropertyGroup>
     <Target

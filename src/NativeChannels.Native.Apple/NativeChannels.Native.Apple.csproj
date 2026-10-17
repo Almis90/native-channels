@@ -1,5 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
+        <Description>Apple binding and Swift runtime bridge for NativeChannels on iOS and Mac Catalyst. Includes device, simulator, and Catalyst XCFramework slices. Installed transitively by NativeChannels on Apple targets; this is not an AppKit macOS host.</Description>
         <TargetFrameworks>net10.0-ios;net10.0-maccatalyst</TargetFrameworks>
         <TargetFrameworks
             Condition="'$(NativeChannelsAppleTarget)' == 'ios' Or '$(NativeChannelsAppleTarget)' == 'maccatalyst'"
