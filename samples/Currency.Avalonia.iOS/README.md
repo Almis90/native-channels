@@ -55,5 +55,5 @@ bash eng/verify-shared-hosting-ios.sh SIMULATOR_UDID
 
 Use the identifier of a booted iOS simulator. Simulator results do not establish physical-device
 support, signing, or App Store distribution. These are development packages; final combined-package
-release acceptance is separate. See the [verification record](../../docs/verification.md) for
+release acceptance is separate. See the [iOS verification record](../../docs/verification.md#shared-hosting-on-ios) for
 executed evidence. This sample does not complete milestone 0.2.

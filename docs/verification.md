@@ -91,6 +91,42 @@ that run. This proves the Currency method-call slice of milestone 0.2. It does n
 native views, incoming UI callbacks, event lifecycle, physical-device or other-platform support;
 combined release-feed acceptance and fresh iOS simulator execution remain separate checks.
 
+## Shared hosting on iOS
+
+On 2026-10-17, [Shared hosting / iOS Currency](https://github.com/Almis90/native-channels/actions/runs/38985319526/job/117257484126)
+passed for PR head `4f648cb48c01556aef9fce0cc07dcfc45856c7ac`. GitHub tested merge revision
+`c1198009808f617c30da704ca84d96a328eeb222`, which is recorded in the package evidence.
+
+The Swift Currency adapter built and passed its native checks. The package-only MAUI and Avalonia
+apps compiled in Release for `iossimulator-arm64` and executed on the same iPhone 17 Pro simulator.
+Both returned `USD=$, EUR=€, GBP=£, JPY=¥` and passed normalization, structured native errors,
+invalid managed input, concurrent calls, cancellation and recovery. Saved screenshots show both
+applications displaying the USD result and successful native checks.
+
+Separate fresh caches contained identical `NativeChannels.Core`, `NativeChannels`, Apple binding
+and Currency archives. Avalonia's graph contained no `NativeChannels.Maui` or `Microsoft.Maui.*`
+dependencies. The iOS development package `Plugin.Maui.Currency` 1.1.0-alpha.1 had SHA-256
+`74cc039391e5e23243b20e06e8b0cb2417f3dee3f0c6d846b534d70ba9e9f2b1` in both hosts and contained
+no Android AAR. The `shared-hosting-ios` artifact retains all four package hashes, source revision,
+runtime results, logs and screenshots; its `verification.json` records `success: true`.
+
+The MAUI app built with zero warnings/errors. Avalonia built with zero errors and one `IL2104`
+trimming warning from `Avalonia.DesignerSupport` 12.1.4. The warning remains visible; the successful
+simulator run covers this sample's tested paths, not every trimming-sensitive Avalonia feature.
+
+The [Android regression](https://github.com/Almis90/native-channels/actions/runs/38985319526/job/117257191220)
+also passed at the same source: both Release apps built with zero warnings/errors and returned
+matching results on an API 35 x64 emulator. Archive identity is checked between the two hosts
+within each platform feed; Android and iOS archives contain different native assets. All framework
+compile jobs, workflow lint, documentation and Windows C++/Rust checks passed. Local regression
+checks passed 114 .NET tests and 139 packaging/CI tests.
+
+These are development-package Currency method-call checks. Full framework runtime jobs were
+skipped at this run's Compile depth; both Currency host pairs executed regardless. This evidence
+does not establish physical iPhone execution, signing or App Store distribution, general scene or
+background lifecycle behavior, other channel contracts/native views, or final combined-feed release
+acceptance. It does not complete milestone 0.2 or publish a new framework version.
+
 ## NuGet publication — 2026-10-17 {#nuget-publication-2026-10-17}
 
 Version **0.1.0-preview.1** was published from source
@@ -204,7 +240,7 @@ application, and installer checks. ARM64 cross-compilation does not establish AR
 - Verify independent iOS observer counts and additional audio routes; foreground/background example behavior was manually checked as described above.
 - Verify Catalyst output-device switching, Bluetooth/headphone routes, and audio interruptions.
 - Complete long-running native heap/lifecycle stress and measured end-to-end performance checks.
-- Verify every planned Avalonia and Uno host/target combination against the [roadmap completion criteria](roadmap.md#avalonia-integration), including desktop macOS, Linux, and JavaScript/DOM browser adapters. The Android Currency proof does not establish other contracts or platforms.
+- Verify every planned Avalonia and Uno host/target combination against the [roadmap completion criteria](roadmap.md#avalonia-integration), including desktop macOS, Linux, and JavaScript/DOM browser adapters. The Android and iOS Currency proofs do not establish other contracts or platforms.
 
 Use the [release checklist](release-checklist.md) before tagging or distribution. Keep implementation,
 compilation, runtime results, and manual observations separate in future updates.
