@@ -2,7 +2,7 @@
 
 The NativeChannels APIs below describe the current source tree. This is a focused reference for application
 and plugin authors, with links to the implementation and detailed guides. Native adapter APIs are
-covered in the [Android](android-integration.md) and [Apple](ios-integration.md) guides.
+covered in the [Android](android-integration.md), [Apple](ios-integration.md), and [Windows](windows-integration.md) guides.
 
 ## Channel service
 

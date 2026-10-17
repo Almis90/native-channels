@@ -1,6 +1,6 @@
 # Documentation guide
 
-NativeChannels connects .NET MAUI to native adapters through one generic Android or Apple bridge.
+NativeChannels connects .NET MAUI to native adapters through generic Android, Apple, and Windows bridges.
 Use these guides to integrate an SDK, package a reusable plugin, or contribute to the framework.
 
 ## Start with your task
@@ -42,9 +42,9 @@ and [PdfViewer](pdf-viewer.md) reference plugins each include a sample and verif
 
 - [Architecture](architecture.md), [binary messenger](binary-messenger.md), and [wire protocol](message-protocol.md).
 - [Building](building.md), [testing](testing.md), and [performance and stress](performance.md).
-- [Platform verification](verification.md), [release checklist](release-checklist.md), and [changelog](changelog.md).
+- [Platform verification](verification.md), [release checklist](release-checklist.md), [NuGet publishing](publishing.md), and [changelog](changelog.md).
 - [Contributing](contributing.md) and [editing the documentation site](documentation-site.md).
-- [Roadmap](roadmap.md), including shared hosting, Avalonia integration, and release acceptance.
+- [Roadmap](roadmap.md): complete Avalonia integration in 0.2, Uno in 0.3, and stable release acceptance. Both planned hosts target Android, iOS, Windows, desktop macOS, Linux, and browser/WebAssembly.
 - [FAQ](faq.md) and [Flutter comparison](flutter-comparison.md).
 
 Packages are built locally and

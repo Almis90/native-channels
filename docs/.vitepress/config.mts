@@ -3,7 +3,7 @@ import { repository, repositoryLinks, sourcePath } from './repository-links.mjs'
 
 export default defineConfig({
   title: 'NativeChannels',
-  description: 'Native platform channels for .NET MAUI. Connect C# with Kotlin and Swift through one generic bridge.',
+  description: 'Native platform channels for .NET MAUI. Connect C# with Kotlin, Swift, and Windows APIs through generic bridges.',
   base: '/native-channels/',
   cleanUrls: true,
   lastUpdated: true,
@@ -93,6 +93,7 @@ export default defineConfig({
         { text: 'Testing', link: '/testing' },
         { text: 'Performance and stress', link: '/performance' },
         { text: 'Release checklist', link: '/release-checklist' },
+        { text: 'Publishing to NuGet', link: '/publishing' },
         { text: 'Roadmap', link: '/roadmap' },
         { text: 'Verified platforms', link: '/verification' },
         { text: 'Contributing', link: '/contributing' },

@@ -1,16 +1,22 @@
 ---
-description: Design a typed C# API, implement Kotlin and Swift adapters, and package a reusable NativeChannels plugin.
+description: Design a typed C# API, implement Android, Apple, and Windows adapters, and package a reusable NativeChannels plugin.
 ---
 
 # Build a reusable plugin
 
-A NativeChannels plugin packages a typed C# API together with Kotlin and Swift adapters. Applications
+A NativeChannels plugin packages a typed C# API together with platform adapters in Kotlin, Swift, or Windows C#. Applications
 consume that API and configure the plugin at startup. SDK-specific operations stay in native code;
 the existing generic bridge carries their requests and replies.
 
 This guide follows [Plugin.Maui.Currency](currency.md), the smallest complete reference plugin.
 Its [sample](currency-sample.md) consumes the local package without project references or manual
 native asset imports. For streams, binary transfer, and views, see the other [examples](examples.md).
+
+The setup and package dependencies below describe the current MAUI integration. Shared plugin
+registration, complete Avalonia hosting (0.2), and Uno hosting (0.3) are [planned](roadmap.md).
+The Android Currency proof is the first part of that work, not a completed Avalonia integration.
+Future hosts must verify reusable plugins on each target; browser plugins require JavaScript
+adapters and explicit capability limits, as described in the [browser plan](roadmap.md#browser-and-webassembly).
 
 ## 1. Define the contract
 
@@ -76,15 +82,17 @@ its own build project and C# interop layer. See the
 | --- | --- | --- |
 | Android | Kotlin class implementing `NativeModule` | Fully qualified class name, with a public parameterless constructor |
 | Apple | Swift `NSObject` class implementing `NativeModule` | Explicit Objective-C class name plus framework name |
+| Windows | C# class implementing `IWindowsChannelModule` | Explicit module factory |
 
-Use the same endpoint, method names, and value types in both implementations. Validate native inputs
+Use the same endpoint, method names, and value types in each implementation. Validate native inputs
 as well as facade inputs: other callers can send directly to the endpoint. Return structured errors
 with a documented code and useful details.
 
 The working Currency adapters are
 [CurrencyModule.kt](../plugins/Plugin.Maui.Currency/native/android/src/main/java/dev/nativechannels/currency/CurrencyModule.kt)
 and [CurrencyModule.swift](../plugins/Plugin.Maui.Currency/native/apple/Sources/CurrencyModule.swift).
-The [Android](android-integration.md) and [Apple](ios-integration.md) guides explain module construction,
+The [Android](android-integration.md), [Apple](ios-integration.md), and
+[Windows](windows-integration.md) guides explain module construction,
 async callbacks, UI dispatch, and cancellation.
 
 Connect cancellation to native SDK work where supported. Observers, timers, and streams need cleanup

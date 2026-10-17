@@ -1,11 +1,11 @@
 ---
 layout: home
 title: Native integrations for .NET MAUI
-description: Call Kotlin and Swift from C#, receive native events, and embed native views through a reusable bridge for .NET MAUI.
+description: Connect C# with Android, Apple, and Windows APIs, receive native events, and embed native views through a reusable bridge for .NET MAUI.
 hero:
   name: NativeChannels
   text: Native APIs. One reusable bridge.
-  tagline: Connect C# with Kotlin and Swift. Build native integrations with asynchronous calls, binary messages, event streams, and native views.
+  tagline: Connect C# with Kotlin, Swift, and Windows APIs. Build native integrations with asynchronous calls, binary messages, event streams, and native views.
   image:
     src: /logo.svg
     alt: NativeChannels bridge connecting two endpoints
@@ -18,7 +18,7 @@ hero:
       link: /examples
 features:
   - title: Keep native code native
-    details: Use the SDK's Kotlin or Swift APIs behind a generic bridge. Expose a typed C# service without binding every SDK method.
+    details: Use the SDK's Android, Apple, or Windows APIs behind a generic bridge. Expose a typed C# service without binding every SDK method.
     link: /architecture
     linkText: Understand the architecture
   - title: Choose your contract
@@ -41,6 +41,9 @@ features:
 MAUI integration for Android, iOS, Mac Catalyst, and Windows. Build using the local package feed;
 packages are not yet on NuGet.org.
 [Platform verification](verification.md) · [Roadmap](roadmap.md)
+
+Planned next: complete Avalonia integration in 0.2, then Uno in 0.3, each across Android, iOS,
+Windows, desktop macOS, Linux, and browser/WebAssembly. These hosts are not available on `main` yet.
 
 </div>
 
@@ -84,7 +87,7 @@ dispatch are part of the contract.
 - **Plugin authors:** [design and package an integration](plugin-authoring.md), starting from the Currency example.
 - **Contributors:** [build from source](building.md), [run tests](testing.md), and review [release checklist](release-checklist.md).
 
-Android, iOS, and Mac Catalyst builds are supported. Execution coverage and physical-device gaps are
+Android, iOS, Mac Catalyst, and Windows builds are supported through MAUI. Execution coverage and physical-device gaps are
 recorded in the [verification matrix](verification.md). Browse the [guide index](overview.md) for the full documentation.
 
 </div>

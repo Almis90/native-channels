@@ -28,9 +28,24 @@ resuming listening when the app returns.
 
 ## Remaining checks
 
+### Mac Catalyst correction on 2026-10-17
+
+Manual testing found that the previous `AVAudioSession.outputVolume` observer stayed at 100%
+while Mac system volume changed. Its subscription/lifecycle checks passed, but that did not establish
+system-volume notification delivery. Catalyst now uses Core Audio default-output-device and scalar
+volume listeners; the iOS observer is unchanged.
+
+The replacement compiled for arm64 and x64 Catalyst and all iOS slices. Local package inspection,
+nine portable tests, and the rebuilt Release Catalyst consumer's subscription checks passed. Its
+initial reading was 59.15%, matching the Mac's approximately 59% setting. The user confirmed live
+Mac volume updates and an immediate current reading after Stop/change/Start. Output-device switching
+remains unverified. This was a local package rebuild, not acceptance of the latest combined CI feed.
+
+### Outstanding coverage
+
 - Fresh package-only Release execution of the current preview on each target.
 - Physical-device background/resume after the audio-session fix and independent iOS observer counts.
-- Bluetooth/headphone routes, interruptions, broader Android OEM behavior, and Catalyst runtime.
+- Bluetooth/headphone routes, interruptions, broader Android OEM behavior, and Catalyst output-device switching.
 - Windows endpoint notifications and cleanup; see [Windows plugin verification](../../docs/windows-plugins-verification.md).
 
 Simulator initial readings do not establish physical-button notification delivery. No packages are published.

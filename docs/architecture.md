@@ -6,11 +6,13 @@ It does not contain Flutter, Dart, or copied implementation code from those proj
 
 ## Native interoperability
 
-Applications communicate through generic byte-oriented Android and Apple bridges. Native modules
+Applications communicate through generic byte-oriented Android, Apple, and Windows bridges. Native modules
 register explicitly with an instance-scoped session; adapters implement SDK-specific operations
 without generating a C# binding for each method.
 
-Adapters are included explicitly as an unbound AAR or native XCFramework. Packaging a generic bridge
+Android and Apple adapters are included explicitly as an unbound AAR or native XCFramework.
+Windows adapters implement `IWindowsChannelModule` in C# and can call packaged native libraries
+through normal .NET interop. Packaging a generic bridge
 does not remove the application's obligation to package third-party SDKs and native adapters.
 The public sample consumes NuGet packages without project references to verify distribution as well
 as communication. A lower-level bridge regression consumer lives in `tests/PackageConsumer`.
@@ -26,7 +28,8 @@ The generic Android and Apple bindings are separate implementation packages.
 Native sessions are instance-scoped. Explicit module registration replaces global discovery.
 Kotlin modules implement `NativeModule`; Swift modules implement the Objective-C-compatible
 `MCNativeModule` protocol. Only configured modules are instantiated. Apple adapter frameworks
-must be loaded before resolving their Objective-C class names.
+must be loaded before resolving their Objective-C class names. Windows modules are created through
+explicitly registered factories; no assembly scanning is required.
 
 ## Messaging and ownership
 
@@ -77,3 +80,14 @@ explicitly; the MAUI Currency sample references both `Plugin.Maui.Currency` and 
 The [Avalonia Android sample](../samples/Currency.Avalonia.Android/README.md) consumes the same Currency
 package through shared registration and owns disposal at the activity boundary. It is a method-call
 proof; a general Avalonia host and native view integration remain [roadmap](roadmap.md) work.
+
+The [roadmap](roadmap.md) plans complete Avalonia
+integration in 0.2 and Uno integration in 0.3, each covering Android, iOS, Windows, desktop macOS,
+Linux, and browser/WebAssembly. The Android Currency proof is an initial part of the Avalonia
+milestone, not full host or platform acceptance.
+
+Shared registration and plugin contracts remain independent of application frameworks.
+Each host must supply startup/lifecycle integration, dispatchers, and native or DOM view containers.
+Browser support requires JavaScript adapters and web asset packaging, with an explicit capability
+matrix; desktop macOS and Linux require their own native integration. The existing MAUI handlers
+and OS adapters do not establish support for these planned hosts. No placeholder APIs are shipped.

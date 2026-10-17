@@ -3,7 +3,7 @@
 ## Do I still need native code?
 
 Yes. A native module translates your named method calls into SDK operations and returns supported
-values. NativeChannels supplies the generic communication layer. Start from the bundled Kotlin or Swift
+values. NativeChannels supplies the generic communication layer. Start from the bundled Kotlin, Swift, or Windows C#
 sample module and use the native SDK's own APIs inside your adapter.
 
 ## Does this replace all .NET bindings?
@@ -15,8 +15,9 @@ runtime dependencies. Native types are not passed directly as channel values.
 ## Can I install this from NuGet.org?
 
 Not yet. Build `0.1.0-preview.1` into the local feed using [building](building.md), then follow
-[getting started](getting-started.md). GitHub workflows upload build artifacts without publishing to
-NuGet.org. A Git tag is not a package publication.
+[getting started](getting-started.md). Verification workflows upload build artifacts without publishing. The separate
+[NuGet release process](publishing.md) requires explicit publication and approval. A Git tag is not a
+package publication.
 
 ## Can I use it without a phone or simulator?
 

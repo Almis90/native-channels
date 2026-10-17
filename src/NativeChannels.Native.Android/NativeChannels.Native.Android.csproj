@@ -9,4 +9,8 @@
         <AndroidLibrary Include="../../native/android/library/build/outputs/aar/library-release.aar" />
         <PackageReference Include="Xamarin.Kotlin.StdLib" />
     </ItemGroup>
+    <ItemGroup>
+        <None Remove="$(MSBuildThisFileDirectory)../../README.md" />
+        <None Include="../../docs/nuget-readme.md" Pack="true" PackagePath="/README.md" />
+    </ItemGroup>
 </Project>

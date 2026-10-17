@@ -5,7 +5,7 @@ internal sealed class AudioSessionScope : IDisposable
 {
     public AudioSessionScope()
     {
-#if IOS || MACCATALYST
+#if IOS
         var session = AVFoundation.AVAudioSession.SharedInstance();
         var error = session.SetCategory(AVFoundation.AVAudioSessionCategory.Ambient);
         if (error is not null)
@@ -17,7 +17,7 @@ internal sealed class AudioSessionScope : IDisposable
 
     public void Dispose()
     {
-#if IOS || MACCATALYST
+#if IOS
         if (
             !AVFoundation
                 .AVAudioSession.SharedInstance()

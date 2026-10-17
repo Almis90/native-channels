@@ -45,6 +45,10 @@ combined-package acceptance, and compilation does not establish physical-device 
 See the [recorded CI evidence](verification.md#framework-ci-verification) for tested source revisions;
 repeat applicable acceptance checks for the revision being released.
 
+These workflows currently verify the MAUI integration; they do not establish acceptance for the
+planned Avalonia or Uno hosts. Their [roadmap milestones](roadmap.md) require package-only consumers
+and runtime CI for all six targets, including desktop macOS, Linux, and browser/WebAssembly.
+
 The framework sample is the required consumer for the framework release. Example plugins are
 optional integration coverage and have a separate manual build workflow. When releasing or changing
 an example, verify its own packages and applicable consumers separately.
@@ -65,3 +69,24 @@ Physical-device testing, long-running native heap profiling, x64 Apple execution
 distribution, and third-party SDK integrations remain separate verification gaps. Record actual
 results before widening platform support claims. Simulator success does not establish device support.
 Publish packages or create a GitHub release only as a separate, explicit release step.
+
+## NuGet publication
+
+Follow [Publishing to NuGet](publishing.md) after the distribution gate passes. Run the publishing
+workflow with `publish=false` first and review its exact package manifest. Confirm the NuGet trust
+policy and GitHub environment are configured for the five framework packages. Publication requires
+a separate explicit decision, a manual run with `publish=true`, and environment approval. Verify
+NuGet.org indexing and fresh public-feed consumers before marking the release accepted.
+
+## Planned host release acceptance
+
+Avalonia 0.2 and Uno 0.3 must each meet the [host completion criteria](roadmap.md#avalonia-integration).
+Before an authorized NuGet release, audit the final host/framework packages and run independent
+consumers against those exact archives on all six targets. Include native dependencies, JavaScript
+and web assets, registration, lifecycle, dispatch, methods, messages, events, and native/DOM views.
+Reference-plugin integration and capability limitations must have their own documented evidence.
+
+After publication is separately authorized and completed, verify fresh restores from NuGet.org and
+consumer smoke tests before recording the published release as accepted. A local Android Currency
+proof or successful compilation alone does not satisfy these milestone gates. These are future
+acceptance requirements, not checks already implemented in the current workflows.

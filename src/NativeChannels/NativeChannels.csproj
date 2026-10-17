@@ -37,4 +37,8 @@
     <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios' Or $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">
         <ProjectReference Include="../NativeChannels.Native.Apple/NativeChannels.Native.Apple.csproj" />
     </ItemGroup>
+    <ItemGroup>
+        <None Remove="$(MSBuildThisFileDirectory)../../README.md" />
+        <None Include="../../docs/nuget-readme.md" Pack="true" PackagePath="/README.md" />
+    </ItemGroup>
 </Project>
