@@ -18,4 +18,10 @@
         <Compile Include="../../Shared/SampleApplication.cs" Link="SampleApplication.cs" />
         <Compile Include="../Shared/*.cs" Link="%(Filename)%(Extension)" />
     </ItemGroup>
+    <ItemGroup>
+        <EmbeddedResource
+            Include="../../../Maui/PdfViewer/Resources/Raw/nativechannels-guide.pdf"
+            LogicalName="Verification.pdf"
+        />
+    </ItemGroup>
 </Project>

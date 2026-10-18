@@ -25,5 +25,5 @@ export function register(context) {
             await draw(view); return state();
         } finally { operation = false; }
     });
-    return () => { registration(); destroyView(identity); };
+    return () => { registration(); return destroyView(identity); };
 }

@@ -5,7 +5,7 @@ export function createView(identity) {
     const element = document.createElement('div');
     element.style.cssText = 'width:100%;height:100%;overflow:auto;background:#e2e8f0';
     const canvas = document.createElement('canvas'); element.append(canvas);
-    const view = { element, canvas, document: null, page: 0, zoom: 1, closed: false, busy: false, render: null, loading: null, redraw: false };
+    const view = { element, canvas, document: null, documentTask: null, page: 0, zoom: 1, closed: false, busy: false, render: null, loading: null, redraw: false };
     views.set(identity, view);
     view.observer = new ResizeObserver(() => { view.redraw = true; if (!view.busy && !view.loading) void draw(view).catch(() => {}); });
     view.observer.observe(element);
@@ -41,14 +41,19 @@ export async function open(view, data, signal) {
     signal.addEventListener('abort', abort, { once: true });
     try {
         const next = await loading.promise;
-        if (signal.aborted || view.closed) { await next.destroy(); throw new DOMException('Cancelled', 'AbortError'); }
-        const previous = view.document;
-        view.document = next; view.page = 1; view.zoom = 1;
+        if (signal.aborted || view.closed) { await loading.destroy(); throw new DOMException('Cancelled', 'AbortError'); }
+        const previous = view.documentTask;
+        view.document = next; view.documentTask = loading; view.page = 1; view.zoom = 1;
         await previous?.destroy();
+    } catch (error) {
+        await loading.destroy();
+        throw error;
     } finally { signal.removeEventListener('abort', abort); view.loading = null; }
 }
 export function destroyView(identity) {
-    const view = views.get(identity); if (!view) return;
+    const view = views.get(identity); if (!view) return Promise.resolve();
     views.delete(identity); view.closed = true; view.observer.disconnect();
-    view.render?.cancel(); void view.loading?.destroy(); void view.document?.destroy(); view.element.remove();
+    view.render?.cancel(); view.element.remove();
+    // PDF.js 6 owns document/worker teardown through PDFDocumentLoadingTask.
+    return Promise.all([...new Set([view.loading, view.documentTask])].filter(Boolean).map(task => task.destroy()));
 }

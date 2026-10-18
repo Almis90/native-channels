@@ -19,4 +19,10 @@
         <Compile Include="../CrossPlatform/*.cs" Link="%(Filename)%(Extension)" />
         <Compile Include="../../../Maui/AudioStreamer/MusicGenerator.cs" Link="MusicGenerator.cs" />
     </ItemGroup>
+    <ItemGroup>
+        <Compile
+            Include="../../../Maui/AudioStreamer/AudioVerification.cs"
+            Link="AudioVerification.cs"
+        />
+    </ItemGroup>
 </Project>

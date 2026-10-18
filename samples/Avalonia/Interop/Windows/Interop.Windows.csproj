@@ -5,6 +5,7 @@
         <AssemblyName>NativeChannels.Interop.Avalonia</AssemblyName>
         <DefineConstants>$(DefineConstants);AVALONIA</DefineConstants>
         <OutputType>Exe</OutputType>
+        <ApplicationManifest>../../Shared/app.manifest</ApplicationManifest>
         <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
     </PropertyGroup>
     <ItemGroup>

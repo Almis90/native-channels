@@ -3,6 +3,9 @@
 Use portable tests for application logic and native consumers for bridge, loading, and packaging
 behavior. Passing one layer does not establish that the other works.
 
+For unattended execution of all five Avalonia samples on local desktops, devices,
+simulators, and browsers, see [local sample tests](local-sample-tests.md).
+
 ## Run a channel entirely in .NET
 
 Reference `NativeChannels.Core` in a .NET 10 test or console project. This complete console example

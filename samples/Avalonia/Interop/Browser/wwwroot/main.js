@@ -4,4 +4,5 @@ const config = runtime.getConfig();
 const exports = await runtime.getAssemblyExports(config.mainAssemblyName);
 document.addEventListener('visibilitychange', () => { if (document.hidden) void exports.ReferenceSamples.Program.SuspendAsync(); });
 window.addEventListener('pagehide', () => { void exports.ReferenceSamples.Program.CloseAsync(); });
+globalThis.sampleApp = exports.ReferenceSamples.Program;
 await runtime.runMain();

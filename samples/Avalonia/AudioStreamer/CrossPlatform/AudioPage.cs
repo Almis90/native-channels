@@ -10,6 +10,8 @@ namespace ReferenceSamples;
 
 internal sealed class AudioPage : SamplePage
 {
+    public override Task<string> VerifyAsync() => AudioVerification.RunAsync(_audio, Owner.Stopping);
+
     private readonly IAudioStreamer _audio;
     private readonly Slider _level = new()
     {

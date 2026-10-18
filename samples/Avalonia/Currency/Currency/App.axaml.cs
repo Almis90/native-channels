@@ -11,7 +11,7 @@ namespace Currency;
 public partial class App : Avalonia.Application
 {
     public static Action<string>? ResultReported { get; set; }
-    public static bool ExitAfterVerification { get; set; }
+    public static bool ExitAfterVerification { get; set; } = Environment.GetCommandLineArgs().Contains("--verify");
     private MainView? _view;
     private IClassicDesktopStyleApplicationLifetime? _desktop;
     private Task? _shutdown;
@@ -76,7 +76,7 @@ public partial class App : Avalonia.Application
         if (!result.StartsWith("PASS ", StringComparison.Ordinal))
             _exitCode = 1;
         if (ExitAfterVerification)
-            Dispatcher.UIThread.Post(() => _desktop?.MainWindow?.Close());
+            Dispatcher.UIThread.Post(async () => await CloseAsync());
     }
 
     public Task CloseAsync() => _shutdown ??= ShutdownAsync();

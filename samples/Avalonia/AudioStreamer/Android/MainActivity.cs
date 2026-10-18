@@ -15,6 +15,7 @@ public sealed class MainActivity : AvaloniaMainActivity
 {
     protected override void OnCreate(Bundle? savedInstanceState)
     {
+        SampleApplication.VerifyOnLoad = Intent?.GetBooleanExtra("verify", false) == true;
         base.OnCreate(savedInstanceState);
         (Avalonia.Application.Current as SampleApplication)?.EnsureView();
     }
