@@ -17,6 +17,11 @@ public sealed class LinuxNativeModule : ILinuxChannelModule
     private readonly string[] _methods;
     private readonly string[] _binary;
     private readonly string[] _events;
+    private readonly string[] _raw;
+    private IChannelService? _peer;
+    private readonly CancellationTokenSource _callbacksStopping = new();
+    private readonly CancellationToken _callbackToken;
+    private int _disposeStarted;
     private readonly ConcurrentDictionary<ulong, Channel<object?>> _streams = new();
     private readonly Reply _reply;
     private readonly Request _request;
@@ -33,13 +38,16 @@ public sealed class LinuxNativeModule : ILinuxChannelModule
         string[] methodChannels,
         string[]? binaryChannels = null,
         string[]? eventChannels = null,
-        ChannelHandlerDispatcher? dispatcher = null
+        ChannelHandlerDispatcher? dispatcher = null,
+        string[]? rawChannels = null
     )
     {
+        _callbackToken = _callbacksStopping.Token;
         _methods = methodChannels;
         _dispatcher = dispatcher;
         _binary = binaryChannels ?? [];
         _events = eventChannels ?? [];
+        _raw = rawChannels ?? [];
         _reply = Complete;
         _library = NativeLibrary.Load(library, owner, null);
         try
@@ -64,6 +72,7 @@ public sealed class LinuxNativeModule : ILinuxChannelModule
 
     public void Register(IChannelService channels)
     {
+        _peer = channels;
         foreach (var name in _methods)
         {
             var channel = channels.GetMethodChannel(name, new() { HandlerDispatcher = _dispatcher });
@@ -81,6 +90,12 @@ public sealed class LinuxNativeModule : ILinuxChannelModule
             var channel = channels.GetEventChannel(name);
             _channels.Add(channel);
             channel.SetStreamHandler((value, token) => Stream(name, value, token));
+        }
+        foreach (var name in _raw)
+        {
+            var channel = channels.GetBasicMessageChannel(name, new() { Codec = RawCodec.Instance });
+            _channels.Add(channel);
+            channel.SetMessageHandler((value, token) => Send(name, "", value, token));
         }
     }
 
@@ -168,6 +183,22 @@ public sealed class LinuxNativeModule : ILinuxChannelModule
 
     private void Complete(ulong id, int status, nint data, nuint size)
     {
+        if (status == 4)
+        {
+            // Copy borrowed native memory before returning; never run managed callbacks under a native lock.
+            try
+            {
+                var bytes = new byte[checked((int)size)];
+                Marshal.Copy(data, bytes, 0, bytes.Length);
+                _ = Task.Run(() => CallbackAsync(id, bytes));
+            }
+            catch (Exception error)
+            {
+                if (_pending.TryRemove(id, out var pending))
+                    pending.TrySetException(error);
+            }
+            return;
+        }
         if (_streams.TryGetValue(id, out var stream))
         {
             try
@@ -220,6 +251,9 @@ public sealed class LinuxNativeModule : ILinuxChannelModule
 
     public void Dispose()
     {
+        if (Interlocked.Exchange(ref _disposeStarted, 1) != 0)
+            return;
+        _callbacksStopping.Cancel();
         lock (_gate)
         {
             if (_module == 0)
@@ -238,8 +272,76 @@ public sealed class LinuxNativeModule : ILinuxChannelModule
         foreach (var channel in _channels)
             channel.Dispose();
         _channels.Clear();
+        _callbacksStopping.Dispose();
         GC.KeepAlive(_reply);
     }
+
+    private async Task CallbackAsync(ulong id, byte[] payload)
+    {
+        var token = _callbackToken;
+        object? result;
+        var status = 0;
+        try
+        {
+            var call = (IDictionary<string, object?>)StandardMessageCodec.Instance.Decode(payload)!;
+            var name = (string)call["channel"]!;
+            if (call.TryGetValue("method", out var method))
+            {
+                using var channel = _peer!.GetMethodChannel(name);
+                result = await channel.InvokeAsync<object>((string)method!, call["arguments"], token);
+            }
+            else
+            {
+                using var channel = _peer!.GetBasicMessageChannel(name, new() { Codec = RawCodec.Instance });
+                result = await channel.SendAsync<byte[]>((byte[])call["payload"]!, token);
+            }
+        }
+        catch (Exception error)
+        {
+            status = 1;
+            result = new Dictionary<string, object?>
+            {
+                ["code"] = error is ChannelException channel ? channel.Code : "callback_failed",
+                ["message"] = error.Message,
+            };
+        }
+        try
+        {
+            var bytes = StandardMessageCodec.Instance.Encode(result).ToArray();
+            ValueTask<object?> Respond()
+            {
+                lock (_gate)
+                    if (_module != 0)
+                        Export<Response>("nc_response")(_module, id, status, bytes, (nuint)bytes.Length);
+                return ValueTask.FromResult<object?>(null);
+            }
+            if (_dispatcher is null)
+                await Respond();
+            else
+                await _dispatcher(Respond, token);
+        }
+        catch (OperationCanceledException) { }
+        catch (Exception error)
+        {
+            if (_pending.TryRemove(id, out var pending))
+                pending.TrySetException(error);
+        }
+    }
+
+    private sealed class RawCodec : IMessageCodec
+    {
+        public static RawCodec Instance { get; } = new();
+
+        public ReadOnlyMemory<byte> Encode(object? value) =>
+            value is byte[] bytes
+                ? bytes
+                : throw new ChannelSerializationException("Expected an opaque message payload.");
+
+        public object Decode(ReadOnlyMemory<byte> payload) => payload.ToArray();
+    }
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    private delegate void Response(nint module, ulong id, int status, byte[] bytes, nuint size);
 
     private static Exception NativeError(object? value) =>
         value is IDictionary<string, object?> error
@@ -252,12 +354,21 @@ public sealed class LinuxNativeModule : ILinuxChannelModule
             : new ChannelTransportException("Malformed native event error.");
 
     // Optional view extension. Toolkit ownership and all UI APIs stay in the native module.
-    public nint CreateView(nint parent, string identity)
+    public nint CreateView(nint parent, string identity, object? arguments = null)
     {
         lock (_gate)
         {
             ObjectDisposedException.ThrowIf(_module == 0, this);
-            var handle = Export<ViewCreate>("nc_view_create")(_module, parent, identity);
+            var bytes = arguments is null ? null : StandardMessageCodec.Instance.Encode(arguments).ToArray();
+            var handle = bytes is null
+                ? Export<ViewCreate>("nc_view_create")(_module, parent, identity)
+                : Export<ViewCreateConfigured>("nc_view_create_configured")(
+                    _module,
+                    parent,
+                    identity,
+                    bytes,
+                    (nuint)bytes.Length
+                );
             return handle != 0 ? handle : throw new ChannelTransportException("Native view creation failed.");
         }
     }
@@ -273,6 +384,15 @@ public sealed class LinuxNativeModule : ILinuxChannelModule
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     private delegate nint ViewCreate(nint module, nint parent, [MarshalAs(UnmanagedType.LPUTF8Str)] string identity);
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    private delegate nint ViewCreateConfigured(
+        nint module,
+        nint parent,
+        [MarshalAs(UnmanagedType.LPUTF8Str)] string identity,
+        byte[] arguments,
+        nuint size
+    );
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     private delegate void ViewPoll(nint module);

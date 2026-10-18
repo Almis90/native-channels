@@ -2,6 +2,7 @@ using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("NativeChannels.Maui")]
 [assembly: InternalsVisibleTo("Plugin.Avalonia.PdfViewer")]
+[assembly: InternalsVisibleTo("NativeChannels.Interop.Avalonia")]
 
 namespace NativeChannels;
 

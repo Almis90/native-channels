@@ -14,7 +14,7 @@ frameworks, while keeping platform lifecycle and native view hosting explicit.
 These are planned milestones, not a support matrix. MAUI remains the general application host;
 [verification](verification.md) records compiled and executed configurations, including the initial
 Avalonia Android Currency proof. Complete Avalonia, Uno, and browser/WebAssembly integration
-remain release goals. The [Avalonia sample matrix](../samples/Avalonia/README.md) now records source implementations for all four reference samples on all six targets; new implementations still need runtime verification. Progress on a feature branch does not establish release acceptance.
+remain release goals. The [Avalonia sample matrix](../samples/Avalonia/README.md) now records source implementations for all four reference samples plus the [interoperability sample](../samples/Avalonia/Interop/README.md) on all six targets; new implementations still need runtime verification. Progress on a feature branch does not establish release acceptance.
 
 ## Initial preview
 

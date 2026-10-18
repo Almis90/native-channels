@@ -575,3 +575,27 @@ application, and installer checks. ARM64 cross-compilation does not establish AR
 
 Use the [release checklist](release-checklist.md) before tagging or distribution. Keep implementation,
 compilation, runtime results, and manual observations separate in future updates.
+
+## Avalonia interoperability port — 2026-10-17
+
+The extra MAUI `NativeChannels.Sample` now has an Avalonia counterpart at
+[`samples/Avalonia/Interop`](../samples/Avalonia/Interop/README.md), with source
+heads for Android, iOS, Windows, macOS, Linux and browser. It links the existing
+managed contract suite and adds Avalonia native-view lifecycle checks. Linux
+implements sample behavior and GTK buttons in C++; browser uses JavaScript/DOM;
+macOS adds an AppKit button factory alongside the existing UIKit factory.
+
+Compilation checks on Ubuntu 24.04 x64 with the pinned .NET SDK 10.0.401:
+
+| Check | Result |
+|---|---|
+| Linux C++17/GTK sample library (`-Wall -Wextra -Werror`) and Linux x64 head | Build passed |
+| Windows x64 head, cross-built on Ubuntu | Build passed |
+| Browser/WebAssembly head | Build passed |
+| Three framework-package feeds and matching package-only consumers | Metadata/platform audits and archive hashes passed |
+
+The three managed builds reported zero warnings and errors. External dependency
+caches were reused to fit the VM disk; this is not fresh-cache release acceptance.
+Android, iOS and macOS heads were not compiled in this pass. No apps, runtime
+checks or workflows were run. The in-app **Run checks** suite remains to be
+executed on all six platforms, including the new Linux callback ABI extension.

@@ -9,6 +9,7 @@ fi
 mkdir -p artifacts/native/linux-x64
 EXTRA=()
 case "${1:-}" in
+    sample) SOURCE=native/linux/sample.cpp; LIBRARY=nc_sample; DEPS='gtk+-3.0 x11' ;;
     currency) SOURCE=plugins/Plugin.Maui.Currency/native/linux/currency.cpp; LIBRARY=nc_currency; DEPS=icu-uc ;;
     audio) SOURCE=plugins/Plugin.Maui.AudioStreamer/native/linux/audio.cpp; LIBRARY=nc_audio; DEPS=alsa ;;
     volume) SOURCE=plugins/Plugin.Maui.VolumeMonitor/native/linux/volume.cpp; LIBRARY=nc_volume; DEPS=libpulse ;;
@@ -17,7 +18,7 @@ case "${1:-}" in
         QT_INCLUDE="$(pkg-config --variable=includedir Qt6Core)"
         EXTRA=("-I$QT_INCLUDE/QtPdf" "-I$QT_INCLUDE/QtPdfWidgets" -lQt6Pdf -lQt6PdfWidgets) ;;
     pdf-gtk) SOURCE=plugins/Plugin.Avalonia.PdfViewer/native/linux/pdf_gtk.cpp; LIBRARY=nc_pdf_gtk; DEPS='gtk+-3.0 poppler-glib x11' ;;
-    *) echo 'Usage: build-linux-native.sh currency|audio|volume|pdf|pdf-qt|pdf-gtk' >&2; exit 1 ;;
+    *) echo 'Usage: build-linux-native.sh sample|currency|audio|volume|pdf|pdf-qt|pdf-gtk' >&2; exit 1 ;;
 esac
 # System headers provide real native APIs; shared objects retain their system SONAME dependencies.
 g++ -std=c++17 -O2 -g -Wall -Wextra -Werror -fPIC -shared -pthread \

@@ -27,7 +27,17 @@ void nc_destroy(void *module);
 // create returns an owned child window ID (zero on failure). destroy also
 // destroys that child. Poll processes native toolkit events without waiting.
 uintptr_t nc_view_create(void *module, uintptr_t parent, const char *identity);
+// Configured variant accepts StandardMessageCodec creation arguments.
+uintptr_t nc_view_create_configured(void *module, uintptr_t parent,
+                                    const char *identity,
+                                    const uint8_t *arguments, size_t size);
 void nc_view_poll(void *module);
+// Optional bidirectional extension: status 4 emits a StandardMessageCodec map
+// with channel + method/arguments or channel + opaque payload bytes. Respond
+// asynchronously with the same ID, status 0/value or 1/error map. nc_cancel
+// invalidates pending callbacks; nc_destroy must discard them before returning.
+void nc_response(void *module, uint64_t request, int status,
+                 const uint8_t *data, size_t size);
 #ifdef __cplusplus
 }
 #endif

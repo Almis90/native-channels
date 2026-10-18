@@ -85,3 +85,11 @@ does not propagate through a handler's explicit `ConfigureAwait(false)`.
 
 Use background handlers when UI access is unnecessary. Event consumers should dispatch their own
 UI updates; this package does not imply event or native-view acceptance on every target.
+
+## Interoperability sample
+
+The [Avalonia interoperability sample](../samples/Avalonia/Interop/README.md) ports
+the MAUI framework-contract sample to all six targets. It reuses the managed
+verification suite and exercises per-instance native/DOM buttons through
+`AvaloniaChannelView`, with C++/GTK on Linux. Run its checks explicitly in the app;
+source coverage and compilation do not establish runtime acceptance.

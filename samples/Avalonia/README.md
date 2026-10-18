@@ -1,6 +1,6 @@
 # Avalonia reference samples for 0.2
 
-All four reference samples now have implementation heads for the six Avalonia
+All four reference samples and the [interoperability sample](Interop/README.md) now have implementation heads for the six Avalonia
 targets. This matrix describes source coverage, **not runtime verification**.
 The newly added heads and native adapters still require the platform test pass.
 
@@ -14,6 +14,7 @@ dependency caches to fit its disk, so this is not fresh-cache release acceptance
 
 | Sample | Android | iOS | Windows | macOS | Linux | Browser |
 |---|---|---|---|---|---|---|
+| [Interop](Interop/README.md) | Kotlin / Android buttons | Swift / UIKit | Win32 buttons | Swift / AppKit | C++ / GTK buttons | JavaScript / DOM buttons |
 | Currency | Kotlin | Swift | Windows globalization | Swift | C++ / ICU | JavaScript / Intl |
 | AudioStreamer | Kotlin / AudioTrack | Swift / AVAudioEngine | WASAPI | Swift / AVAudioEngine | C++ / ALSA | JavaScript / Web Audio |
 | VolumeMonitor | Kotlin | Swift | Core Audio | Swift / Core Audio | C++ / PulseAudio | Explicit unsupported system-volume result; separate page-volume event example |
@@ -28,7 +29,11 @@ those package names are retained, but their service APIs do not require MAUI.
 PDF uses `Plugin.Avalonia.PdfViewer` because its embedded control is host-specific.
 The original MAUI PDF package and samples remain available separately.
 
-## Build all four samples for a target
+The interoperability sample links the MAUI contract checks and adds Avalonia native-view
+lifecycle checks. Build it separately with `bash eng/build-interop-avalonia.sh <target>`;
+its checks run only when explicitly started in the app.
+
+## Build all four reference-plugin samples for a target
 
 Install the pinned SDK with `bash eng/bootstrap.sh` and the platform's .NET
 workload/SDK prerequisites. Then run one of:
