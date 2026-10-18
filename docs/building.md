@@ -3,7 +3,7 @@
 For Windows, use [Windows integration](windows-integration.md).
 `./eng/verify-windows.ps1` builds Windows packages and runs a fresh-cache consumer; add `-BuildOnly`
 for environments without an interactive desktop. The commands below cover Android and Apple.
-Source packages use framework `0.1.0-preview.1` and Currency `1.1.0-alpha.1`. The package-feed workflow
+Source packages use framework `0.1.0-preview.2` and Currency `1.1.0-alpha.1`. The package-feed workflow
 assembles [combined Windows/mobile packages](windows-integration.md#combined-platform-packages)
 before consumer verification; local builds on one host produce only that host's platform inputs.
 
@@ -31,11 +31,11 @@ all NativeChannels packages. Library packages always come from `artifacts/packag
 
 ```sh
 bash eng/restore-sample.sh -p:TargetFrameworks=net10.0-ios -r iossimulator-arm64
-bash eng/dotnet.sh build samples/NativeChannels.Sample -f net10.0-ios -r iossimulator-arm64 --no-restore
+bash eng/dotnet.sh build samples/Maui/ChannelExplorer -f net10.0-ios -r iossimulator-arm64 --no-restore
 bash eng/verify-ios-sample.sh SIMULATOR_UDID
 
 bash eng/restore-sample.sh -p:TargetFrameworks=net10.0-android
-bash eng/dotnet.sh build samples/NativeChannels.Sample -f net10.0-android --no-restore
+bash eng/dotnet.sh build samples/Maui/ChannelExplorer -f net10.0-android --no-restore
 bash eng/verify-android-sample.sh EMULATOR_SERIAL
 ```
 
@@ -66,7 +66,7 @@ manual selection and environment approval.
 On a compatible Mac, test Catalyst independently:
 ```sh
 bash eng/restore-sample.sh -p:TargetFrameworks=net10.0-maccatalyst -r maccatalyst-arm64
-bash eng/dotnet.sh build samples/NativeChannels.Sample -f net10.0-maccatalyst -r maccatalyst-arm64 --no-restore
+bash eng/dotnet.sh build samples/Maui/ChannelExplorer -f net10.0-maccatalyst -r maccatalyst-arm64 --no-restore
 bash eng/verify-catalyst-sample.sh
 ```
 The script launches the sample, checks its output, and closes its process after the result.
@@ -127,7 +127,7 @@ gh workflow run verify-framework.yml --ref main -f platforms=Auto -f base=BASE_S
 
 Choose `iOS`, `Catalyst`, or `Windows` to target those platforms. `Compile` is the default depth;
 `Runtime` adds execution on Android, the iOS simulator, and the Mac runner. Windows remains compile-only
-on hosted CI. The framework path has passed [recorded CI verification](verification.md#framework-ci-verification).
+on hosted CI. The framework path has passed [recorded CI verification](verification.md#nuget-preview-2).
 Deadlines remain limits, not performance promises.
 
 ### Automatic checks
@@ -353,7 +353,11 @@ applicable platforms when changing or releasing it. Framework sample results cov
 contracts, not an example's SDK-specific behavior.
 
 [Verify / Lifecycle stress](../.github/workflows/performance.yml) and
-[Verify / Benchmarks](../.github/workflows/benchmarks.yml) are separate manual workflows. The normal
+[Verify / Benchmarks](../.github/workflows/benchmarks.yml) are separate manual workflows.
+[Verify / Native performance](../.github/workflows/native-performance.yml) consumes a successful
+same-source distribution feed to measure one native target, with a selectable soak duration.
+See [performance measurements](performance.md#measure-real-native-round-trips-and-memory) for commands,
+memory metrics and interpretation. The normal
 Core suite retains its bounded lifecycle tests. Full local `NativeChannels.slnx` also includes portable
 example tests; CI's shared job uses `eng/NativeChannels.Core.slnx`.
 
@@ -388,5 +392,5 @@ a fresh cache. A successful incremental binding compilation alone does not estab
 ## PDF viewer example
 
 After packing the framework, follow the [PdfViewer build steps](../plugins/Plugin.Maui.PdfViewer/README.md#build-and-verify)
-to build its native adapters, pack the local plugin, and restore the separate [sample](../samples/PdfViewer.Sample/README.md).
+to build its native adapters, pack the local plugin, and restore the separate [sample](../samples/Maui/PdfViewer/README.md).
 This exercises native views through a package-only consumer. No publication is needed.

@@ -37,7 +37,7 @@
             Link="Audio/%(Filename)%(Extension)"
         />
         <Compile
-            Include="../../samples/AudioStreamer.Sample/AudioVerification.cs"
+            Include="../../samples/Maui/AudioStreamer/AudioVerification.cs"
             Link="Audio/AudioVerification.cs"
         />
         <ProjectReference Include="../../src/NativeChannels.Core/NativeChannels.Core.csproj" />

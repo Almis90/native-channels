@@ -5,7 +5,7 @@ DEVICE="${1:?Usage: verify-android-pdf.sh EMULATOR_SERIAL [Debug|Release] [andro
 CONFIGURATION="${2:-Debug}"
 ADB="${ANDROID_HOME:-$HOME/Library/Android/sdk}/platform-tools/adb"
 RID="${3:-}"
-APK="$ROOT/samples/PdfViewer.Sample/bin/$CONFIGURATION/net10.0-android/${RID:+$RID/}dev.nativechannels.pdf.sample-Signed.apk"
+APK="$ROOT/samples/Maui/PdfViewer/bin/$CONFIGURATION/net10.0-android/${RID:+$RID/}dev.nativechannels.pdf.sample-Signed.apk"
 "$ADB" -s "$DEVICE" install --no-incremental -r "$APK"
 "$ADB" -s "$DEVICE" shell am force-stop dev.nativechannels.pdf.sample
 "$ADB" -s "$DEVICE" logcat -c

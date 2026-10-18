@@ -20,7 +20,8 @@ class PlatformPackageScopeTests(unittest.TestCase):
 <group targetFramework="{group or tfm}"><dependency id="{dependency}" /></group>
 </dependencies></metadata></package>''')
                 if extra:
-                    archive.writestr(extra, b"native")
+                    for name in ([extra] if isinstance(extra, str) else extra):
+                        archive.writestr(name, b"native")
                 if platform == 'linux' and package_id in ('Plugin.Maui.Currency', 'Plugin.Maui.AudioStreamer') and native_header is not None:
                     library = 'currency' if package_id.endswith('Currency') else 'audio'
                     archive.writestr(f'runtimes/linux-x64/native/libnc_{library}.so', native_header)
@@ -67,8 +68,13 @@ class PlatformPackageScopeTests(unittest.TestCase):
                 self.check_package(platform, tfm)
 
     def test_browser_requires_browser_framework_without_native_payloads(self):
-        for name in ('NativeChannels', 'Plugin.Maui.Currency'):
-            self.check_package('browser', 'net10.0-browser', package_id=name, extra='browser/module.mjs')
+        for name, assets in {
+            'NativeChannels': ['browser/nativechannels.mjs', 'browser/json-codec.mjs'],
+            'Plugin.Maui.Currency': ['browser/currency.mjs'],
+        }.items():
+            self.check_package('browser', 'net10.0-browser', package_id=name, extra=assets)
+            with self.assertRaisesRegex(ValueError, 'missing packaged browser adapter'):
+                self.check_package('browser', 'net10.0-browser', package_id=name, extra='browser/unrelated.mjs')
         self.check_package('browser', 'net10.0', package_id='NativeChannels.Core')
         for tfm in ('net10.0', 'net10.0-android36.0'):
             with self.assertRaisesRegex(ValueError, 'frameworks'):
@@ -77,7 +83,8 @@ class PlatformPackageScopeTests(unittest.TestCase):
             self.check_package('browser', 'net10.0-browser', package_id='NativeChannels', extra='native/android/test.aar')
         for dependency in ('NativeChannels.Native.Android', 'Microsoft.Maui.Core', 'Microsoft.WindowsAppSDK'):
             with self.assertRaisesRegex(ValueError, 'dependency'):
-                self.check_package('browser', 'net10.0-browser', package_id='NativeChannels', dependency=dependency)
+                self.check_package('browser', 'net10.0-browser', package_id='NativeChannels', dependency=dependency,
+                                   extra=['browser/nativechannels.mjs', 'browser/json-codec.mjs'])
 
     def test_portable_core_is_accepted_on_each_platform(self):
         for platform in ("ios", "maccatalyst", "windows"):
@@ -122,6 +129,7 @@ class PlatformPackageScopeTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "dependency groups"):
             self.check_package("ios", "net10.0-ios26.0", group="net10.0-maccatalyst26.0")
 
-    def test_framework_feed_rejects_example_plugin(self):
+    def test_platform_feed_accepts_reference_plugins_but_rejects_unknown_packages(self):
+        self.check_package("ios", "net10.0-ios26.0", package_id="Plugin.Maui.Currency")
         with self.assertRaisesRegex(ValueError, "unexpected ios framework package"):
-            self.check_package("ios", "net10.0-ios26.0", package_id="Plugin.Maui.Currency")
+            self.check_package("ios", "net10.0-ios26.0", package_id="Plugin.Unknown")

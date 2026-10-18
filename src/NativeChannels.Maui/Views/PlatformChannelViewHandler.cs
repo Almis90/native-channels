@@ -78,7 +78,8 @@ public sealed class PlatformChannelViewHandler : ViewHandler<PlatformChannelView
                 settings.Serializer,
                 settings.Timeout,
                 settings.Limits,
-                MauiChannelDispatchers.MainThread
+                MauiChannelDispatchers.MainThread,
+                settings.Diagnostics
             );
 #if ANDROID
             host = transport.CreateView(

@@ -13,10 +13,14 @@ internal sealed class ViewChannelLease : IAsyncDisposable
         ChannelSerializer serializer,
         TimeSpan timeout,
         ChannelLimits limits,
-        ChannelHandlerDispatcher? dispatcher = null
+        ChannelHandlerDispatcher? dispatcher = null,
+        ChannelDiagnostics? diagnostics = null
     )
     {
-        _service = new(new BinaryMessenger(transport, limits), serializer, timeout, limits);
+        _service = new(new BinaryMessenger(transport, limits), serializer, timeout, limits)
+        {
+            Diagnostics = diagnostics,
+        };
         Channel = _service.GetMethodChannel(
             "nativechannels.view." + InstanceId,
             new() { HandlerDispatcher = dispatcher }

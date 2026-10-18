@@ -22,7 +22,7 @@
         <PackageReference Include="xunit" />
         <PackageReference Include="xunit.runner.visualstudio" PrivateAssets="all" />
         <None
-            Include="../../samples/PdfViewer.Sample/Resources/Raw/nativechannels-guide.pdf"
+            Include="../../samples/Maui/PdfViewer/Resources/Raw/nativechannels-guide.pdf"
             Link="guide.pdf"
             CopyToOutputDirectory="PreserveNewest"
         />
@@ -33,13 +33,13 @@
     </ItemGroup>
     <ItemGroup Condition="'$(WindowsTestPlugin)' == '' Or '$(WindowsTestPlugin)' == 'AudioStreamer'">
         <Compile
-            Include="../../samples/AudioStreamer.Sample/AudioVerification.cs"
+            Include="../../samples/Maui/AudioStreamer/AudioVerification.cs"
             Link="AudioVerification.cs"
         />
     </ItemGroup>
     <ItemGroup Condition="'$(WindowsTestPlugin)' == '' Or '$(WindowsTestPlugin)' == 'VolumeMonitor'">
         <Compile
-            Include="../../samples/VolumeMonitor.Sample/VolumeVerification.cs"
+            Include="../../samples/Maui/VolumeMonitor/VolumeVerification.cs"
             Link="VolumeVerification.cs"
         />
     </ItemGroup>

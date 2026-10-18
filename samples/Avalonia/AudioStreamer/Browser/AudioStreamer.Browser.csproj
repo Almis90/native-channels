@@ -12,9 +12,6 @@
         <PackageReference Include="Plugin.Maui.AudioStreamer" />
         <Compile Include="../../Shared/SampleApplication.cs" Link="SampleApplication.cs" />
         <Compile Include="../CrossPlatform/*.cs" Link="%(Filename)%(Extension)" />
-        <Compile
-            Include="../../../AudioStreamer.Sample/MusicGenerator.cs"
-            Link="MusicGenerator.cs"
-        />
+        <Compile Include="../../../Maui/AudioStreamer/MusicGenerator.cs" Link="MusicGenerator.cs" />
     </ItemGroup>
 </Project>

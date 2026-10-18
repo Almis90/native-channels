@@ -1,10 +1,11 @@
 using Microsoft.Maui.ApplicationModel;
 using Microsoft.UI.Xaml;
+using NativeChannels;
 using Button = Microsoft.UI.Xaml.Controls.Button;
 using HorizontalAlignment = Microsoft.UI.Xaml.HorizontalAlignment;
 using VerticalAlignment = Microsoft.UI.Xaml.VerticalAlignment;
 
-namespace NativeChannels.Sample;
+namespace ChannelExplorer;
 
 internal static class WindowsButtonFactory
 {

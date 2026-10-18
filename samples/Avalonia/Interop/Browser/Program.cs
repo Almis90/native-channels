@@ -9,7 +9,7 @@ internal static partial class Program
 {
     private static async Task Main(string[] args)
     {
-        await NativeChannels.Sample.SampleBrowser.InitializeAsync();
+        await ChannelExplorer.SampleBrowser.InitializeAsync();
         await AppBuilder
             .Configure<SampleApplication>()
             .UseNativeChannels(SampleFeature.Configure)

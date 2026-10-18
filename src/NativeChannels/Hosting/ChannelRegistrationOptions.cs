@@ -9,4 +9,7 @@ public class ChannelRegistrationOptions
     public TimeSpan DefaultTimeout { get; set; } = TimeSpan.FromSeconds(30);
     public ChannelLimits Limits { get; set; } = new();
     public JsonSerializerOptions Json { get; set; } = new(JsonSerializerDefaults.Web);
+
+    /// <summary>Optional metadata-only diagnostics for this session. Disabled by default.</summary>
+    public ChannelDiagnostics? Diagnostics { get; set; }
 }

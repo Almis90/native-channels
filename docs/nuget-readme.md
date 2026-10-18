@@ -35,6 +35,10 @@ Preview APIs can change before a stable release.
 
 ## Learn more
 
+Opt-in [channel diagnostics](https://almis90.github.io/native-channels/diagnostics) report operation
+timing, outcomes, and structured error codes without logging message contents. Enable them through
+`NativeChannelsOptions.Diagnostics` or `ChannelService.Diagnostics`.
+
 - [Choose a channel](https://almis90.github.io/native-channels/choosing-a-channel)
 - [Build a reusable plugin](https://almis90.github.io/native-channels/plugin-authoring)
 - [Configuration and timeouts](https://almis90.github.io/native-channels/configuration)

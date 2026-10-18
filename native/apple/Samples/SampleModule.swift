@@ -1,4 +1,5 @@
 import Foundation
+import Darwin
 import NativeChannelsNative
 
 @objc(MCSampleModule)
@@ -53,6 +54,7 @@ public final class SampleModule: NSObject, NativeModule {
                 do {
                     switch call.method {
                     case "activeStreams": result.success(streams.count)
+                    case "memory": result.success(try processMemory())
                     case "add":
                         guard let a = try call.argument("a") as? Int32, let b = try call.argument("b") as? Int32 else {
                             throw ChannelError("invalid_arguments", "Expected Int32 arguments")
@@ -104,6 +106,20 @@ public final class SampleModule: NSObject, NativeModule {
                 result.success(Thread.isMainThread)
             })
     }
+}
+
+private func processMemory() throws -> [String: Int64] {
+    var info = task_vm_info_data_t()
+    var count = mach_msg_type_number_t(MemoryLayout<task_vm_info_data_t>.size / MemoryLayout<integer_t>.size)
+    let status = withUnsafeMutablePointer(to: &info) { pointer in
+        pointer.withMemoryRebound(to: integer_t.self, capacity: Int(count)) {
+            task_info(mach_task_self_, task_flavor_t(TASK_VM_INFO), $0, &count)
+        }
+    }
+    guard status == KERN_SUCCESS else {
+        throw ChannelError("memory_unavailable", "task_info failed: \(status)")
+    }
+    return ["physicalFootprint": Int64(info.phys_footprint), "resident": Int64(info.resident_size)]
 }
 
 private final class StreamState {

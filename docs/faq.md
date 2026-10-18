@@ -14,8 +14,8 @@ runtime dependencies. Native types are not passed directly as channel values.
 
 ## Can I install this from NuGet.org?
 
-Yes. Add [NativeChannels.Maui](https://www.nuget.org/packages/NativeChannels.Maui/0.1.0-preview.1)
-version `0.1.0-preview.1` to your .NET 10 MAUI application. Its framework dependencies resolve
+Yes. Add [NativeChannels.Maui](https://www.nuget.org/packages/NativeChannels.Maui/0.1.0-preview.2)
+version `0.1.0-preview.2` to your .NET 10 MAUI application. Its framework dependencies resolve
 automatically. Follow [getting started](getting-started.md) to include and register your native adapter.
 The reference plugins remain local examples rather than published NuGet products.
 

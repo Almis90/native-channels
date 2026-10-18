@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 using Avalonia.Platform;
 using Avalonia.Threading;
 
-namespace NativeChannels.Sample;
+namespace ChannelExplorer;
 
 // A real Win32 child button. Avalonia owns placement; the per-view channel owns its lifetime.
 internal sealed class WindowsButtonView : IAvaloniaNativeView

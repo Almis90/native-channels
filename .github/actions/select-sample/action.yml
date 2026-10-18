@@ -20,12 +20,12 @@ runs:
         SAMPLE: ${{ inputs.sample }}
       run: |
         case "$SAMPLE" in
-          Framework) project=NativeChannels; suffix=sample ;;
+          Framework) project=ChannelExplorer; suffix=sample ;;
           Currency) project=Currency; suffix=currency-sample ;;
           AudioStreamer) project=AudioStreamer; suffix=audio-sample ;;
           VolumeMonitor) project=VolumeMonitor; suffix=volume-sample ;;
           PdfViewer) project=PdfViewer; suffix=pdf-sample ;;
           *) echo "Unknown sample: $SAMPLE" >&2; exit 1 ;;
         esac
-        echo "project=samples/$project.Sample" >> "$GITHUB_OUTPUT"
+        echo "project=samples/Maui/$project" >> "$GITHUB_OUTPUT"
         echo "suffix=$suffix" >> "$GITHUB_OUTPUT"

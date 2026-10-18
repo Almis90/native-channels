@@ -1,11 +1,12 @@
 using System.Runtime.CompilerServices;
+using NativeChannels;
 #if AVALONIA
-using MainThread = NativeChannels.Sample.SampleThread;
+using MainThread = ChannelExplorer.SampleThread;
 #else
 using Microsoft.Maui.ApplicationModel;
 #endif
 
-namespace NativeChannels.Sample;
+namespace ChannelExplorer;
 
 internal sealed class WindowsSampleModule : IWindowsChannelModule
 {
@@ -45,6 +46,16 @@ internal sealed class WindowsSampleModule : IWindowsChannelModule
                         throw new ChannelException("sample_error", "Windows adapter error", platform: "windows");
                     case "activeStreams":
                         return Volatile.Read(ref _activeStreams);
+                    case "memory":
+                        using (var process = System.Diagnostics.Process.GetCurrentProcess())
+                        {
+                            process.Refresh();
+                            return new Dictionary<string, object?>
+                            {
+                                ["workingSet"] = process.WorkingSet64,
+                                ["privateBytes"] = process.PrivateMemorySize64,
+                            };
+                        }
                     default:
                         throw new MethodNotImplementedException(call.Method);
                 }

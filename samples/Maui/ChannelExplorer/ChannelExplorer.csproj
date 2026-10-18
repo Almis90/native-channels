@@ -1,0 +1,97 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFrameworks>net10.0-android;net10.0-ios;net10.0-maccatalyst</TargetFrameworks>
+        <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))"
+            >$(TargetFrameworks);net10.0-windows10.0.19041.0</TargetFrameworks>
+        <TargetFrameworks Condition="'$(NativeChannelsWindowsOnly)' == 'true'"
+            >net10.0-windows10.0.19041.0</TargetFrameworks>
+        <OutputType>Exe</OutputType>
+        <RootNamespace>ChannelExplorer</RootNamespace>
+        <AssemblyName>ChannelExplorer</AssemblyName>
+        <UseMaui>true</UseMaui>
+        <SingleProject>true</SingleProject>
+        <IsPackable>false</IsPackable>
+        <NativeChannelsProfileSeconds Condition="'$(NativeChannelsProfileSeconds)' == ''"
+            >0</NativeChannelsProfileSeconds>
+        <EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
+        <ApplicationTitle>ChannelExplorer</ApplicationTitle>
+        <ApplicationId>dev.nativechannels.sample</ApplicationId>
+        <ApplicationDisplayVersion>0.1</ApplicationDisplayVersion>
+        <ApplicationVersion>1</ApplicationVersion>
+        <SupportedOSPlatformVersion
+            Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'"
+            >24</SupportedOSPlatformVersion>
+        <SupportedOSPlatformVersion
+            Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios' Or $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'"
+            >15.0</SupportedOSPlatformVersion>
+        <SupportedOSPlatformVersion
+            Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'"
+            >10.0.17763.0</SupportedOSPlatformVersion>
+        <WindowsPackageType>None</WindowsPackageType>
+        <TargetPlatformMinVersion
+            Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'"
+            >$(SupportedOSPlatformVersion)</TargetPlatformMinVersion>
+        <WindowsAppSDKSelfContained
+            Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'"
+            >true</WindowsAppSDKSelfContained>
+        <!-- Self-contained MSIX activation is unsupported on Windows 10 1809. -->
+        <WindowsAppSDKSelfContained
+            Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows' And '$(WindowsPackageType)' == 'MSIX'"
+            >false</WindowsAppSDKSelfContained>
+        <!-- This sample uses no Main/Singleton features such as push notifications. -->
+        <WindowsAppSdkDeploymentManagerInitialize
+            Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows' And '$(WindowsPackageType)' == 'MSIX'"
+            >false</WindowsAppSdkDeploymentManagerInitialize>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)' == 'Release' And $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
+        <AndroidLinkTool>r8</AndroidLinkTool>
+    </PropertyGroup>
+    <ItemGroup>
+        <MauiIcon Include="Resources/AppIcon/appicon.svg" />
+        <MauiSplashScreen
+            Include="Resources/Splash/splash.svg"
+            Color="#2C3E50"
+            BaseSize="128,128"
+        />
+        <MauiImage Include="Resources/Images/*" />
+        <MauiImage Update="Resources/Images/dotnet_bot.png" Resize="True" BaseSize="300,185" />
+        <MauiFont Include="Resources/Fonts/*" />
+        <MauiAsset
+            Include="Resources/Raw/**"
+            LogicalName="%(RecursiveDir)%(Filename)%(Extension)"
+        />
+    </ItemGroup>
+    <ItemGroup>
+        <AssemblyMetadata
+            Include="NativeChannelsProfileSeconds"
+            Value="$(NativeChannelsProfileSeconds)"
+        />
+        <AssemblyMetadata
+            Include="NativeChannelsProfileRunId"
+            Value="$(NativeChannelsProfileRunId)"
+        />
+        <PackageReference Include="Microsoft.Maui.Controls" />
+        <PackageReference Include="NativeChannels.Maui" />
+    </ItemGroup>
+    <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">
+        <Compile
+            Include="../../../native/windows/sample/**/*.cs"
+            Link="native/windows/%(RecursiveDir)%(Filename)%(Extension)"
+        />
+    </ItemGroup>
+    <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">
+        <PartialAppManifest Include="Platforms/iOS/Info.plist" />
+    </ItemGroup>
+    <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
+        <AndroidLibrary
+            Include="../../../native/android/sample/build/outputs/aar/sample-release.aar"
+            Bind="false"
+        />
+    </ItemGroup>
+    <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios' Or $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">
+        <NativeReference Include="../../../artifacts/native/NativeChannelsSample.xcframework">
+            <Kind>Framework</Kind>
+            <SmartLink>false</SmartLink>
+        </NativeReference>
+    </ItemGroup>
+</Project>

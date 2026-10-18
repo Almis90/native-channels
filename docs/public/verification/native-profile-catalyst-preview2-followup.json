@@ -1,0 +1,73 @@
+{
+  "source": "9db8abff17b18f70a65da64f45ccdfc04f102c26",
+  "platform": "maccatalyst-arm64",
+  "version": "0.1.0-preview.2",
+  "status": "Investigation complete; functional soak passed; memory plateau not established.",
+  "baseline": {
+    "durationSeconds": 905.1261124,
+    "cycles": 7371,
+    "activeStreamsAtCompletion": 0,
+    "physicalFootprintMiB": [
+      76.18852996826172,
+      118.75105285644531
+    ],
+    "managedHeapMiB": [
+      6.2118377685546875,
+      36.97699737548828
+    ],
+    "nativeBridgeCounts": [
+      3,
+      3,
+      3,
+      3
+    ],
+    "nativeViewHostCounts": [
+      2,
+      2,
+      2,
+      2
+    ],
+    "nativeMallocMiB": [
+      47.7990837097168,
+      46.43685531616211,
+      48.093990325927734,
+      47.56101608276367
+    ],
+    "runId": "a393dc11-3185-4678-bd41-6f7fcbb5aba7"
+  },
+  "collectionDiagnostic": {
+    "cycles": 2455,
+    "managedMiBBefore": 16.869583129882812,
+    "managedMiBAfter": 6.114463806152344,
+    "managedMiBAtStartup": 6.214118957519531,
+    "footprintMiBBefore": 78.65723419189453,
+    "footprintMiBAfter": 66.82910919189453,
+    "explicitFullCollections": 3,
+    "samePackageAndAdapterHashes": true,
+    "temporaryHarnessRestored": true,
+    "runId": "78bfc98f-fc44-41f2-a601-88a0da357d7d"
+  },
+  "conclusions": [
+    "No accumulation of native bridges or view hosts was observed in four heap snapshots; native allocated malloc memory remained approximately 46-48 MiB.",
+    "The separate five-minute workload returned to approximately startup managed-heap size after explicit collection, supporting delayed collection as a contributor to observed memory growth.",
+    "The unforced fifteen-minute run did not reach a memory plateau. This experiment does not prove the absence of a leak or establish indefinite memory stability."
+  ],
+  "unresolved": [
+    {
+      "finding": "macOS leaks reported small unattributed malloc blocks; no allocation stack logging was enabled.",
+      "firstBytes": 47440,
+      "lastBytes": 48736,
+      "growthBytes": 1296,
+      "attribution": "Unknown; not established as NativeChannels allocations."
+    },
+    "Android, iOS and Windows long-running memory behavior were not measured in this investigation."
+  ],
+  "limitations": [
+    "One Mac Catalyst ARM64 development run using local mobile packages.",
+    "External heap inspections briefly pause/fault process memory; capture times are recorded separately.",
+    "No forced garbage collection; process footprint is not isolated NativeChannels heap usage.",
+    "leaks output includes unattributed small malloc blocks; no allocation stacks were collected.",
+    "These observations do not establish absence of leaks on all platforms.",
+    "Forced collection was diagnostic only, after a separate shorter workload; it is not a production workaround or evidence that the entire fifteen-minute footprint is reclaimable."
+  ]
+}

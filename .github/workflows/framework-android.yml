@@ -103,10 +103,10 @@ jobs:
       - name: Compile sample once (Release)
         id: compile
         timeout-minutes: 15
-        run: bash eng/dotnet.sh build samples/NativeChannels.Sample -c Release -f net10.0-android -r "$RUNTIME" --no-restore --disable-build-servers --verbosity normal
+        run: bash eng/dotnet.sh build samples/Maui/ChannelExplorer -c Release -f net10.0-android -r "$RUNTIME" --no-restore --disable-build-servers --verbosity normal
       - name: Save compiled APK for emulator or physical-device verification
         run: |
-          tar -czf "artifacts/$RUNTIME-app.tar.gz" "samples/NativeChannels.Sample/bin/Release/net10.0-android/$RUNTIME/"*-Signed.apk
+          tar -czf "artifacts/$RUNTIME-app.tar.gz" "samples/Maui/ChannelExplorer/bin/Release/net10.0-android/$RUNTIME/"*-Signed.apk
           sha256sum "artifacts/$RUNTIME-app.tar.gz" > "artifacts/$RUNTIME-app.sha256"
       - uses: actions/upload-artifact@v4
         with:

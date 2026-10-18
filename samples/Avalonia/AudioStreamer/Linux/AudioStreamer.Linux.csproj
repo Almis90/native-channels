@@ -10,12 +10,9 @@
         <PackageReference Include="NativeChannels.Avalonia" />
         <PackageReference Include="Plugin.Maui.AudioStreamer" />
         <Compile Include="../*.cs" Link="%(Filename)%(Extension)" />
+        <Compile Include="../../../Maui/AudioStreamer/MusicGenerator.cs" Link="MusicGenerator.cs" />
         <Compile
-            Include="../../../AudioStreamer.Sample/MusicGenerator.cs"
-            Link="MusicGenerator.cs"
-        />
-        <Compile
-            Include="../../../AudioStreamer.Sample/AudioVerification.cs"
+            Include="../../../Maui/AudioStreamer/AudioVerification.cs"
             Link="AudioVerification.cs"
         />
     </ItemGroup>

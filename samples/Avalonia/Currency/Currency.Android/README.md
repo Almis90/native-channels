@@ -3,7 +3,7 @@
 Part of the [template-generated Avalonia solution](../README.md).
 
 This package-only sample looks up native currency symbols using the same `Plugin.Maui.Currency`
-package as the [MAUI sample](../../../Currency.Sample/README.md). It targets .NET 10 Android and pins
+package as the [MAUI sample](../../../Maui/Currency/README.md). It targets .NET 10 Android and pins
 Avalonia 12.1.4. It has no MAUI package dependency and references only the shared application project.
 The view and session in `samples/Avalonia/Currency/Currency` are also used by the
 [Avalonia iOS sample](../Currency.iOS/README.md).
@@ -49,7 +49,7 @@ bash eng/pack-avalonia.sh
 bash eng/restore-currency-sample.sh -p:TargetFrameworks=net10.0-android -r android-x64
 bash eng/restore-currency-avalonia.sh -r android-x64
 python3 eng/verify-shared-hosting.py packages
-bash eng/dotnet.sh build samples/Currency.Sample -c Release -f net10.0-android -r android-x64 --no-restore
+bash eng/dotnet.sh build samples/Maui/Currency -c Release -f net10.0-android -r android-x64 --no-restore
 bash eng/dotnet.sh build samples/Avalonia/Currency/Currency.Android -c Release -r android-x64 --no-restore
 bash eng/verify-shared-hosting-android.sh emulator-5554
 ```

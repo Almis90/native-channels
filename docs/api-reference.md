@@ -75,7 +75,7 @@ See [configuration](configuration.md) for timeouts and dispatchers.
 
 `IServiceCollection.AddNativeChannels(Action<ChannelRegistrationOptions>?)` registers a native session
 without selecting a UI framework. An overload accepts an existing `ChannelRegistrationOptions`.
-The options expose `Modules`, `DefaultTimeout`, `Limits`, and `Json` metadata settings. Registration
+The options expose `Modules`, `DefaultTimeout`, `Limits`, `Json` metadata settings, and optional `Diagnostics`. Registration
 captures these settings; later edits do not reconfigure the session.
 
 Each service provider creates its own session when `IChannelService` or `IBinaryMessenger` is first
@@ -93,6 +93,13 @@ framework names omit the `.framework` extension. See the native guides for compi
 
 `MauiChannelDispatchers.MainThread` runs a managed incoming handler through MAUI's UI dispatcher.
 See [threading](threading.md) for FIFO handler entry and asynchronous completion.
+
+## Diagnostics
+
+Assign a `ChannelDiagnostics` instance to `NativeChannelsOptions.Diagnostics`, or initialize
+`ChannelService.Diagnostics` when using Core directly. Its observer receives metadata-only
+`ChannelDiagnosticEvent` records for method/message starts and completions. Diagnostics are disabled
+by default. See [diagnostics](diagnostics.md) for the fields, coverage, and callback threading contract.
 
 ## Native views
 

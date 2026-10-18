@@ -1,1 +1,1 @@
-<!--@include: ../samples/PdfViewer.Sample/README.md-->
+<!--@include: ../samples/Maui/PdfViewer/README.md-->

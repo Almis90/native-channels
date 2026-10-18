@@ -48,4 +48,4 @@ Build individual platform projects against their corresponding local development
 - [Linux build and verification](Currency.Desktop/Linux.md)
 - [Browser build and verification](Currency.Browser/README.md)
 
-The separate [MAUI sample](../../Currency.Sample/README.md) remains in its existing location.
+The separate [MAUI sample](../../Maui/Currency/README.md) remains in its existing location.

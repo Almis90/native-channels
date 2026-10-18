@@ -1,15 +1,19 @@
 <Project>
     <ItemGroup>
         <Compile
-            Include="$(MSBuildThisFileDirectory)../../NativeChannels.Sample/NativeVerification.cs"
+            Include="$(MSBuildThisFileDirectory)../../Maui/ChannelExplorer/GlobalUsings.cs"
+            Link="GlobalUsings.cs"
+        />
+        <Compile
+            Include="$(MSBuildThisFileDirectory)../../Maui/ChannelExplorer/NativeVerification.cs"
             Link="NativeVerification.cs"
         />
         <Compile
-            Include="$(MSBuildThisFileDirectory)../../NativeChannels.Sample/SampleModels.cs"
+            Include="$(MSBuildThisFileDirectory)../../Maui/ChannelExplorer/SampleModels.cs"
             Link="SampleModels.cs"
         />
         <Compile
-            Include="$(MSBuildThisFileDirectory)../../NativeChannels.Sample/SampleJsonContext.cs"
+            Include="$(MSBuildThisFileDirectory)../../Maui/ChannelExplorer/SampleJsonContext.cs"
             Link="SampleJsonContext.cs"
         />
     </ItemGroup>

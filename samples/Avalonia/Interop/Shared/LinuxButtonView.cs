@@ -3,7 +3,7 @@ using Avalonia.Platform;
 using Avalonia.Threading;
 using NativeChannels;
 
-namespace NativeChannels.Sample;
+namespace ChannelExplorer;
 
 internal sealed class LinuxButtonView : IAvaloniaNativeView
 {

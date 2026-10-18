@@ -1,8 +1,8 @@
 using Avalonia;
 using Avalonia.Controls;
-using MainThread = NativeChannels.Sample.SampleThread;
+using MainThread = ChannelExplorer.SampleThread;
 
-namespace NativeChannels.Sample;
+namespace ChannelExplorer;
 
 internal sealed class ViewVerification
 {

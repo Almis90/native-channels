@@ -3,7 +3,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 DEVICE="${1:?Usage: verify-ios-pdf.sh SIMULATOR_UDID [Debug|Release]}"
 CONFIGURATION="${2:-Debug}"
-APP="$ROOT/samples/PdfViewer.Sample/bin/$CONFIGURATION/net10.0-ios/iossimulator-arm64/PdfViewer.Sample.app"
+APP="$ROOT/samples/Maui/PdfViewer/bin/$CONFIGURATION/net10.0-ios/iossimulator-arm64/PdfViewer.Sample.app"
 xcrun simctl install "$DEVICE" "$APP"
 CONTAINER="$(xcrun simctl get_app_container "$DEVICE" dev.nativechannels.pdf.sample data)"
 rm -f "$CONTAINER/Library/pdf-result.txt" "$CONTAINER/Documents/pdf-result.txt"

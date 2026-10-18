@@ -47,7 +47,7 @@ jobs:
       - name: Compile both Release apps from those restores
         timeout-minutes: 12
         run: |
-          bash eng/dotnet.sh build samples/Currency.Sample -c Release -f net10.0-android -r android-x64 --no-restore --disable-build-servers
+          bash eng/dotnet.sh build samples/Maui/Currency -c Release -f net10.0-android -r android-x64 --no-restore --disable-build-servers
           bash eng/dotnet.sh build samples/Avalonia/Currency/Currency.Android -c Release -r android-x64 --no-restore --disable-build-servers
       - name: Enable KVM
         run: |

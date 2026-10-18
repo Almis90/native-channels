@@ -3,7 +3,7 @@
 Part of the [template-generated Avalonia solution](../README.md).
 
 This package-only .NET 10 iOS application consumes the same `Plugin.Maui.Currency` archive as the
-[MAUI sample](../../../Currency.Sample/README.md). It pins Avalonia 12.1.4 and has no MAUI dependency or
+[MAUI sample](../../../Maui/Currency/README.md). It pins Avalonia 12.1.4 and has no MAUI dependency or
 library project references. The shared `Currency` application project contains the view and session used by the
 [Avalonia Android sample](../Currency.Android/README.md).
 
@@ -55,7 +55,7 @@ bash eng/pack-avalonia.sh
 bash eng/restore-currency-sample.sh -p:TargetFrameworks=net10.0-ios -r iossimulator-arm64
 bash eng/restore-currency-avalonia.sh ios -r iossimulator-arm64
 python3 eng/verify-shared-hosting.py packages --platform ios
-bash eng/dotnet.sh build samples/Currency.Sample -c Release -f net10.0-ios -r iossimulator-arm64 --no-restore
+bash eng/dotnet.sh build samples/Maui/Currency -c Release -f net10.0-ios -r iossimulator-arm64 --no-restore
 bash eng/dotnet.sh build samples/Avalonia/Currency/Currency.iOS -c Release -r iossimulator-arm64 --no-restore
 bash eng/verify-shared-hosting-ios.sh SIMULATOR_UDID
 ```

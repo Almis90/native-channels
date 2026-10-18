@@ -1,5 +1,8 @@
 # Release checklist
 
+Before distribution, require the [API compatibility gate](api-compatibility.md) against the published
+baseline. The final combined packages must pass; a local mobile-only comparison is partial evidence.
+
 Use these checks before tagging or distributing NativeChannels. Record the exact source revision,
 package hashes, and platform results in [verification](verification.md). Compilation and runtime
 execution are separate evidence. No workflow publishes packages automatically.
@@ -11,6 +14,8 @@ execution are separate evidence. No workflow publishes packages automatically.
 - A regression test for throwing cancellation callbacks during in-memory transport disposal.
 - A separate benchmark project for codec throughput/allocations and managed channel round trips.
 - Repeated native view reconnect verification in the real package-only MAUI sample.
+- Opt-in real-platform round-trip measurements and a paced native lifecycle/memory soak, with raw
+  measurements, package hashes and a separate manual runtime workflow.
 - Package metadata and source-revision checks with SHA-256 manifests, alongside existing native-asset inspections.
 - Separate manual stress and benchmark workflows; ordinary CI retains one bounded pass of the portable stress tests.
 
@@ -42,7 +47,7 @@ Run [Verify framework](building.md#github-actions) with `All / Runtime`, then
 at the same commit. The coordinator assembles the combined feed and runs all seven framework consumers.
 Keep both successful run URLs and their stage evidence. Development feeds do not establish
 combined-package acceptance, and compilation does not establish physical-device execution.
-See the [recorded CI evidence](verification.md#framework-ci-verification) for tested source revisions;
+See the [recorded CI evidence](verification.md#nuget-preview-2) for tested source revisions;
 repeat applicable acceptance checks for the revision being released.
 
 These workflows currently verify the MAUI integration; they do not establish acceptance for the
@@ -61,7 +66,7 @@ an example, verify its own packages and applicable consumers separately.
 | Windows | Combined package consumers compile for x64/ARM64; execute on supported Windows hosts and record remaining architecture gaps |
 | Apple builds | Unsigned iOS device and Mac Catalyst Release consumers compile; Catalyst framework sample executes on the Mac runner; physical-device status recorded separately |
 | Packages | All framework inspectors pass, exact-commit metadata audit passes, separate consumers restore from fresh caches |
-| Performance | Record benchmark host, runtime, source revision, allocations, uncertainty, and workload; investigate measured regressions |
+| Performance | Record native profile source, package hashes, host/runtime, duration, percentiles and memory series; investigate regressions across comparable repeated runs |
 | Documentation | API, protocol, lifecycle, threading, errors, plugin authoring, troubleshooting, build and verification guides match shipped behavior |
 | Release | Update framework version and package references together, review compatibility, wait for applicable CI, then tag the verified revision |
 

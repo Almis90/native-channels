@@ -48,6 +48,7 @@ export default defineConfig({
         { text: 'Configuration', link: '/configuration' },
         { text: 'Codecs and typed values', link: '/message-codecs' },
         { text: 'Error handling', link: '/error-handling' },
+        { text: 'Diagnostics', link: '/diagnostics' },
         { text: 'Threading', link: '/threading' },
         { text: 'Lifecycle', link: '/lifecycle' },
         { text: 'C# API reference', link: '/api-reference' },
@@ -88,7 +89,7 @@ export default defineConfig({
           { text: 'Sample app', link: '/pdf-sample' },
           { text: 'Verification', link: '/pdf-verification' },
         ] },
-        { text: 'Framework verification app', link: '/sample' },
+        { text: 'ChannelExplorer', link: '/sample' },
       ] },
       { text: 'Understand the bridge', collapsed: true, items: [
         { text: 'Architecture', link: '/architecture' },
@@ -99,6 +100,7 @@ export default defineConfig({
       { text: 'Development', collapsed: true, items: [
         { text: 'Building from source', link: '/building' },
         { text: 'Testing', link: '/testing' },
+        { text: 'API compatibility', link: '/api-compatibility' },
         { text: 'Performance and stress', link: '/performance' },
         { text: 'Release checklist', link: '/release-checklist' },
         { text: 'Publishing to NuGet', link: '/publishing' },

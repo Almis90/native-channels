@@ -21,7 +21,7 @@ remain release goals. The [Avalonia sample matrix](../samples/Avalonia/README.md
 Implemented features include method calls, binary/value messages, independent event subscriptions,
 and native views with instance channels. The four reference plugins demonstrate these contracts.
 
-The framework preview `0.1.0-preview.1` is [published on NuGet.org](https://www.nuget.org/packages/NativeChannels.Maui/0.1.0-preview.1),
+The framework preview `0.1.0-preview.2` is [published on NuGet.org](https://www.nuget.org/packages/NativeChannels.Maui/0.1.0-preview.2),
 following exact-source distribution validation and fresh public-feed consumer checks.
 Remaining coverage includes Windows ARM64 execution, broader physical-device and audio-route checks,
 and long-running native lifecycle tests. Each future release still requires fresh package-only validation.

@@ -12,6 +12,7 @@ public sealed class MethodChannel : IDisposable, IAsyncDisposable
     private IDisposable? _registration;
     private bool _disposed;
     private readonly ChannelHandlerDispatcher? _dispatcher;
+    private readonly ChannelDiagnostics? _diagnostics;
 
     internal MethodChannel(
         IBinaryMessenger messenger,
@@ -20,7 +21,8 @@ public sealed class MethodChannel : IDisposable, IAsyncDisposable
         ChannelSerializer serializer,
         TimeSpan timeout,
         Action<MethodChannel> release,
-        ChannelHandlerDispatcher? dispatcher
+        ChannelHandlerDispatcher? dispatcher,
+        ChannelDiagnostics? diagnostics
     )
     {
         _messenger = messenger;
@@ -30,6 +32,7 @@ public sealed class MethodChannel : IDisposable, IAsyncDisposable
         _timeout = timeout;
         _release = release;
         _dispatcher = dispatcher;
+        _diagnostics = diagnostics;
     }
 
     public string Name { get; }
@@ -39,46 +42,58 @@ public sealed class MethodChannel : IDisposable, IAsyncDisposable
         object? arguments = null,
         CancellationToken cancellationToken = default,
         ChannelInvocationOptions? options = null
-    ) => _ = await InvokeCoreAsync(method, arguments, cancellationToken, options).ConfigureAwait(false);
+    ) => _ = await InvokeCoreAsync<object>(method, arguments, cancellationToken, options).ConfigureAwait(false);
 
     public async Task<T?> InvokeAsync<T>(
         string method,
         object? arguments = null,
         CancellationToken cancellationToken = default,
         ChannelInvocationOptions? options = null
-    ) =>
-        _serializer.ConvertResult<T>(
-            await InvokeCoreAsync(method, arguments, cancellationToken, options).ConfigureAwait(false)
-        );
+    ) => await InvokeCoreAsync<T>(method, arguments, cancellationToken, options).ConfigureAwait(false);
 
-    private async Task<object?> InvokeCoreAsync(
+    private async Task<T?> InvokeCoreAsync<T>(
         string method,
         object? arguments,
         CancellationToken cancellationToken,
         ChannelInvocationOptions? options
     )
     {
-        lock (_gate)
-        {
-            ObjectDisposedException.ThrowIf(_disposed, this);
-        }
-
         var timeout = options?.Timeout ?? _timeout;
-        ChannelLimits.ValidateTimeout(timeout);
-        using var linked = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _closed.Token);
+        using var diagnostic = _diagnostics?.Start(
+            ChannelDiagnosticKind.Method,
+            ChannelDiagnosticDirection.Outgoing,
+            Name,
+            method,
+            timeout
+        );
         try
         {
-            var payload = _codec.EncodeCall(new(method, arguments));
-            var response = await _messenger.SendAsync(Name, payload, timeout, linked.Token).ConfigureAwait(false);
-            return _codec.DecodeResult(response);
+            lock (_gate)
+            {
+                ObjectDisposedException.ThrowIf(_disposed, this);
+            }
+
+            ChannelLimits.ValidateTimeout(timeout);
+            using var linked = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _closed.Token);
+            try
+            {
+                var payload = _codec.EncodeCall(new(method, arguments));
+                var response = await _messenger.SendAsync(Name, payload, timeout, linked.Token).ConfigureAwait(false);
+                return _serializer.ConvertResult<T>(_codec.DecodeResult(response));
+            }
+            catch (OperationCanceledException) when (_closed.IsCancellationRequested)
+            {
+                throw new ObjectDisposedException(nameof(MethodChannel));
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                throw new OperationCanceledException(cancellationToken);
+            }
         }
-        catch (OperationCanceledException) when (_closed.IsCancellationRequested)
+        catch (Exception error)
         {
-            throw new ObjectDisposedException(nameof(MethodChannel));
-        }
-        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
-        {
-            throw new OperationCanceledException(cancellationToken);
+            diagnostic?.Fail(error);
+            throw;
         }
     }
 
@@ -103,9 +118,17 @@ public sealed class MethodChannel : IDisposable, IAsyncDisposable
         Func<MethodCall, CancellationToken, ValueTask<object?>> handler
     )
     {
+        using var diagnostic = _diagnostics?.Start(
+            ChannelDiagnosticKind.Method,
+            ChannelDiagnosticDirection.Incoming,
+            Name
+        );
+        using var cancellation = diagnostic?.ObserveCancellation(cancellationToken) ?? default;
         try
         {
             var call = _codec.DecodeCall(payload);
+            if (diagnostic is not null)
+                diagnostic.Method = call.Method;
             object? result;
             if (_dispatcher is null)
             {
@@ -117,22 +140,28 @@ public sealed class MethodChannel : IDisposable, IAsyncDisposable
                     .ConfigureAwait(false);
             }
 
-            return _codec.EncodeSuccess(result);
+            var response = _codec.EncodeSuccess(result);
+            diagnostic?.Dispose();
+            return response;
         }
-        catch (MethodNotImplementedException)
+        catch (MethodNotImplementedException error)
         {
+            diagnostic?.Fail(error);
             return _codec.EncodeNotImplemented();
         }
-        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        catch (OperationCanceledException error) when (cancellationToken.IsCancellationRequested)
         {
+            diagnostic?.Fail(error);
             throw;
         }
         catch (ChannelException error)
         {
+            diagnostic?.Fail(error);
             return _codec.EncodeError(error);
         }
-        catch (Exception)
+        catch (Exception error)
         {
+            diagnostic?.Fail(error);
             return _codec.EncodeError(new("managed_error", "Managed handler failed.", platform: "managed"));
         }
     }

@@ -17,7 +17,7 @@ The reference plugin is built locally and has **not been published to NuGet.org*
    The [Windows module](native/windows/WindowsCurrencyModule.cs) does the same through WinRT from C#.
 3. [Registration extensions](src/Plugin.Maui.Currency/CurrencyExtensions.cs) configure the native modules and expose `ICurrencyService` through dependency injection.
 4. The [package project](src/Plugin.Maui.Currency/Plugin.Maui.Currency.csproj) includes the managed API, Kotlin AAR, and Swift XCFramework for mobile builds. Its [transitive targets](src/Plugin.Maui.Currency/buildTransitive/Plugin.Maui.Currency.targets) add the native assets to the consuming application. The Windows development package embeds its adapter in the managed assembly and has no mobile native assets.
-5. A separate [sample application](https://github.com/Almis90/native-channels/tree/main/samples/Currency.Sample) restores the plugin and its chosen `NativeChannels.Maui` host from packages. This verifies that consumers receive the native adapters without project references or manual native imports.
+5. A separate [sample application](https://github.com/Almis90/native-channels/tree/main/samples/Maui/Currency) restores the plugin and its chosen `NativeChannels.Maui` host from packages. This verifies that consumers receive the native adapters without project references or manual native imports.
 
 The plugin depends on `NativeChannels`, with no MAUI dependency or `UseMaui` build requirement.
 Its existing package ID and channel name are retained. Applications select their UI host separately.
@@ -96,13 +96,13 @@ python3 plugins/Plugin.Maui.Currency/eng/inspect-package.py
 
 # Restore the separate application into a fresh package cache.
 bash eng/restore-currency-sample.sh -p:TargetFrameworks=net10.0-ios -r iossimulator-arm64
-bash eng/dotnet.sh build samples/Currency.Sample -c Release -f net10.0-ios -r iossimulator-arm64 --no-restore
+bash eng/dotnet.sh build samples/Maui/Currency -c Release -f net10.0-ios -r iossimulator-arm64 --no-restore
 bash eng/verify-ios-currency.sh SIMULATOR_UDID Release
 ```
 
 For Android, restore with `-p:TargetFrameworks=net10.0-android -r android-arm64`, build the same target/RID, then run `bash eng/verify-android-currency.sh emulator-5580 Release android-arm64`. Use `android-x64` for an x86_64 emulator. The Android SDK and JDK environment variables must be configured as described in the repository's [development guide](https://github.com/Almis90/native-channels/blob/main/docs/building.md).
 
-The [sample](https://github.com/Almis90/native-channels/tree/main/samples/Currency.Sample) has an editable currency code and quick lookup buttons. Its startup verification exercises real native lookups, normalization, concurrent requests, native errors, and cancellation. The app references this plugin and `NativeChannels.Maui`; the platform transport and native adapters arrive transitively.
+The [sample](https://github.com/Almis90/native-channels/tree/main/samples/Maui/Currency) has an editable currency code and quick lookup buttons. Its startup verification exercises real native lookups, normalization, concurrent requests, native errors, and cancellation. The app references this plugin and `NativeChannels.Maui`; the platform transport and native adapters arrive transitively.
 
 Portable facade tests run with `bash eng/dotnet.sh test`. They compile the actual facade source against the portable Core project. Native tests exercise the platform currency APIs separately:
 

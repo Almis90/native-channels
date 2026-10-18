@@ -4,7 +4,7 @@ using Avalonia.Browser;
 using Avalonia.Platform;
 using NativeChannels;
 
-namespace NativeChannels.Sample;
+namespace ChannelExplorer;
 
 public static partial class SampleBrowser
 {

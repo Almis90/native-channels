@@ -44,6 +44,7 @@ public static class NativeChannelServiceCollectionExtensions
             );
         }
 
+        var diagnostics = options.Diagnostics;
         var modules = options.Modules.ToArray();
         var serializer = new ChannelSerializer(new JsonSerializerOptions(options.Json));
         services.AddSingleton<IBinaryMessenger>(_ => new BinaryMessenger(new NativeChannelTransport(modules), limits));
@@ -52,7 +53,10 @@ public static class NativeChannelServiceCollectionExtensions
             serializer,
             timeout,
             limits
-        ));
+        )
+        {
+            Diagnostics = diagnostics,
+        });
         return services;
     }
 

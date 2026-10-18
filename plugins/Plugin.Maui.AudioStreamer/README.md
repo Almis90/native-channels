@@ -34,7 +34,7 @@ bash plugins/Plugin.Maui.AudioStreamer/eng/pack.sh
 python3 plugins/Plugin.Maui.AudioStreamer/eng/inspect-package.py
 
 bash eng/restore-audio-sample.sh -p:TargetFrameworks=net10.0-android -r android-arm64
-bash eng/dotnet.sh build samples/AudioStreamer.Sample -c Release -f net10.0-android -r android-arm64 --no-restore
+bash eng/dotnet.sh build samples/Maui/AudioStreamer -c Release -f net10.0-android -r android-arm64 --no-restore
 bash eng/verify-android-audio.sh EMULATOR_SERIAL Release android-arm64
 ```
 
@@ -135,7 +135,7 @@ and route stress need measurement before making those claims.
 - [Swift adapter](native/apple/Sources/AudioStreamerModule.swift): AVAudioEngine scheduling, playback acknowledgements, interruptions.
 - [Windows adapter](native/windows/WindowsAudioStreamerModule.cs): waveOut PCM playback and queue ownership.
 - [Linux adapter](native/linux/audio.cpp) and [channel module](native/linux/audio.hpp): C++ ALSA PCM playback, partial writes and bounded buffering.
-- [Interactive sample](../../samples/AudioStreamer.Sample): original PCM music synthesis and playback controls.
+- [Interactive sample](../../samples/Maui/AudioStreamer): original PCM music synthesis and playback controls.
 - [Portable tests](../../tests/Plugin.Maui.AudioStreamer.Tests): exact PCM, backpressure, cancellation, lease cleanup, and malformed replies.
 
 Run `bash eng/dotnet.sh test -c Release` for portable tests. Package inspections check the generic-bridge

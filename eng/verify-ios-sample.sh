@@ -3,7 +3,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 DEVICE="${1:?Usage: verify-ios-sample.sh SIMULATOR_UDID [Debug|Release]}"
 CONFIGURATION="${2:-Debug}"
-APP="$ROOT/samples/NativeChannels.Sample/bin/$CONFIGURATION/net10.0-ios/iossimulator-arm64/NativeChannels.Sample.app"
+APP="$ROOT/samples/Maui/ChannelExplorer/bin/$CONFIGURATION/net10.0-ios/iossimulator-arm64/ChannelExplorer.app"
 xcrun simctl install "$DEVICE" "$APP"
 CONTAINER="$(xcrun simctl get_app_container "$DEVICE" dev.nativechannels.sample data)"
 rm -f "$CONTAINER/Library/sample-result.txt" "$CONTAINER/Documents/sample-result.txt"

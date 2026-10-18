@@ -5,7 +5,7 @@ DEVICE="${1:?Usage: verify-android-volume.sh EMULATOR_SERIAL [Debug|Release] [an
 CONFIGURATION="${2:-Debug}"
 ADB="${ANDROID_HOME:-$HOME/Library/Android/sdk}/platform-tools/adb"
 RID="${3:-}"
-APK="$ROOT/samples/VolumeMonitor.Sample/bin/$CONFIGURATION/net10.0-android/${RID:+$RID/}dev.nativechannels.volume.sample-Signed.apk"
+APK="$ROOT/samples/Maui/VolumeMonitor/bin/$CONFIGURATION/net10.0-android/${RID:+$RID/}dev.nativechannels.volume.sample-Signed.apk"
 "$ADB" -s "$DEVICE" install --no-incremental -r "$APK"
 "$ADB" -s "$DEVICE" shell am force-stop dev.nativechannels.volume.sample
 "$ADB" -s "$DEVICE" logcat -c

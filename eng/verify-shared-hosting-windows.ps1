@@ -73,7 +73,7 @@ try {
         $PackageFeed = 'artifacts/windows/packages'
     }
     $feed = (Resolve-Path -LiteralPath $PackageFeed).Path
-    Invoke-Python eng/clean-consumer.py samples/Currency.Sample
+    Invoke-Python eng/clean-consumer.py samples/Maui/Currency
     Invoke-Python eng/clean-consumer.py samples/Avalonia/Currency/Currency.Desktop
     $mauiCache = Join-Path $repoRoot ('.tools/wn/' + [Guid]::NewGuid().ToString('N').Substring(0, 12))
     $avaloniaCache = Join-Path $repoRoot ('.tools/wn/' + [Guid]::NewGuid().ToString('N').Substring(0, 12))

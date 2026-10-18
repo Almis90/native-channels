@@ -1,7 +1,7 @@
 using Avalonia.Threading;
 using NativeChannels;
 
-namespace NativeChannels.Sample;
+namespace ChannelExplorer;
 
 internal static class SampleThread
 {

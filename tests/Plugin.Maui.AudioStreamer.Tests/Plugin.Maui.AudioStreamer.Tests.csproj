@@ -13,6 +13,6 @@
         <Compile Include="../../src/NativeChannels/Hosting/ChannelRegistrationOptions.cs" />
         <Compile Include="../../src/NativeChannels/NativeModuleRegistration.cs" />
         <Compile Include="../../plugins/Plugin.Maui.AudioStreamer/src/Plugin.Maui.AudioStreamer/*.cs" />
-        <Compile Include="../../samples/AudioStreamer.Sample/MusicGenerator.cs" />
+        <Compile Include="../../samples/Maui/AudioStreamer/MusicGenerator.cs" />
     </ItemGroup>
 </Project>

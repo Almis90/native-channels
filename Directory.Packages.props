@@ -2,7 +2,7 @@
     <PropertyGroup>
         <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
         <NativeChannelsPackageVersion Condition="'$(NativeChannelsPackageVersion)' == ''"
-            >0.1.0-preview.1</NativeChannelsPackageVersion>
+            >0.1.0-preview.2</NativeChannelsPackageVersion>
         <CurrencyPackageVersion Condition="'$(CurrencyPackageVersion)' == ''"
             >1.1.0-alpha.1</CurrencyPackageVersion>
     </PropertyGroup>

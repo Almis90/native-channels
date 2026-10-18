@@ -1,6 +1,6 @@
+using ChannelExplorer;
 using Microsoft.Extensions.DependencyInjection;
 using NativeChannels;
-using NativeChannels.Sample;
 
 namespace ReferenceSamples;
 

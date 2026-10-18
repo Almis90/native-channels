@@ -77,6 +77,27 @@ public sealed class RegistrationTests
     }
 
     [Fact]
+    public async Task RegistrationPreservesDiagnosticsThroughSharedHosting()
+    {
+        var events = new System.Collections.Concurrent.ConcurrentQueue<ChannelDiagnosticEvent>();
+        var diagnostics = new ChannelDiagnostics(events.Enqueue);
+        var options = new ChannelRegistrationOptions { Diagnostics = diagnostics };
+        options.Modules.Add(Registration(() => new Module()));
+        var services = new ServiceCollection().AddNativeChannels(options);
+        options.Diagnostics = new ChannelDiagnostics(_ => throw new Exception("Replaced after registration"));
+
+        await using var provider = services.BuildServiceProvider();
+        var channels = provider.GetRequiredService<IChannelService>();
+        using var handle = channels.GetMethodChannel("probe");
+        Assert.Equal(42, await handle.InvokeAsync<int>("echo", 42));
+        var notifications = events.ToArray();
+        Assert.Equal(2, notifications.Length);
+        Assert.Equal(ChannelDiagnosticStage.Started, notifications[0].Stage);
+        Assert.Equal(ChannelDiagnosticOutcome.Success, notifications[1].Outcome);
+        Assert.Equal(notifications[0].OperationId, notifications[1].OperationId);
+    }
+
+    [Fact]
     public void DuplicateRegistrationDoesNotRunConfigurationOrChangeServices()
     {
         var services = new ServiceCollection().AddNativeChannels();

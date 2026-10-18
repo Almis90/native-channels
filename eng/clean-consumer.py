@@ -5,18 +5,18 @@ import shutil
 import sys
 
 CONSUMERS = {
-    'samples/NativeChannels.Sample': 'sample',
+    'samples/Maui/ChannelExplorer': 'sample',
     'tests/PackageConsumer': 'consumer',
-    'samples/Currency.Sample': 'currency',
+    'samples/Maui/Currency': 'currency',
     'samples/Avalonia/Currency/Currency.Android': 'currency-avalonia',
     'samples/Avalonia/Currency/Currency.iOS': 'currency-avalonia-ios',
     'samples/Avalonia/Currency/Currency.Desktop': 'currency-avalonia-macos',
     'samples/Avalonia/Currency/Currency.Browser': 'currency-avalonia-browser',
-    'samples/AudioStreamer.Sample': 'audio',
+    'samples/Maui/AudioStreamer': 'audio',
     'samples/Avalonia/AudioStreamer': 'audio-avalonia-windows',
     'samples/Avalonia/AudioStreamer/Linux': 'audio-avalonia-linux',
-    'samples/VolumeMonitor.Sample': 'volume',
-    'samples/PdfViewer.Sample': 'pdf',
+    'samples/Maui/VolumeMonitor': 'volume',
+    'samples/Maui/PdfViewer': 'pdf',
 }
 
 

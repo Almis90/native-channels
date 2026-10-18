@@ -1,6 +1,6 @@
 # Avalonia interoperability sample
 
-This ports `samples/NativeChannels.Sample` to Android, iOS, Windows, macOS,
+This ports `samples/Maui/ChannelExplorer` to Android, iOS, Windows, macOS,
 Linux and browser. It is the framework-contract sample alongside the four
 Currency, AudioStreamer, VolumeMonitor and PdfViewer reference samples.
 

@@ -1,5 +1,5 @@
 param(
-    [string]$Version = '0.1.0-preview.1',
+    [string]$Version = '0.1.0-preview.2',
     [string]$CurrencyVersion = '1.1.0-alpha.1',
     [string]$PackageFeed,
     [switch]$WindowsOnlyFeed,
@@ -115,8 +115,8 @@ try {
 <packageSource key="nuget.org"><package pattern="*" /></packageSource>
 </packageSourceMapping></configuration>
 "@ | Set-Content -LiteralPath $config -Encoding utf8
-    $sample = 'samples/NativeChannels.Sample/NativeChannels.Sample.csproj'
-    $executable = 'NativeChannels.Sample.exe'
+    $sample = 'samples/Maui/ChannelExplorer/ChannelExplorer.csproj'
+    $executable = 'ChannelExplorer.exe'
     $resultName = 'sample-result.txt'
     $resultVariable = 'NATIVECHANNELS_SAMPLE_RESULT'
     $passPrefix = 'PASS Windows:'
@@ -132,7 +132,7 @@ try {
         }
         Test-WindowsPackage "Plugin.Maui.$Plugin" $pluginVersion
         $packageVersions["Plugin.Maui.$Plugin"] = $pluginVersion
-        $sample = "samples/$Plugin.Sample/$Plugin.Sample.csproj"
+        $sample = "samples/Maui/$Plugin/$Plugin.Sample.csproj"
         $executable = "$Plugin.Sample.exe"
         $shortName = @{ Currency = 'currency'; AudioStreamer = 'audio'; VolumeMonitor = 'volume'; PdfViewer = 'pdf' }[$Plugin]
         $resultName = "$shortName-result.txt"

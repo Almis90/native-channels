@@ -1,5 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
+        <Description>Android binding and Kotlin runtime bridge for NativeChannels. Includes the generic messaging AAR and native view bridge. Installed transitively by NativeChannels on Android; application-specific native adapters are registered separately.</Description>
         <TargetFramework>net10.0-android</TargetFramework>
         <SupportedOSPlatformVersion>24</SupportedOSPlatformVersion>
         <IsBindingProject>true</IsBindingProject>

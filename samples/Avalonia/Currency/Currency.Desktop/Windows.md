@@ -4,7 +4,7 @@ The generated `Currency.Desktop` project selects the Windows target on Windows, 
 `-p:CurrencyDesktopTarget=windows`. It references the shared `Currency` UI project.
 
 This .NET 10 Windows desktop application consumes the same `Plugin.Maui.Currency`
-archive as the [MAUI sample](../../../Currency.Sample/README.md). It pins Avalonia 12.1.4, uses its Win32
+archive as the [MAUI sample](../../../Maui/Currency/README.md). It pins Avalonia 12.1.4, uses its Win32
 backend, and has no MAUI, WinUI/Windows App SDK, or library project dependency. Currency calls the
 existing WinRT adapter through the shared channel transport.
 

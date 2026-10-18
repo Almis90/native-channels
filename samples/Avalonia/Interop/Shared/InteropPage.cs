@@ -1,7 +1,7 @@
 using Avalonia;
 using Avalonia.Controls;
+using ChannelExplorer;
 using NativeChannels;
-using NativeChannels.Sample;
 
 namespace ReferenceSamples;
 

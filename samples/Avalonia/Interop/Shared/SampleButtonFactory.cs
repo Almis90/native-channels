@@ -6,7 +6,7 @@ using Avalonia.Android;
 using Avalonia.iOS;
 #endif
 
-namespace NativeChannels.Sample;
+namespace ChannelExplorer;
 
 internal static partial class SampleButtonFactory
 {

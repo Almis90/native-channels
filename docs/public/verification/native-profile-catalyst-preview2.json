@@ -1,0 +1,103 @@
+{
+  "source": "5d5a83f7f9f9eec8974108de39d2758a8f053480",
+  "dirty": true,
+  "runId": "e45f948e-76ec-4720-9fd7-32ce01095689",
+  "runtimeIdentifier": "maccatalyst-arm64",
+  "configuration": "Release",
+  "version": "0.1.0-preview.2",
+  "packageRun": null,
+  "workflowRun": null,
+  "packages": {
+    "NativeChannels.0.1.0-preview.2.nupkg": "1852ccae2a88929fc1f8f72f0a990631edf0c9335946123ef007e8900f8d219f",
+    "NativeChannels.Core.0.1.0-preview.2.nupkg": "58e77c78f2b7137784139771ceb4039305e66aa03e6bf5d1d700cd40f0d239d2",
+    "NativeChannels.Maui.0.1.0-preview.2.nupkg": "030bec1d677bb7b1f30aee62ba29c24a27f7af18f36dcb618e7b75a8fe341d78",
+    "NativeChannels.Native.Apple.0.1.0-preview.2.nupkg": "c7cc4d982463ac2972e97a5ce5836a27d6da9fecc75c765feea16e22f515f06e"
+  },
+  "adapterInputs": {
+    "artifacts/native/NativeChannelsSample.xcframework/ios-arm64_x86_64-simulator/NativeChannelsSample.framework/NativeChannelsSample": "4bd1239359da081f916d9bb182ee20de750f660e5d7391c45390e67e56a48485",
+    "artifacts/native/NativeChannelsSample.xcframework/ios-arm64_x86_64-maccatalyst/NativeChannelsSample.framework/NativeChannelsSample": "35b29dea35ec7b882b73eeae536cdcaf93e2ee167147890a3eb3bf3d080a9e0c",
+    "artifacts/native/NativeChannelsSample.xcframework/ios-arm64/NativeChannelsSample.framework/NativeChannelsSample": "755c3416f3cd18e61d04a72f696dac2e1a5f2511ad6c7d42537485d57ed2e756"
+  },
+  "start": {
+    "kind": "start",
+    "runId": "e45f948e-76ec-4720-9fd7-32ce01095689",
+    "sequence": 0,
+    "platform": "MacCatalyst",
+    "runtime": ".NET 10.0.12 / Arm64",
+    "os": "Mac Catalyst 26.2.0",
+    "frameworkVersion": "0.1.0-preview.2+5d5a83f7f9f9eec8974108de39d2758a8f053480",
+    "appVersion": "0.1+5d5a83f7f9f9eec8974108de39d2758a8f053480",
+    "durationSeconds": 300
+  },
+  "complete": {
+    "kind": "complete",
+    "runId": "e45f948e-76ec-4720-9fd7-32ce01095689",
+    "sequence": 288,
+    "elapsedSeconds": 305.0347733,
+    "cycles": 2532,
+    "activeStreams": 0
+  },
+  "timings": [
+    {
+      "kind": "timing",
+      "runId": "e45f948e-76ec-4720-9fd7-32ce01095689",
+      "sequence": 1,
+      "name": "method-int32",
+      "samples": 256,
+      "warmup": 32,
+      "minMs": 0.0494,
+      "meanMs": 0.07835273437500004,
+      "p50Ms": 0.0568,
+      "p95Ms": 0.1588,
+      "maxMs": 1.6399
+    },
+    {
+      "kind": "timing",
+      "runId": "e45f948e-76ec-4720-9fd7-32ce01095689",
+      "sequence": 2,
+      "name": "method-reentrant",
+      "samples": 256,
+      "warmup": 32,
+      "minMs": 0.0955,
+      "meanMs": 0.12198906249999997,
+      "p50Ms": 0.1071,
+      "p95Ms": 0.1559,
+      "maxMs": 0.8346
+    },
+    {
+      "kind": "timing",
+      "runId": "e45f948e-76ec-4720-9fd7-32ce01095689",
+      "sequence": 3,
+      "name": "binary-reentrant-4096",
+      "samples": 256,
+      "warmup": 32,
+      "minMs": 0.1121,
+      "meanMs": 0.16245976562499997,
+      "p50Ms": 0.1519,
+      "p95Ms": 0.2041,
+      "maxMs": 0.7187
+    }
+  ],
+  "memorySamples": 284,
+  "memoryBytes": {
+    "physicalFootprint": {
+      "first": 66307080,
+      "last": 87098376,
+      "peak": 87114760,
+      "delta": 20791296
+    },
+    "resident": {
+      "first": 157270016,
+      "last": 128073728,
+      "peak": 160464896,
+      "delta": -29196288
+    },
+    "managedBytes": {
+      "first": 6516776,
+      "last": 18026416,
+      "peak": 20065848,
+      "delta": 11509640
+    }
+  },
+  "interpretation": "Observed process/heap retention, not proof of a leak or its absence. No forced GC."
+}

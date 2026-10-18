@@ -1,7 +1,12 @@
+<p>
+  <img src="https://raw.githubusercontent.com/Almis90/native-channels/main/assets/package-icon.png" alt="NativeChannels logo" width="80" height="80">
+</p>
+
 # NativeChannels
 
+[![NuGet preview](https://img.shields.io/nuget/vpre/NativeChannels.Maui?label=NuGet&logo=nuget&color=6554c0)](https://www.nuget.org/packages/NativeChannels.Maui/)
 [![Documentation](https://img.shields.io/badge/docs-GitHub%20Pages-6554c0)](https://almis90.github.io/native-channels/)
-[![.NET 10](https://img.shields.io/badge/.NET-10-512BD4)](docs/building.md)
+[![Verify distribution](https://github.com/Almis90/native-channels/actions/workflows/verify-distribution.yml/badge.svg?branch=main&event=workflow_dispatch)](https://github.com/Almis90/native-channels/actions/workflows/verify-distribution.yml)
 [![MIT license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 **Native integrations for .NET MAUI, through one reusable bridge.**
@@ -21,7 +26,7 @@ string? reply = await channel.InvokeAsync<string>("echo", "Hello from .NET");
 **Preview software.** NativeChannels supports Android, iOS, Mac Catalyst, and Windows through its
 MAUI integration. The core messaging layer is independent of MAUI. Complete Avalonia integration is
 planned for 0.2 and Uno for 0.3; neither is available on `main` yet.
-The first preview is [available on NuGet.org](https://www.nuget.org/packages/NativeChannels.Maui/0.1.0-preview.1).
+The latest preview is [available on NuGet.org](https://www.nuget.org/packages/NativeChannels.Maui/0.1.0-preview.2).
 
 [Documentation](https://almis90.github.io/native-channels/) Â·
 [Getting started](docs/getting-started.md) Â·
@@ -67,7 +72,7 @@ platform-specific lifecycle behavior. See [architecture](docs/architecture.md).
 Add the package to a .NET 10 MAUI application:
 
 ```sh
-dotnet add package NativeChannels.Maui --version 0.1.0-preview.1
+dotnet add package NativeChannels.Maui --version 0.1.0-preview.2
 ```
 
 Core, platform transports, and the applicable Android or Apple binding are transitive dependencies.
@@ -77,7 +82,8 @@ register the native adapter for your SDK; installing the bridge alone does not a
 The [getting-started guide](docs/getting-started.md) walks through package installation,
 adapter registration, and a complete native round trip. Then follow one path:
 
-- **Try the bridge:** run the [framework verification sample](samples/NativeChannels.Sample/README.md).
+- **Browse MAUI samples:** see the [sample applications](samples/Maui/README.md).
+- **Try the bridge:** run the [ChannelExplorer sample](samples/Maui/ChannelExplorer/README.md).
 - **Integrate a native SDK:** follow [getting started](docs/getting-started.md), then the
   [Android](docs/android-integration.md) and [Apple](docs/ios-integration.md) adapter guides.
 - **Build a reusable plugin:** follow [plugin authoring](docs/plugin-authoring.md) and study the
@@ -129,6 +135,7 @@ and complete browser hosting remain planned.
 | Package an integration for other applications | [Build a plugin](docs/plugin-authoring.md) |
 | Configure codecs, DTOs, timeouts, and dispatch | [Codecs](docs/message-codecs.md) Â· [Configuration](docs/configuration.md) |
 | Diagnose startup or runtime failures | [Troubleshooting](docs/troubleshooting.md) |
+| Log channel timings and outcomes | [Diagnostics](docs/diagnostics.md) |
 | Explore the public C# surface | [API reference](docs/api-reference.md) |
 
 The [documentation website](https://almis90.github.io/native-channels/) includes searchable guides,
