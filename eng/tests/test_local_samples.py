@@ -39,10 +39,32 @@ class LocalSamplesTests(unittest.TestCase):
                 process.kill.assert_called_once()
 
     def test_project_matrix_includes_both_pdf_backends(self):
-        for target in runner.HEADS:
+        for target in (target for target in runner.HEADS if target != 'maccatalyst'):
             for sample in runner.SAMPLES:
                 for backend in (('Qt', 'Gtk') if target == 'linux' and sample == 'PdfViewer' else ('',)):
                     self.assertTrue(runner.project(sample, target, backend).is_file())
+
+    def test_maui_project_matrix(self):
+        for target in ('windows', 'android', 'ios', 'maccatalyst'):
+            for sample in runner.SAMPLES:
+                self.assertTrue(runner.project(sample, target, framework='maui').is_file())
+        self.assertEqual(runner.project('Interop', 'windows', framework='maui').stem, 'ChannelExplorer')
+
+    def test_rejects_unsupported_framework_platform_before_building(self):
+        import subprocess
+        import sys
+        for framework, target in (('maui', 'linux'), ('maui', 'browser'), ('avalonia', 'maccatalyst')):
+            result = subprocess.run([sys.executable, str(Path(runner.__file__)), '--framework', framework,
+                                     '--platform', target], capture_output=True, text=True)
+            self.assertEqual(result.returncode, 2)
+            self.assertIn(framework + ' supports:', result.stderr)
+
+    def test_maui_requires_cleanup_even_with_a_pass_result(self):
+        for sample in runner.SAMPLES:
+            runner.validate_result(sample, 'PASS native checks', 'NATIVECHANNELS_MAUI_CLOSED', framework='maui')
+            for log in ('', 'NATIVECHANNELS_MAUI_CLOSED NATIVECHANNELS_MAUI_CLOSED'):
+                with self.subTest(sample=sample, log=log), self.assertRaises(RuntimeError):
+                    runner.validate_result(sample, 'PASS native checks', log, framework='maui')
 
     def test_virtual_audio_restores_environment_and_unloads_on_failure(self):
         with patch.dict(runner.os.environ, {'PULSE_SINK': 'original'}), \

@@ -6,7 +6,7 @@ using Avalonia.Android;
 namespace ReferenceSamples;
 
 [Activity(
-    Theme = "@android:style/Theme.Material.Light.NoActionBar",
+    Theme = "@style/Theme.AppCompat.DayNight.NoActionBar",
     MainLauncher = true,
     Exported = true,
     ConfigurationChanges = ConfigChanges.Orientation | ConfigChanges.ScreenSize | ConfigChanges.UiMode

@@ -105,6 +105,8 @@ def audit_platform_scope(path, record, platform):
     if platform in {"macos", "linux", "browser"}:
         permitted.remove("NativeChannels.Maui")
     permitted.update({"Plugin.Maui.Currency", "Plugin.Maui.AudioStreamer", "Plugin.Maui.VolumeMonitor", "Plugin.Avalonia.PdfViewer"})
+    if platform in {"windows", "ios", "maccatalyst"}:
+        permitted.add("Plugin.Maui.PdfViewer")
     if apple:
         permitted.add("NativeChannels.Native.Apple")
     if package_id not in permitted:

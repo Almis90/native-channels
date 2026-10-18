@@ -3,6 +3,7 @@ using Microsoft.Maui.ApplicationModel;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Graphics;
 using Microsoft.Maui.Storage;
+using NativeSamples;
 using Plugin.Maui.PdfViewer;
 using DocumentViewer = Plugin.Maui.PdfViewer.PdfViewer;
 
@@ -201,5 +202,6 @@ public sealed class MainPage : ContentPage
             ),
             report
         );
+        await LocalVerification.CompleteAsync(this, report, _viewer.DisconnectAsync);
     }
 }

@@ -1,11 +1,13 @@
-# Local Avalonia sample tests
+# Local sample tests
 
 `eng/test-samples.py` packages the current source, audits the packages, builds the five
-Avalonia consumers, and runs their native integration checks. It does not invoke a
+Avalonia consumers by default, and runs their native integration checks.
+Use `--framework maui` for the five MAUI consumers (Interop maps to ChannelExplorer). It does not invoke a
 workflow, push commits, or publish packages. Each invocation writes a new directory
 under `artifacts/local-samples/<platform>/`, including `summary.json`, per-sample logs,
 binary hashes, and build provenance. A failure or timeout returns a nonzero exit code;
 the runner continues through the remaining samples. Build failures stop before execution.
+Builds share project intermediate directories, so run one build at a time in a checkout.
 
 Start on Windows with Python 3.11+ and the SDK pinned by `global.json`:
 
@@ -17,6 +19,43 @@ The runner discovers `.tools/dotnet/dotnet.exe` (or `.tools/dotnet/dotnet` on Un
 then falls back to `dotnet` on PATH. Use `--dotnet /absolute/path/to/dotnet` to override.
 Windows needs an interactive desktop and an available output audio device.
 The apps open and close automatically; leave them uninterrupted during the run.
+
+## MAUI
+
+The same local runner supports Windows, Android, iOS simulators, and Mac Catalyst.
+MAUI does not have Linux or browser heads in this repository. Install the pinned
+SDK's `maui-windows` and `maui-android` workloads on Windows, or the MAUI Apple
+workloads and compatible Xcode on your Mac. Android also needs the SDK/JDK described below.
+
+```powershell
+python eng/test-samples.py --framework maui --platform windows
+python eng/test-samples.py --framework maui --platform android --device emulator-5556
+```
+
+On your Mac:
+
+```sh
+python3 eng/test-samples.py --framework maui --platform ios --device <booted-simulator-UDID>
+python3 eng/test-samples.py --framework maui --platform maccatalyst
+```
+
+The runner builds Release packages and package-only consumers, then launches each
+app with verification enabled. It requires a completed cleanup marker and a PASS
+result. Desktop apps exit automatically; mobile apps are stopped after reporting.
+MAUI reports are saved under `artifacts/local-samples/maui/<platform>/`.
+Normal interactive launches retain the existing sample behavior.
+
+To reuse a MAUI build, pass both its framework and manifest:
+
+```sh
+python eng/test-samples.py --framework maui --platform windows --manifest <build/manifest.json>
+```
+
+The MAUI checks cover currency lookups; audio playback state/buffering; volume
+subscriptions; PDF document state, navigation, callbacks and reconnection; and
+ChannelExplorer's methods, codecs, messages, streams, errors, cancellation and
+native-view lifecycle stress. Audio audibility remains a manual check. Apple
+execution must be verified on your Mac.
 
 ## Linux VM
 
@@ -46,7 +85,9 @@ the real output device. The runner does not change the system volume.
 
 Use an unlocked API 31+ emulator or device, Android SDK platform tools (`adb`), the
 pinned .NET Android workload, the SDK/build tools required by that workload, and the
-JDK required by the repository's Gradle version. Boot the emulator first.
+JDK required by the repository's Gradle version. Set `JAVA_HOME` to that JDK and
+`ANDROID_HOME` to the Android SDK directory before running the script. Put the SDK's
+`platform-tools` directory on PATH or pass `--adb`. Boot the emulator first.
 
 ```sh
 adb devices -l

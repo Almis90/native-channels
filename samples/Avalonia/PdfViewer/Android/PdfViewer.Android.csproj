@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <TargetFramework>net10.0-android</TargetFramework>
+        <RootNamespace>ReferenceSamples</RootNamespace>
         <IsPackable>false</IsPackable>
         <OutputType>Exe</OutputType>
         <SupportedOSPlatformVersion>24.0</SupportedOSPlatformVersion>
@@ -11,6 +12,8 @@
         <EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
     </PropertyGroup>
     <ItemGroup>
+        <Using Remove="Android.App" />
+        <Using Remove="Android.Widget" />
         <PackageReference Include="Avalonia.Android" />
         <PackageReference Include="Avalonia.Themes.Fluent" />
         <PackageReference Include="NativeChannels.Avalonia" />

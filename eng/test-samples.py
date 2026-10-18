@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build and exercise the five packaged Avalonia consumers locally. Never invokes CI."""
+"""Build and exercise the five packaged Avalonia or MAUI consumers locally. Never invokes CI."""
 import argparse
 from contextlib import contextmanager
 import hashlib
@@ -18,7 +18,7 @@ import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[1]
 SAMPLES = ('Currency', 'AudioStreamer', 'VolumeMonitor', 'PdfViewer', 'Interop')
-HEADS = dict(windows='Windows', linux='Linux', macos='macOS', ios='iOS', android='Android', browser='Browser')
+HEADS = dict(windows='Windows', linux='Linux', macos='macOS', ios='iOS', android='Android', browser='Browser', maccatalyst='MacCatalyst')
 
 
 def command(args, **kwargs):
@@ -29,7 +29,10 @@ def capture(args):
     return command(args, capture_output=True, text=True).stdout.strip()
 
 
-def project(sample, target, backend=''):
+def project(sample, target, backend='', framework='avalonia'):
+    if framework == 'maui':
+        name = 'ChannelExplorer' if sample == 'Interop' else sample
+        return ROOT / 'samples/Maui' / name / (name + ('' if sample == 'Interop' else '.Sample') + '.csproj')
     base = ROOT / 'samples/Avalonia' / sample
     if sample == 'Currency':
         head = HEADS[target] if target in ('android', 'ios', 'browser') else 'Desktop'
@@ -61,13 +64,18 @@ def file_hash(path):
 
 def build(args, destination):
     target = args.platform
+    maui = args.framework == 'maui'
+    tfm = 'net10.0-' + ('windows10.0.19041.0' if target == 'windows' else target)
     dotnet = args.dotnet or str(ROOT / '.tools/dotnet' / ('dotnet.exe' if os.name == 'nt' else 'dotnet'))
     if not Path(dotnet).is_file():
         dotnet = args.dotnet or 'dotnet'
     command([dotnet, '--version'])  # Honors the repository's pinned SDK.
     feed, cache = destination / 'packages', destination / 'cache'
+    # WinUI's XAML compiler still hits MAX_PATH for long NuGet reference paths.
+    if maui and target == 'windows':
+        cache = ROOT / '.tools/sample-cache' / uuid.uuid4().hex[:8]
     feed.mkdir(parents=True)
-    cache.mkdir()
+    cache.mkdir(parents=True)
     if args.reuse_external_cache:
         for package in args.reuse_external_cache.resolve().iterdir():
             if package.is_dir() and not package.name.lower().startswith(('nativechannels', 'plugin.maui.', 'plugin.avalonia.')):
@@ -92,13 +100,14 @@ def build(args, destination):
     ET.ElementTree(xml).write(config, encoding='utf-8', xml_declaration=True)
     flags = dict(windows='NativeChannelsWindowsOnly=true', linux='NativeChannelsLinuxOnly=true',
                  browser='NativeChannelsBrowserOnly=true', android='NativeChannelsAndroidOnly=true',
-                 macos='NativeChannelsAppleTarget=macos', ios='NativeChannelsAppleTarget=ios')
+                 macos='NativeChannelsAppleTarget=macos', ios='NativeChannelsAppleTarget=ios',
+                 maccatalyst='NativeChannelsAppleTarget=maccatalyst')
     common = [f'-p:RestoreConfigFile={config}', f'-p:RestorePackagesPath={cache}', '-p:EnableWindowsTargeting=true']
     if target == 'android':
         gradle = ROOT / 'native/android' / ('gradlew.bat' if os.name == 'nt' else 'gradlew')
         command([gradle, '-p', ROOT / 'native/android', '--no-daemon',
                  *[f':{name}:assembleRelease' for name in ('library', 'sample', 'currency', 'audio', 'volume', 'pdf')]])
-    elif target in ('macos', 'ios'):
+    elif target in ('macos', 'ios', 'maccatalyst'):
         apple = ['--macos-only'] if target == 'macos' else []
         command([sys.executable, 'eng/build-apple.py', *apple])
         for name in SAMPLES[:4]:
@@ -118,23 +127,30 @@ def build(args, destination):
     pack('src/NativeChannels.Core', f'-p:RestoreConfigFile={bootstrap}')
     if target == 'android':
         pack('src/NativeChannels.Native.Android')
-    if target in ('ios', 'macos'):
+    if target in ('ios', 'macos', 'maccatalyst'):
         pack('src/NativeChannels.Native.Apple', '-p:' + flags[target])
     pack('src/NativeChannels', '-p:' + flags[target], '-p:NativeChannelsUseCorePackage=true')
-    pack('src/NativeChannels.Avalonia', '-p:NativeChannelsUseCorePackage=true')
-    for name in ('Plugin.Maui.Currency', 'Plugin.Maui.AudioStreamer', 'Plugin.Maui.VolumeMonitor', 'Plugin.Avalonia.PdfViewer'):
-        pack(f'plugins/{name}/src/{name}', '-p:' + flags[target])
+    if maui:
+        pack('src/NativeChannels.Maui', '-p:' + flags[target], '-p:NativeChannelsUseCorePackage=true')
+    else:
+        pack('src/NativeChannels.Avalonia', '-p:NativeChannelsUseCorePackage=true')
+    for name in ('Plugin.Maui.Currency', 'Plugin.Maui.AudioStreamer', 'Plugin.Maui.VolumeMonitor',
+                 'Plugin.Maui.PdfViewer' if maui else 'Plugin.Avalonia.PdfViewer'):
+        extra = [f'-p:TargetFrameworks={tfm}'] if name == 'Plugin.Maui.PdfViewer' else []
+        pack(f'plugins/{name}/src/{name}', '-p:' + flags[target], *extra)
     audit = ['--android-only'] if target == 'android' else ['--platform-only', target]
     command([sys.executable, 'eng/package_audit.py', *sorted(feed.glob('*.nupkg')), *audit, '--output', destination / 'audit.json'])
     architecture = args.arch or ('arm64' if platform.machine().lower() in ('arm64', 'aarch64') else 'x64')
-    rid = dict(windows='win-', linux='linux-', macos='osx-', ios='iossimulator-').get(target)
+    rid = dict(windows='win-', linux='linux-', macos='osx-', ios='iossimulator-', maccatalyst='maccatalyst-').get(target)
     entries = []
     for sample in SAMPLES:
         for backend in (('Qt', 'Gtk') if target == 'linux' and sample == 'PdfViewer' else ('',)):
             name = sample + backend
-            csproj = project(sample, target, backend)
+            csproj = project(sample, target, backend, args.framework)
             output = destination / 'apps' / name
-            extra = [f'-p:CurrencyDesktopTarget={target}'] if sample == 'Currency' else []
+            extra = [f'-p:CurrencyDesktopTarget={target}'] if sample == 'Currency' and not maui else []
+            if maui:
+                extra += ['-f', tfm, f'-p:TargetFrameworks={tfm}', '-p:' + flags[target], '-p:NativeChannelsProfileSeconds=0']
             if rid:
                 extra += ['-r', rid + architecture]
             if target in ('windows', 'linux'):
@@ -142,19 +158,25 @@ def build(args, destination):
             verb = 'build' if target == 'android' else 'publish'
             command([dotnet, verb, csproj, '-c', 'Release', '-o', output, '--disable-build-servers', *common, *extra])
             command([sys.executable, 'eng/verify-consumer-assets.py', csproj.parent / 'obj/project.assets.json', feed])
-            item = dict(name=name, sample=sample, directory=str(output))
+            item = dict(name=name, sample=sample, directory=str(output), framework=args.framework)
+            if maui:
+                item['executable'] = ET.parse(csproj).findtext('.//AssemblyName') or csproj.stem
             if target == 'android':
                 item['bundleId'] = ET.parse(csproj).findtext('.//ApplicationId')
             entries.append(item)
-    manifest = dict(platform=target, source=source_identity(), apps=entries)
+    manifest = dict(platform=target, framework=args.framework, packageCache=str(cache), source=source_identity(), apps=entries)
     path = destination / 'manifest.json'
     path.write_text(json.dumps(manifest, indent=2), encoding='utf-8')
     return path
 
 
-def validate_result(sample, text, stdout, code=0):
+def validate_result(sample, text, stdout, code=0, framework='avalonia'):
     if code != 0 or not text.startswith('PASS '):
         raise RuntimeError(f'exit={code}: {text or "No result"}')
+    if framework == 'maui':
+        if stdout.count('NATIVECHANNELS_MAUI_CLOSED') != 1:
+            raise RuntimeError('Expected one completed MAUI cleanup marker')
+        return
     if sample in ('Currency', 'AudioStreamer'):
         marker = 'CURRENCY_AVALONIA_CLOSED' if sample == 'Currency' else 'AUDIO_AVALONIA_CLOSED'
         # Cross-platform AudioStreamer uses the shared protocol instead.
@@ -166,7 +188,7 @@ def validate_result(sample, text, stdout, code=0):
 def desktop(entry, target, folder, timeout):
     directory = Path(entry['directory'])
     sample = entry['sample']
-    if target == 'macos':
+    if target in ('macos', 'maccatalyst'):
         apps = list(directory.rglob('*.app'))
         if len(apps) != 1:
             raise RuntimeError(f'Expected one .app in {directory}')
@@ -178,6 +200,7 @@ def desktop(entry, target, folder, timeout):
                 else entry['name'] + '.' + ('Linux' if target == 'linux' else 'Windows'))
         if entry['name'] in ('PdfViewerQt', 'PdfViewerGtk'):
             name = 'PdfViewer.Linux' + entry['name'].removeprefix('PdfViewer')
+        name = entry.get('executable', name)
         exe = directory / (name + ('.exe' if target == 'windows' else ''))
     result = folder / 'result.txt'
     env = os.environ.copy()
@@ -197,7 +220,7 @@ def desktop(entry, target, folder, timeout):
                 process.kill()
                 process.wait(timeout=10)
     text = result.read_text(encoding='utf-8-sig') if result.exists() else ''
-    validate_result(sample, text, (folder / 'stdout.log').read_text(encoding='utf-8', errors='replace'), code)
+    validate_result(sample, text, (folder / 'stdout.log').read_text(encoding='utf-8', errors='replace'), code, entry.get('framework', 'avalonia'))
     return text
 
 
@@ -205,6 +228,9 @@ def mobile(entry, args, folder):
     target, sample = args.platform, entry['sample']
     directory = Path(entry['directory'])
     prefix = 'CURRENCY_AVALONIA ' if sample == 'Currency' else 'NATIVECHANNELS_LOCAL_RESULT '
+    maui = entry.get('framework') == 'maui'
+    if maui:
+        prefix = 'NATIVECHANNELS_MAUI_RESULT '
     if target == 'android':
         adb = [args.adb] + (['-s', args.device] if args.device else [])
         apks = list(directory.glob('*-Signed.apk'))
@@ -243,8 +269,8 @@ def mobile(entry, args, folder):
             while time.monotonic() < end:
                 contents = log.read_text(encoding='utf-8', errors='replace')
                 lines = [line.split(prefix, 1)[1] for line in contents.splitlines() if prefix in line]
-                if lines and (sample != 'Currency' or 'CURRENCY_AVALONIA_CLOSED' in contents):
-                    validate_result(sample, lines[-1], contents)
+                if lines and (maui or sample != 'Currency' or 'CURRENCY_AVALONIA_CLOSED' in contents):
+                    validate_result(sample, lines[-1], contents, framework=entry.get('framework', 'avalonia'))
                     return lines[-1]
                 if process.poll() is not None:
                     raise RuntimeError('Device logging/launch ended without a complete result')
@@ -304,6 +330,7 @@ def audio_environment(args):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--framework', choices=('avalonia', 'maui'), default='avalonia')
     parser.add_argument('--platform', choices=HEADS, required=True)
     parser.add_argument('--manifest', type=Path, help='Reuse a completed build instead of rebuilding')
     parser.add_argument('--build-only', action='store_true')
@@ -317,7 +344,10 @@ def main():
     parser.add_argument('--timeout', type=float, default=120)
     parser.add_argument('--sample', choices=SAMPLES, action='append', help='Run only selected samples (default: all five)')
     args = parser.parse_args()
-    folder = ROOT / 'artifacts/local-samples' / args.platform / (time.strftime('%Y%m%d-%H%M%S-') + uuid.uuid4().hex[:8])
+    supported = ('windows', 'android', 'ios', 'maccatalyst') if args.framework == 'maui' else tuple(p for p in HEADS if p != 'maccatalyst')
+    if args.platform not in supported:
+        parser.error(f'{args.framework} supports: {", ".join(supported)}')
+    folder = ROOT / 'artifacts/local-samples' / ('maui' if args.framework == 'maui' else '') / args.platform / (time.strftime('%Y%m%d-%H%M%S-') + uuid.uuid4().hex[:8])
     folder.mkdir(parents=True)
     print(f'Evidence: {folder}', flush=True)
     manifest_path = args.manifest.resolve() if args.manifest else build(args, folder / 'build')
@@ -325,6 +355,8 @@ def main():
         print(f'Manifest: {manifest_path}')
         return 0
     manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
+    if manifest.get('framework', 'avalonia') != args.framework:
+        raise ValueError('Manifest framework does not match --framework')
     if manifest['platform'] != args.platform:
         raise ValueError('Manifest platform does not match --platform')
     selected = [entry for entry in manifest['apps'] if not args.sample or entry['sample'] in args.sample]
@@ -349,7 +381,7 @@ def run_selected(args, folder, manifest_path, manifest, selected):
             files = sorted(path for path in Path(entry['directory']).rglob('*') if path.is_file())
             (run / 'inputs.json').write_text(json.dumps({str(p.relative_to(entry['directory'])):
                 file_hash(p) for p in files}, indent=2), encoding='utf-8')
-            if args.platform in ('windows', 'linux', 'macos'):
+            if args.platform in ('windows', 'linux', 'macos', 'maccatalyst'):
                 record['result'] = desktop(entry, args.platform, run, args.timeout)
             elif args.platform in ('android', 'ios'):
                 record['result'] = mobile(entry, args, run)
@@ -362,7 +394,7 @@ def run_selected(args, folder, manifest_path, manifest, selected):
         results.append(record)
         detail = record.get('error', record.get('result', '')).removeprefix('PASS ')
         print(f"{record['name']}: {record['status']} {detail}", flush=True)
-        (folder / 'summary.json').write_text(json.dumps(dict(platform=args.platform, host=platform.platform(),
+        (folder / 'summary.json').write_text(json.dumps(dict(platform=args.platform, framework=args.framework, host=platform.platform(),
             buildManifest=str(manifest_path), buildSource=manifest.get('source'), currentSource=source_identity(),
             runtimeEnvironment={key: os.environ.get(key) for key in ('DOTNET_ROOT', 'DOTNET_TieredCompilation', 'DISPLAY', 'PULSE_SERVER', 'PULSE_SINK', 'BROWSER_CHROMIUM_CHANNEL')},
             results=results), indent=2), encoding='utf-8')

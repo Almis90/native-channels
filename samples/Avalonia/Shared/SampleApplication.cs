@@ -33,7 +33,13 @@ public sealed class SampleApplication : global::Avalonia.Application
             if (VerifyOnLoad)
                 await VerifyAsync();
         };
-        if (ApplicationLifetime is ISingleViewApplicationLifetime single)
+        if (ApplicationLifetime is IActivityApplicationLifetime activities)
+            activities.MainViewFactory = () =>
+            {
+                EnsureView();
+                return _page!;
+            };
+        else if (ApplicationLifetime is ISingleViewApplicationLifetime single)
             single.MainView = _page;
         else if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {

@@ -1,5 +1,6 @@
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Storage;
+using NativeSamples;
 
 namespace ChannelExplorer;
 
@@ -55,6 +56,18 @@ public sealed class MainPage(IChannelService channels) : ContentPage
         resultPath = Environment.GetEnvironmentVariable("NATIVECHANNELS_SAMPLE_RESULT") ?? resultPath;
 #endif
         File.WriteAllText(resultPath, report);
+        if (
+            await LocalVerification.CompleteAsync(
+                this,
+                report,
+                async () =>
+                {
+                    await _views.First.DisconnectAsync();
+                    await _views.Second.DisconnectAsync();
+                }
+            )
+        )
+            return;
         if (report.StartsWith("PASS ", StringComparison.Ordinal) && NativeProfile.Seconds > 0)
         {
             reconnect.IsEnabled = false;
