@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
+        <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
+        <OutputType>WinExe</OutputType>
+        <IsPackable>false</IsPackable>
+        <ApplicationManifest>app.manifest</ApplicationManifest>
+    </PropertyGroup>
+    <ItemGroup>
+        <Compile Remove="Linux/**/*.cs;Android/**/*.cs;iOS/**/*.cs;macOS/**/*.cs;Browser/**/*.cs;CrossPlatform/**/*.cs" />
+        <PackageReference Include="Avalonia.Desktop" />
+        <PackageReference Include="Avalonia.Themes.Fluent" />
+        <PackageReference Include="NativeChannels.Avalonia" />
+        <PackageReference Include="Plugin.Maui.AudioStreamer" />
+        <Compile Include="../../Maui/AudioStreamer/MusicGenerator.cs" Link="MusicGenerator.cs" />
+        <Compile
+            Include="../../Maui/AudioStreamer/AudioVerification.cs"
+            Link="AudioVerification.cs"
+        />
+    </ItemGroup>
+</Project>

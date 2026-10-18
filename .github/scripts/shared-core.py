@@ -43,14 +43,14 @@ def prepare():
     ET.ElementTree(config).write(ROOT / "artifacts/shared-core.NuGet.Config", encoding="utf-8", xml_declaration=True)
 
 
-def verify(feed):
+def verify(feed, platform=None):
     expected = json.loads((ROOT / "artifacts/shared-core.json").read_text())
     for name, sha in expected.items():
         if digest(feed / name) != sha:
             raise ValueError(f"Shared Core bytes changed: {name}")
     if (ROOT / "src/NativeChannels.Core/bin").exists():
         raise ValueError("Core build outputs appeared in a platform job")
-    for name in ("NativeChannels", "NativeChannels.Maui"):
+    for name in (["NativeChannels"] if platform == "macos" else ["NativeChannels", "NativeChannels.Maui"]):
         path = ROOT / "src" / name / "obj/project.assets.json"
         assets = json.loads(path.read_text())
         entries = [(identity, value) for identity, value in assets["libraries"].items()
@@ -64,15 +64,16 @@ def verify(feed):
                        if (Path(folder) / value["path"] / f"nativechannels.core.{version}.nupkg").is_file()), None)
         if cached is None or digest(cached) != expected[f"NativeChannels.Core.{version}.nupkg"]:
             raise ValueError(f"{name} restored different Core bytes")
-    print("PASS: transport and MAUI consumed the exact shared Core package; no Core build outputs")
+    print("PASS: host packages consumed the exact shared Core package; no Core build outputs")
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("mode", choices=("prepare", "verify"))
     parser.add_argument("--feed", type=Path, default=ROOT / "artifacts/packages")
+    parser.add_argument("--platform", choices=("ios", "maccatalyst", "macos"))
     args = parser.parse_args()
     try:
-        prepare() if args.mode == "prepare" else verify(args.feed)
+        prepare() if args.mode == "prepare" else verify(args.feed, args.platform)
     except (ValueError, OSError, KeyError, StopIteration) as error:
         parser.exit(1, f"Shared Core validation failed: {error}\n")

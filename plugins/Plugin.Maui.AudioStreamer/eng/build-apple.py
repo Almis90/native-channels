@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Build the audio adapter against the already-built generic Apple bridge."""
+"""Build the AudioStreamer adapter against the already-built generic Apple bridge."""
+import argparse
 import importlib.util
 from pathlib import Path
 import shutil
@@ -10,12 +11,16 @@ builder = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(builder)
 NAME = "MauiAudioStreamerNative"
 SOURCE = Path(__file__).resolve().parents[1] / "native/apple/Sources"
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument("--macos-only", action="store_true")
+args = parser.parse_args()
 slices = []
-for sdk, suffix, arches in [
+platforms = [("macosx", "", ["arm64", "x86_64"])] if args.macos_only else [
     ("iphoneos", "", ["arm64"]),
     ("iphonesimulator", "-simulator", ["arm64", "x86_64"]),
     ("macosx", "-macabi", ["arm64", "x86_64"]),
-]:
+]
+for sdk, suffix, arches in platforms:
     frameworks = []
     for arch in arches:
         bridge = builder.OUT / f"{sdk}{suffix}-{arch}/NativeChannelsNative.framework"

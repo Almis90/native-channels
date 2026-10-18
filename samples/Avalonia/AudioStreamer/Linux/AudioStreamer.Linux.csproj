@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <OutputType>Exe</OutputType>
+        <IsPackable>false</IsPackable>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="Avalonia.Desktop" />
+        <PackageReference Include="Avalonia.Themes.Fluent" />
+        <PackageReference Include="NativeChannels.Avalonia" />
+        <PackageReference Include="Plugin.Maui.AudioStreamer" />
+        <Compile Include="../*.cs" Link="%(Filename)%(Extension)" />
+        <Compile Include="../../../Maui/AudioStreamer/MusicGenerator.cs" Link="MusicGenerator.cs" />
+        <Compile
+            Include="../../../Maui/AudioStreamer/AudioVerification.cs"
+            Link="AudioVerification.cs"
+        />
+    </ItemGroup>
+</Project>

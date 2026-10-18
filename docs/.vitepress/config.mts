@@ -33,6 +33,7 @@ export default defineConfig({
     sidebar: [
       { text: 'Start here', items: [
         { text: 'Getting started', link: '/getting-started' },
+        { text: 'Avalonia host', link: '/avalonia-host' },
         { text: 'Choose a channel', link: '/choosing-a-channel' },
         { text: 'Examples', link: '/examples' },
         { text: 'Documentation guide', link: '/overview' },
@@ -63,11 +64,19 @@ export default defineConfig({
         { text: 'Currency', collapsed: true, items: [
           { text: 'Implementation', link: '/currency' },
           { text: 'Sample app', link: '/currency-sample' },
+          { text: 'Avalonia Android proof', link: '/currency-avalonia' },
+          { text: 'Avalonia iOS proof', link: '/currency-avalonia-ios' },
+          { text: 'Avalonia Windows proof', link: '/currency-avalonia-windows' },
+          { text: 'Avalonia macOS proof', link: '/currency-avalonia-macos' },
+          { text: 'Avalonia Linux proof', link: '/currency-avalonia-linux' },
+          { text: 'Avalonia Browser proof', link: '/currency-avalonia-browser' },
           { text: 'Verification', link: '/currency-verification' },
         ] },
         { text: 'AudioStreamer', collapsed: true, items: [
           { text: 'Implementation', link: '/audio-streamer' },
           { text: 'Sample app', link: '/audio-sample' },
+          { text: 'Avalonia Windows sample', link: '/audio-avalonia-windows' },
+          { text: 'Avalonia Linux sample', link: '/audio-avalonia-linux' },
           { text: 'Verification', link: '/audio-verification' },
         ] },
         { text: 'VolumeMonitor', collapsed: true, items: [

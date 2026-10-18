@@ -7,10 +7,18 @@
         <TargetFrameworks Condition="'$(NativeChannelsAndroidOnly)' == 'true'"
             >net10.0-android</TargetFrameworks>
         <TargetFrameworks
-            Condition="'$(NativeChannelsAppleTarget)' == 'ios' Or '$(NativeChannelsAppleTarget)' == 'maccatalyst'"
+            Condition="'$(NativeChannelsAppleTarget)' == 'ios' Or '$(NativeChannelsAppleTarget)' == 'maccatalyst' Or '$(NativeChannelsAppleTarget)' == 'macos'"
             >net10.0-$(NativeChannelsAppleTarget)</TargetFrameworks>
         <TargetFrameworks Condition="'$(NativeChannelsWindowsOnly)' == 'true'"
             >net10.0-windows10.0.19041.0</TargetFrameworks>
+        <TargetFrameworks Condition="'$(NativeChannelsLinuxOnly)' == 'true'"
+            >net10.0</TargetFrameworks>
+        <DefineConstants Condition="'$(NativeChannelsLinuxOnly)' == 'true'"
+            >$(DefineConstants);LINUX</DefineConstants>
+        <TargetFrameworks Condition="'$(NativeChannelsBrowserOnly)' == 'true'"
+            >net10.0-browser</TargetFrameworks>
+        <AllowUnsafeBlocks Condition="'$(NativeChannelsBrowserOnly)' == 'true'"
+            >true</AllowUnsafeBlocks>
         <SupportedOSPlatformVersion
             Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'"
             >24</SupportedOSPlatformVersion>
@@ -18,10 +26,14 @@
             Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios' Or $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'"
             >15.0</SupportedOSPlatformVersion>
         <SupportedOSPlatformVersion
+            Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'macos'"
+            >14.0</SupportedOSPlatformVersion>
+        <SupportedOSPlatformVersion
             Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'"
             >10.0.17763.0</SupportedOSPlatformVersion>
     </PropertyGroup>
     <ItemGroup>
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
         <ProjectReference
             Include="../NativeChannels.Core/NativeChannels.Core.csproj"
             Condition="'$(NativeChannelsUseCorePackage)' != 'true'"
@@ -34,10 +46,21 @@
     <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
         <ProjectReference Include="../NativeChannels.Native.Android/NativeChannels.Native.Android.csproj" />
     </ItemGroup>
-    <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios' Or $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">
+    <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios' Or $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst' Or $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'macos'">
         <ProjectReference Include="../NativeChannels.Native.Apple/NativeChannels.Native.Apple.csproj" />
     </ItemGroup>
     <ItemGroup>
+        <None
+            Include="Platforms/Browser/*.mjs"
+            Pack="true"
+            PackagePath="browser/"
+            Condition="'$(NativeChannelsBrowserOnly)' == 'true'"
+        />
+        <None
+            Include="buildTransitive/NativeChannels.targets"
+            Pack="true"
+            PackagePath="buildTransitive/"
+        />
         <None Remove="$(MSBuildThisFileDirectory)../../README.md" />
         <None Include="../../docs/nuget-readme.md" Pack="true" PackagePath="/README.md" />
     </ItemGroup>

@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.2.0-preview.1 — Unreleased
+
+- Framework-independent registration and diagnostics, with a reusable Avalonia host for
+  owned sessions, UI dispatch, and native/DOM view lifetimes.
+- Avalonia implementations of ChannelExplorer/Interop, Currency, AudioStreamer, VolumeMonitor,
+  and PdfViewer for Android, iOS, Windows, macOS, Linux, and browser/WebAssembly.
+- Linux native adapters use C++; PDF examples provide separate Qt and GTK backends.
+- This is the development version on `main`, not a published or accepted 0.2 release.
+  Platform runtime verification and final package acceptance remain incomplete.
+
 ## 0.1.0-preview.2 — 2026-10-17
 
 - Opt-in, metadata-only diagnostics for method calls, basic messages, event protocol operations,

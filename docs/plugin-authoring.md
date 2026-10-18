@@ -83,6 +83,7 @@ its own build project and C# interop layer. See the
 | Android | Kotlin class implementing `NativeModule` | Fully qualified class name, with a public parameterless constructor |
 | Apple | Swift `NSObject` class implementing `NativeModule` | Explicit Objective-C class name plus framework name |
 | Windows | C# class implementing `IWindowsChannelModule` | Explicit module factory |
+| Linux | Native shared library exporting the [C ABI](../native/linux/README.md), demonstrated in C++ | `LinuxFactory` creates the reusable `LinuxNativeModule` bridge |
 
 Use the same endpoint, method names, and value types in each implementation. Validate native inputs
 as well as facade inputs: other callers can send directly to the endpoint. Return structured errors
@@ -132,7 +133,8 @@ native/apple/                adapter XCFramework
 buildTransitive/              native asset imports
 ```
 
-The plugin depends on `NativeChannels.Maui`. Its package project packs the adapter artifacts and
+Currency depends on `NativeChannels`, allowing applications to choose their UI host. A plugin that
+exposes MAUI controls can additionally depend on `NativeChannels.Maui`. The package project packs the adapter artifacts and
 `buildTransitive` targets. Those targets import assets relative to the installed package directory,
 so the application needs no path to the plugin's source checkout.
 
@@ -152,7 +154,7 @@ consumer preservation rules and explicitly exported Objective-C registration cla
 ## 6. Verify a separate package consumer
 
 An application using project references can hide incomplete packages. Keep a second application that
-references only the plugin package and restores from a local feed into a fresh cache.
+references the plugin and chosen host through packages and restores from a local feed into a fresh cache.
 
 For the Currency example, after building the framework packages:
 

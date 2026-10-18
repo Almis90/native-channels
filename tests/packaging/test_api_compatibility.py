@@ -45,6 +45,8 @@ class CompatibilityTests(unittest.TestCase):
             mobile = ['net10.0-android36.0', 'net10.0-ios26.0', 'net10.0-maccatalyst26.0']
             baseline = package('baseline.nupkg', mobile + ['net10.0-windows10.0.19041'])
             candidate = package('candidate.nupkg', mobile)
+            expanded = package('expanded.nupkg', mobile + ['net10.0-windows10.0.19041', 'net10.0', 'net10.0-browser', 'net10.0-macos26.0'])
+            compatibility.validate_targets(expanded, baseline, 'NativeChannels', '1.0.0', '1.0.0', 'combined')
             compatibility.validate_targets(candidate, baseline, 'NativeChannels', '1.0.0', '1.0.0', 'mobile')
             with self.assertRaises(ValueError):
                 compatibility.validate_targets(candidate, baseline, 'NativeChannels', '1.0.0', '1.0.0', 'combined')

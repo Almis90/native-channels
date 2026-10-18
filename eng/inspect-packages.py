@@ -1,22 +1,24 @@
 #!/usr/bin/env python3
 """Assert native payload and dependency packaging without relying on project outputs."""
 from pathlib import Path
-import argparse, io, zipfile, xml.etree.ElementTree as ET
+import argparse, io, plistlib, zipfile, xml.etree.ElementTree as ET
 from package_metadata import validate as validate_metadata
 root = Path(__file__).resolve().parent.parent
 packages = root / 'artifacts/packages'
 parser = argparse.ArgumentParser(description=__doc__)
 scope = parser.add_mutually_exclusive_group()
 scope.add_argument('--android-only', action='store_true', help='Inspect an Android development feed')
-scope.add_argument('--platform-only', choices=['ios', 'maccatalyst', 'windows'], help='Inspect one framework development target')
+scope.add_argument('--platform-only', choices=['ios', 'maccatalyst', 'macos', 'windows'], help='Inspect one framework development target')
 scope.add_argument('--combined', action='store_true', help='Require Windows alongside mobile targets')
 args = parser.parse_args()
 version = ET.parse(root / 'Directory.Build.props').findtext('.//Version')
-names = ['NativeChannels.Core', 'NativeChannels', 'NativeChannels.Maui']
+names = ['NativeChannels.Core', 'NativeChannels']
+if args.platform_only != 'macos':
+    names.append('NativeChannels.Maui')
 platforms = [args.platform_only] if args.platform_only else (['android'] if args.android_only else ['android', 'ios', 'maccatalyst'] + (['windows'] if args.combined else []))
 if 'android' in platforms:
     names.append('NativeChannels.Native.Android')
-if 'ios' in platforms or 'maccatalyst' in platforms:
+if set(platforms) & {'ios', 'maccatalyst', 'macos'}:
     names.append('NativeChannels.Native.Apple')
 for name in names:
     path = packages / f'{name}.{version}.nupkg'
@@ -50,7 +52,14 @@ for name in names:
                     assert any(f.endswith('/NativeChannelsNative') for f in native.namelist())
                     assert any(f.endswith('/Info.plist') for f in native.namelist())
                     headers = [f for f in native.namelist() if f.endswith('/NativeChannelsNative-Swift.h')]
-                    assert len(headers) == 3, 'Missing device, simulator, or Catalyst slice'
+                    assert len(headers) == (1 if args.platform_only == 'macos' else 3), 'Unexpected Apple slices'
+                    if args.platform_only == 'macos':
+                        manifest = next(f for f in native.namelist() if f.endswith('NativeChannelsNative.xcframework/Info.plist'))
+                        libraries = plistlib.loads(native.read(manifest))['AvailableLibraries']
+                        assert len(libraries) == 1
+                        assert libraries[0]['SupportedPlatform'] == 'macos'
+                        assert not libraries[0].get('SupportedPlatformVariant')
+                        assert set(libraries[0]['SupportedArchitectures']) == {'arm64', 'x86_64'}
                     for header in headers:
                         for symbol in (b'MCNativeViewHost', b'MCNativeViewFactory', b'MCNativeViewInstance'):
                             assert symbol in native.read(header)

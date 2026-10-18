@@ -1,6 +1,10 @@
 using System.Runtime.CompilerServices;
-using Microsoft.Maui.ApplicationModel;
 using NativeChannels;
+#if AVALONIA
+using MainThread = ChannelExplorer.SampleThread;
+#else
+using Microsoft.Maui.ApplicationModel;
+#endif
 
 namespace ChannelExplorer;
 
@@ -58,7 +62,18 @@ internal sealed class WindowsSampleModule : IWindowsChannelModule
             }
         );
         var ui = Own(
-            channels.GetMethodChannel("sample.ui", new() { HandlerDispatcher = MauiChannelDispatchers.MainThread })
+            channels.GetMethodChannel(
+                "sample.ui",
+                new()
+                {
+                    HandlerDispatcher =
+#if AVALONIA
+                    AvaloniaChannelDispatchers.UIThread
+#else
+                    MauiChannelDispatchers.MainThread
+#endif
+                }
+            )
         );
         ui.SetMethodCallHandler(
             (call, _) =>

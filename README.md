@@ -24,20 +24,22 @@ string? reply = await channel.InvokeAsync<string>("echo", "Hello from .NET");
 ```
 
 **Preview software.** NativeChannels supports Android, iOS, Mac Catalyst, and Windows through its
-MAUI integration. The core messaging layer is independent of MAUI. Complete Avalonia integration is
-planned for 0.2 and Uno for 0.3; neither is available on `main` yet.
-The latest preview is [available on NuGet.org](https://www.nuget.org/packages/NativeChannels.Maui/0.1.0-preview.2).
+MAUI integration. The core messaging layer is independent of MAUI.
+`main` now develops **0.2.0-preview.1**, with an Avalonia host and all five samples implemented
+across six targets. Platform verification and release acceptance remain incomplete; see the
+[sample matrix](samples/Avalonia/README.md). Uno remains planned for 0.3.
+The latest published preview is [0.1.0-preview.2 on NuGet.org](https://www.nuget.org/packages/NativeChannels.Maui/0.1.0-preview.2).
 
-[Documentation](https://almis90.github.io/native-channels/) ·
-[Getting started](docs/getting-started.md) ·
-[Build a plugin](docs/plugin-authoring.md) ·
+[Documentation](https://almis90.github.io/native-channels/) Â·
+[Getting started](docs/getting-started.md) Â·
+[Build a plugin](docs/plugin-authoring.md) Â·
 [Examples](docs/examples.md)
 
 ## What you can build
 
 | Contract | API | Reference example |
 | --- | --- | --- |
-| Named operations with typed results and structured errors | `MethodChannel` | [Currency](plugins/Plugin.Maui.Currency/README.md): currency code → native symbol |
+| Named operations with typed results and structured errors | `MethodChannel` | [Currency](plugins/Plugin.Maui.Currency/README.md): currency code â†’ native symbol |
 | Values or binary chunks with an asynchronous reply | `BasicMessageChannel` | [AudioStreamer](plugins/Plugin.Maui.AudioStreamer/README.md): PCM playback through AudioTrack / AVAudioEngine / Windows waveOut |
 | Native observations with independent subscriptions | `EventChannel` | [VolumeMonitor](plugins/Plugin.Maui.VolumeMonitor/README.md): volume levels and listener cleanup |
 | Embedded native UI with an instance-specific channel | `PlatformChannelView` | [PdfViewer](plugins/Plugin.Maui.PdfViewer/README.md): PDFKit / PdfRenderer / Windows.Data.Pdf with navigation and zoom |
@@ -50,11 +52,11 @@ They are reference implementations for plugin authors. Start with the
 
 ```text
 C# application or plugin
-        ↕  named channels
+        â†•  named channels
 NativeChannels messenger + codecs
-        ↕  platform transports and generic bindings
+        â†•  platform transports and generic bindings
 Kotlin, Swift, or Windows C# adapter
-        ↕
+        â†•
 Native SDK
 ```
 
@@ -123,7 +125,8 @@ MAUI is the current application host. Mac Catalyst support does not provide an A
 See [platform verification](docs/verification.md) for executed scenarios and remaining gaps,
 and the [roadmap](docs/roadmap.md) for planned Avalonia (0.2) and Uno (0.3) integration across Android,
 iOS, Windows, desktop macOS, Linux, and browser/WebAssembly. These planned targets do not extend
-the current support matrix; browser integration will require JavaScript adapters and DOM views.
+the current support matrix. Browser Currency has an initial packaged JavaScript proof; DOM views
+and complete browser hosting remain planned.
 
 ## Documentation
 
@@ -132,7 +135,7 @@ the current support matrix; browser integration will require JavaScript adapters
 | Make your first native call | [Getting started](docs/getting-started.md) |
 | Choose calls, messages, streams, or views | [Choose a channel](docs/choosing-a-channel.md) |
 | Package an integration for other applications | [Build a plugin](docs/plugin-authoring.md) |
-| Configure codecs, DTOs, timeouts, and dispatch | [Codecs](docs/message-codecs.md) · [Configuration](docs/configuration.md) |
+| Configure codecs, DTOs, timeouts, and dispatch | [Codecs](docs/message-codecs.md) Â· [Configuration](docs/configuration.md) |
 | Diagnose startup or runtime failures | [Troubleshooting](docs/troubleshooting.md) |
 | Log channel timings and outcomes | [Diagnostics](docs/diagnostics.md) |
 | Explore the public C# surface | [API reference](docs/api-reference.md) |
@@ -154,7 +157,14 @@ dependencies, or packaging require fresh package-consumer verification.
 See [contributing](CONTRIBUTING.md), [testing](docs/testing.md), and [performance](docs/performance.md).
 
 The [roadmap](docs/roadmap.md) covers the initial preview, complete Avalonia and Uno integration,
-and stable API acceptance. The Android Currency proof is only the first part of Avalonia's milestone.
+and stable API acceptance. The development [Avalonia host package](docs/avalonia-host.md) provides
+application registration, owned sessions and UI dispatch. The [template-generated Avalonia solution](samples/Avalonia/Currency/README.md) contains
+[Avalonia Android](samples/Avalonia/Currency/Currency.Android/README.md),
+[Avalonia iOS](samples/Avalonia/Currency/Currency.iOS/README.md),
+[Avalonia Windows](docs/currency-avalonia-windows.md),
+[Avalonia native macOS](samples/Avalonia/Currency/Currency.Desktop/README.md),
+[Avalonia Linux](docs/currency-avalonia-linux.md), and
+[Avalonia Browser](docs/currency-avalonia-browser.md), covering the Currency method-call slice of the milestone.
 Use the [release checklist](docs/release-checklist.md) before distribution.
 
 Pull requests run portable tests and compile affected platforms using one shared Core build.

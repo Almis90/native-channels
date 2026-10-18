@@ -44,7 +44,8 @@ def validate_targets(candidate, published, package_id, version, baseline_version
     if scope == 'mobile':
         expected = {tfm for tfm in expected if not tfm.startswith('net10.0-windows')}
     actual = frameworks(candidate, package_id, version)
-    if not expected or actual != expected:
+    # New target frameworks are additive. Every baseline target in this scope must remain.
+    if not expected or not expected.issubset(actual):
         raise ValueError(f'{package_id}: expected {sorted(expected)}, got {sorted(actual)}; use a complete feed for this scope')
 
 

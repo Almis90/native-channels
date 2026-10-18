@@ -20,9 +20,9 @@ if [[ "${NATIVECHANNELS_SHARED_CORE:-false}" == true ]]; then
 else
     bash eng/dotnet.sh pack src/NativeChannels.Core -c Release -o artifacts/packages
 fi
-bash eng/dotnet.sh pack src/NativeChannels.Native.Android -c Release -o artifacts/packages "${shared_args[@]}"
+bash eng/dotnet.sh pack src/NativeChannels.Native.Android -c Release -o artifacts/packages ${shared_args[@]+"${shared_args[@]}"}
 for project in NativeChannels NativeChannels.Maui; do
-    bash eng/dotnet.sh pack "src/$project" -c Release -p:NativeChannelsAndroidOnly=true -o artifacts/packages "${shared_args[@]}"
+    bash eng/dotnet.sh pack "src/$project" -c Release -p:NativeChannelsAndroidOnly=true -o artifacts/packages ${shared_args[@]+"${shared_args[@]}"}
 done
 python3 eng/inspect-packages.py --android-only
 python3 eng/package_audit.py artifacts/packages/*.nupkg --android-only

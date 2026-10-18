@@ -1,0 +1,5 @@
+{
+  "private": true,
+  "description": "Pinned local PDF.js assets for the browser PDF adapter",
+  "dependencies": { "pdfjs-dist": "6.4.299" }
+}

@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <IsPackable>false</IsPackable>
+        <OutputType>Exe</OutputType>
+        <DefineConstants>$(DefineConstants);LINUX;PDF_GTK</DefineConstants>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="Avalonia.Desktop" />
+        <PackageReference Include="Avalonia.Themes.Fluent" />
+        <PackageReference Include="NativeChannels.Avalonia" />
+        <PackageReference Include="Plugin.Avalonia.PdfViewer" />
+        <Compile Include="../../Shared/SampleApplication.cs" Link="SampleApplication.cs" />
+        <Compile Include="../Shared/*.cs" Link="%(Filename)%(Extension)" />
+    </ItemGroup>
+</Project>

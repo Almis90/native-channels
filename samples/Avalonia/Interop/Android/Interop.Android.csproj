@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net10.0-android</TargetFramework>
+        <IsPackable>false</IsPackable>
+        <AssemblyName>NativeChannels.Interop.Avalonia</AssemblyName>
+        <DefineConstants>$(DefineConstants);AVALONIA</DefineConstants>
+        <OutputType>Exe</OutputType>
+        <SupportedOSPlatformVersion>24.0</SupportedOSPlatformVersion>
+        <ApplicationId>dev.nativechannels.interop.avalonia.android</ApplicationId>
+        <ApplicationTitle>Interop</ApplicationTitle>
+        <ApplicationDisplayVersion>0.1</ApplicationDisplayVersion>
+        <ApplicationVersion>1</ApplicationVersion>
+        <EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="Avalonia.Android" />
+        <PackageReference Include="Avalonia.Themes.Fluent" />
+        <PackageReference Include="NativeChannels.Avalonia" />
+        <PackageReference Include="NativeChannels" />
+        <Compile Include="../../Shared/SampleApplication.cs" Link="SampleApplication.cs" />
+        <Compile Include="../Shared/*.cs" Link="%(Filename)%(Extension)" />
+    </ItemGroup>
+    <Import Project="../Interop.targets" />
+</Project>

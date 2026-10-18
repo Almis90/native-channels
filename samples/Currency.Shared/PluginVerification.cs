@@ -11,6 +11,10 @@ internal static class PluginVerification
         const string platform = "android";
 #elif WINDOWS
         const string platform = "windows";
+#elif LINUX
+        const string platform = "linux";
+#elif BROWSER
+        const string platform = "browser";
 #else
         const string platform = "apple";
 #endif

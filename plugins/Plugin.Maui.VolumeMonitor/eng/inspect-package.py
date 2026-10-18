@@ -24,7 +24,7 @@ with zipfile.ZipFile(package) as archive:
     metadata = ET.fromstring(archive.read("Plugin.Maui.VolumeMonitor.nuspec"))
     assert metadata.find(".//{*}version").text == "0.1.0-alpha.1"
     dependencies = metadata.findall(".//{*}dependency")
-    assert len(dependencies) == len(platforms) and all(d.attrib["id"] == "NativeChannels.Maui" for d in dependencies)
+    assert len(dependencies) == len(platforms) and all(d.attrib["id"] == "NativeChannels" for d in dependencies)
     assert all(d.attrib["version"] == ET.parse(root / "Directory.Packages.props").findtext(".//NativeChannelsPackageVersion").strip() for d in dependencies)
     targets = archive.read("buildTransitive/Plugin.Maui.VolumeMonitor.targets").decode()
     assert '../native/android/volume.aar' in targets and 'Bind="false"' in targets

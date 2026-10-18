@@ -8,18 +8,27 @@ CONSUMERS = {
     'samples/Maui/ChannelExplorer': 'sample',
     'tests/PackageConsumer': 'consumer',
     'samples/Maui/Currency': 'currency',
+    'samples/Avalonia/Currency/Currency.Android': 'currency-avalonia',
+    'samples/Avalonia/Currency/Currency.iOS': 'currency-avalonia-ios',
+    'samples/Avalonia/Currency/Currency.Desktop': 'currency-avalonia-macos',
+    'samples/Avalonia/Currency/Currency.Browser': 'currency-avalonia-browser',
     'samples/Maui/AudioStreamer': 'audio',
+    'samples/Avalonia/AudioStreamer': 'audio-avalonia-windows',
+    'samples/Avalonia/AudioStreamer/Linux': 'audio-avalonia-linux',
     'samples/Maui/VolumeMonitor': 'volume',
     'samples/Maui/PdfViewer': 'pdf',
 }
 
 
-def clean(root, relative):
+def clean(root, relative, cache_marker=None):
     if relative not in CONSUMERS:
         raise ValueError('Unknown package consumer')
+    if cache_marker is not None and (relative != 'samples/Avalonia/Currency/Currency.Desktop'
+                                     or cache_marker not in {'currency-avalonia-macos', 'currency-avalonia-linux'}):
+        raise ValueError('Unknown desktop cache marker')
     root = root.resolve()
     artifacts = root / 'artifacts'
-    marker = artifacts / (CONSUMERS[relative] + '-cache-path.txt')
+    marker = artifacts / ((cache_marker or CONSUMERS[relative]) + '-cache-path.txt')
     previous = None
     if marker.exists():
         previous = Path(marker.read_text().strip())
@@ -27,6 +36,8 @@ def clean(root, relative):
                 or not previous.name.startswith('consumer-packages.')):
             raise ValueError('Refusing to remove a package cache outside artifacts/consumer-packages.*')
     outputs = [root / relative / name for name in ('bin', 'obj')]
+    if relative.startswith('samples/Avalonia/Currency/'):
+        outputs += [root / 'samples/Avalonia/Currency/Currency' / name for name in ('bin', 'obj')]
     if any(output.is_symlink() or not output.resolve().is_relative_to(root) for output in outputs):
         raise ValueError('Refusing to remove symlinked or external consumer outputs')
     # Another consumer may explicitly share this cache; preserve that reference.
@@ -43,4 +54,4 @@ def clean(root, relative):
 
 
 if __name__ == '__main__':
-    clean(Path(__file__).resolve().parent.parent, sys.argv[1])
+    clean(Path(__file__).resolve().parent.parent, sys.argv[1], sys.argv[2] if len(sys.argv) > 2 else None)

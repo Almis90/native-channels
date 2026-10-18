@@ -1,5 +1,9 @@
 import Foundation
+#if os(macOS)
+import AppKit
+#else
 import UIKit
+#endif
 import PDFKit
 import NativeChannelsNative
 
@@ -16,8 +20,12 @@ public final class PdfViewFactory: NSObject, NativeViewFactory {
 private final class DocumentView: PDFView {
     var resized: (() -> Void)?
     private var previousSize = CGSize.zero
-    override func layoutSubviews() {
-        super.layoutSubviews()
+    #if os(macOS)
+    override func layout() { super.layout(); didLayout() }
+    #else
+    override func layoutSubviews() { super.layoutSubviews(); didLayout() }
+    #endif
+    private func didLayout() {
         if bounds.size != previousSize && bounds.width > 0 && bounds.height > 0 {
             previousSize = bounds.size
             resized?()
@@ -35,16 +43,26 @@ private final class PdfInstance: NSObject, NativeViewInstance {
     private var busy = false
     private var notificationQueued = false
     private var fitScale: CGFloat = 1
+    #if os(macOS)
+    var view: NSView { pdf }
+    #else
     var view: UIView { pdf }
+    #endif
 
     init(_ bridge: NativeBridge, _ instanceId: String, _ channelName: String) {
         self.channel = MethodChannel(channelName, bridge: bridge)
         self.instanceId = instanceId
         super.init()
+        #if os(macOS)
+        pdf.backgroundColor = NSColor(red: 0.886, green: 0.91, blue: 0.94, alpha: 1)
+        #else
         pdf.backgroundColor = UIColor(red: 0.886, green: 0.91, blue: 0.94, alpha: 1)
+        #endif
         pdf.displayMode = .singlePage
         pdf.displayDirection = .horizontal
+        #if !os(macOS)
         pdf.usePageViewController(true)
+        #endif
         pdf.resized = { [weak self] in self?.fit() }
         for name in [Notification.Name.PDFViewPageChanged, Notification.Name.PDFViewScaleChanged] {
             observers.append(

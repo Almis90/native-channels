@@ -1,0 +1,8 @@
+{
+  "name": "nativechannels-browser-verification",
+  "private": true,
+  "type": "module",
+  "scripts": { "test": "node --test *.test.mjs" },
+  "engines": { "node": ">=22" },
+  "devDependencies": { "playwright": "1.64.1" }
+}

@@ -1,4 +1,8 @@
+#if AVALONIA
+using MainThread = ChannelExplorer.SampleThread;
+#else
 using Microsoft.Maui.ApplicationModel;
+#endif
 
 namespace ChannelExplorer;
 
@@ -8,7 +12,15 @@ internal sealed class NativeVerification(IChannelService channels)
     {
         using var channel = channels.GetMethodChannel(
             "sample",
-            new() { HandlerDispatcher = MauiChannelDispatchers.MainThread }
+            new()
+            {
+                HandlerDispatcher =
+#if AVALONIA
+                AvaloniaChannelDispatchers.UIThread
+#else
+                MauiChannelDispatchers.MainThread
+#endif
+            }
         );
         using var incoming = channel.SetMethodCallHandler(HandleNativeCallAsync);
 
@@ -126,7 +138,14 @@ internal sealed class NativeVerification(IChannelService channels)
 
     private static async Task VerifySessionDisposalAsync(MethodChannel survivingChannel)
     {
-        var modules = new NativeModuleRegistration[] { MauiProgram.CreateSampleModule() };
+        var modules = new NativeModuleRegistration[]
+        {
+#if AVALONIA
+            SamplePlatform.CreateModule()
+#else
+            MauiProgram.CreateSampleModule()
+#endif
+        };
         var transport = new NativeChannelTransport(modules);
         await using (var session = new ChannelService(new BinaryMessenger(transport)))
         {

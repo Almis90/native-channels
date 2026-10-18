@@ -4,6 +4,7 @@ param(
     [string]$PackageFeed,
     [switch]$WindowsOnlyFeed,
     [string]$PackageCache,
+    [string]$VerificationDirectory,
     [ValidateSet('win-x64', 'win-arm64')]
     [string]$RuntimeIdentifier = 'win-x64',
     [switch]$Currency,
@@ -33,6 +34,10 @@ if (-not ($BuildOnly -or $PackOnly) -and $RuntimeIdentifier -ne "win-$([Runtime.
     throw 'Runtime verification must use the native OS architecture; use BuildOnly for cross-compilation.'
 }
 $runRoot = Join-Path $repoRoot ('artifacts/windows/verification/' + [Guid]::NewGuid().ToString('N'))
+if ($VerificationDirectory) {
+    $runRoot = [IO.Path]::GetFullPath($VerificationDirectory, $repoRoot)
+    if (Test-Path -LiteralPath $runRoot) { throw 'VerificationDirectory must be a new directory.' }
+}
 # The WinUI XAML compiler still hits MAX_PATH for long projection assembly names.
 $cache = if ($PackageCache) { [IO.Path]::GetFullPath($PackageCache, $repoRoot) } else { Join-Path $repoRoot ('.tools/wn/' + [Guid]::NewGuid().ToString('N').Substring(0, 12)) }
 $output = Join-Path $runRoot 'app'

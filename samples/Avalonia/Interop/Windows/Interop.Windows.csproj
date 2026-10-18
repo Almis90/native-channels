@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
+        <IsPackable>false</IsPackable>
+        <AssemblyName>NativeChannels.Interop.Avalonia</AssemblyName>
+        <DefineConstants>$(DefineConstants);AVALONIA</DefineConstants>
+        <OutputType>Exe</OutputType>
+        <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="Avalonia.Desktop" />
+        <PackageReference Include="Avalonia.Themes.Fluent" />
+        <PackageReference Include="NativeChannels.Avalonia" />
+        <PackageReference Include="NativeChannels" />
+        <Compile Include="../../Shared/SampleApplication.cs" Link="SampleApplication.cs" />
+        <Compile Include="../Shared/*.cs" Link="%(Filename)%(Extension)" />
+    </ItemGroup>
+    <Import Project="../Interop.targets" />
+</Project>

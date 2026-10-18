@@ -1,0 +1,53 @@
+<Project>
+    <ItemGroup>
+        <Compile
+            Include="$(MSBuildThisFileDirectory)../../Maui/ChannelExplorer/GlobalUsings.cs"
+            Link="GlobalUsings.cs"
+        />
+        <Compile
+            Include="$(MSBuildThisFileDirectory)../../Maui/ChannelExplorer/NativeVerification.cs"
+            Link="NativeVerification.cs"
+        />
+        <Compile
+            Include="$(MSBuildThisFileDirectory)../../Maui/ChannelExplorer/SampleModels.cs"
+            Link="SampleModels.cs"
+        />
+        <Compile
+            Include="$(MSBuildThisFileDirectory)../../Maui/ChannelExplorer/SampleJsonContext.cs"
+            Link="SampleJsonContext.cs"
+        />
+    </ItemGroup>
+    <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">
+        <Compile
+            Include="$(MSBuildThisFileDirectory)../../../native/windows/sample/WindowsSampleModule.cs"
+            Link="WindowsSampleModule.cs"
+        />
+    </ItemGroup>
+    <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
+        <AndroidLibrary
+            Include="$(MSBuildThisFileDirectory)../../../native/android/sample/build/outputs/aar/sample-release.aar"
+            Bind="false"
+        />
+    </ItemGroup>
+    <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios' Or $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'macos'">
+        <NativeReference Include="$(MSBuildThisFileDirectory)../../../artifacts/native/NativeChannelsSample.xcframework">
+            <Kind>Framework</Kind>
+            <SmartLink>false</SmartLink>
+        </NativeReference>
+    </ItemGroup>
+    <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
+        <None
+            Include="$(MSBuildThisFileDirectory)../../../artifacts/native/linux-x64/libnc_sample.so"
+            Link="libnc_sample.so"
+            CopyToOutputDirectory="PreserveNewest"
+            CopyToPublishDirectory="PreserveNewest"
+        />
+    </ItemGroup>
+    <Target
+        Name="BuildLinuxInteropSample"
+        BeforeTargets="BeforeBuild"
+        Condition="'$(TargetFramework)' == 'net10.0'"
+    >
+        <Exec Command="bash &quot;$(MSBuildThisFileDirectory)../../../eng/build-linux-native.sh&quot; sample" />
+    </Target>
+</Project>

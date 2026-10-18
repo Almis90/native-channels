@@ -1,0 +1,56 @@
+name: Verify Avalonia Browser
+on:
+  pull_request:
+    branches: [main, milestone-0.2-shared-hosting]
+    paths: ['src/**', 'plugins/Plugin.Maui.Currency/**', 'samples/Avalonia/Currency/**', 'samples/Currency.Shared/**', 'tests/**', 'eng/**', 'Directory.*.props', 'global.json', '.github/workflows/shared-hosting-browser.yml', '!**/*.md']
+  push:
+    branches: [main, milestone-0.2-shared-hosting]
+    paths: ['src/**', 'plugins/Plugin.Maui.Currency/**', 'samples/Avalonia/Currency/**', 'samples/Currency.Shared/**', 'tests/**', 'eng/**', 'Directory.*.props', 'global.json', '.github/workflows/shared-hosting-browser.yml', '!**/*.md']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: avalonia-browser-${{ github.event_name }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name != 'workflow_dispatch' }}
+jobs:
+  currency:
+    name: Package and execute Currency in Chromium and Firefox
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install WebAssembly and browser test dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libatomic1
+          bash eng/bootstrap.sh
+          bash eng/dotnet.sh workload install wasm-tools --skip-manifest-update
+          npm ci --prefix tests/NativeChannels.Browser.Tests
+          node tests/NativeChannels.Browser.Tests/node_modules/playwright/cli.js install --with-deps chromium firefox
+      - name: Run portable, JavaScript and packaging tests
+        run: |
+          bash eng/dotnet.sh test -c Release --disable-build-servers
+          node --test tests/NativeChannels.Browser.Tests/*.test.mjs
+          python3 -m unittest discover -s tests/packaging
+      - name: Build packages and publish a fresh consumer
+        run: |
+          bash eng/pack-browser.sh
+          bash eng/restore-currency-avalonia.sh browser
+          bash eng/dotnet.sh publish samples/Avalonia/Currency/Currency.Browser -c Release --no-restore
+          python3 eng/prepare-browser-proof.py
+      - name: Execute browser checks, reload and disposal
+        timeout-minutes: 5
+        run: node eng/verify-currency-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: shared-hosting-browser
+          path: |
+            artifacts/shared-hosting-browser/**
+            artifacts/package-audit.json
+            artifacts/packages/*.nupkg
+          retention-days: 7
+          if-no-files-found: warn

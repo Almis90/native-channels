@@ -1,0 +1,11 @@
+﻿<Solution>
+    <Project Path="Currency.Android/Currency.Android.csproj">
+        <Deploy />
+    </Project>
+    <Project Path="Currency.Browser/Currency.Browser.csproj" />
+    <Project Path="Currency.Desktop/Currency.Desktop.csproj" />
+    <Project Path="Currency.iOS/Currency.iOS.csproj">
+        <Deploy />
+    </Project>
+    <Project Path="Currency/Currency.csproj" />
+</Solution>

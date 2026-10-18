@@ -9,10 +9,10 @@
         <PackageReference Include="Microsoft.NET.Test.Sdk" />
         <PackageReference Include="xunit" />
         <PackageReference Include="xunit.runner.visualstudio" PrivateAssets="all" />
-        <Compile
-            Include="../../plugins/Plugin.Maui.AudioStreamer/src/Plugin.Maui.AudioStreamer/*.cs"
-            Exclude="../../plugins/Plugin.Maui.AudioStreamer/src/Plugin.Maui.AudioStreamer/AudioStreamerExtensions.cs"
-        />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+        <Compile Include="../../src/NativeChannels/Hosting/ChannelRegistrationOptions.cs" />
+        <Compile Include="../../src/NativeChannels/NativeModuleRegistration.cs" />
+        <Compile Include="../../plugins/Plugin.Maui.AudioStreamer/src/Plugin.Maui.AudioStreamer/*.cs" />
         <Compile Include="../../samples/Maui/AudioStreamer/MusicGenerator.cs" />
     </ItemGroup>
 </Project>

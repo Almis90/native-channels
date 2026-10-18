@@ -1,5 +1,13 @@
 # Platform verification
 
+The current 0.2 [Avalonia reference sample matrix](../samples/Avalonia/README.md)
+adds AudioStreamer, VolumeMonitor and PdfViewer implementation heads for all six
+targets, including separate C++ Qt/GTK Linux PDF apps. Windows and browser heads
+and the new Linux native adapters/heads have build checks; package audits cover
+those three feeds. Android, iOS and macOS builds and all new runtime behavior
+remain unverified. These implementation checks do not extend the runtime evidence
+recorded below or complete 0.2 acceptance.
+
 This record separates implementation, compilation, runtime checks, and manual observations.
 Package acceptance requires verification of the exact source revision and generated archives.
 
@@ -13,10 +21,209 @@ Package acceptance requires verification of the exact source revision and genera
 
 The current support record covers MAUI. Complete Avalonia integration (0.2) and Uno integration
 (0.3) are [planned](roadmap.md) for Android, iOS, Windows, desktop macOS, Linux, and browser/WebAssembly.
-None of those additional host combinations is accepted on `main` yet. The Android Currency proof
-is partial milestone work; it does not establish other contracts, targets, or released support.
+None of those additional host combinations is accepted on `main` yet. The Currency proofs below
+are partial milestone work; they do not establish other contracts, targets, or released support.
 Future records must distinguish unavailable OS/browser capabilities from checks that have not run.
 
+## Reusable Avalonia host foundation — 2026-10-17
+
+The working tree based on `cde99a8b7616255e66ade57cde1d6adfcd870c38` adds
+`NativeChannels.Avalonia`: portable AppBuilder registration, independent owned sessions,
+awaited shutdown and asynchronous UI dispatch. All Currency heads now configure this host;
+the shared UI consumes it through a NuGet package. Core remains independent of Avalonia.
+
+| Check | Executed result |
+| --- | --- |
+| Avalonia 12.1.4 headless host tests | 12 passed: registration validation, provider isolation, 32 session recreation cycles, shared disposal completion, startup/cleanup failures, pending requests, final plugin stop requests, UI dispatch/cancellation and reentrancy |
+| Existing portable / Linux regressions | 114 portable and 18 Linux tests passed |
+| Packaging regressions | 168 passed, including required host archive provenance/hash checks |
+| Linux x64, Ubuntu 24.04.5, X11/Xvfb + Openbox | Fresh package-only Release build had no warnings/errors; ICU Currency checks, verification exit and normal window close passed |
+| Chrome 155.0.8059.80 / Firefox 157.0 on Windows 11 x64 | Fresh Release WebAssembly consumer passed Currency, binary/transport, actual Avalonia UI callback dispatch with a nested native request, session disposal/recreation, UI input and two loads with orderly disposal per engine |
+| Windows 11 x64, build 26200 | Fresh package-only self-contained Release consumer, cross-built on Ubuntu with SDK 10.0.401, executed Currency checks and normal shutdown locally; exit code 0 and exactly one close marker |
+
+Each consumer restored four local archives, including the new host. The host itself compiled
+against the feed's Core archive in a fresh cache. Browser module bytes and the complete publish
+output were checked; Windows published managed assemblies matched their package bytes.
+Build/runtime logs, package hashes, source manifests and runtime records are retained under
+`artifacts/avalonia-host`. Evidence is explicitly marked as a working-tree development build.
+Documentation written after execution does not become part of an earlier source snapshot.
+
+The current browser preview serves this host-based consumer. Workflow lint, source formatting
+and the documentation build/link checks passed. No packages were published and no GitHub workflow
+execution is claimed. The Windows check covered the Avalonia consumer; it did not repeat the MAUI
+runtime proof. Android, iOS, Catalyst and native macOS runtime checks have not been repeated after
+this host migration. Native/DOM views, broader suspension/resumption and multi-window acceptance,
+events and the remaining plugins are still part of 0.2. See the [host guide](avalonia-host.md).
+
+## Avalonia in the browser
+
+Local verification on 2026-10-17 used source `4612d48323ce66123d3c1c94852b7bd593071700`
+(the committed Linux proof), plus the browser working-tree changes. These are development-feed
+results; no combined NuGet release or GitHub Actions execution is claimed for this browser change.
+
+| Check | Executed result |
+| --- | --- |
+| Build host | VirtualBox Ubuntu 24.04.5 x64, .NET SDK 10.0.401, wasm-tools runtime 10.0.12 |
+| Package-only Release publish | Core, browser transport and Currency restored from local archives into a fresh cache; no MAUI/mobile/WinUI dependencies |
+| JavaScript packaging | All three published ES modules matched their NuGet archive bytes; the entire static publish output was fingerprinted |
+| Google Chrome 155.0.8059.80, Windows 11 x64, `en-US` | Currency and managed/JavaScript transport checks passed; reload and orderly disposal passed |
+| Playwright Firefox 157.0, Windows 11 x64, `en-US` | Same Currency and transport scenarios, reload and orderly disposal passed |
+| JavaScript unit/protocol tests | 16 passed, including shared codec fixtures, Int64 extremes, cancellation races, registration rollback and callback cleanup |
+| Portable / Linux regression suites | 114 portable and 18 Linux tests passed |
+| Packaging regression suite | 166 passed |
+| Browser input | Mouse selection of GBP, keyboard submission of `ZZZ`, and recovery with EUR passed in both engines |
+
+Both engines returned:
+
+```text
+PASS browser: USD=$, EUR=€, GBP=£, JPY=¥; normalization, errors, concurrency, cancellation
+```
+
+The transport scenarios execute inside the published .NET WebAssembly app. They cover binary and
+standard-codec messages, exact Int64 roundtrips, concurrent replies, JavaScript-to-managed callbacks,
+structured errors, cancellation in both directions, timeouts, independent sessions, pending-request
+disposal and failed module initialization. Each engine loads the app twice under `/currency/` and
+produces exactly one `CURRENCY_AVALONIA_CLOSED` marker per load, despite repeated close calls.
+
+Evidence is retained under `artifacts/shared-hosting-browser`: `inputs.json`, `source-files.json`,
+per-engine `verification.json`, console logs and screenshots. The build and browser hosts are
+recorded separately. The browser runner verifies every published file against the build manifest
+before serving it; each result includes that manifest's SHA-256. Source snapshots are explicitly
+marked dirty and documentation added afterward does not become part of an earlier run.
+
+Chrome logged Avalonia WebGL renderer-query warnings; Firefox logged a deprecation warning for the
+.NET-generated WebAssembly `try` instruction. Neither engine reported a runtime, network or console
+error during the passing checks. The [Browser guide](currency-avalonia-browser.md) documents the
+static-host MIME requirements, main-thread scope, lifecycle behavior and reproduction commands.
+
+The new browser workflow is defined but has not been run on GitHub. DOM views, event-stream adapter
+helpers, other plugins, Safari/WebKit, mobile browsers, worker hosting and BFCache behavior require
+separate acceptance. Explicitly awaited cleanup is tested; a browser cannot guarantee asynchronous
+cleanup completion while destroying a tab. This proof does not complete milestone 0.2.
+
+## Avalonia on Linux
+
+**C++ adapter update, 2026-10-17:** the working tree based on `9c1a155` replaces the
+Linux Currency and AudioStreamer C# implementations with C++ modules behind a reusable
+C ABI bridge. Ubuntu 24.04.5 x64 verification passed 18 Currency/transport tests, six
+AudioStreamer integration tests, native C++ audio/codec tests with address and undefined-behavior
+sanitizers, and 171 packaging checks. Both fresh package-only Avalonia applications passed;
+Currency also passed normal window-manager close and AudioStreamer passed paused-playback
+shutdown, host recreation and minimize/restart. Runtime verifiers matched the native `.so`
+files to their local packages. No workflows ran. See the [native module contract](../native/linux/README.md)
+and [AudioStreamer record](audio-verification.md) for scope and local evidence paths.
+
+The earlier Linux proof below predates the C++ conversion.
+
+Local execution on **2026-10-17** used the working tree based on
+`ffe8abe34b0f4d82b46de82457e9bd50ff59e2aa`, plus the Linux implementation changes.
+This is uncommitted development evidence, not a clean-commit CI or release acceptance record.
+
+| Configuration | Executed result |
+| --- | --- |
+| VirtualBox 7.0.20, Ubuntu 24.04.5 x64, kernel 6.8.0-142, .NET SDK 10.0.401, ICU 74.2 | Linux VM booted; all checks below executed inside the guest |
+| Portable Release suite | 114 passed, including existing Windows transport regressions |
+| Linux native Release suite | 18 passed: real ICU lookups and errors, reentrant calls, messages, streams, cancellation, concurrency and disposal |
+| Packaging/CI tooling | 161 passed |
+| Fresh-cache package consumer, `linux-x64`, Avalonia 12.1.4 | All three archives matched the local feed; no MAUI/mobile/WinUI dependencies; build had zero warnings/errors |
+| X11 through Xvfb, verification mode | Complete native Currency scenarios passed; exactly one disposal marker; exit code zero |
+| X11 through Xvfb and Openbox, interactive mode | Window remained open after verification; window-manager close completed asynchronous disposal and exited zero; screenshot captured |
+
+The native runtime result was:
+
+```text
+PASS linux: USD=US$, EUR=€, GBP=£, JPY=JP¥; normalization, errors, concurrency, cancellation
+```
+
+The dedicated VM is `NativeChannels-Ubuntu-24.04`, with the checkout at
+`/home/ubuntu/native-channels`. SSH is restricted to host loopback port 22223 and uses the host's
+existing SSH key (`ssh -p 22223 ubuntu@127.0.0.1`). The older `Ubuntu` VM was inspected and shut down;
+its installed system was not modified. The new VM uses a checksum-verified official Ubuntu cloud image.
+
+Evidence is retained in `artifacts/shared-hosting-linux/linux-x64/verification` and `window-close`:
+runtime logs, package/source/executable hashes, environment metadata, loaded ICU paths and screenshot.
+The source-file manifest records the exact tested working tree; documentation added after a run
+does not retroactively become part of that run. The [Linux guide](currency-avalonia-linux.md) gives
+reproduction commands, and the dedicated workflow is implemented but has not been executed on GitHub.
+
+An initial Alt+F4 automation attempt intermittently failed to close the window. Its failed log is
+retained under `artifacts/shared-hosting-linux/failed-alt-f4`. The runner now waits for an EWMH
+window manager and requests normal closure through `wmctrl`, avoiding keyboard-focus dependence.
+
+Xvfb is a real X11 server with a virtual display. These results do not establish physical desktop
+input/graphics behavior, Wayland, Linux ARM64, native view hosting, other reference plugins,
+trimming/AOT, or completion of milestone 0.2. No packages were published.
+
+## Current local Avalonia checks — 2026-10-17
+
+These runs used the local working tree on `milestone-0.2-shared-hosting`, based on
+`28292efc0bdd495cfa92c5ce8d6abb434a4ece88`, and platform-specific development packages.
+These runs preceded the template migration below. All four apps used the same shared UI
+and native checks, now located in `samples/Avalonia/Currency/Currency/Views/MainView.axaml.cs`.
+
+| Platform | Executed environment | Release runtime | Result |
+| --- | --- | --- | --- |
+| [Android](#avalonia-android-device-2026-10-17) | Physical CPH2581, Android 16 | `android-arm64` | Native checks passed; user confirmed the app works |
+| [iOS](#avalonia-ios-device-2026-10-17) | Physical iPhone 12 Pro, iOS 27.0.1 | `ios-arm64` | Native checks passed; user confirmed the app works |
+| [Native macOS](#avalonia-on-native-macos) | macOS 26.2 ARM64, AppKit | `osx-arm64` | Native checks, UI checks, and orderly disposal passed; interactive relaunch passed |
+| [Mac Catalyst](#avalonia-on-mac-catalyst) | macOS 26.2 ARM64, UIKit/Catalyst | `maccatalyst-arm64` | Native and UI checks passed; user confirmed Cmd+A and Backspace manually |
+
+The shared native checks cover USD/EUR/GBP/JPY, normalization, structured errors, invalid input,
+concurrency, cancellation, and recovery. The iOS and Catalyst compilations reported the existing
+`Avalonia.DesignerSupport` `IL2104` trimming warning; Android and native macOS built without warnings.
+Native macOS x64 also compiled successfully, but Intel execution was not tested.
+
+Earlier regression checks in this working-tree session passed **114 portable .NET tests** and
+**146 packaging/CI-tool tests**, Swift checks, iOS/Catalyst transport compilation, source formatting,
+workflow lint, and a documentation build/link check. Their saved logs are `artifacts/macos-*`.
+Those broader checks preceded the later device runs and packaging-helper/documentation edits;
+they have not been rerun against every final change. The device runs are local Currency-sample
+evidence, not a new CI run, combined-feed release acceptance, or completion of milestone 0.2.
+
+## Avalonia template migration — 2026-10-17
+
+The official `Avalonia.Templates` 12.1.4 `avalonia.xplat` generator created the solution,
+now located at `samples/Avalonia/Currency/Currency.slnx`. The existing application was moved into its shared `Currency`
+project and generated platform heads. Native libraries still resolve from local NuGet archives;
+only the shared application project reference is permitted by the package verifier.
+
+Fresh Release restores and builds passed for Android ARM64, iOS ARM64, native macOS ARM64,
+and Mac Catalyst ARM64. Native macOS verified AppKit Mach-O targets, all Currency scenarios, asynchronous disposal,
+and exit code zero. The migrated Catalyst app passed the native scenarios, EUR shortcut, and
+Enter-submitted invalid-code error. The migrated Android APK was installed on the connected
+CPH2581 and returned the complete native PASS result. The signed iOS app installed on the
+iPhone 12 Pro, but its launch was denied because the device was locked; post-migration iPhone
+runtime verification remains pending. The native macOS app also relaunched interactively.
+The iOS and Catalyst builds retain the existing `Avalonia.DesignerSupport` `IL2104` warning;
+Android and native macOS builds reported zero warnings.
+
+Packaging/CI-tool tests passed **149 tests**. The generated and migrated C# files passed formatting,
+the changed workflows passed actionlint, and all 55 documentation pages passed local-link checks.
+These migration checks do not repeat the earlier portable-library or Swift suites because their
+sources did not change during the move. Browser remains the generated scaffold, with no native
+Currency adapter; Windows and Linux desktop execution are not claimed.
+
+Logs, generator provenance, and native macOS evidence are saved under
+`artifacts/avalonia-template-migration/`. The native macOS x64 compilation and manual Catalyst
+keyboard observations above predate the migration; they were not repeated for this layout change.
+
+After those native runs, the whole Currency solution was nested under
+`samples/Avalonia/Currency/` so other Avalonia samples can sit alongside it. For this folder-only
+move, package restore/hash verification, the shared UI build, all 149 packaging tests,
+formatting, workflow lint, and documentation links passed again. MSBuild evaluation verified
+all five platform configurations resolve the shared project, package properties, and source files
+at the new location. Native runtime checks were not repeated for this second move. Its logs are
+under `artifacts/avalonia-sample-layout/`.
+
+Before pushing, the two incoming Windows commits were integrated into the generated Desktop
+project. It now selects native AppKit on macOS and Win32 on Windows, while preserving Windows
+result-file reporting and verification through normal window closing. The Windows x64 Release
+head cross-compiled on macOS with zero warnings/errors against locally built Core, transport,
+and Currency packages; restored hashes matched all three local archives. The merged suite passed
+**156 packaging/CI tests**, formatting, workflow lint, and **56 documentation pages** with link checks.
+Both desktop target configurations were evaluated. Windows runtime execution was not repeated
+here; the separate Windows evidence below remains scoped to its original source. Logs are under
+`artifacts/push-integration/`.
 ## NuGet preview 2 — 2026-10-17 {#nuget-preview-2}
 
 Version **0.1.0-preview.2** is published from source
@@ -158,6 +365,187 @@ README content, require fresh same-commit validation before publication. Catalys
 platform feed does not establish combined-feed runtime acceptance, and compilation does not establish
 physical-device or Windows desktop execution.
 
+## Shared hosting on Android
+
+On 2026-10-17, [Shared hosting / Android Currency](https://github.com/Almis90/native-channels/actions/runs/38970474333/job/117209907244)
+passed for PR head `e7483451976582371c2fc1b6cf75b41bd5ef2a02`. GitHub tested merge revision
+`984e4aacd020a894c73522e4a53a9e3c18421738`; this is the source revision recorded in the package evidence.
+
+Both package-only Release apps compiled with zero warnings/errors and executed on the same Android
+API 35 x64 emulator. MAUI and Avalonia returned `USD=$, EUR=€, GBP=£, JPY=¥`, and both passed
+normalization, structured native errors, invalid input, concurrent calls, cancellation and recovery.
+Both apps compile the same verification source.
+
+The two fresh NuGet caches contained identical `NativeChannels.Core`, `NativeChannels`, Android
+binding and Currency archives. Avalonia's dependency graph contained no `NativeChannels.Maui` or
+`Microsoft.Maui.*` packages. The Android development package `Plugin.Maui.Currency` 1.1.0-alpha.1 had
+SHA-256 `e10129f0347ccfceab5d2d709e360c94febe1661ee252e90789cab1bd7a12270` in both hosts.
+The `shared-hosting-android` artifact retains all four package hashes, app logs and `verification.json`.
+
+All framework compile checks, workflow lint, documentation and Windows C++/Rust checks passed in
+that run. This proves the Currency method-call slice of milestone 0.2. It does not establish Avalonia
+native views, incoming UI callbacks, event lifecycle, physical-device or other-platform support;
+combined release-feed acceptance and fresh iOS simulator execution remain separate checks.
+
+### Physical Android phone — 2026-10-17 {#avalonia-android-device-2026-10-17}
+
+The local working tree on `milestone-0.2-shared-hosting`, based on
+`28292efc0bdd495cfa92c5ce8d6abb434a4ece88`, built the updated Avalonia Currency app in Release
+for `android-arm64` with zero warnings/errors. A fresh consumer cache matched all four local
+Android package archives. The APK was installed on a physical CPH2581 running Android 16 and
+opened through its explicit launcher activity. The user confirmed that the app works.
+
+The running process logged
+`CURRENCY_AVALONIA PASS android: USD=US$, EUR=€, GBP=£, JPY=JP¥; normalization, errors, concurrency, cancellation`.
+The shared verification also checks invalid input and recovery. Build, restore, launch, and
+process-log records are under `artifacts/device-testing/avalonia-android-*`; the extracted result
+is `artifacts/device-testing/currency-avalonia-android-result.txt`.
+
+This records physical-device execution of the Avalonia Currency method-call sample. The MAUI
+sample, other channel contracts, and general activity/background lifecycle were not retested on
+this phone in this run.
+
+## Shared hosting on iOS
+
+On 2026-10-17, [Shared hosting / iOS Currency](https://github.com/Almis90/native-channels/actions/runs/38985319526/job/117257484126)
+passed for PR head `4f648cb48c01556aef9fce0cc07dcfc45856c7ac`. GitHub tested merge revision
+`c1198009808f617c30da704ca84d96a328eeb222`, which is recorded in the package evidence.
+
+The Swift Currency adapter built and passed its native checks. The package-only MAUI and Avalonia
+apps compiled in Release for `iossimulator-arm64` and executed on the same iPhone 17 Pro simulator.
+Both returned `USD=$, EUR=€, GBP=£, JPY=¥` and passed normalization, structured native errors,
+invalid managed input, concurrent calls, cancellation and recovery. Saved screenshots show both
+applications displaying the USD result and successful native checks.
+
+Separate fresh caches contained identical `NativeChannels.Core`, `NativeChannels`, Apple binding
+and Currency archives. Avalonia's graph contained no `NativeChannels.Maui` or `Microsoft.Maui.*`
+dependencies. The iOS development package `Plugin.Maui.Currency` 1.1.0-alpha.1 had SHA-256
+`74cc039391e5e23243b20e06e8b0cb2417f3dee3f0c6d846b534d70ba9e9f2b1` in both hosts and contained
+no Android AAR. The `shared-hosting-ios` artifact retains all four package hashes, source revision,
+runtime results, logs and screenshots; its `verification.json` records `success: true`.
+
+The MAUI app built with zero warnings/errors. Avalonia built with zero errors and one `IL2104`
+trimming warning from `Avalonia.DesignerSupport` 12.1.4. The warning remains visible; the successful
+simulator run covers this sample's tested paths, not every trimming-sensitive Avalonia feature.
+
+The [Android regression](https://github.com/Almis90/native-channels/actions/runs/38985319526/job/117257191220)
+also passed at the same source: both Release apps built with zero warnings/errors and returned
+matching results on an API 35 x64 emulator. Archive identity is checked between the two hosts
+within each platform feed; Android and iOS archives contain different native assets. All framework
+compile jobs, workflow lint, documentation and Windows C++/Rust checks passed. Local regression
+checks passed 114 .NET tests and 139 packaging/CI tests.
+
+These are development-package Currency method-call checks. Full framework runtime jobs were
+skipped at this run's Compile depth; both Currency host pairs executed regardless. This evidence
+does not establish physical iPhone execution, signing or App Store distribution, general scene or
+background lifecycle behavior, other channel contracts/native views, or final combined-feed release
+acceptance. It does not complete milestone 0.2 or publish a new framework version.
+
+### Physical iPhone — 2026-10-17 {#avalonia-ios-device-2026-10-17}
+
+The local working tree on `milestone-0.2-shared-hosting`, based on
+`28292efc0bdd495cfa92c5ce8d6abb434a4ece88`, built the updated Avalonia Currency app in Release
+for `ios-arm64` from a fresh iOS development-package feed. The signed app was installed on an
+iPhone 12 Pro running iOS 27.0.1 and opened after the development profile was trusted. The user
+confirmed that the app works on the phone.
+
+The result retrieved from the app's Documents container was
+`PASS apple: USD=US$, EUR=€, GBP=£, JPY=JP¥; normalization, errors, concurrency, cancellation`.
+The shared verification also exercises invalid input and recovery. Build, installation and
+result-copy records are saved under `artifacts/device-testing/avalonia-ios-*`; the returned
+result is `artifacts/device-testing/currency-avalonia-ios-result.txt`.
+
+This records physical-device execution of the Avalonia Currency method-call sample with
+development signing. It does not add a physical MAUI comparison, App Store distribution,
+general lifecycle or native-view coverage, or final combined-feed release acceptance.
+
+## Avalonia on Mac Catalyst
+
+On 2026-10-17, the local working tree on `milestone-0.2-shared-hosting`, based on
+`28292efc0bdd495cfa92c5ce8d6abb434a4ece88`, built and ran the Avalonia iOS Currency sample
+with `TargetFramework=net10.0-maccatalyst` in Release for `maccatalyst-arm64` on macOS 26.2.
+It reused the iOS application/delegate and shared Currency view without MAUI dependencies or
+library project references. The fresh consumer cache matched all four local package archives.
+The app, bridge, and Currency framework each had ARM64 `MACCATALYST` Mach-O metadata.
+
+The app returned `USD=US$, EUR=€, GBP=£, JPY=JP¥` and passed normalization, native structured
+errors, invalid input, concurrent calls, cancellation, and recovery. Interactive checks passed
+the EUR shortcut, `ZZZ` error through the lookup button, and Enter submission of ` eur ` with
+normalization and recovery. The user confirmed that Cmd+A and Backspace work manually after
+automated key input behaved differently. The app remains open for inspection.
+
+The build succeeded with the existing `IL2104` trimming warning from
+`Avalonia.DesignerSupport` 12.1.4. Build, package, restore, runtime, and Mach-O records are under
+`artifacts/device-testing/avalonia-catalyst-*`. This is local Currency method-call evidence;
+Intel execution, general lifecycle/native-view acceptance, distribution signing/notarization,
+and same-commit CI remain unverified.
+
+## Avalonia on native macOS
+
+On 2026-10-17, the local working tree on `milestone-0.2-shared-hosting`, based on
+`28292efc0bdd495cfa92c5ce8d6abb434a4ece88`, built and executed the package-only
+[Avalonia macOS Currency sample](currency-avalonia-macos.md) in Release on macOS 26.2 ARM64.
+The target is `net10.0-macos` with AppKit. The verifier checked native macOS Mach-O platform
+metadata for the executable, bridge, and Currency framework and rejected UIKit/Catalyst links.
+
+The app returned `USD=US$, EUR=€, GBP=£, JPY=JP¥` for the local region and passed normalization,
+structured native errors, invalid managed input, concurrent calls, cancellation, recovery and
+asynchronous session disposal before exit. Its fresh package cache matched all four local archive
+hashes and contained no MAUI packages or library project references.
+
+The desktop UI was also checked against the MAUI Currency page. The shared Avalonia view now
+includes the header, symbol color, centered result, full-width action, four currency shortcuts,
+and the same help text. Live macOS UI checks passed for each shortcut, Enter submission with
+normalization, the `ZZZ` error via the lookup button, and recovery through the EUR shortcut.
+The subsequent interactive relaunch also returned the complete native `PASS` result, saved in
+`artifacts/device-testing/avalonia-macos-interactive.log`, and the user confirmed the app works.
+
+The Swift bridge/codec/lifecycle tests, portable .NET tests, packaging-tool regressions, and
+existing iOS/Catalyst transport builds also passed locally. These are working-tree checks, not
+same-commit CI or release acceptance. The dedicated macOS workflow has been added but has not
+been run remotely. Evidence is saved under `artifacts/shared-hosting-macos/osx-arm64`.
+
+Release consumers compiled for ARM64 and x64 with zero warnings/errors. Native Swift slices
+include both architectures. Intel execution, macOS 14 minimum-version
+execution, signing/notarization, Avalonia native-view hosting and other channel contracts remain
+unverified. This initial Currency proof does not complete milestone 0.2.
+
+## Shared hosting on Windows
+
+On 2026-10-17, `eng/verify-shared-hosting-windows.ps1` passed on a physical Windows 11 x64 PC
+(OS build 26200), from clean source `3118288465f6988493627067718e5db8b2a81d27`. This was local
+desktop execution, separate from the hosted Windows compilation jobs.
+
+Fresh Windows-only framework and Currency packages were built from that revision. Both package-only
+applications published in Release for `win-x64` without reported warnings or errors. MAUI and
+Avalonia executed and returned `USD=$, EUR=€, GBP=£, JPY=¥`; both passed normalization, structured
+native errors, invalid input, concurrent calls, cancellation and recovery. Avalonia's verification
+mode closed the actual window through its normal closing handler, awaited session disposal, and
+exited with code zero. All 17 Windows Currency native API tests also passed.
+
+Separate fresh caches contained identical shared archives:
+
+| Package | Version | SHA-256 in both hosts |
+| --- | --- | --- |
+| NativeChannels.Core | 0.1.0-preview.1 | `7694351f5aad6e405bcc92e9383e6f24269fc1f62d14d392e1bd46c6cd43526c` |
+| NativeChannels | 0.1.0-preview.1 | `912fd9dc65762fa3032574d288e79c084bb345531a5a67ec0fb870ff0ecb4209` |
+| Plugin.Maui.Currency | 1.1.0-alpha.1 | `c3937dac7f5acb9f16951ac9dc7558195c8352a229eed04da94e48c2975bc343` |
+
+Both graphs contained no library project references or mobile channel bindings. Avalonia used its
+Win32 backend with no MAUI or Windows App SDK dependency. Framework package metadata matched the
+source commit. The local run `bb3c43c47daa4acc8351eb4753eee2c3` under
+`artifacts/shared-hosting-windows/win-x64/` retains package/compilation records, native test results
+and per-host output; `verification.json` records `sourceDirty: false` and `success: true`.
+The local regression suite also passed 114 .NET tests and 145 packaging/CI tests.
+
+These archives are development builds, distinct from the published NuGet preview despite reusing
+its framework version. Both applications were unpackaged and self-contained. This does not establish
+Windows 10 execution, Windows ARM64 runtime support, MSIX deployment, interactive/manual acceptance,
+multi-window or OS-shutdown behavior, native view embedding, or final combined-feed release
+acceptance. The required Windows shared-hosting CI job compiles x64 and ARM64 and executes native
+API tests on the x64 runner; it does not claim desktop application execution. This Currency proof
+does not complete Avalonia milestone 0.2. See the [Windows sample](currency-avalonia-windows.md).
+
 ## NuGet publication — 2026-10-17 {#nuget-publication-2026-10-17}
 
 Version **0.1.0-preview.1** was published from source
@@ -272,7 +660,31 @@ application, and installer checks. ARM64 cross-compilation does not establish AR
 - Verify Catalyst output-device switching, Bluetooth/headphone routes, and audio interruptions.
 - Repeat longer native memory/lifecycle soaks, investigate retention, and extend the Catalyst profile
   to Android, iOS and Windows; record physical-device and hosted execution separately.
-- Verify every planned Avalonia and Uno host/target combination against the [roadmap completion criteria](roadmap.md#avalonia-integration), including desktop macOS, Linux, and JavaScript/DOM browser adapters. None is supported on `main` yet.
+- Verify every planned Avalonia and Uno host/target combination against the [roadmap completion criteria](roadmap.md#avalonia-integration), including desktop macOS, Linux, and JavaScript/DOM browser adapters. Existing Currency and Windows/Linux audio proofs do not establish the remaining contracts or platforms.
 
 Use the [release checklist](release-checklist.md) before tagging or distribution. Keep implementation,
 compilation, runtime results, and manual observations separate in future updates.
+
+## Avalonia interoperability port — 2026-10-17
+
+The extra MAUI `NativeChannels.Sample` now has an Avalonia counterpart at
+[`samples/Avalonia/Interop`](../samples/Avalonia/Interop/README.md), with source
+heads for Android, iOS, Windows, macOS, Linux and browser. It links the existing
+managed contract suite and adds Avalonia native-view lifecycle checks. Linux
+implements sample behavior and GTK buttons in C++; browser uses JavaScript/DOM;
+macOS adds an AppKit button factory alongside the existing UIKit factory.
+
+Compilation checks on Ubuntu 24.04 x64 with the pinned .NET SDK 10.0.401:
+
+| Check | Result |
+|---|---|
+| Linux C++17/GTK sample library (`-Wall -Wextra -Werror`) and Linux x64 head | Build passed |
+| Windows x64 head, cross-built on Ubuntu | Build passed |
+| Browser/WebAssembly head | Build passed |
+| Three framework-package feeds and matching package-only consumers | Metadata/platform audits and archive hashes passed |
+
+The three managed builds reported zero warnings and errors. External dependency
+caches were reused to fit the VM disk; this is not fresh-cache release acceptance.
+Android, iOS and macOS heads were not compiled in this pass. No apps, runtime
+checks or workflows were run. The in-app **Run checks** suite remains to be
+executed on all six platforms, including the new Linux callback ABI extension.

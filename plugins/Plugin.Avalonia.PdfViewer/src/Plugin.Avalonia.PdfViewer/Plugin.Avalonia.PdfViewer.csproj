@@ -1,0 +1,126 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFrameworks>net10.0-android;net10.0-ios;net10.0-macos</TargetFrameworks>
+        <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))"
+            >$(TargetFrameworks);net10.0-windows10.0.19041.0</TargetFrameworks>
+        <TargetFrameworks Condition="'$(NativeChannelsAndroidOnly)' == 'true'"
+            >net10.0-android</TargetFrameworks>
+        <TargetFrameworks Condition="'$(NativeChannelsWindowsOnly)' == 'true'"
+            >net10.0-windows10.0.19041.0</TargetFrameworks>
+        <TargetFrameworks Condition="'$(NativeChannelsLinuxOnly)' == 'true'"
+            >net10.0</TargetFrameworks>
+        <DefineConstants Condition="'$(NativeChannelsLinuxOnly)' == 'true'"
+            >$(DefineConstants);LINUX</DefineConstants>
+        <TargetFrameworks Condition="'$(NativeChannelsAppleTarget)' != ''"
+            >net10.0-$(NativeChannelsAppleTarget)</TargetFrameworks>
+        <TargetFrameworks Condition="'$(NativeChannelsBrowserOnly)' == 'true'"
+            >net10.0-browser</TargetFrameworks>
+        <SupportedOSPlatformVersion
+            Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'macos'"
+            >14.0</SupportedOSPlatformVersion>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <PackageId>Plugin.Avalonia.PdfViewer</PackageId>
+        <Version>0.1.0-alpha.1</Version>
+        <Description>Native PDF views for Avalonia across Android, iOS, Windows, macOS, Linux and browser.</Description>
+        <SupportedOSPlatformVersion
+            Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'"
+            >24</SupportedOSPlatformVersion>
+        <SupportedOSPlatformVersion
+            Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios' Or $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'"
+            >15.0</SupportedOSPlatformVersion>
+        <SupportedOSPlatformVersion
+            Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'"
+            >10.0.17763.0</SupportedOSPlatformVersion>
+    </PropertyGroup>
+    <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">
+        <PackageReference Include="System.Drawing.Common" />
+        <Compile
+            Include="../../../Plugin.Maui.PdfViewer/native/windows/WindowsPdfDocument.cs"
+            Link="WindowsPdfDocument.cs"
+        />
+        <Compile
+            Include="../../native/windows/**/*.cs"
+            Link="native/windows/%(RecursiveDir)%(Filename)%(Extension)"
+        />
+    </ItemGroup>
+    <ItemGroup Condition="'$(NativeChannelsLinuxOnly)' == 'true'">
+        <None
+            Include="../../../../artifacts/native/linux-x64/libnc_pdf_qt.so;../../../../artifacts/native/linux-x64/libnc_pdf_gtk.so"
+            Pack="true"
+            PackagePath="runtimes/linux-x64/native/"
+        />
+    </ItemGroup>
+    <Target
+        Name="BuildLinuxPdf"
+        BeforeTargets="BeforeBuild;GenerateNuspec"
+        Condition="'$(NativeChannelsLinuxOnly)' == 'true'"
+    >
+        <Exec Command="bash &quot;$(MSBuildThisFileDirectory)../../../../eng/build-linux-native.sh&quot; pdf" />
+    </Target>
+    <ItemGroup>
+        <InternalsVisibleTo Include="Plugin.Maui.Windows.Tests" />
+        <PackageReference Include="NativeChannels" />
+        <PackageReference Include="NativeChannels.Avalonia" />
+        <PackageReference Include="Avalonia" />
+        <None Remove="$(MSBuildThisFileDirectory)../../../../README.md" />
+        <None Include="../../README.md" Pack="true" PackagePath="/" />
+        <None
+            Include="buildTransitive/Plugin.Avalonia.PdfViewer.targets"
+            Pack="true"
+            PackagePath="buildTransitive/"
+        />
+        <None
+            Include="../../../Plugin.Maui.PdfViewer/native/android/build/outputs/aar/pdf-release.aar"
+            Condition="'$(NativeChannelsAppleTarget)' == '' And '$(NativeChannelsWindowsOnly)' != 'true' And '$(NativeChannelsBrowserOnly)' != 'true' And '$(NativeChannelsLinuxOnly)' != 'true'"
+            Pack="true"
+            PackagePath="native/android/pdf.aar"
+        />
+        <None
+            Include="../../../../artifacts/native/MauiPdfViewerNative.xcframework/**/*"
+            Condition="'$(NativeChannelsWindowsOnly)' != 'true' And '$(NativeChannelsBrowserOnly)' != 'true' And '$(NativeChannelsLinuxOnly)' != 'true' And '$(NativeChannelsAndroidOnly)' != 'true'"
+            Pack="true"
+            Exclude="../../../../artifacts/native/MauiPdfViewerNative.xcframework/**/Modules/MauiPdfViewerNative.swiftmodule/**/*"
+            PackagePath="native/apple/MauiPdfViewerNative.xcframework/"
+        />
+    </ItemGroup>
+    <Target
+        Name="ValidateMauiPdfViewerNativeAssets"
+        BeforeTargets="GenerateNuspec"
+        Condition="'$(NativeChannelsWindowsOnly)' != 'true' And '$(NativeChannelsBrowserOnly)' != 'true' And '$(NativeChannelsLinuxOnly)' != 'true'"
+    >
+        <Error
+            Condition="'$(NativeChannelsAppleTarget)' == '' And !Exists('../../../Plugin.Maui.PdfViewer/native/android/build/outputs/aar/pdf-release.aar')"
+            Text="Build the Plugin.Avalonia.PdfViewer Android adapter before packing."
+        />
+        <Error
+            Condition="'$(NativeChannelsAndroidOnly)' != 'true' And !Exists('../../../../artifacts/native/MauiPdfViewerNative.xcframework/Info.plist')"
+            Text="Build the Plugin.Avalonia.PdfViewer Apple adapter before packing."
+        />
+    </Target>
+    <ItemGroup Condition="'$(NativeChannelsBrowserOnly)' == 'true'">
+        <None Include="../../native/browser/*.mjs" Pack="true" PackagePath="browser/" />
+    </ItemGroup>
+    <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
+        <PackageReference Include="Avalonia.Android" />
+    </ItemGroup>
+    <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">
+        <PackageReference Include="Avalonia.iOS" />
+    </ItemGroup>
+    <ItemGroup Condition="'$(NativeChannelsBrowserOnly)' == 'true'">
+        <PackageReference Include="Avalonia.Browser" />
+    </ItemGroup>
+    <Target
+        Name="PreparePdfJs"
+        BeforeTargets="BeforeBuild;_GetPackageFiles"
+        Condition="'$(NativeChannelsBrowserOnly)' == 'true'"
+    >
+        <Exec Command="node &quot;$(MSBuildThisFileDirectory)../../eng/prepare-browser.mjs&quot;" />
+        <ItemGroup>
+            <None
+                Include="../../native/browser/vendor/**/*"
+                Pack="true"
+                PackagePath="browser/vendor/"
+            />
+        </ItemGroup>
+    </Target>
+</Project>

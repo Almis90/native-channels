@@ -142,8 +142,54 @@ class PlatformSelectionTests(unittest.TestCase):
 
     def test_docs_examples_and_benchmarks_do_not_build_framework(self):
         self.assertEqual((set(), False), selection.classify([
-            'docs/building.md', 'plugins/Plugin.Maui.Currency/native/Foo.kt',
-            'samples/Maui/Currency/MainPage.cs', 'benchmarks/Benchmarks.cs']))
+            'docs/building.md', 'plugins/Plugin.Maui.AudioStreamer/native/Foo.kt',
+            'samples/Maui/AudioStreamer/MainPage.cs', 'benchmarks/Benchmarks.cs']))
+
+    def test_shared_currency_proof_selects_android_without_other_platform_builds(self):
+        for path in ('samples/Avalonia/Currency/Currency.Android/Currency.Android.csproj',
+                     'plugins/Plugin.Maui.Currency/native/android/CurrencyModule.kt',
+                     '.github/workflows/shared-hosting-android.yml', 'eng/pack-currency-android.sh',
+                     'eng/verify-shared-hosting-android.sh'):
+            with self.subTest(path=path):
+                self.assertEqual(({'android'}, True), selection.classify([path]))
+        self.assertEqual((selection.ALL, True), selection.classify([
+            'samples/Avalonia/Currency/Currency.Android/Application.cs', 'src/NativeChannels/Hosting/Registration.cs']))
+
+    def test_shared_currency_changes_select_all_three_hosts(self):
+        for path in ('samples/Avalonia/Currency/Directory.Packages.props', 'samples/Avalonia/Currency/Currency.slnx',
+                     'samples/Currency.Shared/PluginVerification.cs', 'samples/Maui/Currency/MainPage.cs',
+                     'samples/Avalonia/Currency/Currency/Views/MainView.axaml.cs',
+                     'plugins/Plugin.Maui.Currency/src/Plugin.Maui.Currency/CurrencyService.cs',
+                     'plugins/Plugin.Maui.Currency/eng/inspect-package.py',
+                     'eng/verify-shared-hosting.py', 'eng/restore-currency-avalonia.sh'):
+            with self.subTest(path=path):
+                self.assertEqual(({'android', 'ios', 'windows'}, True), selection.classify([path]))
+
+    def test_ios_currency_changes_select_ios_without_android_or_catalyst(self):
+        for path in ('samples/Avalonia/Currency/Currency.iOS/Currency.iOS.csproj',
+                     'samples/Maui/Currency/Platforms/iOS/AppDelegate.cs',
+                     'plugins/Plugin.Maui.Currency/native/apple/Sources/CurrencyModule.swift',
+                     'plugins/Plugin.Maui.Currency/eng/build-apple.py',
+                     '.github/workflows/shared-hosting-ios.yml',
+                     'eng/pack-currency-ios.sh', 'eng/verify-shared-hosting-ios.sh'):
+            with self.subTest(path=path):
+                self.assertEqual(({'ios'}, True), selection.classify([path]))
+
+    def test_windows_currency_changes_do_not_trigger_mobile_hosts(self):
+        for path in ('samples/Avalonia/Currency/Currency.Desktop/Program.cs',
+                     'samples/Avalonia/Currency/Currency.Desktop/Currency.Desktop.csproj',
+                     'samples/Maui/Currency/Platforms/Windows/App.xaml.cs',
+                     'plugins/Plugin.Maui.Currency/native/windows/WindowsCurrencyModule.cs',
+                     'eng/verify-windows.ps1', 'eng/verify-shared-hosting-windows.ps1',
+                     '.github/workflows/shared-hosting-windows.yml'):
+            with self.subTest(path=path):
+                self.assertEqual(({'windows'}, True), selection.classify([path]))
+
+    def test_currency_docs_do_not_trigger_platform_builds(self):
+        self.assertEqual((set(), False), selection.classify([
+            'samples/Avalonia/Currency/Currency.Android/README.md',
+            'samples/Avalonia/Currency/Currency.iOS/README.md',
+            'samples/Avalonia/Currency/Currency.Desktop/README.md']))
 
     def test_failed_comparison_falls_back_to_all(self):
         with patch.object(selection, 'changed_paths', side_effect=ValueError('missing base')):
@@ -180,10 +226,45 @@ class EvidenceTests(unittest.TestCase):
         record = results.summarize(self.selection, self.needs, [], self.sha)
         self.assertFalse(record['success'])
 
+    def test_selected_shared_hosting_failure_blocks_framework_result(self):
+        chosen = {**self.selection, 'depth': 'Compile', 'sharedHosting': True}
+        needs = {**self.needs, 'shared-hosting': {'result': 'failure'}}
+        record = results.summarize(chosen, needs, [self.compile, self.arm64], self.sha)
+        self.assertFalse(record['success'])
+        self.assertEqual(['shared-hosting'], record['failedJobs'])
+        needs['shared-hosting']['result'] = 'success'
+        self.assertTrue(results.summarize(chosen, needs, [self.compile, self.arm64], self.sha)['success'])
+
+    def test_ios_shared_hosting_must_pass_even_at_compile_depth(self):
+        chosen = {**self.selection, 'platforms': ['ios'], 'depth': 'Compile', 'sharedHostingIos': True}
+        needs = {name: {'result': 'success'} for name in ('select', 'core', 'apple-native', 'ios')}
+        evidence = [{**self.compile, 'platform': 'ios', 'runtime': 'iossimulator-arm64'}]
+        for outcome in ('missing', 'skipped', 'failure', 'cancelled'):
+            with self.subTest(outcome=outcome):
+                record = results.summarize(chosen, {**needs, 'shared-hosting-ios': {'result': outcome}}, evidence, self.sha)
+                self.assertFalse(record['success'])
+                self.assertEqual(['shared-hosting-ios'], record['failedJobs'])
+        needs['shared-hosting-ios'] = {'result': 'success'}
+        self.assertTrue(results.summarize(chosen, needs, evidence, self.sha)['success'])
+
     def test_wrong_source_and_duplicate_evidence_rejected(self):
         for evidence in ([{**self.compile, 'sourceCommit': 'b' * 40}], [self.compile, self.compile]):
             with self.assertRaises(ValueError):
                 results.summarize(self.selection, self.needs, evidence, self.sha)
+
+    def test_windows_shared_hosting_is_required_without_claiming_ui_execution(self):
+        chosen = {**self.selection, 'platforms': ['windows'], 'depth': 'Compile', 'sharedHostingWindows': True}
+        needs = {name: {'result': 'success'} for name in ('select', 'core', 'windows')}
+        evidence = [{**self.compile, 'platform': 'windows', 'runtime': rid} for rid in ('win-x64', 'win-arm64')]
+        for outcome in ('missing', 'skipped', 'failure', 'cancelled'):
+            with self.subTest(outcome=outcome):
+                record = results.summarize(chosen, {**needs, 'shared-hosting-windows': {'result': outcome}}, evidence, self.sha)
+                self.assertFalse(record['success'])
+                self.assertEqual(['shared-hosting-windows'], record['failedJobs'])
+        needs['shared-hosting-windows'] = {'result': 'success'}
+        record = results.summarize(chosen, needs, evidence, self.sha)
+        self.assertTrue(record['success'])
+        self.assertFalse(record['results'][3]['executed'])
 
     def test_windows_requires_both_architectures_but_no_runtime(self):
         chosen = {**self.selection, 'platforms': ['windows']}

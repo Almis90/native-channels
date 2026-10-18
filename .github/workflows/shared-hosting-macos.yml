@@ -1,0 +1,96 @@
+name: Verify Avalonia native macOS
+on:
+  pull_request:
+    branches: [main, milestone-0.2-shared-hosting]
+    paths:
+      - 'src/**'
+      - 'native/apple/**'
+      - 'samples/Avalonia/Currency/Currency.Desktop/**'
+      - 'samples/Avalonia/Currency/Currency/**'
+      - 'samples/Avalonia/Currency/Directory.Packages.props'
+      - 'samples/Avalonia/Currency/Currency.slnx'
+      - 'samples/Currency.Shared/**'
+      - 'plugins/Plugin.Maui.Currency/**'
+      - 'eng/**'
+      - 'tests/packaging/**'
+      - '.github/actions/mobile-toolchain/**'
+      - '.github/scripts/mobile-toolchain.py'
+      - '.github/workflows/shared-hosting-macos.yml'
+      - 'Directory.*.props'
+      - 'global.json'
+      - '!**/*.md'
+  push:
+    branches: [main, milestone-0.2-shared-hosting]
+    paths:
+      - 'src/**'
+      - 'native/apple/**'
+      - 'samples/Avalonia/Currency/Currency.Desktop/**'
+      - 'samples/Avalonia/Currency/Currency/**'
+      - 'samples/Avalonia/Currency/Directory.Packages.props'
+      - 'samples/Avalonia/Currency/Currency.slnx'
+      - 'samples/Currency.Shared/**'
+      - 'plugins/Plugin.Maui.Currency/**'
+      - 'eng/**'
+      - 'tests/packaging/**'
+      - '.github/actions/mobile-toolchain/**'
+      - '.github/scripts/mobile-toolchain.py'
+      - '.github/workflows/shared-hosting-macos.yml'
+      - 'Directory.*.props'
+      - 'global.json'
+      - '!**/*.md'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: avalonia-macos-${{ github.event_name }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name != 'workflow_dispatch' }}
+jobs:
+  currency:
+    name: Package and execute Currency on AppKit
+    runs-on: macos-26
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '26.6'
+      - name: Set up native macOS workload
+        timeout-minutes: 10
+        uses: ./.github/actions/mobile-toolchain
+        with:
+          target: macos
+      - name: Check package and verification tooling
+        run: python3 -m unittest discover -s tests/packaging
+      - name: Build universal macOS bridge and run native tests
+        timeout-minutes: 10
+        run: |
+          python3 eng/build-apple.py --macos-only
+          xcrun swiftc -swift-version 5 native/apple/Sources/*.swift native/apple/Tests/main.swift -o artifacts/apple-bridge-tests
+          artifacts/apple-bridge-tests
+      - name: Pack macOS framework and Currency adapter
+        timeout-minutes: 10
+        run: |
+          bash eng/pack-apple.sh macos
+          bash eng/pack-currency-ios.sh macos
+          bash eng/pack-avalonia.sh
+          python3 eng/package_audit.py artifacts/packages/*.nupkg --source-commit "$GITHUB_SHA"
+      - name: Build x64 package consumer
+        timeout-minutes: 10
+        run: |
+          bash eng/restore-currency-avalonia.sh macos -r osx-x64
+          bash eng/dotnet.sh build samples/Avalonia/Currency/Currency.Desktop -c Release -r osx-x64 --no-restore --disable-build-servers
+      - name: Build ARM64 consumer in a fresh cache and execute
+        timeout-minutes: 10
+        run: |
+          bash eng/restore-currency-avalonia.sh macos -r osx-arm64
+          bash eng/dotnet.sh build samples/Avalonia/Currency/Currency.Desktop -c Release -r osx-arm64 --no-restore --disable-build-servers
+          python3 eng/verify-currency-macos.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: shared-hosting-macos
+          path: |
+            artifacts/shared-hosting-macos/**
+            artifacts/package-audit.json
+          retention-days: 7
+          if-no-files-found: warn

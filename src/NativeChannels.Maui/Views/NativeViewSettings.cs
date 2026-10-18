@@ -11,7 +11,7 @@ internal sealed class NativeViewSettings
 
     internal NativeViewSettings(NativeChannelsOptions options)
     {
-        Serializer = new(options.Json);
+        Serializer = new(new System.Text.Json.JsonSerializerOptions(options.Json));
         Limits = options.Limits;
         Timeout = options.DefaultTimeout;
         Codec = new(Serializer, Limits);

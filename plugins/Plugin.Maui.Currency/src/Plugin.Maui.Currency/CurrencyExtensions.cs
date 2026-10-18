@@ -7,7 +7,8 @@ namespace Plugin.Maui.Currency;
 public static class CurrencyExtensions
 {
     /// <summary>Adds the plugin's packaged native module to a NativeChannels session.</summary>
-    public static NativeChannelsOptions AddCurrency(this NativeChannelsOptions options)
+    public static TOptions AddCurrency<TOptions>(this TOptions options)
+        where TOptions : ChannelRegistrationOptions
     {
         ArgumentNullException.ThrowIfNull(options);
         var module = new NativeModuleRegistration(
@@ -19,6 +20,12 @@ public static class CurrencyExtensions
 #if WINDOWS
             WindowsFactory = CreateWindowsModule,
 #endif
+#if LINUX
+            LinuxFactory = CreateLinuxModule,
+#endif
+#if BROWSER
+            BrowserModule = "./_content/Plugin.Maui.Currency/currency.mjs",
+#endif
         };
         if (!options.Modules.Contains(module))
         {
@@ -27,7 +34,7 @@ public static class CurrencyExtensions
         return options;
     }
 
-    /// <summary>Registers the currency service. Also call options.AddCurrency inside UseNativeChannels.</summary>
+    /// <summary>Registers the currency service. Also call options.AddCurrency when registering the channel session.</summary>
     public static IServiceCollection AddCurrency(this IServiceCollection services)
     {
         ArgumentNullException.ThrowIfNull(services);
@@ -37,5 +44,9 @@ public static class CurrencyExtensions
 
 #if WINDOWS
     private static IWindowsChannelModule CreateWindowsModule() => new WindowsCurrencyModule();
+#endif
+#if LINUX
+    private static ILinuxChannelModule CreateLinuxModule() =>
+        new LinuxNativeModule("libnc_currency.so", typeof(CurrencyExtensions).Assembly, ["plugin.maui.currency"]);
 #endif
 }

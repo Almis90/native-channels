@@ -1,11 +1,19 @@
 <Project>
+    <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'browser'">
+        <Content
+            Include="$(MSBuildThisFileDirectory)../browser/*.mjs"
+            Link="wwwroot/_content/Plugin.Maui.VolumeMonitor/%(Filename)%(Extension)"
+            CopyToOutputDirectory="PreserveNewest"
+            CopyToPublishDirectory="PreserveNewest"
+        />
+    </ItemGroup>
     <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
         <AndroidLibrary
             Include="$(MSBuildThisFileDirectory)../native/android/volume.aar"
             Bind="false"
         />
     </ItemGroup>
-    <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios' Or $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">
+    <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios' Or $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst' Or $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'macos'">
         <NativeReference Include="$(MSBuildThisFileDirectory)../native/apple/MauiVolumeMonitorNative.xcframework">
             <Kind>Framework</Kind>
             <SmartLink>false</SmartLink>

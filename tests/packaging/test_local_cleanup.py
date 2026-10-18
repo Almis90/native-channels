@@ -42,6 +42,16 @@ class LocalCleanupTests(unittest.TestCase):
         consumer.clean(self.root, 'samples/Maui/ChannelExplorer')
         self.assertTrue(self.cache.exists())
 
+    def test_linux_desktop_uses_its_own_cache_marker(self):
+        marker = self.artifacts / 'currency-avalonia-linux-cache-path.txt'
+        marker.write_text(str(self.cache))
+        self.marker.unlink()
+        consumer.clean(self.root, 'samples/Avalonia/Currency/Currency.Desktop', 'currency-avalonia-linux')
+        self.assertFalse(self.cache.exists())
+        self.assertFalse(marker.exists())
+        with self.assertRaises(ValueError):
+            consumer.clean(self.root, 'samples/Maui/ChannelExplorer', 'currency-avalonia-linux')
+
     def test_external_cache_is_rejected_before_mutation(self):
         self.marker.write_text(str(self.root))
         with self.assertRaises(ValueError):

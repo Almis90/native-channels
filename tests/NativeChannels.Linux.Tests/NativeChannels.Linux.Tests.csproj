@@ -1,0 +1,49 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <IsPackable>false</IsPackable>
+        <IsTestProject>true</IsTestProject>
+        <DefineConstants>$(DefineConstants);LINUX</DefineConstants>
+    </PropertyGroup>
+    <Target Name="BuildNativeCurrency" BeforeTargets="BeforeBuild">
+        <Exec Command="bash &quot;$(MSBuildThisFileDirectory)../../eng/build-linux-native.sh&quot; currency" />
+    </Target>
+    <ItemGroup>
+        <None
+            Include="../../artifacts/native/linux-x64/libnc_currency.so"
+            Link="libnc_currency.so"
+            CopyToOutputDirectory="PreserveNewest"
+        />
+    </ItemGroup>
+    <ItemGroup>
+        <Compile
+            Include="../../src/NativeChannels/NativeChannelTransport.cs"
+            Link="Transport/NativeChannelTransport.cs"
+        />
+        <Compile
+            Include="../../src/NativeChannels/NativeModuleRegistration.cs"
+            Link="Transport/NativeModuleRegistration.cs"
+        />
+        <Compile
+            Include="../../src/NativeChannels/Platforms/Linux/*.cs"
+            Link="Transport/%(Filename)%(Extension)"
+        />
+        <Compile
+            Include="../../src/NativeChannels/Hosting/*.cs"
+            Link="Hosting/%(Filename)%(Extension)"
+        />
+        <Compile
+            Include="../../plugins/Plugin.Maui.Currency/src/Plugin.Maui.Currency/*.cs"
+            Link="Currency/%(Filename)%(Extension)"
+        />
+        <Compile
+            Include="../../samples/Currency.Shared/PluginVerification.cs"
+            Link="Currency/PluginVerification.cs"
+        />
+        <ProjectReference Include="../../src/NativeChannels.Core/NativeChannels.Core.csproj" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" />
+        <PackageReference Include="xunit" />
+        <PackageReference Include="xunit.runner.visualstudio" PrivateAssets="all" />
+    </ItemGroup>
+</Project>

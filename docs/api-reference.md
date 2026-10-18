@@ -6,7 +6,7 @@ covered in the [Android](android-integration.md), [Apple](ios-integration.md), a
 
 ## Channel service
 
-Inject `IChannelService` after calling `UseNativeChannels`. Each channel factory returns an
+Inject `IChannelService` after calling `AddNativeChannels` or MAUI's `UseNativeChannels`. Each channel factory returns an
 independently disposable handle. The DI container owns the service.
 
 <<< ../src/NativeChannels.Core/Channels/IChannelService.cs
@@ -73,9 +73,18 @@ See [configuration](configuration.md) for timeouts and dispatchers.
 
 ## Startup and native registration
 
-`UseNativeChannels(Action<NativeChannelsOptions>?)` configures one native session and its services.
-`NativeChannelsOptions` exposes `Modules`, `ViewFactories`, `DefaultTimeout`, `Limits`, and `Json` metadata options.
-Optional `Diagnostics` is available from `0.1.0-preview.2`.
+`IServiceCollection.AddNativeChannels(Action<ChannelRegistrationOptions>?)` registers a native session
+without selecting a UI framework. An overload accepts an existing `ChannelRegistrationOptions`.
+The options expose `Modules`, `DefaultTimeout`, `Limits`, `Json` metadata settings, and optional `Diagnostics`. Registration
+captures these settings; later edits do not reconfigure the session.
+
+Each service provider creates its own session when `IChannelService` or `IBinaryMessenger` is first
+resolved and owns its disposal. Hosts should await provider disposal for completed native cleanup.
+Register once: an existing channel service or messenger registration is rejected.
+
+MAUI's `UseNativeChannels(Action<NativeChannelsOptions>?)` delegates to shared registration and adds
+MAUI startup and native view handling. `NativeChannelsOptions` inherits the shared options and adds
+`ViewFactories`. Existing MAUI configuration calls remain source-compatible.
 
 <<< ../src/NativeChannels/NativeModuleRegistration.cs
 

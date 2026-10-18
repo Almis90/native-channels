@@ -1,0 +1,82 @@
+name: Shared hosting / iOS Currency
+on:
+  workflow_call:
+permissions:
+  contents: read
+jobs:
+  currency:
+    name: Same Currency package in MAUI and Avalonia iOS
+    runs-on: macos-26
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: framework-packages-ios
+          path: artifacts
+      - uses: actions/download-artifact@v4
+        with:
+          name: apple-native
+          path: artifacts
+      - name: Reuse this run's iOS framework packages and native bridge
+        run: |
+          tar -xzf artifacts/package-feed.tar.gz
+          tar -xzf artifacts/apple-native.tar.gz
+          python3 eng/package_audit.py artifacts/packages/*.nupkg --platform-only ios --source-commit "$GITHUB_SHA"
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '26.6'
+      - name: Set up cached iOS .NET toolchain
+        timeout-minutes: 10
+        uses: ./.github/actions/mobile-toolchain
+        with:
+          target: ios
+      - name: Build, test and pack Currency once
+        timeout-minutes: 10
+        run: |
+          bash eng/pack-currency-ios.sh
+          bash eng/pack-avalonia.sh
+          python3 eng/package_audit.py artifacts/packages/*.nupkg --source-commit "$GITHUB_SHA"
+      - name: Restore both package-only hosts into separate fresh caches
+        timeout-minutes: 10
+        run: |
+          bash eng/restore-currency-sample.sh -p:TargetFrameworks=net10.0-ios -r iossimulator-arm64
+          bash eng/restore-currency-avalonia.sh ios -r iossimulator-arm64
+          python3 eng/verify-shared-hosting.py packages --platform ios
+      - name: Compile both Release apps from those restores
+        timeout-minutes: 15
+        run: |
+          bash eng/dotnet.sh build samples/Maui/Currency -c Release -f net10.0-ios -r iossimulator-arm64 --no-restore --disable-build-servers
+          bash eng/dotnet.sh build samples/Avalonia/Currency/Currency.iOS -c Release -r iossimulator-arm64 --no-restore --disable-build-servers
+      - name: Prepare iOS simulator
+        id: simulator
+        timeout-minutes: 5
+        uses: ./.github/actions/ios-simulator
+      - name: Execute the same Currency scenarios in both hosts
+        timeout-minutes: 5
+        env:
+          DEVICE: ${{ steps.simulator.outputs.device }}
+        run: bash eng/verify-shared-hosting-ios.sh "$DEVICE"
+      - name: Capture simulator diagnostics on failure
+        if: failure()
+        continue-on-error: true
+        timeout-minutes: 1
+        env:
+          DEVICE: ${{ steps.simulator.outputs.device }}
+        run: bash eng/ios-simulator-diagnostics.sh "$DEVICE"
+      - name: Shut down test simulator
+        if: ${{ always() && steps.simulator.outputs.device != '' }}
+        continue-on-error: true
+        timeout-minutes: 2
+        env:
+          DEVICE: ${{ steps.simulator.outputs.device }}
+        run: xcrun simctl shutdown "$DEVICE"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: shared-hosting-ios
+          path: |
+            artifacts/shared-hosting-ios/**
+            artifacts/ios-consumers/**
+          retention-days: 7
+          if-no-files-found: warn

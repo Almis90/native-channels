@@ -5,9 +5,16 @@
             >$(TargetFrameworks);net10.0-windows10.0.19041.0</TargetFrameworks>
         <TargetFrameworks Condition="'$(NativeChannelsAndroidOnly)' == 'true'"
             >net10.0-android</TargetFrameworks>
+        <TargetFrameworks Condition="'$(NativeChannelsAppleTarget)' != ''"
+            >net10.0-$(NativeChannelsAppleTarget)</TargetFrameworks>
         <TargetFrameworks Condition="'$(NativeChannelsWindowsOnly)' == 'true'"
             >net10.0-windows10.0.19041.0</TargetFrameworks>
-        <UseMaui>true</UseMaui>
+        <TargetFrameworks Condition="'$(NativeChannelsLinuxOnly)' == 'true'"
+            >net10.0</TargetFrameworks>
+        <DefineConstants Condition="'$(NativeChannelsLinuxOnly)' == 'true'"
+            >$(DefineConstants);LINUX</DefineConstants>
+        <TargetFrameworks Condition="'$(NativeChannelsBrowserOnly)' == 'true'"
+            >net10.0-browser</TargetFrameworks>
         <PackageId>Plugin.Maui.Currency</PackageId>
         <Version>1.1.0-alpha.1</Version>
         <Description>Reference plugin demonstrating native currency symbols and reusable packaging with NativeChannels.</Description>
@@ -18,6 +25,9 @@
             Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios' Or $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'"
             >15.0</SupportedOSPlatformVersion>
         <SupportedOSPlatformVersion
+            Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'macos'"
+            >14.0</SupportedOSPlatformVersion>
+        <SupportedOSPlatformVersion
             Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'"
             >10.0.17763.0</SupportedOSPlatformVersion>
     </PropertyGroup>
@@ -27,9 +37,24 @@
             Link="native/windows/%(RecursiveDir)%(Filename)%(Extension)"
         />
     </ItemGroup>
+    <ItemGroup Condition="'$(NativeChannelsLinuxOnly)' == 'true'">
+        <None
+            Include="../../../../artifacts/native/linux-x64/libnc_currency.so"
+            Pack="true"
+            PackagePath="runtimes/linux-x64/native/"
+        />
+        <InternalsVisibleTo Include="NativeChannels.Linux.Tests" />
+    </ItemGroup>
+    <Target
+        Name="BuildLinuxCurrency"
+        BeforeTargets="BeforeBuild;GenerateNuspec"
+        Condition="'$(NativeChannelsLinuxOnly)' == 'true'"
+    >
+        <Exec Command="bash &quot;$(MSBuildThisFileDirectory)../../../../eng/build-linux-native.sh&quot; currency" />
+    </Target>
     <ItemGroup>
         <InternalsVisibleTo Include="Plugin.Maui.Currency.Windows.Tests" />
-        <PackageReference Include="NativeChannels.Maui" />
+        <PackageReference Include="NativeChannels" />
         <None Remove="$(MSBuildThisFileDirectory)../../../../README.md" />
         <None Include="../../README.md" Pack="true" PackagePath="/" />
         <None
@@ -39,25 +64,31 @@
         />
         <None
             Include="../../native/android/build/outputs/aar/currency-release.aar"
-            Condition="'$(NativeChannelsWindowsOnly)' != 'true'"
+            Condition="'$(NativeChannelsWindowsOnly)' != 'true' And '$(NativeChannelsLinuxOnly)' != 'true' And '$(NativeChannelsBrowserOnly)' != 'true' And '$(NativeChannelsAppleTarget)' == ''"
             Pack="true"
             PackagePath="native/android/currency.aar"
         />
         <None
             Include="../../../../artifacts/native/MauiCurrencyNative.xcframework/**/*"
-            Condition="'$(NativeChannelsWindowsOnly)' != 'true' And '$(NativeChannelsAndroidOnly)' != 'true'"
+            Condition="'$(NativeChannelsWindowsOnly)' != 'true' And '$(NativeChannelsLinuxOnly)' != 'true' And '$(NativeChannelsBrowserOnly)' != 'true' And '$(NativeChannelsAndroidOnly)' != 'true'"
             Pack="true"
             Exclude="../../../../artifacts/native/MauiCurrencyNative.xcframework/**/Modules/MauiCurrencyNative.swiftmodule/**/*"
             PackagePath="native/apple/MauiCurrencyNative.xcframework/"
+        />
+        <None
+            Include="../../native/browser/*.mjs"
+            Pack="true"
+            PackagePath="browser/"
+            Condition="'$(NativeChannelsBrowserOnly)' == 'true'"
         />
     </ItemGroup>
     <Target
         Name="ValidateMauiCurrencyNativeAssets"
         BeforeTargets="GenerateNuspec"
-        Condition="'$(NativeChannelsWindowsOnly)' != 'true'"
+        Condition="'$(NativeChannelsWindowsOnly)' != 'true' And '$(NativeChannelsLinuxOnly)' != 'true' And '$(NativeChannelsBrowserOnly)' != 'true'"
     >
         <Error
-            Condition="!Exists('../../native/android/build/outputs/aar/currency-release.aar')"
+            Condition="'$(NativeChannelsAppleTarget)' == '' And !Exists('../../native/android/build/outputs/aar/currency-release.aar')"
             Text="Build the Plugin.Maui.Currency Android adapter before packing."
         />
         <Error

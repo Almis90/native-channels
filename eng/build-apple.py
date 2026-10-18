@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Build real Swift frameworks and combine their platform slices into XCFrameworks."""
-import pathlib, plistlib, shutil, subprocess
+import argparse, pathlib, plistlib, shutil, subprocess
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 OUT = ROOT / "artifacts/native"
@@ -10,7 +10,8 @@ def run(*args):
     subprocess.run([str(a) for a in args], check=True)
 
 def framework(name, source, sdk, arch, suffix, dependencies=()):
-    target = f"{arch}-apple-ios15.0{suffix}"
+    macos = sdk == "macosx" and not suffix
+    target = f"{arch}-apple-macosx14.0" if macos else f"{arch}-apple-ios15.0{suffix}"
     location = OUT / f"{sdk}{suffix}-{arch}" / f"{name}.framework"
     location.mkdir(parents=True, exist_ok=True)
     (location / "Headers").mkdir(exist_ok=True)
@@ -18,7 +19,7 @@ def framework(name, source, sdk, arch, suffix, dependencies=()):
     module = location / "Modules" / f"{name}.swiftmodule"
     if module.is_file(): module.unlink()
     module.mkdir(exist_ok=True)
-    triple = f"{arch}-apple-ios{suffix}"
+    triple = f"{arch}-apple-macos" if macos else f"{arch}-apple-ios{suffix}"
     sdkpath = subprocess.check_output(["xcrun", "--sdk", sdk, "--show-sdk-path"], text=True).strip()
     cmd = ["xcrun", "--sdk", sdk, "swiftc", "-swift-version", "5", "-parse-as-library",
            "-emit-library", "-emit-module", "-enable-library-evolution", "-module-name", name,
@@ -40,15 +41,19 @@ def framework(name, source, sdk, arch, suffix, dependencies=()):
         plistlib.dump({"CFBundleIdentifier": f"dev.nativechannels.{name}", "CFBundleName": name,
                       "CFBundleExecutable": name, "CFBundlePackageType": "FMWK",
                       "CFBundleVersion": "1", "CFBundleShortVersionString": "0.3.0",
-                      "MinimumOSVersion": "15.0", "CFBundleSupportedPlatforms":
-                      ["MacOSX" if suffix == "-macabi" else "iPhoneSimulator" if suffix else "iPhoneOS"]}, f)
+                      "MinimumOSVersion": "14.0" if macos else "15.0", "CFBundleSupportedPlatforms":
+                      ["MacOSX" if sdk == "macosx" else "iPhoneSimulator" if suffix else "iPhoneOS"]}, f)
     return location
 
 def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--macos-only", action="store_true", help="Build native macOS arm64/x64 development slices")
+    args = parser.parse_args()
     slices = {"NativeChannelsNative": [], "NativeChannelsSample": []}
-    for sdk, suffix, arches in [("iphoneos", "", ["arm64"]),
+    platforms = [("macosx", "", ["arm64", "x86_64"])] if args.macos_only else [("iphoneos", "", ["arm64"]),
                                  ("iphonesimulator", "-simulator", ["arm64", "x86_64"]),
-                                 ("macosx", "-macabi", ["arm64", "x86_64"])]:
+                                 ("macosx", "-macabi", ["arm64", "x86_64"])]
+    for sdk, suffix, arches in platforms:
         built = {name: [] for name in slices}
         for arch in arches:
             core = framework("NativeChannelsNative", ROOT / "native/apple/Sources", sdk, arch, suffix)

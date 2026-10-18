@@ -1,6 +1,6 @@
 # Plugin.Maui.Currency
 
-A reference implementation for developers building reusable plugins with NativeChannels. It looks up currency symbols using Android's `java.util.Currency`, Apple's `NSLocale`, or Windows' `CurrencyFormatter` and demonstrates a typed C# API, native module registration, and reusable packaging.
+A reference implementation for developers building reusable plugins with NativeChannels. It looks up currency symbols using Android's `java.util.Currency`, Apple's `NSLocale`, Windows' `CurrencyFormatter`, Linux's system ICU library, or the browser's `Intl.NumberFormat` and demonstrates a typed C# API, native module registration, and reusable packaging.
 
 You do not need this plugin to use NativeChannels. Start with the framework's [getting-started guide](https://github.com/Almis90/native-channels/blob/main/docs/getting-started.md) to integrate your own native code.
 
@@ -17,7 +17,10 @@ The reference plugin is built locally and has **not been published to NuGet.org*
    The [Windows module](native/windows/WindowsCurrencyModule.cs) does the same through WinRT from C#.
 3. [Registration extensions](src/Plugin.Maui.Currency/CurrencyExtensions.cs) configure the native modules and expose `ICurrencyService` through dependency injection.
 4. The [package project](src/Plugin.Maui.Currency/Plugin.Maui.Currency.csproj) includes the managed API, Kotlin AAR, and Swift XCFramework for mobile builds. Its [transitive targets](src/Plugin.Maui.Currency/buildTransitive/Plugin.Maui.Currency.targets) add the native assets to the consuming application. The Windows development package embeds its adapter in the managed assembly and has no mobile native assets.
-5. A separate [sample application](https://github.com/Almis90/native-channels/tree/main/samples/Maui/Currency) restores only the plugin package. This verifies that consumers receive the framework dependency and native adapters without project references or manual native imports.
+5. A separate [sample application](https://github.com/Almis90/native-channels/tree/main/samples/Maui/Currency) restores the plugin and its chosen `NativeChannels.Maui` host from packages. This verifies that consumers receive the native adapters without project references or manual native imports.
+
+The plugin depends on `NativeChannels`, with no MAUI dependency or `UseMaui` build requirement.
+Its existing package ID and channel name are retained. Applications select their UI host separately.
 
 Use this structure as a starting point for your own plugin, with your own package ID, channel name, native module names, and public API. Keep a separate package-consuming app to catch missing distribution assets.
 
@@ -35,7 +38,7 @@ This plugin looks up symbols; it does not convert amounts, fetch exchange rates,
 
 ## Windows development preview
 
-The Windows adapter targets `net10.0-windows10.0.19041.0` and uses the new NativeChannels 0.5 endpoint.
+The Windows adapter targets `net10.0-windows10.0.19041.0` and uses the NativeChannels Windows transport.
 Registration and the public `ICurrencyService` API are identical on every platform; `AddCurrency()`
 selects a fresh Windows module automatically.
 
@@ -70,6 +73,13 @@ OS-provided form.
 
 ## Build and run from source
 
+For the Linux development feed, see the [Avalonia Linux proof](../../samples/Avalonia/Currency/Currency.Desktop/Linux.md).
+For packaged JavaScript adapters and WebAssembly, see the [Avalonia Browser proof](../../samples/Avalonia/Currency/Currency.Browser/README.md).
+It packages a C++ channel module that links ICU directly, without mobile assets or MAUI.
+The reusable [Linux bridge](../../native/linux/README.md) uses a language-neutral C ABI;
+no currency-specific C# native bindings are required. Build with `g++`, `pkg-config`, and `libicu-dev`.
+The Linux archives and Ubuntu x64 runtime checks are separate from the mobile build below.
+
 From the repository root, with the pinned SDK/workloads, Xcode, JDK, and Android SDK installed:
 
 ```bash
@@ -92,7 +102,7 @@ bash eng/verify-ios-currency.sh SIMULATOR_UDID Release
 
 For Android, restore with `-p:TargetFrameworks=net10.0-android -r android-arm64`, build the same target/RID, then run `bash eng/verify-android-currency.sh emulator-5580 Release android-arm64`. Use `android-x64` for an x86_64 emulator. The Android SDK and JDK environment variables must be configured as described in the repository's [development guide](https://github.com/Almis90/native-channels/blob/main/docs/building.md).
 
-The [sample](https://github.com/Almis90/native-channels/tree/main/samples/Maui/Currency) has an editable currency code and quick lookup buttons. Its startup verification exercises real native lookups, normalization, concurrent requests, native errors, and cancellation. The app references **only this plugin package**; NativeChannels and the native adapters arrive transitively.
+The [sample](https://github.com/Almis90/native-channels/tree/main/samples/Maui/Currency) has an editable currency code and quick lookup buttons. Its startup verification exercises real native lookups, normalization, concurrent requests, native errors, and cancellation. The app references this plugin and `NativeChannels.Maui`; the platform transport and native adapters arrive transitively.
 
 Portable facade tests run with `bash eng/dotnet.sh test`. They compile the actual facade source against the portable Core project. Native tests exercise the platform currency APIs separately:
 
@@ -112,6 +122,8 @@ After following the build instructions above, an application configured with the
 
 ```xml
 <PackageReference Include="Plugin.Maui.Currency" Version="1.1.0-alpha.1" />
+<!-- Select the MAUI host explicitly for a MAUI application. -->
+<PackageReference Include="NativeChannels.Maui" Version="0.1.0-preview.1" />
 ```
 
 Register the native module and service in `MauiProgram.cs`:
@@ -126,6 +138,12 @@ builder.Services.AddCurrency();
 
 If your app already calls `UseNativeChannels`, add `options.AddCurrency()` to that existing configuration. Call `UseNativeChannels` once per app. Other plugins can register their modules in the same configuration.
 
+A platform application that supplies its own lifecycle can instead use
+`services.AddNativeChannels(options => options.AddCurrency())` and `services.AddCurrency()`.
+See [shared registration](../../docs/configuration.md#registration-without-a-maui-host) for ownership
+and package references. The [Avalonia Android sample](../../samples/Avalonia/Currency/Currency.Android/README.md)
+uses the same package through shared registration, with dedicated CI checking both hosts together.
+
 Inject `ICurrencyService` into a page or view model:
 
 ```csharp
@@ -135,6 +153,14 @@ public sealed class PriceViewModel(ICurrencyService currency)
         => currency.GetSymbolAsync("USD", cancellationToken);
 }
 ```
+
+## Native macOS development target
+
+The [Avalonia macOS sample](../../samples/Avalonia/Currency/Currency.Desktop/README.md) consumes the Currency
+API through `net10.0-macos`, AppKit and a macOS build of the same Swift adapter. Select
+`NativeChannelsAppleTarget=macos` when packing; the guide includes native framework build and
+package verification steps. This scoped development feed is separate from the published mobile
+preview and does not add macOS to the default combined release feed.
 
 ## Package layout
 

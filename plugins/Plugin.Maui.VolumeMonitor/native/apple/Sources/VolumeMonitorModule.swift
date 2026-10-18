@@ -20,7 +20,7 @@ public final class VolumeMonitorModule: NSObject, NativeModule {
 /// Uses Core Audio on Mac and the host app's audio session on iOS.
 private final class VolumeObservation {
     private let sink: EventSink
-    #if targetEnvironment(macCatalyst)
+    #if os(macOS) || targetEnvironment(macCatalyst)
         private var observation: MacOutputVolumeObservation?
     #else
         private var observation: NSKeyValueObservation?
@@ -31,7 +31,7 @@ private final class VolumeObservation {
 
     func start() {
         guard !closed else { return }
-        #if targetEnvironment(macCatalyst)
+        #if os(macOS) || targetEnvironment(macCatalyst)
             let observer = MacOutputVolumeObservation(
                 onLevel: { [weak self] in self?.emit($0) },
                 onFailure: { [weak self] message in
@@ -66,7 +66,7 @@ private final class VolumeObservation {
     func stop() {
         guard !closed else { return }
         closed = true
-        #if targetEnvironment(macCatalyst)
+        #if os(macOS) || targetEnvironment(macCatalyst)
             observation?.stop()
         #else
             observation?.invalidate()
