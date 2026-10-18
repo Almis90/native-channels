@@ -24,9 +24,11 @@ string? reply = await channel.InvokeAsync<string>("echo", "Hello from .NET");
 ```
 
 **Preview software.** NativeChannels supports Android, iOS, Mac Catalyst, and Windows through its
-MAUI integration. The core messaging layer is independent of MAUI. Complete Avalonia integration is
-planned for 0.2 and Uno for 0.3; neither is available on `main` yet.
-The latest preview is [available on NuGet.org](https://www.nuget.org/packages/NativeChannels.Maui/0.1.0-preview.2).
+MAUI integration. The core messaging layer is independent of MAUI.
+`main` now develops **0.2.0-preview.1**, with an Avalonia host and all five samples implemented
+across six targets. Platform verification and release acceptance remain incomplete; see the
+[sample matrix](samples/Avalonia/README.md). Uno remains planned for 0.3.
+The latest published preview is [0.1.0-preview.2 on NuGet.org](https://www.nuget.org/packages/NativeChannels.Maui/0.1.0-preview.2).
 
 [Documentation](https://almis90.github.io/native-channels/) Â·
 [Getting started](docs/getting-started.md) Â·

@@ -43,8 +43,10 @@ Install [NativeChannels.Maui 0.1.0-preview.2](https://www.nuget.org/packages/Nat
 from NuGet.org and follow [getting started](getting-started.md).
 [Platform verification](verification.md) · [Roadmap](roadmap.md)
 
-Planned next: complete Avalonia integration in 0.2, then Uno in 0.3, each across Android, iOS,
-Windows, desktop macOS, Linux, and browser/WebAssembly. These hosts are not available on `main` yet.
+Development on `main` uses **0.2.0-preview.1**. The Avalonia host and all five samples have
+implementations for Android, iOS, Windows, macOS, Linux, and browser/WebAssembly;
+platform verification and release acceptance remain incomplete. See the
+[sample matrix](../samples/Avalonia/README.md). Uno is planned for 0.3.
 
 </div>
 

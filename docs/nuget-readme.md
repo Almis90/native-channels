@@ -23,11 +23,11 @@ for registration, native dependencies, and a complete round trip.
 
 ## Platform scope
 
-The preview provides MAUI integration for Android, iOS, Mac Catalyst, and Windows.
-Mac Catalyst is the macOS host in this preview. Avalonia, Uno, Linux, browser/WebAssembly,
-and complete desktop macOS integration are milestone work. The development branch also includes
-an initial package-only Avalonia Currency proof on Android, iOS, and native macOS/AppKit; these
-scoped development feeds do not extend the published preview support matrix.
+The published 0.1 preview provides MAUI integration for Android, iOS, Mac Catalyst, and Windows.
+Mac Catalyst is its macOS host. Development on `main` uses `0.2.0-preview.1`, with a reusable
+Avalonia host and five samples implemented for Android, iOS, Windows, native macOS, Linux,
+and browser/WebAssembly. The 0.2 packages are unreleased; source coverage and successful builds
+do not establish runtime acceptance on every target. Uno remains planned for 0.3.
 
 See the [verification record](https://almis90.github.io/native-channels/verification) for exact
 compiled targets, runtime evidence, physical-device observations, and remaining limitations.
