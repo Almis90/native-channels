@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build and exercise the five packaged Avalonia or MAUI consumers locally. Never invokes CI."""
+"""Build and exercise packaged Avalonia, MAUI or Uno consumers locally. Never invokes CI."""
 import argparse
 from contextlib import contextmanager
 import hashlib
@@ -364,7 +364,8 @@ def audio_environment(args):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--framework', choices=('avalonia', 'maui'), default='avalonia')
+    parser.add_argument('--framework', choices=('avalonia', 'maui', 'uno'), default='avalonia')
+    parser.add_argument('--require-acceptance', action='store_true', help='Uno: fail unless full runtime/native-view acceptance is established')
     parser.add_argument('--platform', choices=HEADS, required=True)
     parser.add_argument('--manifest', type=Path, help='Reuse a completed build instead of rebuilding')
     parser.add_argument('--build-only', action='store_true')
@@ -381,6 +382,13 @@ def main():
     parser.add_argument('--timeout', type=float, default=120)
     parser.add_argument('--sample', choices=SAMPLES, action='append', help='Run only selected samples (default: all five)')
     args = parser.parse_args()
+    if args.framework == 'uno':
+        if args.platform == 'maccatalyst':
+            parser.error('Uno uses macos, not maccatalyst')
+        from uno_samples import run
+        return run(args, source_identity)
+    if args.require_acceptance:
+        parser.error('--require-acceptance is currently Uno-only')
     if args.manifest and (args.framework_packages or args.require_clean):
         parser.error('--manifest cannot be combined with candidate build options')
     if args.packages_only and (args.manifest or args.framework_packages):

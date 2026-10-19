@@ -18,6 +18,37 @@ connectivity is not evidence of native attachment, rendering or input.
 
 ## Build and run
 
+The unified runner supports Uno with an isolated feed and fresh local package
+cache for each invocation:
+
+```powershell
+python eng/test-samples.py --framework uno --platform windows --dotnet .tools/dotnet/dotnet.exe --reuse-external-cache artifacts/uno-feasibility/cache
+```
+
+It packs all seven desktop packages from this checkout, audits their source
+commit/metadata, builds the selected apps, rejects project references and
+unrelated UI host dependencies, and checks the origin and bytes of every restored
+NativeChannels/plugin package. `--reuse-external-cache` reuses only third-party
+dependencies; local packages are always restored into a new cache. Use
+`--sample Currency` to select one app; the default is all five. Results, source
+identity, package hashes, resolved assets and logs are saved under
+`artifacts/local-samples/uno/<platform>/<run>/` even on failure.
+
+Use `--build-only` on Windows, Linux or macOS to compile on that OS. Only Windows
+has a smoke execution path at present. Requests for Android, iOS or browser
+produce blocked evidence and exit 2; Linux/macOS runtime requests also exit 2.
+Build-only success records smoke as `not-run`. Smoke success still records full
+acceptance as `blocked`, including for Interop and PDF. `--require-acceptance`
+returns a failing exit code until full native-view/runtime acceptance exists.
+No unsupported platform is silently skipped or reported as passed.
+
+The `Uno / Desktop packages and sample builds` workflow runs the package audit
+and five builds on Windows, Linux and macOS. Its uploaded evidence is compilation
+evidence, not a release gate for six-platform support. Runtime execution on the
+other platforms and automated native-view/PDF acceptance remain open step-6 work.
+
+The earlier diagnostic scripts remain available for step-4/5 comparisons:
+
 From the repository root on Windows, first build the local packages:
 
 ```powershell
