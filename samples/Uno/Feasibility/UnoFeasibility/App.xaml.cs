@@ -15,7 +15,7 @@ public partial class App : Application
         this.InitializeComponent();
     }
 
-    protected Window? MainWindow { get; private set; }
+    internal Window? MainWindow { get; private set; }
 
     protected override void OnLaunched(LaunchActivatedEventArgs args)
     {
@@ -23,7 +23,6 @@ public partial class App : Application
 #if DEBUG
         MainWindow.UseStudio();
 #endif
-
 
         // Do not repeat app initialization when the Window already has content,
         // just ensure that the window is active

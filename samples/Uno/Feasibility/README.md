@@ -12,6 +12,10 @@ Run the desktop gate on Windows from the repository root:
 pwsh -File eng/verify-uno-feasibility.ps1
 ```
 
+Use `-HostProbe` on Windows to run the package-only Uno host lifecycle tests in
+the real UI event loop. This mode fails when the host JSON result is not `passed`.
+Its managed view fixture tests lifetime and stale channels, not native embedding.
+
 This rebuilds Core and the portable desktop transport into a local feed,
 restores the Uno desktop consumer into a fresh cache, and records dependency and
 native-view results under `artifacts/uno-feasibility/runs/`. A successful command

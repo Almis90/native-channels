@@ -27,6 +27,7 @@
     </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="NativeChannels" />
+        <PackageReference Include="NativeChannels.Uno" />
         <PackageReference
             Include="NativeChannels.Desktop.ProbeAssets"
             Condition="'$(NativeChannelsAppleDesktopProbe)' == 'true'"

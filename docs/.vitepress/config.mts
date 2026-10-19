@@ -34,6 +34,7 @@ export default defineConfig({
       { text: 'Start here', items: [
         { text: 'Getting started', link: '/getting-started' },
         { text: 'Avalonia host', link: '/avalonia-host' },
+        { text: 'Uno host (experimental)', link: '/uno-host' },
         { text: 'Choose a channel', link: '/choosing-a-channel' },
         { text: 'Examples', link: '/examples' },
         { text: 'Documentation guide', link: '/overview' },

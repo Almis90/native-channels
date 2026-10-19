@@ -23,7 +23,7 @@ def main():
     run = ROOT / 'artifacts/uno-feasibility/runs' / uuid.uuid4().hex
     run.mkdir(parents=True)
     feed = ROOT / 'artifacts/uno-feasibility/packages'
-    version = '0.3.0-preview.3'
+    version = '0.3.0-preview.4'
     project = 'samples/Uno/Feasibility/UnoFeasibility'
     rid = 'osx-arm64' if platform.machine() == 'arm64' else 'osx-x64'
 
@@ -32,7 +32,7 @@ def main():
 
     for arch in ('arm64', 'x86_64'):
         execute(sys.executable, 'eng/build-apple-desktop.py', '--arch', arch, '--currency', '--sample')
-    for package in ('src/NativeChannels.Core', 'src/NativeChannels', 'tests/NativeChannels.Desktop.ProbeAssets'):
+    for package in ('src/NativeChannels.Core', 'src/NativeChannels', 'src/NativeChannels.Uno', 'tests/NativeChannels.Desktop.ProbeAssets'):
         execute(dotnet, 'pack', package, '-c', 'Release', '-p:NativeChannelsDesktopOnly=true',
                 '-p:NativeChannelsIncludeAppleDesktopAssets=true', f'-p:Version={version}', '-o', str(feed))
     with zipfile.ZipFile(feed / f'NativeChannels.{version}.nupkg') as archive:

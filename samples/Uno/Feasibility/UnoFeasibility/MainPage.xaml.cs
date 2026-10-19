@@ -13,6 +13,26 @@ public sealed partial class MainPage : Page
 
     private async void OnLoaded(object sender, RoutedEventArgs args)
     {
+        var hostResult = Environment.GetEnvironmentVariable("NATIVECHANNELS_UNO_HOST_PROBE_RESULT");
+        if (!string.IsNullOrEmpty(hostResult))
+        {
+            try
+            {
+                await HostProbe
+                    .RunAsync(((App)Application.Current).MainWindow!, NativeSurface)
+                    .WaitAsync(TimeSpan.FromSeconds(20));
+                File.WriteAllText(hostResult, "{\"host\":\"passed\"}");
+            }
+            catch (Exception error)
+            {
+                File.WriteAllText(
+                    hostResult,
+                    System.Text.Json.JsonSerializer.Serialize(new { host = "failed", error = error.ToString() })
+                );
+            }
+            Application.Current.Exit();
+            return;
+        }
         if (!OperatingSystem.IsWindows())
         {
             Status.Text = "Native view probe not implemented on this target. See the feasibility report.";
@@ -26,7 +46,8 @@ public sealed partial class MainPage : Page
             NativeSurface.Content = new Uno.UI.NativeElementHosting.Win32NativeWindow(_button);
             NativeSurface.UpdateLayout();
             await Task.Delay(1000);
-            if (_button == 0) return;
+            if (_button == 0)
+                return;
             var first = Win32Probe.IsAttached(_button);
             NativeSurface.Content = null;
             await Task.Delay(250);
@@ -36,14 +57,16 @@ public sealed partial class MainPage : Page
             NativeSurface.UpdateLayout();
             await Task.Delay(1000);
             var second = _button != 0 && Win32Probe.IsAttached(_button);
-            Status.Text = System.Text.Json.JsonSerializer.Serialize(new
-            {
-                nativeView = first && second ? "attached-and-recreated" : "failed",
-                firstAttached = first,
-                secondAttached = second,
-                nativeMethod = "not-executed; see dependency probe",
-                inputFocusAndVisibility = "not-verified (hidden automated launch)"
-            });
+            Status.Text = System.Text.Json.JsonSerializer.Serialize(
+                new
+                {
+                    nativeView = first && second ? "attached-and-recreated" : "failed",
+                    firstAttached = first,
+                    secondAttached = second,
+                    nativeMethod = "not-executed; see dependency probe",
+                    inputFocusAndVisibility = "not-verified (hidden automated launch)",
+                }
+            );
         }
         catch (Exception error)
         {
@@ -62,7 +85,8 @@ public sealed partial class MainPage : Page
     private void Release()
     {
         NativeSurface.Content = null;
-        if (_button == 0) return;
+        if (_button == 0)
+            return;
         Win32Probe.DestroyWindow(_button);
         _button = 0;
     }

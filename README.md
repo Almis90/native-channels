@@ -163,6 +163,7 @@ dependencies, or packaging require fresh package-consumer verification.
 See [contributing](CONTRIBUTING.md), [testing](docs/testing.md), and [performance](docs/performance.md).
 
 The [roadmap](docs/roadmap.md) covers the initial preview, complete Avalonia and Uno integration,
+including the experimental [Uno host package](docs/uno-host.md) with per-window sessions and UI dispatch,
 and stable API acceptance. The development [Avalonia host package](docs/avalonia-host.md) provides
 application registration, owned sessions and UI dispatch. The [template-generated Avalonia solution](samples/Avalonia/Currency/README.md) contains
 [Avalonia Android](samples/Avalonia/Currency/Currency.Android/README.md),

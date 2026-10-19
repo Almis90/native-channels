@@ -3,7 +3,7 @@
 Status: **investigation started; six-platform feasibility is not established**.
 The first gate identified desktop transport and macOS native-view blockers.
 Step 2 adds runtime selection to the portable transport and a plain-.NET macOS
-bridge. No Uno host package has been introduced; native-view feasibility remains open.
+bridge. Step 3 introduces an experimental Uno host; native-view feasibility remains open.
 
 ## Pinned baseline
 
@@ -123,6 +123,28 @@ contract makes this gate fail. These checks do not validate UI dispatch or nativ
 views; the Windows control probe and macOS public hosting API remain unresolved.
 The fresh-cache macOS run passed with evidence under
 `artifacts/uno-feasibility/runs/b8b047d602884cc280d961b7a064a49b/`.
+
+## Step 3: optional Uno host
+
+`NativeChannels.Uno` now provides application registration, per-window service
+providers and sessions, a window-bound dispatcher, and deterministic asynchronous
+shutdown. Ownership logic is shared with Avalonia under `src/Shared.Hosting`;
+the Uno layer depends on Core, Uno.WinUI and DI, without navigation packages.
+See [Uno host setup and limitations](uno-host.md).
+
+The package-only Windows Uno host probe runs inside the real UI event loop. It
+checks independent window sessions, asynchronous UI continuations, cancellation
+before queued work starts, exception propagation, view reconnect and disposal,
+stale channel invalidation, and shutdown with pending work. The view fixture uses
+a managed element to test lifecycle; it is not evidence of native embedding.
+Avalonia's existing 12 host tests also pass against the extracted ownership code.
+The final Windows host run passed using a reused dependency cache; evidence is in
+`artifacts/uno-feasibility/runs/1293f58341c343e38d854a3831619dd4/`.
+
+The proposed `UnoChannelView` is experimental. macOS explicitly rejects native
+attachment because the pinned Uno release lacks the required public API. Windows
+native parenting remains unresolved. Step 3's native-view acceptance is therefore
+still open, and no other platform's UI host has been executed for this step.
 
 ## Next gate
 
