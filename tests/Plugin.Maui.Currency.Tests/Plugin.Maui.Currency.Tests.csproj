@@ -5,6 +5,7 @@
         <IsTestProject>true</IsTestProject>
     </PropertyGroup>
     <ItemGroup>
+        <Compile Include="../../src/NativeChannels/Platforms/Linux/ILinuxChannelModule.cs" />
         <ProjectReference Include="../../src/NativeChannels.Core/NativeChannels.Core.csproj" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" />
         <PackageReference Include="xunit" />

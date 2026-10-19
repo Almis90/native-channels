@@ -1,14 +1,14 @@
-#if LINUX
 using System.Collections.Concurrent;
 using System.Globalization;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Threading.Channels;
 
 namespace NativeChannels;
 
-/// <summary>Hosts a language-neutral native_channels.h module. Contains no plugin or system-API logic.</summary>
+/// <summary>Hosts a language-neutral native_channels.h module on Linux. Contains no plugin or system-API logic.</summary>
+/// <remarks>Available on every target for portable registration code. Construction requires Linux.</remarks>
 public sealed class LinuxNativeModule : ILinuxChannelModule
 {
     private readonly object _gate = new();
@@ -42,6 +42,8 @@ public sealed class LinuxNativeModule : ILinuxChannelModule
         string[]? rawChannels = null
     )
     {
+        if (!OperatingSystem.IsLinux())
+            throw new PlatformNotSupportedException("Linux native modules require Linux.");
         _callbackToken = _callbacksStopping.Token;
         _methods = methodChannels;
         _dispatcher = dispatcher;
@@ -420,4 +422,3 @@ public sealed class LinuxNativeModule : ILinuxChannelModule
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     private delegate void Destroy(nint module);
 }
-#endif

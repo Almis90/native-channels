@@ -116,8 +116,10 @@ def build(args, destination):
                  *[f':{name}:assembleRelease' for name in ('library', 'sample', 'currency', 'audio', 'volume', 'pdf')]])
     elif target in ('macos', 'ios', 'maccatalyst'):
         apple = ['--macos-only'] if target == 'macos' else []
-        if not candidate:
-            command([sys.executable, 'eng/build-apple.py', *apple])
+        # Interop consumes the sample XCFramework from this build directory, even
+        # when the framework itself comes from immutable candidate packages.
+        # Rebuild for this target: an earlier run may have left other slices here.
+        command([sys.executable, 'eng/build-apple.py', *apple])
         for name in SAMPLES[:4]:
             command([sys.executable, f'plugins/Plugin.Maui.{name}/eng/build-apple.py', *apple])
     elif target == 'browser':

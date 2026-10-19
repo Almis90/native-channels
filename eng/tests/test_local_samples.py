@@ -38,6 +38,25 @@ class LocalSamplesTests(unittest.TestCase):
                 runner.build(args, Path('unused'))
             command.assert_not_called()
 
+    def test_apple_candidate_rebuilds_sample_framework_for_current_target(self):
+        for framework, target in (('avalonia', 'macos'), ('avalonia', 'ios'),
+                                  ('maui', 'maccatalyst'), ('maui', 'ios')):
+            with self.subTest(target=target), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary)
+                args = SimpleNamespace(platform=target, framework=framework, dotnet='dotnet',
+                                       reuse_external_cache=None, arch='arm64',
+                                       framework_packages=root / 'candidate')
+                with patch.object(runner, 'command') as command, \
+                     patch.object(runner, 'source_identity', return_value=dict(commit='a' * 40, status='')), \
+                     patch.object(runner, 'verify_candidate', return_value={'files': []}):
+                    runner.build(args, root / 'build')
+                builds = [call.args[0] for call in command.call_args_list
+                          if 'eng/build-apple.py' in call.args[0]]
+                self.assertEqual(builds, [[sys.executable, 'eng/build-apple.py',
+                                          *(['--macos-only'] if target == 'macos' else [])]])
+                packs = [call.args[0] for call in command.call_args_list if 'pack' in call.args[0]]
+                self.assertTrue(all(str(call[2]).startswith('plugins/') for call in packs))
+
     def test_apple_builds_runnable_bundles_in_manifest_directories(self):
         for framework, target in (('avalonia', 'macos'), ('avalonia', 'ios'),
                                   ('maui', 'maccatalyst'), ('maui', 'ios')):
