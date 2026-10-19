@@ -32,6 +32,10 @@ release ID as `candidate_release`, the reviewed ZIP hash as `bundle_sha256`, exa
 only validates. No other workflow is required or dispatched by this path.
 Use `[skip ci]` on prerequisite commits when all other workflows must remain idle.
 
+GitHub requires push access to read draft releases. The validation job therefore
+has job-scoped `contents: write`, used only to download the staged bundle; checkout
+does not persist its credential. The publishing job retains `contents: read`.
+
 Before authentication, the workflow checks the asset hash, safely extracts it,
 replays the local acceptance gate, matches the receipt and candidate against
 the committed verification record, and confirms the tested source is merged
