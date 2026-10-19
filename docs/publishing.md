@@ -1,8 +1,47 @@
 # Publishing to NuGet
 
-The 0.2 preview uses a local publisher for the six accepted framework packages.
-It invokes no GitHub workflows. The older five-package workflow is documented
-below for 0.1 releases and must not be used for 0.2.
+The 0.2 preview is built and tested locally, then published through NuGet Trusted
+Publishing. Only `publish-nuget.yml` runs for publication; it does not build
+packages or execute tests. Direct local publication with an API key remains an
+alternative. The five-package 0.1 process below is historical.
+
+## Trusted Publishing of locally accepted packages {#trusted-preview}
+
+Complete [local candidate acceptance](preview-02.md), then prepare the immutable
+release directory using the `prepare` command in the next section. Bundle it:
+
+```sh
+python eng/trusted-preview.py bundle --directory artifacts/nuget-0.2.0-preview.1 \
+  --output artifacts/NativeChannels.0.2.0-preview.1.accepted.zip
+```
+
+Keep the printed SHA-256. Upload the ZIP unchanged to a draft prerelease named
+`v0.2.0-preview.1` in `Almis90/native-channels`. The draft is only a staging
+location; creating it does not publish to NuGet. Keep the source revision in the
+bundle and package metadata unchanged, even when release tooling is committed later.
+
+The NuGet policy `NativeChannels GitHub releases` must allow exactly the six
+package IDs listed below, with push permission, repository `Almis90/native-channels`,
+workflow `publish-nuget.yml`, and environment `nuget`. The GitHub `nuget` environment
+retains its main-only branch rule and required reviewer. Set its `NUGET_USER`
+variable to the NuGet username `Almis`.
+
+Manually dispatch **Release / Publish NuGet** on `main` with the numeric draft
+release ID as `candidate_release`, the reviewed ZIP hash as `bundle_sha256`, exact
+`version`, and `publish=true` when publication is authorized. `publish=false`
+only validates. No other workflow is required or dispatched by this path.
+Use `[skip ci]` on prerequisite commits when all other workflows must remain idle.
+
+Before authentication, the workflow checks the asset hash, safely extracts it,
+replays the local acceptance gate, matches the receipt and candidate against
+the committed verification record, and confirms the tested source is merged
+into `main`. After environment approval it rechecks the archives and public
+versions, obtains a temporary credential from NuGet/login, and uploads the six
+packages and their symbols. It retains a submission report, including partial
+failures. It never rebuilds the accepted archives or claims tests ran in Actions.
+
+After upload, verify NuGet indexing, symbols and fresh public-feed consumers as
+described below. A successful publishing job alone is not public-feed acceptance.
 
 ## Publish the locally accepted 0.2 preview {#local-preview}
 
@@ -85,6 +124,10 @@ Record public-feed checks in [verification](verification.md) before marking the
 release published and accepted. No tags or GitHub releases are created by this tool.
 
 ## Existing 0.1 workflow
+
+The remainder records the old five-package process used for 0.1. The current
+`publish-nuget.yml` uses the six-package local acceptance inputs above; the old
+`distribution_run` dispatch examples are not current commands.
 
 The current framework preview, `0.1.0-preview.2`, is
 [available on NuGet.org](https://www.nuget.org/packages/NativeChannels.Maui/0.1.0-preview.2).

@@ -204,7 +204,10 @@ class ReleaseTests(unittest.TestCase):
         self.assertNotIn('id-token: write', validation)
         self.assertIn("if: ${{ inputs.publish && github.ref == 'refs/heads/main' }}", publication)
         self.assertIn('environment: nuget', publication)
-        self.assertIn('workflow: verify-distribution.yml', validation)
+        self.assertIn('eng/trusted-preview.py prepare', validation)
+        self.assertIn('bundle_sha256:', validation)
+        self.assertNotIn('dotnet test', workflow)
+        self.assertNotIn('test-samples.py', workflow)
         self.assertNotIn('pull_request:', workflow)
         self.assertNotIn('\n  push:', workflow)
 

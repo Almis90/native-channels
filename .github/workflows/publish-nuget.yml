@@ -1,14 +1,18 @@
 name: Release / Publish NuGet
-run-name: NuGet ${{ inputs.version }} · publish=${{ inputs.publish }} · distribution ${{ inputs.distribution_run }}
+run-name: NuGet ${{ inputs.version }} · publish=${{ inputs.publish }} · accepted release ${{ inputs.candidate_release }}
 on:
   workflow_dispatch:
     inputs:
-      distribution_run:
-        description: Successful same-commit Verify distribution run ID
+      candidate_release:
+        description: Draft GitHub release ID containing the locally accepted bundle
+        type: string
+        required: true
+      bundle_sha256:
+        description: SHA-256 of the reviewed accepted ZIP (not rebuilt by this workflow)
         type: string
         required: true
       version:
-        description: Exact framework version in the verified packages
+        description: Exact preview version in the locally accepted packages
         type: string
         required: true
       publish:
@@ -31,37 +35,24 @@ jobs:
           REF: ${{ github.ref }}
         run: test "$REF" = refs/heads/main
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/verified-artifact
         with:
-          run-id: ${{ inputs.distribution_run }}
-          workflow: verify-distribution.yml
-          artifact: package-feed
-          path: artifacts/feed
-          token: ${{ github.token }}
-      - uses: ./.github/actions/verified-artifact
-        with:
-          run-id: ${{ inputs.distribution_run }}
-          workflow: verify-distribution.yml
-          artifact: distribution-verification
-          path: artifacts/evidence
-          token: ${{ github.token }}
-      - name: Validate evidence and prepare exact package archives
+          fetch-depth: 0
+      - name: Verify exact archives and committed local acceptance evidence
         env:
-          DISTRIBUTION_RUN: ${{ inputs.distribution_run }}
+          GH_TOKEN: ${{ github.token }}
+          CANDIDATE_RELEASE: ${{ inputs.candidate_release }}
+          BUNDLE_SHA256: ${{ inputs.bundle_sha256 }}
           VERSION: ${{ inputs.version }}
         run: |
-          python3 .github/scripts/nuget-release.py prepare \
-            --feed artifacts/feed/package-feed.tar.gz \
-            --evidence artifacts/evidence/distribution-verification.json \
-            --directory artifacts/nuget-candidate --source "$GITHUB_SHA" \
-            --run "$DISTRIBUTION_RUN" --version "$VERSION" --summary "$GITHUB_STEP_SUMMARY"
+          python3 eng/trusted-preview.py prepare --release-id "$CANDIDATE_RELEASE" \
+            --bundle-sha256 "$BUNDLE_SHA256" --version "$VERSION" \
+            --directory artifacts/nuget-candidate
       - uses: actions/upload-artifact@v4
         with:
           name: nuget-candidate
-          path: artifacts/nuget-candidate/*
-          retention-days: 7
+          path: artifacts/nuget-candidate/
+          retention-days: 30
           if-no-files-found: error
-          overwrite: true
   publish:
     needs: validate
     if: ${{ inputs.publish && github.ref == 'refs/heads/main' }}
@@ -74,30 +65,34 @@ jobs:
       id-token: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/download-artifact@v4
         with:
           name: nuget-candidate
           path: artifacts/nuget-candidate
-      - name: Recheck candidate before authentication
+      - name: Recheck archives, source ancestry and public-version conflicts before authentication
         env:
-          DISTRIBUTION_RUN: ${{ inputs.distribution_run }}
           VERSION: ${{ inputs.version }}
-        run: |
-          python3 .github/scripts/nuget-release.py verify \
-            --directory artifacts/nuget-candidate --source "$GITHUB_SHA" \
-            --run "$DISTRIBUTION_RUN" --version "$VERSION"
-      - uses: actions/setup-dotnet@v4
-        with:
-          global-json-file: global.json
+        run: python3 eng/trusted-preview.py verify --directory artifacts/nuget-candidate --version "$VERSION"
       - name: Authenticate with NuGet Trusted Publishing
         uses: NuGet/login@8d196754b4036150537f80ac539e15c2f1028841 # v1
         id: login
         with:
           user: ${{ vars.NUGET_USER }}
-      - name: Publish verified packages and symbols
+      - name: Publish the six verified packages and symbols
         env:
           NUGET_API_KEY: ${{ steps.login.outputs.NUGET_API_KEY }}
           PUBLISH_NUGET: 'true'
-          DISTRIBUTION_RUN: ${{ inputs.distribution_run }}
           VERSION: ${{ inputs.version }}
-        run: python3 .github/scripts/push-nuget.py artifacts/nuget-candidate
+        run: |
+          python3 eng/trusted-preview.py publish --directory artifacts/nuget-candidate \
+            --version "$VERSION" --submission-report artifacts/nuget-submission.json
+      - name: Preserve submission results even after a partial upload
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-submission
+          path: artifacts/nuget-submission.json
+          retention-days: 30
+          if-no-files-found: ignore

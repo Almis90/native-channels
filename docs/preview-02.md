@@ -132,8 +132,8 @@ package manifests and API output alongside the summaries.
 ## Publication remains separate
 
 These preparation commands invoke no workflows and do not tag, push or publish.
-The [local six-package publisher](publishing.md#local-preview)
-replays this acceptance gate, preserves the exact archives and requires explicit
-publication with a locally entered NuGet API key. The existing five-package 0.1
-workflow remains separate; local reports do not claim CI execution. Fresh
-NuGet.org restores, symbol status and consumer checks remain necessary after publication.
+The [Trusted Publishing path](publishing.md#trusted-preview) stages these exact
+archives and evidence, then runs only the publishing workflow after explicit
+authorization. Tests remain local. A [direct local publisher](publishing.md#local-preview)
+is also available with an API key. Neither path rebuilds the accepted archives.
+Fresh NuGet.org restores, symbol status and consumer checks remain necessary after publication.

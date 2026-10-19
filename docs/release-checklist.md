@@ -2,9 +2,9 @@
 
 For local 0.2 preview preparation, use the [candidate process](preview-02.md).
 It covers six framework packages, including Avalonia, and all ten host/target
-sample suites. The [local publisher](publishing.md#local-preview)
-rechecks that evidence and publishes those exact archives without workflows.
-The existing five-package publication workflows remain the 0.1 path.
+sample suites. The [publishing workflow](publishing.md#trusted-preview)
+rechecks that evidence and publishes those exact archives through Trusted Publishing;
+tests remain local. Direct local publication with an API key is also supported.
 
 Before distribution, require the [API compatibility gate](api-compatibility.md) against the published
 baseline. The final combined packages must pass; a local mobile-only comparison is partial evidence.
@@ -89,7 +89,8 @@ Publish packages or create a GitHub release only as a separate, explicit release
 
 Follow [Publishing to NuGet](publishing.md) after the applicable acceptance gate passes.
 For 0.2, prepare and preflight the six-package local release, merge its source,
-publish with a scoped API key, then verify NuGet.org and fresh consumers.
+publish through the authorized publishing workflow or with a scoped API key,
+then verify NuGet.org and fresh consumers.
 For the existing 0.1 CI path, run the publishing
 workflow with `publish=false` first and review its exact package manifest. Confirm the NuGet trust
 policy and GitHub environment are configured for the five framework packages. Publication requires
