@@ -137,6 +137,10 @@ Publish a capability matrix for each reference plugin and tested browser engine.
 
 ## Uno integration
 
+The [initial feasibility investigation](uno-feasibility.md) pins Uno 6.7.135 and
+records desktop transport and macOS native-view blockers. It does not establish
+six-target support or complete this milestone.
+
 Milestone **0.3** delivers complete Uno integration on **Android, iOS, Windows, macOS, Linux, and
 browser/WebAssembly**. Apply every [Avalonia completion criterion](#avalonia-integration) to Uno:
 reusable host packages, registration, lifecycle, UI dispatch, all four channel contracts, native/DOM
