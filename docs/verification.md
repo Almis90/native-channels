@@ -2,11 +2,10 @@
 
 The current 0.2 [Avalonia reference sample matrix](../samples/Avalonia/README.md)
 adds AudioStreamer, VolumeMonitor and PdfViewer implementation heads for all six
-targets, including separate C++ Qt/GTK Linux PDF apps. Windows and browser heads
-and the new Linux native adapters/heads have build checks; package audits cover
-those three feeds. Local Apple execution of all five samples is recorded below.
-That evidence is limited to the stated working tree and Apple environments; it does
-not establish other targets or complete 0.2 acceptance.
+targets, including separate C++ Qt/GTK Linux PDF apps. Local execution of all five
+samples on Windows, Android, Linux, browser and Apple targets is recorded below,
+with package audits and source provenance. Evidence is limited to each recorded
+build and environment; these runs do not complete 0.2 acceptance.
 
 This record separates implementation, compilation, runtime checks, and manual observations.
 Package acceptance requires verification of the exact source revision and generated archives.
@@ -24,6 +23,65 @@ The current support record covers MAUI. Complete Avalonia integration (0.2) and 
 None of those additional host combinations is accepted on `main` yet. The Currency proofs below
 are partial milestone work; they do not establish other contracts, targets, or released support.
 Future records must distinguish unavailable OS/browser capabilities from checks that have not run.
+
+## Local Windows, Android, Linux and browser sample execution — 2026-10-18–19
+
+The local sample runner passed the following suites. Windows execution used
+Windows 11 x64 build 26200 and .NET SDK 10.0.401. Android execution used the
+API 36 x86_64 emulator on that Windows host. Browser execution used Playwright
+Chromium on Windows. Linux execution used the Ubuntu VM, x64 kernel 6.8.0-142,
+glibc 2.39, Xvfb and a temporary PulseAudio null sink. No GitHub workflows ran.
+
+| Framework | Target | Executed result | Local summary under `artifacts/local-samples/` |
+| --- | --- | --- | --- |
+| Avalonia | Windows x64 | 5/5 PASS | `windows/20261018-114801-84e7db3c/summary.json` |
+| Avalonia | Android API 36 emulator | 5/5 PASS | `android/20261018-121658-ce6541da/summary.json` |
+| Avalonia | Linux x64 VM | 6/6 PASS (both Qt and GTK PDF heads) | `linux-vm/20261018-084355-c233d06c/summary.json` |
+| Avalonia | Browser / Chromium | 5/5 PASS | `browser/20261018-114635-7291d3f9/summary.json` |
+| MAUI | Windows x64 | 5/5 PASS | `maui/windows/20261018-124704-a9954098/summary.json` |
+| MAUI | Android API 36 emulator | 5/5 PASS | `maui/android/20261018-125339-f1cbf1ac/summary.json` |
+| MAUI | Windows x64, updated runner with existing binaries | 5/5 PASS | `maui/windows/20261019-122754-38532347/summary.json` |
+
+Each suite covers Currency, AudioStreamer, VolumeMonitor, PdfViewer and Interop
+(ChannelExplorer in MAUI). Checks exercise native calls, playback state and
+buffering, volume subscriptions, PDF state/navigation and native-view lifecycle,
+plus the runner's completion and cleanup checks. MAUI has no Linux or browser
+heads in this repository.
+
+These are development working-tree builds, not clean builds of the current HEAD:
+
+- Avalonia Windows and browser builds were based on `5c98b8856afb79ef438d6b8fb1e7fcaae638619c`
+  with the local automation and sample fixes subsequently committed in `bee64e2`.
+- Avalonia Android and both MAUI builds were based on `bee64e2cd20db899c120ef53e73155c6b4b04f0a`
+  with local fixes subsequently committed in `593739c`. Their reports retain the
+  distinct source hashes and dirty-tree records for each build.
+- The Linux VM had a synchronized working tree over its older checkout at
+  `9c1a15506cce74f06fb981f430e1b5f563857ef2`. Its recorded build source SHA-256 is
+  `255cfe217232d45bbab68f4fb46acac64c2ddb28e714f5ec55dc6733138d5909`;
+  the commit alone does not identify the tested source. The table points to the
+  copied report on Windows; its manifest refers to the original Linux VM path.
+- Browser, Linux and Avalonia Android execution reused their recorded build
+  manifests. Reports distinguish build source from execution source; a later
+  runner or source change does not rebuild those binaries.
+- The October 19 Windows MAUI rerun used the runner at clean commit
+  `9e515b0ec62f93d975deeeae4385ebc5c5055500` with the October 18 binaries.
+  It verified combined stdout/stderr cleanup handling, not a fresh application
+  build of the Apple commit. Ten runner tests and the evaluated PDF packaging
+  scope test also passed on Windows; Windows-only PDF targeting was checked.
+
+Builds used local package feeds, package audits and package-only consumer checks.
+Reports and manifests retain source provenance; per-sample logs and input hashes
+identify the executed outputs. Fixes included browser audio/native-view lifecycle,
+Linux PDF handling, Android AppCompat hosting and application lifetime, and shared
+MAUI verification/cleanup. Windows MAUI uses a short isolated package-cache path
+to avoid WinUI compiler path-length failures.
+
+Audio audibility remains a manual check; Linux null-sink execution does not prove
+audible output. Visual PDF fidelity, hardware volume buttons, accessibility and
+physical-device lifecycle behavior remain manual or unverified. Browser volume
+checks concern page-owned audio, and its single-threaded runtime cannot exercise
+background-thread rejection. These results do not establish released-platform
+acceptance or a fresh cross-platform run of one common source revision.
 
 ## Local Apple sample execution — 2026-10-18–19
 

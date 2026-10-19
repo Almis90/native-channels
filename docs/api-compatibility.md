@@ -1,5 +1,11 @@
 # API compatibility checks
 
+For the unreleased 0.2 preview, the combined check also applies to the expanded
+platform packages. New target frameworks are additive. `NativeChannels.Avalonia`
+is a new package without a published API baseline; its behavior and dependency
+closure are covered by host tests and package-only consumers. See
+[local preview preparation](preview-02.md).
+
 The `0.1.0-preview.2` release checks managed public APIs against the five packages published
 as `0.1.0-preview.1`. New APIs are allowed. Removing or changing existing signatures, including adding
 an optional parameter in place of an existing overload, fails validation.

@@ -1,17 +1,43 @@
 """Contract tests for the local runner: no desktop/device required."""
 import importlib.util
+import sys
 from pathlib import Path
 import tempfile
 from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
 
+sys.path.insert(0, str(Path(__file__).parents[1]))
 SPEC = importlib.util.spec_from_file_location('local_samples', Path(__file__).parents[1] / 'test-samples.py')
 runner = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(runner)
 
 
 class LocalSamplesTests(unittest.TestCase):
+    def test_candidate_consumers_never_repack_framework_archives(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            args = SimpleNamespace(platform='windows', framework='maui', dotnet='dotnet',
+                                   reuse_external_cache=None, arch='x64', framework_dependent=False,
+                                   framework_packages=root / 'candidate')
+            identity = dict(commit='a' * 40, status='', sourceSha256='b' * 64)
+            with patch.object(runner, 'command') as command, \
+                 patch.object(runner, 'source_identity', return_value=identity), \
+                 patch.object(runner, 'verify_candidate', return_value={'files': []}) as verify:
+                runner.build(args, root / 'build')
+            packs = [call.args[0] for call in command.call_args_list if 'pack' in call.args[0]]
+            self.assertEqual(len(packs), 4)
+            self.assertTrue(all(str(call[2]).startswith('plugins/') for call in packs))
+            self.assertEqual(verify.call_count, 2)
+
+    def test_dirty_candidate_build_fails_before_running_tools(self):
+        args = SimpleNamespace(require_clean=True)
+        with patch.object(runner, 'source_identity', return_value={'status': ' M source.cs'}), \
+             patch.object(runner, 'command') as command:
+            with self.assertRaisesRegex(ValueError, 'clean committed'):
+                runner.build(args, Path('unused'))
+            command.assert_not_called()
+
     def test_apple_builds_runnable_bundles_in_manifest_directories(self):
         for framework, target in (('avalonia', 'macos'), ('avalonia', 'ios'),
                                   ('maui', 'maccatalyst'), ('maui', 'ios')):

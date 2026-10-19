@@ -7,8 +7,13 @@
 - Avalonia implementations of ChannelExplorer/Interop, Currency, AudioStreamer, VolumeMonitor,
   and PdfViewer for Android, iOS, Windows, macOS, Linux, and browser/WebAssembly.
 - Linux native adapters use C++; PDF examples provide separate Qt and GTK backends.
-- This is the development version on `main`, not a published or accepted 0.2 release.
-  Platform runtime verification and final package acceptance remain incomplete.
+- Local automation has passed all five samples on all six Avalonia targets and all
+  four MAUI targets; Linux includes separate Qt and GTK PDF results.
+- Local preview preparation records clean-source package hashes, combines the six
+  framework packages, and requires exact-package API and consumer results.
+- Unreleased candidate: final combined-package acceptance is still required.
+  Physical devices, additional architectures, audio audibility, PDF visual fidelity
+  and broader lifecycle checks remain separate coverage; see `docs/preview-02.md`.
 
 ## 0.1.0-preview.2 — 2026-10-17
 

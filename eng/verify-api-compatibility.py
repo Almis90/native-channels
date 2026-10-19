@@ -2,6 +2,7 @@
 import argparse
 import hashlib
 import json
+import os
 from pathlib import Path
 import subprocess
 import urllib.request
@@ -54,6 +55,7 @@ def main():
     parser.add_argument('--packages', type=Path, default=ROOT / 'artifacts/packages')
     parser.add_argument('--scope', choices=('core', 'mobile', 'combined'), default='combined')
     parser.add_argument('--output', type=Path, default=ROOT / 'artifacts/api-compatibility/result.json')
+    parser.add_argument('--dotnet', type=Path, help='Pinned SDK executable (including dotnet.exe on Windows)')
     args = parser.parse_args()
     manifest = json.loads((ROOT / 'eng/api-baseline.json').read_text())
     version = ET.parse(ROOT / 'Directory.Build.props').findtext('.//Version')
@@ -66,7 +68,8 @@ def main():
             old = baseline(ROOT / 'artifacts/api-compatibility/baseline', package_id, manifest['version'], sha256)
             candidate = args.packages / f'{package_id}.{version}.nupkg'
             validate_targets(candidate, old, package_id, version, manifest['version'], args.scope)
-            command = ['bash', str(ROOT / 'eng/dotnet.sh'), 'apicompat', 'package', str(candidate),
+            dotnet = args.dotnet or ROOT / '.tools/dotnet' / ('dotnet.exe' if os.name == 'nt' else 'dotnet')
+            command = [str(dotnet), 'apicompat', 'package', str(candidate),
                        '--baseline-package', str(old), '--run-api-compat', '--enable-rule-cannot-change-parameter-name']
             if args.scope == 'mobile':
                 command += ['--baseline-package-frameworks-to-ignore', 'net10.0-windows*']

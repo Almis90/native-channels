@@ -1,5 +1,10 @@
 # Release checklist
 
+For local 0.2 preview preparation, use the [candidate process](preview-02.md).
+It covers six framework packages, including Avalonia, and all ten host/target
+sample suites. It does not invoke or replace the existing publication workflows,
+which still require adaptation for the expanded 0.2 package set.
+
 Before distribution, require the [API compatibility gate](api-compatibility.md) against the published
 baseline. The final combined packages must pass; a local mobile-only comparison is partial evidence.
 

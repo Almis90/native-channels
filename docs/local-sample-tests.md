@@ -9,6 +9,11 @@ binary hashes, and build provenance. A failure or timeout returns a nonzero exit
 the runner continues through the remaining samples. Build failures stop before execution.
 Builds share project intermediate directories, so run one build at a time in a checkout.
 
+For a clean, combined `0.2.0-preview.1` candidate, see
+[local preview preparation](preview-02.md). `--packages-only --require-clean`
+records audited platform archives without building apps. `--framework-packages`
+builds and runs consumers against the exact assembled framework archives.
+
 Start on Windows with Python 3.11+ and the SDK pinned by `global.json`:
 
 ```powershell

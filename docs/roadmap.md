@@ -11,10 +11,12 @@ frameworks, while keeping platform lifecycle and native view hosting explicit.
 | **0.3 — Complete Uno integration** | Uno on Android, iOS, Windows, macOS, Linux, and browser/WebAssembly | Apply the same six-target completion criteria to the Uno host, reusing the shared contracts and adapters where compatible |
 | **1.0 — Stable API and distribution** | Public contracts ready for long-term use | Compatibility checks, supported-platform acceptance, lifecycle and performance evidence, and reviewed distribution |
 
-These are planned milestones, not a support matrix. MAUI remains the general application host;
-[verification](verification.md) records compiled and executed configurations, including the initial
-Avalonia Android Currency proof. Complete Avalonia, Uno, and browser/WebAssembly integration
-remain release goals. The [Avalonia sample matrix](../samples/Avalonia/README.md) now records source implementations for all four reference samples plus the [interoperability sample](../samples/Avalonia/Interop/README.md) on all six targets; new implementations still need runtime verification. Progress on a feature branch does not establish release acceptance.
+These are milestone acceptance criteria, not a released support matrix. The
+[verification record](verification.md) now includes all five samples passing locally
+on all six Avalonia targets and all four MAUI targets, including both Linux PDF
+backends. Those runs span development builds; final combined-package validation
+and publication remain separate. See the [0.2 preview preparation](preview-02.md)
+for the local candidate process and explicit limitations. Uno remains planned.
 
 ## Initial preview
 
@@ -44,8 +46,10 @@ status is recorded separately in [verification](verification.md).
 The [Avalonia native macOS sample](../samples/Avalonia/Currency/Currency.Desktop/README.md) uses `net10.0-macos`,
 AppKit and a macOS Swift XCFramework through the same Apple channel contracts. Its separate workflow
 builds x64/ARM64 and executes ARM64; it does not use the MAUI Mac Catalyst host.
-Extend these proofs to messages and event streams before expanding native view hosting. The [Avalonia host package](avalonia-host.md) now supplies portable registration, owned sessions
-and UI dispatch. `AvaloniaChannelView` now supplies native/DOM view attachment ownership; the broader lifecycle/contract verification matrix remains outstanding.
+The [Avalonia host package](avalonia-host.md) now supplies portable registration,
+owned sessions and UI dispatch. `AvaloniaChannelView` supplies native/DOM view
+attachment ownership. The Interop sample exercises methods, messages, events and
+native-view lifecycle on each target; broader device and lifecycle coverage remains outstanding.
 The Android Currency proof is the first part of 0.2: reuse one plugin through packages in MAUI and
 Avalonia Android applications. It establishes a starting point for shared registration and method
 calls only. It does not complete Avalonia integration, prove the other channel contracts, or verify
@@ -60,19 +64,21 @@ It is a method-call sample, not completion of Linux hosting or the broader miles
 The [Browser Currency proof](currency-avalonia-browser.md) adds a packaged ES-module bridge and
 Intl adapter, with package-only WebAssembly execution and a Chromium/Firefox workflow. It also
 exercises binary/value messages, managed callbacks and transport cleanup. Browser event helpers,
-Web Audio, page-volume events and PDF.js DOM views are now implemented with runtime verification pending.
+Web Audio, page-volume events and PDF.js DOM views have passed local Chromium sample checks;
+additional browser engines and lifecycle scenarios remain separate coverage.
 
 The [AudioStreamer Windows sample](audio-avalonia-windows.md) starts the next reference-plugin
 integration: framework-neutral registration and dependencies, a package-only Avalonia consumer,
 and the existing native PCM adapter. Its local verification covers playback, backpressure,
 DI ownership and window shutdown. The [Linux head](audio-avalonia-linux.md) shares that UI
 and adds an ALSA adapter, verified locally on Ubuntu 24.04 x64 with PulseAudio and X11.
-The other AudioStreamer Avalonia targets now have implementation heads; runtime verification remains pending;
-see its [verification record](audio-verification.md) for the executed scope.
+The other AudioStreamer Avalonia targets have passed the local sample checks;
+see the [platform verification record](verification.md) for environments and scope.
 
 Linux reference adapters use C++ behind the reusable, language-neutral native module ABI.
 PdfViewer now has two separate Linux examples: Qt with Qt PDF, and GTK with Poppler,
-both implementing the same PDF channel contract through C++. Their runtime embedding and lifecycle checks are pending.
+both implementing the same PDF channel contract through C++. Their local X11 VM
+checks passed; visual fidelity and additional windowing backends remain unverified.
 
 Milestone **0.2** requires an integrated, documented, and verified Avalonia host on **Android, iOS,
 Windows, macOS, Linux, and browser/WebAssembly**. Every target must satisfy the criteria below.

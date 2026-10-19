@@ -1,5 +1,11 @@
 # Publishing to NuGet
 
+This page describes the existing five-package 0.1 publication path. The unreleased
+0.2 preview adds `NativeChannels.Avalonia` and more target frameworks; see
+[local candidate preparation](preview-02.md). Do not use the existing publication
+workflow for 0.2 until its package allowlist, distribution verification and trust
+policy have been explicitly updated and checked. Local acceptance does not publish.
+
 The current framework preview, `0.1.0-preview.2`, is
 [available on NuGet.org](https://www.nuget.org/packages/NativeChannels.Maui/0.1.0-preview.2).
 Applications install `NativeChannels.Maui`, with framework dependencies resolved automatically;

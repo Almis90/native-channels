@@ -16,6 +16,8 @@ import time
 import uuid
 import xml.etree.ElementTree as ET
 
+from preview_candidate import verify_candidate
+
 ROOT = Path(__file__).resolve().parents[1]
 SAMPLES = ('Currency', 'AudioStreamer', 'VolumeMonitor', 'PdfViewer', 'Interop')
 HEADS = dict(windows='Windows', linux='Linux', macos='macOS', ios='iOS', android='Android', browser='Browser', maccatalyst='MacCatalyst')
@@ -63,6 +65,11 @@ def file_hash(path):
 
 
 def build(args, destination):
+    initial_source = source_identity()
+    candidate = getattr(args, 'framework_packages', None)
+    require_clean = getattr(args, 'require_clean', False) or candidate is not None
+    if require_clean and initial_source['status']:
+        raise ValueError('Candidate builds require a clean committed working tree')
     target = args.platform
     maui = args.framework == 'maui'
     tfm = 'net10.0-' + ('windows10.0.19041.0' if target == 'windows' else target)
@@ -109,7 +116,8 @@ def build(args, destination):
                  *[f':{name}:assembleRelease' for name in ('library', 'sample', 'currency', 'audio', 'volume', 'pdf')]])
     elif target in ('macos', 'ios', 'maccatalyst'):
         apple = ['--macos-only'] if target == 'macos' else []
-        command([sys.executable, 'eng/build-apple.py', *apple])
+        if not candidate:
+            command([sys.executable, 'eng/build-apple.py', *apple])
         for name in SAMPLES[:4]:
             command([sys.executable, f'plugins/Plugin.Maui.{name}/eng/build-apple.py', *apple])
     elif target == 'browser':
@@ -124,26 +132,35 @@ def build(args, destination):
     bootstrap.write_text('<configuration><packageSources><clear/><add key="nuget" '
                          'value="https://api.nuget.org/v3/index.json"/></packageSources>'
                          '<packageSourceMapping><clear/></packageSourceMapping></configuration>', encoding='utf-8')
-    pack('src/NativeChannels.Core', f'-p:RestoreConfigFile={bootstrap}')
-    if target == 'android':
-        pack('src/NativeChannels.Native.Android')
-    if target in ('ios', 'macos', 'maccatalyst'):
-        pack('src/NativeChannels.Native.Apple', '-p:' + flags[target])
-    pack('src/NativeChannels', '-p:' + flags[target], '-p:NativeChannelsUseCorePackage=true')
-    if maui:
-        pack('src/NativeChannels.Maui', '-p:' + flags[target], '-p:NativeChannelsUseCorePackage=true')
+    if candidate:
+        accepted = verify_candidate(candidate, initial_source['commit'])
+        for record in accepted['files']:
+            if record['file'].endswith('.nupkg'):
+                shutil.copy2(candidate / record['file'], feed / record['file'])
     else:
-        pack('src/NativeChannels.Avalonia', '-p:NativeChannelsUseCorePackage=true')
+        pack('src/NativeChannels.Core', f'-p:RestoreConfigFile={bootstrap}')
+        if target == 'android':
+            pack('src/NativeChannels.Native.Android')
+        if target in ('ios', 'macos', 'maccatalyst'):
+            pack('src/NativeChannels.Native.Apple', '-p:' + flags[target])
+        pack('src/NativeChannels', '-p:' + flags[target], '-p:NativeChannelsUseCorePackage=true')
+        if maui:
+            pack('src/NativeChannels.Maui', '-p:' + flags[target], '-p:NativeChannelsUseCorePackage=true')
+        else:
+            pack('src/NativeChannels.Avalonia', '-p:NativeChannelsUseCorePackage=true')
     for name in ('Plugin.Maui.Currency', 'Plugin.Maui.AudioStreamer', 'Plugin.Maui.VolumeMonitor',
                  'Plugin.Maui.PdfViewer' if maui else 'Plugin.Avalonia.PdfViewer'):
         extra = [f'-p:TargetFrameworks={tfm}'] if name == 'Plugin.Maui.PdfViewer' else []
         pack(f'plugins/{name}/src/{name}', '-p:' + flags[target], *extra)
     audit = ['--android-only'] if target == 'android' else ['--platform-only', target]
-    command([sys.executable, 'eng/package_audit.py', *sorted(feed.glob('*.nupkg')), *audit, '--output', destination / 'audit.json'])
+    archives = sorted(feed.glob('Plugin.*.nupkg' if candidate else '*.nupkg'))
+    command([sys.executable, 'eng/package_audit.py', *archives, *audit,
+             *(['--source-commit', initial_source['commit']] if require_clean else []),
+             '--output', destination / 'audit.json'])
     architecture = args.arch or ('arm64' if platform.machine().lower() in ('arm64', 'aarch64') else 'x64')
     rid = dict(windows='win-', linux='linux-', macos='osx-', ios='iossimulator-', maccatalyst='maccatalyst-').get(target)
     entries = []
-    for sample in SAMPLES:
+    for sample in (() if getattr(args, 'packages_only', False) else SAMPLES):
         for backend in (('Qt', 'Gtk') if target == 'linux' and sample == 'PdfViewer' else ('',)):
             name = sample + backend
             csproj = project(sample, target, backend, args.framework)
@@ -167,7 +184,15 @@ def build(args, destination):
             if target == 'android':
                 item['bundleId'] = ET.parse(csproj).findtext('.//ApplicationId')
             entries.append(item)
-    manifest = dict(platform=target, framework=args.framework, packageCache=str(cache), source=source_identity(), apps=entries)
+    final_source = source_identity()
+    if require_clean and final_source != initial_source:
+        raise ValueError('Source changed during candidate build; discard these outputs and rebuild')
+    if candidate:
+        verify_candidate(candidate, initial_source['commit'])
+    manifest = dict(platform=target, framework=args.framework, packageCache=str(cache), source=final_source, apps=entries,
+                    packageFiles={p.name: file_hash(p) for p in sorted(feed.glob('*.*pkg'))})
+    if candidate:
+        manifest['frameworkCandidate'] = accepted
     path = destination / 'manifest.json'
     path.write_text(json.dumps(manifest, indent=2), encoding='utf-8')
     return path
@@ -341,7 +366,10 @@ def main():
     parser.add_argument('--platform', choices=HEADS, required=True)
     parser.add_argument('--manifest', type=Path, help='Reuse a completed build instead of rebuilding')
     parser.add_argument('--build-only', action='store_true')
+    parser.add_argument('--packages-only', action='store_true', help='Prepare hashed platform packages for candidate assembly, without building consumers')
     parser.add_argument('--dotnet', help='Path to the pinned SDK dotnet executable')
+    parser.add_argument('--require-clean', action='store_true', help='Require unchanged clean source for candidate builds')
+    parser.add_argument('--framework-packages', type=Path, help='Build consumers against an audited combined preview candidate, without repacking framework packages')
     parser.add_argument('--arch', choices=('x64', 'arm64'))
     parser.add_argument('--framework-dependent', action='store_true', help='Use an installed .NET runtime instead of copying it into each desktop app')
     parser.add_argument('--reuse-external-cache', type=Path, help='Hardlink external NuGet dependencies; local framework/plugin packages are always fresh')
@@ -351,6 +379,12 @@ def main():
     parser.add_argument('--timeout', type=float, default=120)
     parser.add_argument('--sample', choices=SAMPLES, action='append', help='Run only selected samples (default: all five)')
     args = parser.parse_args()
+    if args.manifest and (args.framework_packages or args.require_clean):
+        parser.error('--manifest cannot be combined with candidate build options')
+    if args.packages_only and (args.manifest or args.framework_packages):
+        parser.error('--packages-only cannot reuse a manifest or combined candidate')
+    if args.framework_packages:
+        args.framework_packages = args.framework_packages.resolve()
     supported = ('windows', 'android', 'ios', 'maccatalyst') if args.framework == 'maui' else tuple(p for p in HEADS if p != 'maccatalyst')
     if args.platform not in supported:
         parser.error(f'{args.framework} supports: {", ".join(supported)}')
@@ -358,7 +392,7 @@ def main():
     folder.mkdir(parents=True)
     print(f'Evidence: {folder}', flush=True)
     manifest_path = args.manifest.resolve() if args.manifest else build(args, folder / 'build')
-    if args.build_only:
+    if args.build_only or args.packages_only:
         print(f'Manifest: {manifest_path}')
         return 0
     manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
@@ -403,6 +437,7 @@ def run_selected(args, folder, manifest_path, manifest, selected):
         print(f"{record['name']}: {record['status']} {detail}", flush=True)
         (folder / 'summary.json').write_text(json.dumps(dict(platform=args.platform, framework=args.framework, host=platform.platform(),
             buildManifest=str(manifest_path), buildSource=manifest.get('source'), currentSource=source_identity(),
+            frameworkCandidate=manifest.get('frameworkCandidate'),
             runtimeEnvironment={key: os.environ.get(key) for key in ('DOTNET_ROOT', 'DOTNET_TieredCompilation', 'DISPLAY', 'PULSE_SERVER', 'PULSE_SINK', 'BROWSER_CHROMIUM_CHANNEL')},
             results=results), indent=2), encoding='utf-8')
     return 0 if results and all(item['status'] == 'PASS' for item in results) else 1

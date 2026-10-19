@@ -1,21 +1,21 @@
 # Avalonia reference samples for 0.2
 
 All four reference samples and the [interoperability sample](Interop/README.md) now have implementation heads for the six Avalonia
-targets. This matrix describes source coverage, **not runtime verification**.
-Android and Apple heads still require their platform execution pass.
+targets. This matrix describes source coverage. The [verification record](../../docs/verification.md)
+separately records passing local runtime suites on all six targets and their limitations.
 
 For local automated execution of all five samples, use
 `python eng/test-samples.py --platform windows` (or `linux`, `android`, `macos`,
 `ios`, `browser`). See [local sample tests](../../docs/local-sample-tests.md) for
 requirements, saved reports, and coverage limits. No workflows are invoked.
 
-Local automation has executed all five Windows samples, all five browser samples,
-and all six Linux heads, including both PDF backends. Linux VM verification uses Xvfb/Openbox and a temporary
+Local automation has executed all five samples on Windows, Android, iOS, macOS and
+browser, and all six Linux heads, including both PDF backends. Linux VM verification uses Xvfb/Openbox and a temporary
 PulseAudio null sink; this does not establish audible output. Local package feeds
 pass metadata/platform audits and consumers are checked against their archives.
 Builds use the pinned .NET SDK 10.0.401 and may reuse external dependency caches;
-this is not fresh-cache release acceptance. Android, iOS and macOS execution remains
-pending. No workflows are invoked by the local runner.
+this is not final combined-package release acceptance. Android and iOS results use
+emulators/simulators. No workflows are invoked by the local runner.
 
 | Sample | Android | iOS | Windows | macOS | Linux | Browser |
 |---|---|---|---|---|---|---|
