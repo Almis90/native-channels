@@ -8,6 +8,7 @@
     </PropertyGroup>
     <ItemGroup>
         <PackageVersion Include="Uno.WinUI" Version="6.7.135" />
+        <PackageVersion Include="NativeChannels.Uno" Version="$(NativeChannelsPackageVersion)" />
         <PackageVersion Include="Avalonia" Version="12.1.4" />
         <PackageVersion Include="Avalonia.Headless.XUnit" Version="12.1.4" />
         <PackageVersion Include="xunit.v3" Version="3.2.2" />

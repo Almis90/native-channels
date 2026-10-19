@@ -16,6 +16,11 @@ Use `-HostProbe` on Windows to run the package-only Uno host lifecycle tests in
 the real UI event loop. This mode fails when the host JSON result is not `passed`.
 Its managed view fixture tests lifetime and stale channels, not native embedding.
 
+Use `-PluginProbe` to exercise the real shared Windows messaging plugins and the
+Uno PDF control protocol. It writes silent PCM, observes volume without changing
+it, and validates PDF lifecycle with a managed fixture. It fails if native audio
+or volume is unavailable. See [plugin acceptance](../../../docs/uno-plugins.md).
+
 This rebuilds Core and the portable desktop transport into a local feed,
 restores the Uno desktop consumer into a fresh cache, and records dependency and
 native-view results under `artifacts/uno-feasibility/runs/`. A successful command

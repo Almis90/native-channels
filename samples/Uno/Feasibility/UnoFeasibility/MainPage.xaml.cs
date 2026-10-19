@@ -13,6 +13,26 @@ public sealed partial class MainPage : Page
 
     private async void OnLoaded(object sender, RoutedEventArgs args)
     {
+        var pluginResult = Environment.GetEnvironmentVariable("NATIVECHANNELS_UNO_PLUGIN_PROBE_RESULT");
+        if (!string.IsNullOrEmpty(pluginResult))
+        {
+            try
+            {
+                await PluginProbe
+                    .RunAsync(((App)Application.Current).MainWindow!, NativeSurface)
+                    .WaitAsync(TimeSpan.FromSeconds(20));
+                File.WriteAllText(pluginResult, "{\"plugins\":\"passed\",\"pdf\":\"protocol-and-lifecycle-only\"}");
+            }
+            catch (Exception error)
+            {
+                File.WriteAllText(
+                    pluginResult,
+                    System.Text.Json.JsonSerializer.Serialize(new { plugins = "failed", error = error.ToString() })
+                );
+            }
+            Application.Current.Exit();
+            return;
+        }
         var hostResult = Environment.GetEnvironmentVariable("NATIVECHANNELS_UNO_HOST_PROBE_RESULT");
         if (!string.IsNullOrEmpty(hostResult))
         {

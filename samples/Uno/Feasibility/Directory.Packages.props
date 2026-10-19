@@ -6,8 +6,12 @@
     See https://aka.platform.uno/using-uno-sdk#implicit-packages for more information regarding the Implicit Packages.
   -->
   <ItemGroup>
-    <PackageVersion Include="NativeChannels" Version="0.3.0-preview.4" />
-    <PackageVersion Include="NativeChannels.Uno" Version="0.3.0-preview.4" />
-    <PackageVersion Include="NativeChannels.Desktop.ProbeAssets" Version="0.3.0-preview.4" />
+    <PackageVersion Include="NativeChannels" Version="0.3.0-preview.6" />
+    <PackageVersion Include="NativeChannels.Uno" Version="0.3.0-preview.6" />
+    <PackageVersion Include="Plugin.Currency" Version="0.3.0-preview.6" />
+    <PackageVersion Include="Plugin.AudioStreamer" Version="0.3.0-preview.6" />
+    <PackageVersion Include="Plugin.VolumeMonitor" Version="0.3.0-preview.6" />
+    <PackageVersion Include="Plugin.Uno.PdfViewer" Version="0.3.0-preview.6" />
+    <PackageVersion Include="NativeChannels.Desktop.ProbeAssets" Version="0.3.0-preview.6" />
   </ItemGroup>
 </Project>

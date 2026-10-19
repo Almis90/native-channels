@@ -146,6 +146,19 @@ attachment because the pinned Uno release lacks the required public API. Windows
 native parenting remains unresolved. Step 3's native-view acceptance is therefore
 still open, and no other platform's UI host has been executed for this step.
 
+## Step 4: shared plugins and PDF control
+
+The three messaging plugins now expose both Windows and Linux factories in their
+portable desktop assemblies, with optional macOS dylib packaging. The Windows
+package-only Uno probe executes the real Currency, AudioStreamer and VolumeMonitor
+adapters, including active-resource shutdown. `Plugin.Uno.PdfViewer` adds the
+control and adapter contract, with tested state/callback/reconnect semantics.
+It requires an explicit factory and has no bundled native PDF adapter yet.
+
+Step 4 remains partial: native PDF integration and the other platforms' plugin
+acceptance are outstanding. See [Uno plugin integration](uno-plugins.md) for exact
+test scope and lifecycle responsibilities.
+
 ## Next gate
 
 1. Resolve the Windows control probe and prove a packaged method call on a

@@ -12,6 +12,7 @@ def main():
     parser.add_argument('--arch', choices=('arm64', 'x86_64'), required=True)
     parser.add_argument('--currency', action='store_true')
     parser.add_argument('--sample', action='store_true')
+    parser.add_argument('--plugins', action='store_true', help='Build all three shared messaging plugin adapters')
     args = parser.parse_args()
     rid = 'osx-arm64' if args.arch == 'arm64' else 'osx-x64'
     output = ROOT / 'artifacts/native/apple-desktop' / rid
@@ -29,9 +30,13 @@ def main():
                         '-o', str(output / library), *map(str, sorted(sources))], check=True)
 
     build('NativeChannelsNative', (ROOT / 'native/apple/Sources').glob('*.swift'))
-    if args.currency:
+    if args.currency or args.plugins:
         build('MauiCurrencyNative', (ROOT / 'plugins/Plugin.Currency/native/apple/Sources').glob('*.swift'),
               ['NativeChannelsNative'])
+    if args.plugins:
+        for name in ('AudioStreamer', 'VolumeMonitor'):
+            build(f'Maui{name}Native', (ROOT / f'plugins/Plugin.{name}/native/apple/Sources').glob('*.swift'),
+                  ['NativeChannelsNative'])
     if args.sample:
         build('NativeChannelsSample', [ROOT / 'native/apple/Samples/SampleModule.swift'],
               ['NativeChannelsNative'])

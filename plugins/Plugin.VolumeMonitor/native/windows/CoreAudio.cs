@@ -1,4 +1,4 @@
-#if WINDOWS
+#if WINDOWS || DESKTOP
 using System.Runtime.InteropServices;
 
 namespace Plugin.VolumeMonitor;

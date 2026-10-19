@@ -1,4 +1,4 @@
-#if WINDOWS
+#if WINDOWS || DESKTOP
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading.Channels;
@@ -6,6 +6,7 @@ using NativeChannels;
 
 namespace Plugin.VolumeMonitor;
 
+[System.Runtime.Versioning.SupportedOSPlatform("windows")]
 internal sealed class WindowsVolumeMonitorModule : IWindowsChannelModule
 {
     private EventChannel? _channel;
@@ -54,6 +55,7 @@ internal sealed class WindowsVolumeMonitorModule : IWindowsChannelModule
 
 // Each enumeration owns its COM interfaces and callbacks. Notifications only enqueue signals;
 // registration, COM release and device changes happen outside the native callback stack.
+[System.Runtime.Versioning.SupportedOSPlatform("windows")]
 internal sealed class WindowsVolumeObserver : IDisposable
 {
     private readonly Channel<bool> _signals = Channel.CreateBounded<bool>(

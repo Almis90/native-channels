@@ -7,10 +7,12 @@
             >net10.0-android</TargetFrameworks>
         <TargetFrameworks Condition="'$(NativeChannelsWindowsOnly)' == 'true'"
             >net10.0-windows10.0.19041.0</TargetFrameworks>
-        <TargetFrameworks Condition="'$(NativeChannelsLinuxOnly)' == 'true'"
+        <TargetFrameworks
+            Condition="'$(NativeChannelsLinuxOnly)' == 'true' Or '$(NativeChannelsDesktopOnly)' == 'true'"
             >net10.0</TargetFrameworks>
-        <DefineConstants Condition="'$(NativeChannelsLinuxOnly)' == 'true'"
-            >$(DefineConstants);LINUX</DefineConstants>
+        <DefineConstants
+            Condition="'$(NativeChannelsLinuxOnly)' == 'true' Or '$(NativeChannelsDesktopOnly)' == 'true'"
+            >$(DefineConstants);DESKTOP</DefineConstants>
         <TargetFrameworks Condition="'$(NativeChannelsAppleTarget)' != ''"
             >net10.0-$(NativeChannelsAppleTarget)</TargetFrameworks>
         <TargetFrameworks Condition="'$(NativeChannelsBrowserOnly)' == 'true'"
@@ -31,7 +33,7 @@
             Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'"
             >10.0.17763.0</SupportedOSPlatformVersion>
     </PropertyGroup>
-    <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">
+    <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows' Or '$(NativeChannelsDesktopOnly)' == 'true' Or '$(NativeChannelsLinuxOnly)' == 'true'">
         <Compile
             Include="../../native/windows/**/*.cs"
             Link="native/windows/%(RecursiveDir)%(Filename)%(Extension)"
@@ -63,13 +65,13 @@
         />
         <None
             Include="../../native/android/build/outputs/aar/audio-release.aar"
-            Condition="'$(NativeChannelsAppleTarget)' == '' And '$(NativeChannelsWindowsOnly)' != 'true' And '$(NativeChannelsBrowserOnly)' != 'true' And '$(NativeChannelsLinuxOnly)' != 'true'"
+            Condition="'$(NativeChannelsAppleTarget)' == '' And '$(NativeChannelsWindowsOnly)' != 'true' And '$(NativeChannelsBrowserOnly)' != 'true' And '$(NativeChannelsLinuxOnly)' != 'true' And '$(NativeChannelsDesktopOnly)' != 'true'"
             Pack="true"
             PackagePath="native/android/audio.aar"
         />
         <None
             Include="../../../../artifacts/native/MauiAudioStreamerNative.xcframework/**/*"
-            Condition="'$(NativeChannelsWindowsOnly)' != 'true' And '$(NativeChannelsBrowserOnly)' != 'true' And '$(NativeChannelsLinuxOnly)' != 'true' And '$(NativeChannelsAndroidOnly)' != 'true'"
+            Condition="'$(NativeChannelsWindowsOnly)' != 'true' And '$(NativeChannelsBrowserOnly)' != 'true' And '$(NativeChannelsLinuxOnly)' != 'true' And '$(NativeChannelsDesktopOnly)' != 'true' And '$(NativeChannelsAndroidOnly)' != 'true'"
             Pack="true"
             Exclude="../../../../artifacts/native/MauiAudioStreamerNative.xcframework/**/Modules/MauiAudioStreamerNative.swiftmodule/**/*"
             PackagePath="native/apple/MauiAudioStreamerNative.xcframework/"
@@ -78,7 +80,7 @@
     <Target
         Name="ValidateMauiAudioStreamerNativeAssets"
         BeforeTargets="GenerateNuspec"
-        Condition="'$(NativeChannelsWindowsOnly)' != 'true' And '$(NativeChannelsBrowserOnly)' != 'true' And '$(NativeChannelsLinuxOnly)' != 'true'"
+        Condition="'$(NativeChannelsWindowsOnly)' != 'true' And '$(NativeChannelsBrowserOnly)' != 'true' And '$(NativeChannelsLinuxOnly)' != 'true' And '$(NativeChannelsDesktopOnly)' != 'true'"
     >
         <Error
             Condition="'$(NativeChannelsAppleTarget)' == '' And !Exists('../../native/android/build/outputs/aar/audio-release.aar')"
@@ -91,5 +93,17 @@
     </Target>
     <ItemGroup Condition="'$(NativeChannelsBrowserOnly)' == 'true'">
         <None Include="../../native/browser/*.mjs" Pack="true" PackagePath="browser/" />
+    </ItemGroup>
+    <ItemGroup Condition="'$(NativeChannelsIncludeAppleDesktopAssets)' == 'true'">
+        <None
+            Include="../../../../artifacts/native/apple-desktop/osx-arm64/libMauiAudioStreamerNative.dylib"
+            Pack="true"
+            PackagePath="runtimes/osx-arm64/native/"
+        />
+        <None
+            Include="../../../../artifacts/native/apple-desktop/osx-x64/libMauiAudioStreamerNative.dylib"
+            Pack="true"
+            PackagePath="runtimes/osx-x64/native/"
+        />
     </ItemGroup>
 </Project>

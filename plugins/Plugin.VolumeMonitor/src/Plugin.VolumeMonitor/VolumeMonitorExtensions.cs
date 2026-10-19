@@ -20,10 +20,10 @@ public static class VolumeMonitorExtensions
 #if BROWSER
             BrowserModule = "./_content/Plugin.VolumeMonitor/volumemonitor.mjs",
 #endif
-#if LINUX
+#if LINUX || DESKTOP
             LinuxFactory = CreateLinuxModule,
 #endif
-#if WINDOWS
+#if WINDOWS || DESKTOP
             WindowsFactory = CreateWindowsModule,
 #endif
         };
@@ -42,7 +42,7 @@ public static class VolumeMonitorExtensions
         return services;
     }
 
-#if LINUX
+#if LINUX || DESKTOP
     private static ILinuxChannelModule CreateLinuxModule() =>
         new LinuxNativeModule(
             "libnc_volume.so",
@@ -51,7 +51,10 @@ public static class VolumeMonitorExtensions
             eventChannels: [VolumeMonitor.ChannelName]
         );
 #endif
-#if WINDOWS
-    private static IWindowsChannelModule CreateWindowsModule() => new WindowsVolumeMonitorModule();
+#if WINDOWS || DESKTOP
+    private static IWindowsChannelModule CreateWindowsModule() =>
+        OperatingSystem.IsWindows()
+            ? new WindowsVolumeMonitorModule()
+            : throw new PlatformNotSupportedException("The Windows volume adapter requires Windows.");
 #endif
 }

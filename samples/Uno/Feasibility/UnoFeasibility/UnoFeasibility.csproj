@@ -28,6 +28,10 @@
     <ItemGroup>
         <PackageReference Include="NativeChannels" />
         <PackageReference Include="NativeChannels.Uno" />
+        <PackageReference Include="Plugin.Currency" />
+        <PackageReference Include="Plugin.AudioStreamer" />
+        <PackageReference Include="Plugin.VolumeMonitor" />
+        <PackageReference Include="Plugin.Uno.PdfViewer" />
         <PackageReference
             Include="NativeChannels.Desktop.ProbeAssets"
             Condition="'$(NativeChannelsAppleDesktopProbe)' == 'true'"

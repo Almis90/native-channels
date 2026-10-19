@@ -17,10 +17,10 @@ public static class CurrencyExtensions
             "MauiCurrencyNative"
         )
         {
-#if WINDOWS
+#if WINDOWS || DESKTOP
             WindowsFactory = CreateWindowsModule,
 #endif
-#if LINUX
+#if LINUX || DESKTOP
             LinuxFactory = CreateLinuxModule,
 #endif
 #if BROWSER
@@ -42,10 +42,10 @@ public static class CurrencyExtensions
         return services;
     }
 
-#if WINDOWS
+#if WINDOWS || DESKTOP
     private static IWindowsChannelModule CreateWindowsModule() => new WindowsCurrencyModule();
 #endif
-#if LINUX
+#if LINUX || DESKTOP
     private static ILinuxChannelModule CreateLinuxModule() =>
         new LinuxNativeModule("libnc_currency.so", typeof(CurrencyExtensions).Assembly, ["plugin.maui.currency"]);
 #endif

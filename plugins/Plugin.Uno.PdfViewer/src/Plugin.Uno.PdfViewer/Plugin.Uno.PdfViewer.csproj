@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <Version>0.1.0-alpha.1</Version>
+        <Description>Experimental Uno PDF control and native adapter lifecycle. Requires a compatible native view factory.</Description>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="NativeChannels.Uno" />
+        <None Remove="$(MSBuildThisFileDirectory)../../../../README.md" />
+        <None Include="../../README.md" Pack="true" PackagePath="/README.md" />
+    </ItemGroup>
+</Project>

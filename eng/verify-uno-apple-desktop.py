@@ -23,7 +23,7 @@ def main():
     run = ROOT / 'artifacts/uno-feasibility/runs' / uuid.uuid4().hex
     run.mkdir(parents=True)
     feed = ROOT / 'artifacts/uno-feasibility/packages'
-    version = '0.3.0-preview.4'
+    version = '0.3.0-preview.6'
     project = 'samples/Uno/Feasibility/UnoFeasibility'
     rid = 'osx-arm64' if platform.machine() == 'arm64' else 'osx-x64'
 
@@ -31,10 +31,14 @@ def main():
         subprocess.run(args, cwd=ROOT, check=True)
 
     for arch in ('arm64', 'x86_64'):
-        execute(sys.executable, 'eng/build-apple-desktop.py', '--arch', arch, '--currency', '--sample')
-    for package in ('src/NativeChannels.Core', 'src/NativeChannels', 'src/NativeChannels.Uno', 'tests/NativeChannels.Desktop.ProbeAssets'):
+        execute(sys.executable, 'eng/build-apple-desktop.py', '--arch', arch, '--plugins', '--sample')
+    packages_to_build = ['src/NativeChannels.Core', 'src/NativeChannels', 'src/NativeChannels.Uno', 'tests/NativeChannels.Desktop.ProbeAssets']
+    packages_to_build += [f'plugins/Plugin.{name}/src/Plugin.{name}' for name in ('Currency', 'AudioStreamer', 'VolumeMonitor', 'Uno.PdfViewer')]
+    for package in packages_to_build:
         execute(dotnet, 'pack', package, '-c', 'Release', '-p:NativeChannelsDesktopOnly=true',
-                '-p:NativeChannelsIncludeAppleDesktopAssets=true', f'-p:Version={version}', '-o', str(feed))
+                '-p:NativeChannelsIncludeAppleDesktopAssets=true', f'-p:Version={version}',
+                f'-p:NativeChannelsPackageVersion={version}',
+                f'-p:RestoreConfigFile={ROOT / "samples/Uno/Feasibility/NuGet.Config"}', '-o', str(feed))
     with zipfile.ZipFile(feed / f'NativeChannels.{version}.nupkg') as archive:
         for entry in ('lib/net10.0/NativeChannels.dll',
                       'runtimes/osx-arm64/native/libNativeChannelsNative.dylib',

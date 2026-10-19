@@ -1,4 +1,4 @@
-#if WINDOWS
+#if WINDOWS || DESKTOP
 using NativeChannels;
 
 namespace Plugin.Currency;

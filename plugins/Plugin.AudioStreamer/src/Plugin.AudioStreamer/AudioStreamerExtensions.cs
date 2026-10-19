@@ -17,13 +17,13 @@ public static class AudioStreamerExtensions
             "MauiAudioStreamerNative"
         )
         {
-#if LINUX
+#if LINUX || DESKTOP
             LinuxFactory = CreateLinuxModule,
 #endif
 #if BROWSER
             BrowserModule = "./_content/Plugin.AudioStreamer/audiostreamer.mjs",
 #endif
-#if WINDOWS
+#if WINDOWS || DESKTOP
             WindowsFactory = CreateWindowsModule,
 #endif
         };
@@ -42,7 +42,7 @@ public static class AudioStreamerExtensions
         return services;
     }
 
-#if LINUX
+#if LINUX || DESKTOP
     private static ILinuxChannelModule CreateLinuxModule() =>
         new LinuxNativeModule(
             "libnc_audio.so",
@@ -51,7 +51,7 @@ public static class AudioStreamerExtensions
             [AudioFormat.DataChannel]
         );
 #endif
-#if WINDOWS
+#if WINDOWS || DESKTOP
     private static IWindowsChannelModule CreateWindowsModule() => new WindowsAudioStreamerModule();
 #endif
 }

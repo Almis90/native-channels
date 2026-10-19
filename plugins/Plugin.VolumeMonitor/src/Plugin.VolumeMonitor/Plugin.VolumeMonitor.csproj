@@ -14,10 +14,12 @@
         <SupportedOSPlatformVersion
             Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'macos'"
             >14.0</SupportedOSPlatformVersion>
-        <TargetFrameworks Condition="'$(NativeChannelsLinuxOnly)' == 'true'"
+        <TargetFrameworks
+            Condition="'$(NativeChannelsLinuxOnly)' == 'true' Or '$(NativeChannelsDesktopOnly)' == 'true'"
             >net10.0</TargetFrameworks>
-        <DefineConstants Condition="'$(NativeChannelsLinuxOnly)' == 'true'"
-            >$(DefineConstants);LINUX</DefineConstants>
+        <DefineConstants
+            Condition="'$(NativeChannelsLinuxOnly)' == 'true' Or '$(NativeChannelsDesktopOnly)' == 'true'"
+            >$(DefineConstants);DESKTOP</DefineConstants>
         <PackageId>Plugin.VolumeMonitor</PackageId>
         <Version>0.1.0-alpha.1</Version>
         <Description>Reference plugin demonstrating native volume event streaming and reusable packaging with NativeChannels.</Description>
@@ -31,7 +33,7 @@
             Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'"
             >10.0.17763.0</SupportedOSPlatformVersion>
     </PropertyGroup>
-    <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">
+    <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows' Or '$(NativeChannelsDesktopOnly)' == 'true' Or '$(NativeChannelsLinuxOnly)' == 'true'">
         <Compile
             Include="../../native/windows/**/*.cs"
             Link="native/windows/%(RecursiveDir)%(Filename)%(Extension)"
@@ -49,13 +51,13 @@
         />
         <None
             Include="../../native/android/build/outputs/aar/volume-release.aar"
-            Condition="'$(NativeChannelsAppleTarget)' == '' And '$(NativeChannelsWindowsOnly)' != 'true' And '$(NativeChannelsLinuxOnly)' != 'true' And '$(NativeChannelsBrowserOnly)' != 'true'"
+            Condition="'$(NativeChannelsAppleTarget)' == '' And '$(NativeChannelsWindowsOnly)' != 'true' And '$(NativeChannelsLinuxOnly)' != 'true' And '$(NativeChannelsDesktopOnly)' != 'true' And '$(NativeChannelsBrowserOnly)' != 'true'"
             Pack="true"
             PackagePath="native/android/volume.aar"
         />
         <None
             Include="../../../../artifacts/native/MauiVolumeMonitorNative.xcframework/**/*"
-            Condition="'$(NativeChannelsWindowsOnly)' != 'true' And '$(NativeChannelsLinuxOnly)' != 'true' And '$(NativeChannelsBrowserOnly)' != 'true' And '$(NativeChannelsAndroidOnly)' != 'true'"
+            Condition="'$(NativeChannelsWindowsOnly)' != 'true' And '$(NativeChannelsLinuxOnly)' != 'true' And '$(NativeChannelsDesktopOnly)' != 'true' And '$(NativeChannelsBrowserOnly)' != 'true' And '$(NativeChannelsAndroidOnly)' != 'true'"
             Pack="true"
             Exclude="../../../../artifacts/native/MauiVolumeMonitorNative.xcframework/**/Modules/MauiVolumeMonitorNative.swiftmodule/**/*"
             PackagePath="native/apple/MauiVolumeMonitorNative.xcframework/"
@@ -64,7 +66,7 @@
     <Target
         Name="ValidateMauiVolumeMonitorNativeAssets"
         BeforeTargets="GenerateNuspec"
-        Condition="'$(NativeChannelsWindowsOnly)' != 'true' And '$(NativeChannelsLinuxOnly)' != 'true' And '$(NativeChannelsBrowserOnly)' != 'true'"
+        Condition="'$(NativeChannelsWindowsOnly)' != 'true' And '$(NativeChannelsLinuxOnly)' != 'true' And '$(NativeChannelsDesktopOnly)' != 'true' And '$(NativeChannelsBrowserOnly)' != 'true'"
     >
         <Error
             Condition="'$(NativeChannelsAppleTarget)' == '' And !Exists('../../native/android/build/outputs/aar/volume-release.aar')"
@@ -92,4 +94,16 @@
     >
         <Exec Command="bash &quot;$(MSBuildThisFileDirectory)../../../../eng/build-linux-native.sh&quot; volume" />
     </Target>
+    <ItemGroup Condition="'$(NativeChannelsIncludeAppleDesktopAssets)' == 'true'">
+        <None
+            Include="../../../../artifacts/native/apple-desktop/osx-arm64/libMauiVolumeMonitorNative.dylib"
+            Pack="true"
+            PackagePath="runtimes/osx-arm64/native/"
+        />
+        <None
+            Include="../../../../artifacts/native/apple-desktop/osx-x64/libMauiVolumeMonitorNative.dylib"
+            Pack="true"
+            PackagePath="runtimes/osx-x64/native/"
+        />
+    </ItemGroup>
 </Project>
