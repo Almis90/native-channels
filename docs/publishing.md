@@ -1,10 +1,90 @@
 # Publishing to NuGet
 
-This page describes the existing five-package 0.1 publication path. The unreleased
-0.2 preview adds `NativeChannels.Avalonia` and more target frameworks; see
-[local candidate preparation](preview-02.md). Do not use the existing publication
-workflow for 0.2 until its package allowlist, distribution verification and trust
-policy have been explicitly updated and checked. Local acceptance does not publish.
+The 0.2 preview uses a local publisher for the six accepted framework packages.
+It invokes no GitHub workflows. The older five-package workflow is documented
+below for 0.1 releases and must not be used for 0.2.
+
+## Publish the locally accepted 0.2 preview {#local-preview}
+
+First complete [candidate preparation and acceptance](preview-02.md). Retain the
+twelve exact archives, API report, acceptance receipt and ten consumer summaries.
+Create a portable release directory with the local publisher:
+
+```powershell
+$previewArgs = @('eng/publish-preview.py', 'prepare',
+  '--directory', 'artifacts/nuget-0.2.0-preview.1',
+  '--candidate', 'artifacts/preview-02-r3/candidate',
+  '--acceptance', 'artifacts/preview-02-r3/local-acceptance.json',
+  '--api-report', 'artifacts/preview-02-r3/api-compatibility.json')
+Get-ChildItem artifacts/preview-02-r3/results -Recurse -Filter summary.json |
+  ForEach-Object { $previewArgs += @('--summary', $_.FullName) }
+python @previewArgs
+python eng/publish-preview.py preflight --directory artifacts/nuget-0.2.0-preview.1
+```
+
+Preparation replays the acceptance gate and checks NuGet archive/symbol metadata.
+It copies the original archives unchanged and records hashes for the complete
+release, API report, acceptance receipt and summaries. `verify` replays these
+checks offline. `preflight` additionally checks all six public package versions:
+an existing version with different contents stops publication before any upload.
+NuGet's added repository signature is excluded from that content comparison.
+
+Merge the tested source and release tooling into `main` before publishing. Use
+`[skip ci]` in pushed and merge commit messages when workflows must stay idle;
+see [GitHub's skip rules](https://docs.github.com/en/actions/how-tos/manage-workflow-runs/skip-workflow-runs).
+Keep the package source SHA unchanged: later documentation/tooling commits and
+the merge commit are not the source from which these archives were built.
+
+Local publication needs a NuGet.org API key; GitHub Trusted Publishing cannot
+authenticate a local process. Create a short-lived key in the NuGet account
+with push permissions for exactly these six IDs, including permission to create
+the new Avalonia package:
+
+```text
+NativeChannels.Core
+NativeChannels.Native.Android
+NativeChannels.Native.Apple
+NativeChannels
+NativeChannels.Maui
+NativeChannels.Avalonia
+```
+
+After the release decision, run:
+
+```powershell
+python eng/publish-preview.py publish --directory artifacts/nuget-0.2.0-preview.1 `
+  --publish-version 0.2.0-preview.1 --submission-report artifacts/nuget-preview1-submission.json `
+  --key-dialog
+```
+
+The masked dialog holds the key only in memory. Omit `--key-dialog` to enter it
+in an interactive terminal with hidden input. Never put it in chat, shell
+arguments, a checked-in file or a log. The publisher sends the key in the
+authenticated HTTPS header using NuGet's [package](https://learn.microsoft.com/en-us/nuget/api/package-publish-resource)
+and [symbol](https://learn.microsoft.com/en-us/nuget/api/symbol-package-publish-resource)
+upload protocols; it does not pass it to a child process or follow redirects.
+
+The command checks that the source is merged into remote `main`, rechecks
+acceptance after credential entry, then uploads packages in dependency order
+followed by symbols. It records each attempted submission outside the immutable
+release directory. If an upload fails, preserve that report and check NuGet's
+status before retrying the same archives with a new report filename. Identical
+indexed packages are skipped. An HTTP 409 for symbols means indexing is pending,
+not verified success. Do not rebuild or overwrite an accepted package version.
+
+After NuGet finishes processing:
+
+```sh
+python eng/publish-preview.py verify-public --directory artifacts/nuget-0.2.0-preview.1
+```
+
+This downloads all six public packages and compares their contents with the
+accepted release. Separately check symbol validation in the NuGet account and
+restore fresh MAUI and Avalonia consumers from NuGet.org with isolated caches.
+Record public-feed checks in [verification](verification.md) before marking the
+release published and accepted. No tags or GitHub releases are created by this tool.
+
+## Existing 0.1 workflow
 
 The current framework preview, `0.1.0-preview.2`, is
 [available on NuGet.org](https://www.nuget.org/packages/NativeChannels.Maui/0.1.0-preview.2).

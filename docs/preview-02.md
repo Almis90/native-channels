@@ -131,9 +131,9 @@ package manifests and API output alongside the summaries.
 
 ## Publication remains separate
 
-These commands invoke no workflows and do not tag, push or publish. The existing
-publication path targets the five-package 0.1 set; it must be explicitly updated
-and verified for six packages before separately authorized 0.2 publication. Its
-trust policy also needs the exact Avalonia package ID. Local reports are not CI
-evidence and do not bypass the distribution gate. Fresh NuGet.org restores and
-consumer checks remain necessary after publication.
+These preparation commands invoke no workflows and do not tag, push or publish.
+The [local six-package publisher](publishing.md#local-preview)
+replays this acceptance gate, preserves the exact archives and requires explicit
+publication with a locally entered NuGet API key. The existing five-package 0.1
+workflow remains separate; local reports do not claim CI execution. Fresh
+NuGet.org restores, symbol status and consumer checks remain necessary after publication.

@@ -76,9 +76,9 @@ consumer builds now refresh the Interop sample framework for the current target.
 The final revision also passed 187 packaging regressions; 23 local runner/candidate
 tests and 52 targeted transport/plugin tests passed during preparation.
 
-This is local preview acceptance. No workflows ran, and no tag, push or publication
-was performed. Publication tooling still needs explicit preparation for the six
-package set. Windows ARM64, Apple x64, physical phones, native Wayland, other
+This is local preview acceptance. The validation stage ran no workflows and
+performed no tag, push or publication. The subsequent [local publisher](publishing.md)
+can replay this evidence for six-package publication. Windows ARM64, Apple x64, physical phones, native Wayland, other
 browser engines, signing/store deployment, accessibility and long native heap
 soaks remain unverified here. Audio audibility, hardware volume changes and PDF
 visual fidelity remain manual checks. See [preview scope](preview-02.md).
