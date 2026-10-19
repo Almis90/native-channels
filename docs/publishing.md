@@ -133,7 +133,7 @@ The remainder records the old five-package process used for 0.1. The current
 `publish-nuget.yml` uses the six-package local acceptance inputs above; the old
 `distribution_run` dispatch examples are not current commands.
 
-The current framework preview, `0.1.0-preview.2`, is
+The earlier framework preview, `0.1.0-preview.2`, is
 [available on NuGet.org](https://www.nuget.org/packages/NativeChannels.Maui/0.1.0-preview.2).
 Applications install `NativeChannels.Maui`, with framework dependencies resolved automatically;
 see [getting started](getting-started.md).

@@ -15,15 +15,17 @@ These are milestone acceptance criteria, not a released support matrix. The
 [verification record](verification.md) now includes all five samples passing locally
 on all six Avalonia targets and all four MAUI targets, including both Linux PDF
 backends. The October 19 candidate also passed local validation of one exact
-combined feed; publication remains separate. See the [0.2 preview preparation](preview-02.md)
-for the local candidate process and explicit limitations. Uno remains planned.
+combined feed. Version `0.2.0-preview.1` is now published with matching public package contents
+and fresh local Windows consumer checks; see [release verification](verification.md#published-02-preview).
+The [0.2 preview preparation](preview-02.md) describes the local candidate process
+and explicit limitations. Uno remains planned.
 
 ## Initial preview
 
 Implemented features include method calls, binary/value messages, independent event subscriptions,
 and native views with instance channels. The four reference plugins demonstrate these contracts.
 
-The framework preview `0.1.0-preview.2` is [published on NuGet.org](https://www.nuget.org/packages/NativeChannels.Maui/0.1.0-preview.2),
+The earlier framework preview `0.1.0-preview.2` is [published on NuGet.org](https://www.nuget.org/packages/NativeChannels.Maui/0.1.0-preview.2),
 following exact-source distribution validation and fresh public-feed consumer checks.
 Remaining coverage includes Windows ARM64 execution, broader physical-device and audio-route checks,
 and long-running native lifecycle tests. Each future release still requires fresh package-only validation.

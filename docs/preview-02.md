@@ -3,7 +3,8 @@
 The combined candidate from `4f1079b` passed local acceptance on October 19:
 all five samples across six Avalonia targets and four MAUI targets, with both
 Linux PDF heads (51 executions). See [verification](verification.md#local-02-candidate)
-for exact package hashes, environments and limitations. The candidate is unpublished;
+for exact package hashes, environments and limitations. These exact archives are now
+[published and verified](verification.md#published-02-preview) as `0.2.0-preview.1`;
 these commands reproduce the local preparation and acceptance process.
 
 ## Candidate scope

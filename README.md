@@ -9,7 +9,7 @@
 [![Verify distribution](https://github.com/Almis90/native-channels/actions/workflows/verify-distribution.yml/badge.svg?branch=main&event=workflow_dispatch)](https://github.com/Almis90/native-channels/actions/workflows/verify-distribution.yml)
 [![MIT license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-**Native integrations for .NET MAUI, through one reusable bridge.**
+**Native integrations for .NET MAUI and Avalonia, through one reusable bridge.**
 
 NativeChannels connects C# with Kotlin, Swift, and Windows APIs through asynchronous calls, messages, event streams,
 and embedded native views. Keep SDK operations in a native adapter and expose a typed C# API to
@@ -25,10 +25,13 @@ string? reply = await channel.InvokeAsync<string>("echo", "Hello from .NET");
 
 **Preview software.** NativeChannels supports Android, iOS, Mac Catalyst, and Windows through its
 MAUI integration. The core messaging layer is independent of MAUI.
-`main` now develops **0.2.0-preview.1**, with an Avalonia host and all five samples implemented
-across six targets. Platform verification and release acceptance remain incomplete; see the
-[sample matrix](samples/Avalonia/README.md). Uno remains planned for 0.3.
-The latest published preview is [0.1.0-preview.2 on NuGet.org](https://www.nuget.org/packages/NativeChannels.Maui/0.1.0-preview.2).
+The latest published preview is **0.2.0-preview.1**, available for
+[MAUI](https://www.nuget.org/packages/NativeChannels.Maui/0.2.0-preview.1) and
+[Avalonia](https://www.nuget.org/packages/NativeChannels.Avalonia/0.2.0-preview.1).
+All five samples passed locally against the exact release packages across six Avalonia targets
+and four MAUI targets; fresh Windows consumers also passed from NuGet.org. See the
+[verification record](docs/verification.md#published-02-preview) and
+[preview limitations](docs/preview-02.md). Uno remains planned for 0.3.
 
 [Documentation](https://almis90.github.io/native-channels/) Â·
 [Getting started](docs/getting-started.md) Â·
@@ -74,12 +77,15 @@ platform-specific lifecycle behavior. See [architecture](docs/architecture.md).
 Add the package to a .NET 10 MAUI application:
 
 ```sh
-dotnet add package NativeChannels.Maui --version 0.1.0-preview.2
+dotnet add package NativeChannels.Maui --version 0.2.0-preview.1
 ```
 
 Core, platform transports, and the applicable Android or Apple binding are transitive dependencies.
 Windows support is included in `NativeChannels` and `NativeChannels.Maui`. You still provide and
 register the native adapter for your SDK; installing the bridge alone does not add SDK operations.
+
+For Avalonia, reference `NativeChannels.Avalonia` and the platform package `NativeChannels`;
+see the [Avalonia host guide](docs/avalonia-host.md).
 
 The [getting-started guide](docs/getting-started.md) walks through package installation,
 adapter registration, and a complete native round trip. Then follow one path:

@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.2.0-preview.1 — Unreleased
+## 0.2.0-preview.1 — 2026-10-19
 
 - Framework-independent registration and diagnostics, with a reusable Avalonia host for
   owned sessions, UI dispatch, and native/DOM view lifetimes.
@@ -12,7 +12,10 @@
 - Local preview preparation records clean-source package hashes, combines the six
   framework packages, and requires exact-package API and consumer results.
 - Combined candidate `4f1079b` passed local API/package acceptance and all ten
-  sample suites (51 executions). No workflows or publication ran.
+  sample suites (51 executions); all tests ran locally.
+- Published all six framework packages and managed symbols through NuGet Trusted Publishing.
+  Only the publishing workflow ran. Public archive contents match the accepted candidate;
+  fresh NuGet.org restores and local Windows MAUI/Avalonia Interop checks passed.
 - Preserved the portable Linux API across platform assemblies and corrected
   dependency resolution in API checks and Apple Interop build prerequisites.
 - Physical devices, additional architectures, audio audibility, PDF visual fidelity

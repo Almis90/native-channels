@@ -1,6 +1,6 @@
 ---
 layout: home
-title: Native integrations for .NET MAUI
+title: Native integrations for .NET MAUI and Avalonia
 description: Connect C# with Android, Apple, and Windows APIs, receive native events, and embed native views through a reusable bridge for .NET MAUI.
 hero:
   name: NativeChannels
@@ -39,14 +39,16 @@ features:
 **Native calls, messages, streams, and views**
 
 MAUI integration for Android, iOS, Mac Catalyst, and Windows.
-Install [NativeChannels.Maui 0.1.0-preview.2](https://www.nuget.org/packages/NativeChannels.Maui/0.1.0-preview.2)
+Install [NativeChannels.Maui 0.2.0-preview.1](https://www.nuget.org/packages/NativeChannels.Maui/0.2.0-preview.1)
 from NuGet.org and follow [getting started](getting-started.md).
 [Platform verification](verification.md) · [Roadmap](roadmap.md)
 
-Development on `main` uses **0.2.0-preview.1**. The Avalonia host and all five samples have
-implementations for Android, iOS, Windows, macOS, Linux, and browser/WebAssembly;
-platform verification and release acceptance remain incomplete. See the
-[sample matrix](../samples/Avalonia/README.md). Uno is planned for 0.3.
+[NativeChannels.Avalonia 0.2.0-preview.1](https://www.nuget.org/packages/NativeChannels.Avalonia/0.2.0-preview.1)
+is also published. All five samples passed locally on Android, iOS, Windows, macOS, Linux,
+and browser/WebAssembly against the exact release packages. See
+[release verification](verification.md#published-02-preview), the
+[sample matrix](../samples/Avalonia/README.md) and [preview limitations](preview-02.md).
+Uno is planned for 0.3.
 
 </div>
 

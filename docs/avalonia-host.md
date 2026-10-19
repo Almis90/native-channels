@@ -5,13 +5,16 @@ It supplies application registration, independent owned sessions and asynchronou
 Its portable `net10.0` package depends on Core, Avalonia and Microsoft DI. Platform transports
 and plugin assets come from the platform packages selected by the application head.
 
-This is development work for 0.2, not a published package or complete Avalonia acceptance.
+[NativeChannels.Avalonia 0.2.0-preview.1](https://www.nuget.org/packages/NativeChannels.Avalonia/0.2.0-preview.1)
+is published on NuGet.org.
 `AvaloniaChannelView` now owns native/DOM view attachment, per-instance channels and
 asynchronous disposal. The [reference samples](../samples/Avalonia/README.md) implement
 mobile suspension and browser page hooks explicitly; they are sample policies rather than
 automatic application-wide behavior. All five samples have passed local checks on
 the six targets; see [verification](verification.md) for the tested environments.
-Final combined-package acceptance and broader lifecycle/device coverage remain separate.
+The exact combined release packages passed local acceptance, followed by fresh Windows
+public-feed execution. Broader lifecycle/device coverage remains incomplete; see
+[preview limitations](preview-02.md).
 
 ## Register
 

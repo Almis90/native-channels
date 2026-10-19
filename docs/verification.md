@@ -5,8 +5,8 @@ adds AudioStreamer, VolumeMonitor and PdfViewer implementation heads for all six
 targets, including separate C++ Qt/GTK Linux PDF apps. Local execution of all five
 samples on Windows, Android, Linux, browser and Apple targets is recorded below,
 with package audits and source provenance. The October 19 combined-package
-candidate passed local acceptance below; publication and broader platform
-coverage remain separate.
+candidate passed local acceptance below and was published as `0.2.0-preview.1`.
+Public-feed verification is recorded next; broader platform coverage remains incomplete.
 
 This record separates implementation, compilation, runtime checks, and manual observations.
 Package acceptance requires verification of the exact source revision and generated archives.
@@ -19,11 +19,42 @@ Package acceptance requires verification of the exact source revision and genera
 | Executed | The scenario ran on the stated environment |
 | Unverified | The scenario has not been checked on that environment |
 
-The published 0.1 support record covers MAUI. The unreleased 0.2 candidate adds
+The published 0.1 support record covers MAUI. Published preview `0.2.0-preview.1` adds
 Avalonia on six targets and has passed local combined-package verification. Uno
 remains [planned](roadmap.md) for 0.3. Historical Currency proofs below establish
-only their recorded scope; the newer complete suites do not establish publication,
+only their recorded scope; the newer complete suites alone do not establish publication,
 physical-device support, or capabilities unavailable on an OS/browser.
+
+## Published 0.2 preview — 2026-10-19 {#published-02-preview}
+
+All six framework packages and their six symbol archives are available on NuGet.org
+as **0.2.0-preview.1**, including [MAUI](https://www.nuget.org/packages/NativeChannels.Maui/0.2.0-preview.1)
+and [Avalonia](https://www.nuget.org/packages/NativeChannels.Avalonia/0.2.0-preview.1).
+The [publishing workflow](https://github.com/Almis90/native-channels/actions/runs/39299774693)
+used NuGet Trusted Publishing to upload the exact accepted archives from `4f1079b`.
+Only the publishing workflow ran; all builds and tests ran locally.
+
+The [publication report](/verification/preview-02-published.json) records submission
+results and SHA-256 hashes. Downloads from NuGet's public feed match all six accepted
+packages after excluding NuGet's added repository signature. All six public symbol
+archives match the original bytes exactly. No archive was rebuilt or re-stamped.
+
+Fresh Windows x64 consumers restored exclusively from NuGet.org into separate empty
+package caches, using .NET SDK 10.0.401 and consumer source `f3548d4`. Avalonia Interop
+and MAUI ChannelExplorer both passed their runtime verification: calls, codecs,
+errors, callbacks, concurrency, cancellation, timeouts, event cleanup, native views,
+reconnection and disposal. Resolved NativeChannels references were packages at the
+published version; their contents matched the accepted candidate. The initial MAUI
+build exhausted disk space after restore. After compressing temporary test caches,
+the same restored packages built and passed. Both build logs are retained under
+`artifacts/public-nuget-02/`, alongside results, dependency graphs and hashes.
+
+Two publication attempts stopped before any successful upload: draft-release access
+required a job-scoped GitHub permission, and the uploader lacked NuGet's required
+protocol-version header. Those tooling issues were fixed before the successful run.
+The package-embedded README retains its prepublication wording; this record and the
+current repository documentation describe the completed release. The documented
+[preview limitations](preview-02.md) still apply.
 
 ## Local combined 0.2 preview candidate — 2026-10-19 {#local-02-candidate}
 
