@@ -1,5 +1,11 @@
 # API compatibility checks
 
+For the unreleased 0.2 preview, the combined check also applies to the expanded
+platform packages. New target frameworks are additive. `NativeChannels.Avalonia`
+is a new package without a published API baseline; its behavior and dependency
+closure are covered by host tests and package-only consumers. See
+[local preview preparation](preview-02.md).
+
 The `0.1.0-preview.2` release checks managed public APIs against the five packages published
 as `0.1.0-preview.1`. New APIs are allowed. Removing or changing existing signatures, including adding
 an optional parameter in place of an existing overload, fails validation.
@@ -17,6 +23,12 @@ The baseline versions and SHA-256 hashes live in [eng/api-baseline.json](../eng/
 Baseline archives come directly from NuGet.org and are checked before every comparison, including
 cache hits. Candidate hashes and results are saved in `artifacts/api-compatibility/result.json`.
 These checks reuse built packages; they do not rebuild native prerequisites.
+Framework dependency assemblies are extracted separately from the candidate and
+hash-verified baseline feeds, selecting matching platform assets or the portable
+asset. This allows inherited APIs, including the shared MAUI options, to be
+compared without relying on an ambient developer package cache. Diagnostics for
+external platform/MAUI SDK references remain in the raw log; native ABI and
+third-party SDK compatibility still require their own checks.
 
 ## Run locally
 

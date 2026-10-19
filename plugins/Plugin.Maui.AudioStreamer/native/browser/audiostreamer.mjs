@@ -53,12 +53,16 @@ export function register(context) {
         }
         return context.notImplemented;
     });
-    const data = context.registerBinaryHandler('plugin.maui.audio.pcm', bytes => {
-        if (bytes.length < 18 || bytes.length > 9616 || bytes.length % 2) return new Uint8Array([4]);
-        if (!current || !equal(bytes.subarray(0, 16), current.id)) return new Uint8Array([3]);
-        if (current.paused || audio.state !== 'running') return new Uint8Array([2]);
+    const data = context.registerBinaryHandler('plugin.maui.audio.pcm', payload => {
+        // BinaryMessageCodec wraps non-null bytes with a one-byte presence marker.
+        const reply = status => new Uint8Array([1, status]);
+        if (payload[0] !== 1) return reply(4);
+        const bytes = payload.subarray(1);
+        if (bytes.length < 18 || bytes.length > 9616 || bytes.length % 2) return reply(4);
+        if (!current || !equal(bytes.subarray(0, 16), current.id)) return reply(3);
+        if (current.paused || audio.state !== 'running') return reply(2);
         const frames = (bytes.length - 16) / 2;
-        if (current.accepted - current.played + frames > 24000) return new Uint8Array([1]);
+        if (current.accepted - current.played + frames > 24000) return reply(1);
         const session = current;
         const buffer = audio.createBuffer(1, frames, 48000), output = buffer.getChannelData(0);
         const pcm = new DataView(bytes.buffer, bytes.byteOffset + 16, bytes.length - 16);
@@ -68,7 +72,7 @@ export function register(context) {
         nodes.add(node);
         const start = Math.max(session.next, audio.currentTime);
         node.start(start); session.next = start + frames / 48000; session.accepted += frames;
-        return new Uint8Array([0]);
+        return reply(0);
     });
     return async () => {
         disposed = true; stop(); control(); data();

@@ -1,5 +1,11 @@
 # Release checklist
 
+For local 0.2 preview preparation, use the [candidate process](preview-02.md).
+It covers six framework packages, including Avalonia, and all ten host/target
+sample suites. The [local publisher](publishing.md#local-preview)
+rechecks that evidence and publishes those exact archives without workflows.
+The existing five-package publication workflows remain the 0.1 path.
+
 Before distribution, require the [API compatibility gate](api-compatibility.md) against the published
 baseline. The final combined packages must pass; a local mobile-only comparison is partial evidence.
 
@@ -42,6 +48,10 @@ imports still require the existing inspectors and fresh consumer restores.
 
 ## Before a release
 
+For 0.2, use the local candidate and publication gates above: all ten suites,
+the combined API report, unchanged archives, merged source and public-feed checks.
+The workflow instructions below describe the existing 0.1 CI path.
+
 Run [Verify framework](building.md#github-actions) with `All / Runtime`, then
 [Verify distribution](building.md#verify-distribution-before-a-release) using that successful run ID
 at the same commit. The coordinator assembles the combined feed and runs all seven framework consumers.
@@ -50,9 +60,9 @@ combined-package acceptance, and compilation does not establish physical-device 
 See the [recorded CI evidence](verification.md#nuget-preview-2) for tested source revisions;
 repeat applicable acceptance checks for the revision being released.
 
-These workflows currently verify the MAUI integration; they do not establish acceptance for the
-planned Avalonia or Uno hosts. Their [roadmap milestones](roadmap.md) require package-only consumers
-and runtime CI for all six targets, including desktop macOS, Linux, and browser/WebAssembly.
+These workflows currently verify the MAUI integration; the complete Avalonia
+0.2 matrix is recorded in [local acceptance](verification.md#local-02-candidate).
+Uno remains planned. The [roadmap milestones](roadmap.md) describe host requirements.
 
 The framework sample is the required consumer for the framework release. Example plugins are
 optional integration coverage and have a separate manual build workflow. When releasing or changing
@@ -77,15 +87,19 @@ Publish packages or create a GitHub release only as a separate, explicit release
 
 ## NuGet publication
 
-Follow [Publishing to NuGet](publishing.md) after the distribution gate passes. Run the publishing
+Follow [Publishing to NuGet](publishing.md) after the applicable acceptance gate passes.
+For 0.2, prepare and preflight the six-package local release, merge its source,
+publish with a scoped API key, then verify NuGet.org and fresh consumers.
+For the existing 0.1 CI path, run the publishing
 workflow with `publish=false` first and review its exact package manifest. Confirm the NuGet trust
 policy and GitHub environment are configured for the five framework packages. Publication requires
 a separate explicit decision, a manual run with `publish=true`, and environment approval. Verify
 NuGet.org indexing and fresh public-feed consumers before marking the release accepted.
 
-## Planned host release acceptance
+## Host release acceptance
 
-Avalonia 0.2 and Uno 0.3 must each meet the [host completion criteria](roadmap.md#avalonia-integration).
+Avalonia 0.2 has [recorded local acceptance](verification.md#local-02-candidate);
+Uno 0.3 must meet the [host completion criteria](roadmap.md#avalonia-integration).
 Before an authorized NuGet release, audit the final host/framework packages and run independent
 consumers against those exact archives on all six targets. Include native dependencies, JavaScript
 and web assets, registration, lifecycle, dispatch, methods, messages, events, and native/DOM views.
@@ -93,5 +107,5 @@ Reference-plugin integration and capability limitations must have their own docu
 
 After publication is separately authorized and completed, verify fresh restores from NuGet.org and
 consumer smoke tests before recording the published release as accepted. A local Android Currency
-proof or successful compilation alone does not satisfy these milestone gates. These are future
-acceptance requirements, not checks already implemented in the current workflows.
+proof or successful compilation alone does not satisfy these milestone gates.
+The existing workflows do not implement the expanded host matrix.

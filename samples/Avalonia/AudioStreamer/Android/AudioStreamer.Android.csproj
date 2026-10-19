@@ -11,6 +11,8 @@
         <EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
     </PropertyGroup>
     <ItemGroup>
+        <Using Remove="Android.App" />
+        <Using Remove="Android.Widget" />
         <PackageReference Include="Avalonia.Android" />
         <PackageReference Include="Avalonia.Themes.Fluent" />
         <PackageReference Include="NativeChannels.Avalonia" />
@@ -18,5 +20,11 @@
         <Compile Include="../../Shared/SampleApplication.cs" Link="SampleApplication.cs" />
         <Compile Include="../CrossPlatform/*.cs" Link="%(Filename)%(Extension)" />
         <Compile Include="../../../Maui/AudioStreamer/MusicGenerator.cs" Link="MusicGenerator.cs" />
+    </ItemGroup>
+    <ItemGroup>
+        <Compile
+            Include="../../../Maui/AudioStreamer/AudioVerification.cs"
+            Link="AudioVerification.cs"
+        />
     </ItemGroup>
 </Project>

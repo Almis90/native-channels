@@ -48,6 +48,7 @@
         <PartialAppManifest Include="Platforms/iOS/Info.plist" />
     </ItemGroup>
     <ItemGroup>
+        <Compile Include="../Shared/LocalVerification.cs" Link="LocalVerification.cs" />
         <MauiIcon Include="Resources/AppIcon/appicon.svg" />
         <MauiSplashScreen
             Include="Resources/Splash/splash.svg"

@@ -14,6 +14,9 @@ internal static partial class Program
             .StartBrowserAppAsync("out");
 
     [JSExport]
+    public static Task<string> VerifyAsync() => ((SampleApplication)Avalonia.Application.Current!).VerifyAsync();
+
+    [JSExport]
     public static Task SuspendAsync() => ((SampleApplication)Avalonia.Application.Current!).SuspendAsync();
 
     [JSExport]

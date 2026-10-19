@@ -1,0 +1,903 @@
+{
+  "date": "2026-10-19",
+  "scope": "Local combined-package preview validation; no publication or workflow run",
+  "sourceCommit": "4f1079baeea12e7708f81940d832e8ddc3d58aa0",
+  "version": "0.2.0-preview.1",
+  "acceptance": {
+    "sourceCommit": "4f1079baeea12e7708f81940d832e8ddc3d58aa0",
+    "version": "0.2.0-preview.1",
+    "success": true,
+    "candidateManifestSha256": "7800dd4da179ecd7f3965281448a8098a98d663df5bfb67a8624331dd0129ae3",
+    "apiReportSha256": "a94ff4097219f5e37edda533f9a90388c82b4d8d63b851cecf1bce277664afc5",
+    "consumers": [
+      {
+        "framework": "avalonia",
+        "platform": "windows",
+        "summarySha256": "84ebc8126146ab22dda94490b165b8250c46cbfbdd5401586c5901579197cdec"
+      },
+      {
+        "framework": "maui",
+        "platform": "windows",
+        "summarySha256": "2c1480b89213a99e274d6819eacc120639de324b222c7ef85979075a5dc1f33e"
+      },
+      {
+        "framework": "avalonia",
+        "platform": "browser",
+        "summarySha256": "87abbb51c603328dfc9a88fe4bb022acf403418722582ca7ea94fdb24b66475e"
+      },
+      {
+        "framework": "avalonia",
+        "platform": "android",
+        "summarySha256": "694484a13f6be85bc18aee06a05f8ce98e956fcaf51b3da952be20f046a457ee"
+      },
+      {
+        "framework": "maui",
+        "platform": "android",
+        "summarySha256": "8ad3aac298c29dc4222b826c9b7b62a644ae6bb473d721abe16b4261c63cda83"
+      },
+      {
+        "framework": "avalonia",
+        "platform": "ios",
+        "summarySha256": "c4ad671b26dfe2116393a91f266d8441f0e481ab51c2317b5636e4b3d0aa4330"
+      },
+      {
+        "framework": "avalonia",
+        "platform": "macos",
+        "summarySha256": "d78267baf43b8d4359ea1b6f409b8786a5e9301d0e785692a69c44c0f9e36b6d"
+      },
+      {
+        "framework": "maui",
+        "platform": "ios",
+        "summarySha256": "ab38e9681368985ff1fbf272c46a76249b205ee494d960db5f69b27791a38718"
+      },
+      {
+        "framework": "maui",
+        "platform": "maccatalyst",
+        "summarySha256": "b4c09c54a065ce1db529c9e213fe3d6404ab54716b359e5c309efcaa8ca06be8"
+      },
+      {
+        "framework": "avalonia",
+        "platform": "linux",
+        "summarySha256": "fe18912b82c4588730dbda1fe8fd549803482e36bb46e883aaca1c1d63162903"
+      }
+    ],
+    "scope": "Local preview package acceptance; no publication or workflow acceptance"
+  },
+  "candidate": {
+    "schemaVersion": 1,
+    "version": "0.2.0-preview.1",
+    "sourceCommit": "4f1079baeea12e7708f81940d832e8ddc3d58aa0",
+    "files": [
+      {
+        "file": "NativeChannels.0.2.0-preview.1.nupkg",
+        "id": "NativeChannels",
+        "sha256": "d0b15149e684832b14c1990258a4f6071df1a249a2735fe0d687d22f9c261e24"
+      },
+      {
+        "file": "NativeChannels.0.2.0-preview.1.snupkg",
+        "id": "NativeChannels",
+        "sha256": "b82b28825efc752a0d3b4a66707e8377959e815d12b72fa29b18a0f16a2e32a2"
+      },
+      {
+        "file": "NativeChannels.Avalonia.0.2.0-preview.1.nupkg",
+        "id": "NativeChannels.Avalonia",
+        "sha256": "96ddbe2ba4188d2e3ca11319832f871c335b320c64a226ee622f8c73124d36e1"
+      },
+      {
+        "file": "NativeChannels.Avalonia.0.2.0-preview.1.snupkg",
+        "id": "NativeChannels.Avalonia",
+        "sha256": "9599572d7806cac89408f48ff48fbf7a2cea848410d7441afe87824d37c9b8de"
+      },
+      {
+        "file": "NativeChannels.Core.0.2.0-preview.1.nupkg",
+        "id": "NativeChannels.Core",
+        "sha256": "560daa742963304979e61e65c7cb45115f79dceda548dba63c4169c278123989"
+      },
+      {
+        "file": "NativeChannels.Core.0.2.0-preview.1.snupkg",
+        "id": "NativeChannels.Core",
+        "sha256": "7ba228068bb209f626b3d69d81420570fb9710934343ec116ccb424fc657b969"
+      },
+      {
+        "file": "NativeChannels.Maui.0.2.0-preview.1.nupkg",
+        "id": "NativeChannels.Maui",
+        "sha256": "1837c67bb2911e41b6565e23626209c94ecfad3e95cb908a17dcbc8df4c0aed4"
+      },
+      {
+        "file": "NativeChannels.Maui.0.2.0-preview.1.snupkg",
+        "id": "NativeChannels.Maui",
+        "sha256": "e68e32ec87856d3012afd995e592628372ba4df6a5c4208d0aa0f084a1ba6312"
+      },
+      {
+        "file": "NativeChannels.Native.Android.0.2.0-preview.1.nupkg",
+        "id": "NativeChannels.Native.Android",
+        "sha256": "ae5233ba890fea6f4da61f908c0454501ddd85566393b872e612a0b689259649"
+      },
+      {
+        "file": "NativeChannels.Native.Android.0.2.0-preview.1.snupkg",
+        "id": "NativeChannels.Native.Android",
+        "sha256": "38cd6ad2ec1a01c3ddcf6da695368280258e38c86a274eb9e22b014e72db3f8d"
+      },
+      {
+        "file": "NativeChannels.Native.Apple.0.2.0-preview.1.nupkg",
+        "id": "NativeChannels.Native.Apple",
+        "sha256": "6629be20d4b3831168964cc8d0dbc245236358a99179a7e39de1c585d46855e9"
+      },
+      {
+        "file": "NativeChannels.Native.Apple.0.2.0-preview.1.snupkg",
+        "id": "NativeChannels.Native.Apple",
+        "sha256": "d080fa7eaa9249d9d493d8aa71fa295edd247b5c2e79e71f3f08bdc9e47ee5ce"
+      }
+    ],
+    "builds": [
+      {
+        "framework": "avalonia",
+        "platform": "windows",
+        "source": {
+          "commit": "4f1079baeea12e7708f81940d832e8ddc3d58aa0",
+          "status": "",
+          "sourceSha256": "ea7864e3bbe06ecc7b491390696c62f000f7b5a8f75518e2255d92d2174aeaae",
+          "diffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "buildManifestSha256": "b119421e2cf6463bf10f50886b010504ca81f06157ae76a71c495ee5fc3023c6"
+      },
+      {
+        "framework": "maui",
+        "platform": "windows",
+        "source": {
+          "commit": "4f1079baeea12e7708f81940d832e8ddc3d58aa0",
+          "status": "",
+          "sourceSha256": "ea7864e3bbe06ecc7b491390696c62f000f7b5a8f75518e2255d92d2174aeaae",
+          "diffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "buildManifestSha256": "036571f5464865f3e8fb966f79347995202452fcd9c81d18392514a3a92fef42"
+      },
+      {
+        "framework": "avalonia",
+        "platform": "browser",
+        "source": {
+          "commit": "4f1079baeea12e7708f81940d832e8ddc3d58aa0",
+          "status": "",
+          "sourceSha256": "ea7864e3bbe06ecc7b491390696c62f000f7b5a8f75518e2255d92d2174aeaae",
+          "diffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "buildManifestSha256": "33c9f9799b2f03f56de05f477afa44243d67d6139f8a52ff3cb1e88b3f45f0eb"
+      },
+      {
+        "framework": "avalonia",
+        "platform": "android",
+        "source": {
+          "commit": "4f1079baeea12e7708f81940d832e8ddc3d58aa0",
+          "status": "",
+          "sourceSha256": "ea7864e3bbe06ecc7b491390696c62f000f7b5a8f75518e2255d92d2174aeaae",
+          "diffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "buildManifestSha256": "ceb4f4798e146d2399fd1061d57c82ab8440f374543a3fa2e470b7154cf09d17"
+      },
+      {
+        "framework": "maui",
+        "platform": "android",
+        "source": {
+          "commit": "4f1079baeea12e7708f81940d832e8ddc3d58aa0",
+          "status": "",
+          "sourceSha256": "ea7864e3bbe06ecc7b491390696c62f000f7b5a8f75518e2255d92d2174aeaae",
+          "diffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "buildManifestSha256": "86b5799a8b8a287bc6ef2d3848d6fe8a95bb5a76244ebe06410cbb0b9f79ab3b"
+      },
+      {
+        "framework": "avalonia",
+        "platform": "ios",
+        "source": {
+          "commit": "4f1079baeea12e7708f81940d832e8ddc3d58aa0",
+          "status": "",
+          "sourceSha256": "dabd68dde9613cdb61d9796ce794b36fc341fd19d32a098923cc139ff07d6ff0",
+          "diffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "buildManifestSha256": "d7c10609a86ae603338741334880ffdca0a8b8b653b0d4fc698a86afa757db37"
+      },
+      {
+        "framework": "avalonia",
+        "platform": "linux",
+        "source": {
+          "commit": "4f1079baeea12e7708f81940d832e8ddc3d58aa0",
+          "status": "",
+          "sourceSha256": "328e0a5f6779b30924c741be5a1e5fefaea65e8faac4423b9f702f5be331c9d3",
+          "diffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "buildManifestSha256": "707f762d8300e3d3eea98904d3014fe5e7f987619d3c2ec45d550f491e04aa64"
+      },
+      {
+        "framework": "avalonia",
+        "platform": "macos",
+        "source": {
+          "commit": "4f1079baeea12e7708f81940d832e8ddc3d58aa0",
+          "status": "",
+          "sourceSha256": "dabd68dde9613cdb61d9796ce794b36fc341fd19d32a098923cc139ff07d6ff0",
+          "diffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "buildManifestSha256": "e35bf42bc1ad234c8431907b354a335d3e5ba256bca991c30c36480c85d23664"
+      },
+      {
+        "framework": "maui",
+        "platform": "ios",
+        "source": {
+          "commit": "4f1079baeea12e7708f81940d832e8ddc3d58aa0",
+          "status": "",
+          "sourceSha256": "dabd68dde9613cdb61d9796ce794b36fc341fd19d32a098923cc139ff07d6ff0",
+          "diffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "buildManifestSha256": "3db1741bb39ef044a91872a2be7d8acce626480a105d6a77730797c5da712ea3"
+      },
+      {
+        "framework": "maui",
+        "platform": "maccatalyst",
+        "source": {
+          "commit": "4f1079baeea12e7708f81940d832e8ddc3d58aa0",
+          "status": "",
+          "sourceSha256": "dabd68dde9613cdb61d9796ce794b36fc341fd19d32a098923cc139ff07d6ff0",
+          "diffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "buildManifestSha256": "a6f974ec9ab8688f32803fe43f0d725ab3a8aa1380a5bfdafef979c2d03b5c5b"
+      }
+    ],
+    "status": "assembled; API compatibility and consumer acceptance still required"
+  },
+  "apiCompatibility": {
+    "candidateVersion": "0.2.0-preview.1",
+    "baselineVersion": "0.1.0-preview.1",
+    "scope": "combined",
+    "success": true,
+    "packages": [
+      {
+        "id": "NativeChannels.Core",
+        "candidateSha256": "560daa742963304979e61e65c7cb45115f79dceda548dba63c4169c278123989",
+        "baselineSha256": "a58b6f69689ba1c39c27933f52efdd025a1285e1909aa3e5a511cbf395900a51",
+        "compatible": true
+      },
+      {
+        "id": "NativeChannels.Native.Android",
+        "candidateSha256": "ae5233ba890fea6f4da61f908c0454501ddd85566393b872e612a0b689259649",
+        "baselineSha256": "69e9a6494c89380080c29c3a7088893c2fea32f391771cc4add42725c6e4cd03",
+        "compatible": true
+      },
+      {
+        "id": "NativeChannels.Native.Apple",
+        "candidateSha256": "6629be20d4b3831168964cc8d0dbc245236358a99179a7e39de1c585d46855e9",
+        "baselineSha256": "6217e9d4e815f0393525261368c13fb68a4a739fe01494ccc3f6c2ecd90e4099",
+        "compatible": true
+      },
+      {
+        "id": "NativeChannels",
+        "candidateSha256": "d0b15149e684832b14c1990258a4f6071df1a249a2735fe0d687d22f9c261e24",
+        "baselineSha256": "9fc61717699eb91e0c4cb70ce21a0363adb483ea95352af8ca57d26447397e68",
+        "compatible": true
+      },
+      {
+        "id": "NativeChannels.Maui",
+        "candidateSha256": "1837c67bb2911e41b6565e23626209c94ecfad3e95cb908a17dcbc8df4c0aed4",
+        "baselineSha256": "c37472fac693b694af4c7cfbec0e86c277ef2068a8ba744fb188e7e02937ff88",
+        "compatible": true
+      }
+    ]
+  },
+  "suites": [
+    {
+      "framework": "avalonia",
+      "platform": "windows",
+      "host": "Windows-11-10.0.26200-SP0",
+      "evidenceId": "20261019-150945-6cd00232",
+      "buildEvidenceId": "20261019-150945-6cd00232",
+      "summarySha256": "84ebc8126146ab22dda94490b165b8250c46cbfbdd5401586c5901579197cdec",
+      "buildSource": {
+        "commit": "4f1079baeea12e7708f81940d832e8ddc3d58aa0",
+        "status": "",
+        "sourceSha256": "ea7864e3bbe06ecc7b491390696c62f000f7b5a8f75518e2255d92d2174aeaae",
+        "diffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "currentSource": {
+        "commit": "4f1079baeea12e7708f81940d832e8ddc3d58aa0",
+        "status": "",
+        "sourceSha256": "ea7864e3bbe06ecc7b491390696c62f000f7b5a8f75518e2255d92d2174aeaae",
+        "diffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "results": [
+        {
+          "name": "Currency",
+          "status": "PASS",
+          "result": "PASS windows: USD=$, EUR=\u20ac, GBP=\u00a3, JPY=\u00a5; normalization, errors, concurrency, cancellation",
+          "seconds": 8.813
+        },
+        {
+          "name": "AudioStreamer",
+          "status": "PASS",
+          "result": "PASS native PCM playback, bounded buffering, pause/resume, cancellation, drain and clean restart; Avalonia DI disposal, pending writes, host recreation, controls and minimize/restart",
+          "seconds": 9.734
+        },
+        {
+          "name": "VolumeMonitor",
+          "status": "PASS",
+          "result": "PASS initial levels, independent subscriptions, cancellation and restart; hardware volume changes require separate verification",
+          "seconds": 8.375
+        },
+        {
+          "name": "PdfViewer",
+          "status": "PASS",
+          "result": "PASS two native PDF views, three-page document, navigation, zoom, independent state, detach and reopen",
+          "seconds": 8.046
+        },
+        {
+          "name": "Interop",
+          "status": "PASS",
+          "result": "PASS Windows: typed calls, DTOs, bytes, null, errors, callbacks, UI dispatch, 16 concurrent calls, cancellation, timeouts, handle and session disposal, bidirectional JSON/string/binary/standard messages, null events, stream errors and independent subscription cleanup; native views: instances, creation arguments, callbacks, reconnect, unload/reload, stale channels, cancellation and UI dispatch; view stress: 32 reconnects",
+          "seconds": 17.875
+        }
+      ],
+      "browserChannel": null,
+      "sampleInputManifests": {
+        "AudioStreamer": "1bc2136b16b7a970ed0b263649f55780c86d8a9943214966a5957cdac60dec2a",
+        "Currency": "6a8845882e74744da4417733109a7372a724a62a144c72a22479512f7f8c6066",
+        "Interop": "daad7263b208256d528a9a1afdcc809a0944ec9053a6daa0bb7dd7fa66901949",
+        "PdfViewer": "b60330baf448f3acfca361cb96725eb1f7a7918e18bde11cb3f8d19805d5fd50",
+        "VolumeMonitor": "c8ab502ccb3787324c31c59a6ae2134c3f613370ba801e74949ae929b9ef5e70"
+      }
+    },
+    {
+      "framework": "avalonia",
+      "platform": "android",
+      "host": "Windows-11-10.0.26200-SP0",
+      "evidenceId": "20261019-152634-dd7a5008",
+      "buildEvidenceId": "20261019-152634-dd7a5008",
+      "summarySha256": "694484a13f6be85bc18aee06a05f8ce98e956fcaf51b3da952be20f046a457ee",
+      "buildSource": {
+        "commit": "4f1079baeea12e7708f81940d832e8ddc3d58aa0",
+        "status": "",
+        "sourceSha256": "ea7864e3bbe06ecc7b491390696c62f000f7b5a8f75518e2255d92d2174aeaae",
+        "diffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "currentSource": {
+        "commit": "4f1079baeea12e7708f81940d832e8ddc3d58aa0",
+        "status": "",
+        "sourceSha256": "ea7864e3bbe06ecc7b491390696c62f000f7b5a8f75518e2255d92d2174aeaae",
+        "diffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "results": [
+        {
+          "name": "Currency",
+          "status": "PASS",
+          "result": "PASS android: USD=$, EUR=\u20ac, GBP=\u00a3, JPY=\u00a5; normalization, errors, concurrency, cancellation",
+          "seconds": 7.187
+        },
+        {
+          "name": "AudioStreamer",
+          "status": "PASS",
+          "result": "PASS native PCM playback, bounded buffering, pause/resume, cancellation, drain and clean restart",
+          "seconds": 5.985
+        },
+        {
+          "name": "VolumeMonitor",
+          "status": "PASS",
+          "result": "PASS initial levels, independent subscriptions, cancellation and restart; hardware volume changes require separate verification",
+          "seconds": 5.391
+        },
+        {
+          "name": "PdfViewer",
+          "status": "PASS",
+          "result": "PASS two native PDF views, three-page document, navigation, zoom, independent state, detach and reopen",
+          "seconds": 6.11
+        },
+        {
+          "name": "Interop",
+          "status": "PASS",
+          "result": "PASS android: typed calls, DTOs, bytes, null, errors, callbacks, UI dispatch, 16 concurrent calls, cancellation, timeouts, handle and session disposal, bidirectional JSON/string/binary/standard messages, null events, stream errors and independent subscription cleanup; native views: instances, creation arguments, callbacks, reconnect, unload/reload, stale channels, cancellation and UI dispatch; view stress: 32 reconnects",
+          "seconds": 8.344
+        }
+      ],
+      "browserChannel": "chrome",
+      "sampleInputManifests": {
+        "AudioStreamer": "58f1337ebb34b318f57cca05cb78a77b7c5d26e2318427491b976c8d9e758b30",
+        "Currency": "0d0d2bfe562f08c21653ac0dddcdedb97831024930b6060ec6acb89aab9986de",
+        "Interop": "aed80aeaa75fe736dfa6805b5e7af3d97358c2107d32e44180bc2f69b654ee06",
+        "PdfViewer": "328d621abe68f170e10eed30d9ae41f94200e2ef506bbfb3489264aac2944376",
+        "VolumeMonitor": "f804bbcbca915ce95306d1736c60e31941cad85006e4a2b2caf8b9384905db48"
+      }
+    },
+    {
+      "framework": "avalonia",
+      "platform": "ios",
+      "host": "macOS-26.2-arm64-arm-64bit",
+      "evidenceId": "20261019-151239-9f940927",
+      "buildEvidenceId": "20261019-151239-9f940927",
+      "summarySha256": "c4ad671b26dfe2116393a91f266d8441f0e481ab51c2317b5636e4b3d0aa4330",
+      "buildSource": {
+        "commit": "4f1079baeea12e7708f81940d832e8ddc3d58aa0",
+        "status": "",
+        "sourceSha256": "dabd68dde9613cdb61d9796ce794b36fc341fd19d32a098923cc139ff07d6ff0",
+        "diffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "currentSource": {
+        "commit": "4f1079baeea12e7708f81940d832e8ddc3d58aa0",
+        "status": "",
+        "sourceSha256": "dabd68dde9613cdb61d9796ce794b36fc341fd19d32a098923cc139ff07d6ff0",
+        "diffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "results": [
+        {
+          "name": "Currency",
+          "status": "PASS",
+          "result": "PASS apple: USD=US$, EUR=\u20ac, GBP=\u00a3, JPY=JP\u00a5; normalization, errors, concurrency, cancellation",
+          "seconds": 12.922
+        },
+        {
+          "name": "AudioStreamer",
+          "status": "PASS",
+          "result": "PASS native PCM playback, bounded buffering, pause/resume, cancellation, drain and clean restart",
+          "seconds": 4.043
+        },
+        {
+          "name": "VolumeMonitor",
+          "status": "PASS",
+          "result": "PASS initial levels, independent subscriptions, cancellation and restart; hardware volume changes require separate verification",
+          "seconds": 3.02
+        },
+        {
+          "name": "PdfViewer",
+          "status": "PASS",
+          "result": "PASS two native PDF views, three-page document, navigation, zoom, independent state, detach and reopen",
+          "seconds": 2.972
+        },
+        {
+          "name": "Interop",
+          "status": "PASS",
+          "result": "PASS apple: typed calls, DTOs, bytes, null, errors, callbacks, UI dispatch, 16 concurrent calls, cancellation, timeouts, handle and session disposal, bidirectional JSON/string/binary/standard messages, null events, stream errors and independent subscription cleanup; native views: instances, creation arguments, callbacks, reconnect, unload/reload, stale channels, cancellation and UI dispatch; view stress: 32 reconnects",
+          "seconds": 4.138
+        }
+      ],
+      "browserChannel": null,
+      "sampleInputManifests": {
+        "AudioStreamer": "0a55164d73e738bb48698c92b313464a087dd8338a5ee0e7482ca4af80d29c70",
+        "Currency": "2c196b32f771a3504d99c75f25810c1748cbde7ae785834773254769b67e1a85",
+        "Interop": "3e40e15fdd01653c0fba50233e2d0d6602eb70b34e9150696b1c2b516faeb6cc",
+        "PdfViewer": "2099b8956f166964a150754eb23bb15030c9923a8ac5d07725e583c4a46cb5da",
+        "VolumeMonitor": "683ab14407e2f3f3eb833dbefc5d4c29f2abdc4a400d9f62680bf3a8049c66e4"
+      }
+    },
+    {
+      "framework": "avalonia",
+      "platform": "macos",
+      "host": "macOS-26.2-arm64-arm-64bit",
+      "evidenceId": "20261019-150956-65035cef",
+      "buildEvidenceId": "20261019-150956-65035cef",
+      "summarySha256": "d78267baf43b8d4359ea1b6f409b8786a5e9301d0e785692a69c44c0f9e36b6d",
+      "buildSource": {
+        "commit": "4f1079baeea12e7708f81940d832e8ddc3d58aa0",
+        "status": "",
+        "sourceSha256": "dabd68dde9613cdb61d9796ce794b36fc341fd19d32a098923cc139ff07d6ff0",
+        "diffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "currentSource": {
+        "commit": "4f1079baeea12e7708f81940d832e8ddc3d58aa0",
+        "status": "",
+        "sourceSha256": "dabd68dde9613cdb61d9796ce794b36fc341fd19d32a098923cc139ff07d6ff0",
+        "diffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "results": [
+        {
+          "name": "Currency",
+          "status": "PASS",
+          "result": "PASS apple: USD=US$, EUR=\u20ac, GBP=\u00a3, JPY=JP\u00a5; normalization, errors, concurrency, cancellation",
+          "seconds": 5.065
+        },
+        {
+          "name": "AudioStreamer",
+          "status": "PASS",
+          "result": "PASS native PCM playback, bounded buffering, pause/resume, cancellation, drain and clean restart",
+          "seconds": 4.19
+        },
+        {
+          "name": "VolumeMonitor",
+          "status": "PASS",
+          "result": "PASS initial levels, independent subscriptions, cancellation and restart; hardware volume changes require separate verification",
+          "seconds": 2.824
+        },
+        {
+          "name": "PdfViewer",
+          "status": "PASS",
+          "result": "PASS two native PDF views, three-page document, navigation, zoom, independent state, detach and reopen",
+          "seconds": 2.9
+        },
+        {
+          "name": "Interop",
+          "status": "PASS",
+          "result": "PASS apple: typed calls, DTOs, bytes, null, errors, callbacks, UI dispatch, 16 concurrent calls, cancellation, timeouts, handle and session disposal, bidirectional JSON/string/binary/standard messages, null events, stream errors and independent subscription cleanup; native views: instances, creation arguments, callbacks, reconnect, unload/reload, stale channels, cancellation and UI dispatch; view stress: 32 reconnects",
+          "seconds": 3.353
+        }
+      ],
+      "browserChannel": null,
+      "sampleInputManifests": {
+        "AudioStreamer": "0090a028843a00d86bf965d64a82aa1d0d0f334ff9a3942f8c6dbeae53c737e1",
+        "Currency": "4f60f9b61259108c32dafd53589bab483a97dc149d26d5e1eaaac22a7542d8d8",
+        "Interop": "c384493bc2af2d069cfd11cf9e585e7c238bfab2fc26141d136ad91b0b1c497c",
+        "PdfViewer": "1d331284cf34788e057cc716a4d0f28e8d37fe56572f068fe64bdb9f68493d70",
+        "VolumeMonitor": "d2359ddebef14db45d2f608417a7fc02b9cb17c250293f22877955d2abad21e2"
+      }
+    },
+    {
+      "framework": "avalonia",
+      "platform": "linux",
+      "host": "Linux-6.8.0-147-generic-x86_64-with-glibc2.39",
+      "evidenceId": "20261019-120958-7aa7d328",
+      "buildEvidenceId": "20261019-120958-7aa7d328",
+      "summarySha256": "fe18912b82c4588730dbda1fe8fd549803482e36bb46e883aaca1c1d63162903",
+      "buildSource": {
+        "commit": "4f1079baeea12e7708f81940d832e8ddc3d58aa0",
+        "status": "",
+        "sourceSha256": "328e0a5f6779b30924c741be5a1e5fefaea65e8faac4423b9f702f5be331c9d3",
+        "diffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "currentSource": {
+        "commit": "4f1079baeea12e7708f81940d832e8ddc3d58aa0",
+        "status": "",
+        "sourceSha256": "328e0a5f6779b30924c741be5a1e5fefaea65e8faac4423b9f702f5be331c9d3",
+        "diffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "results": [
+        {
+          "name": "Currency",
+          "status": "PASS",
+          "result": "PASS linux: USD=US$, EUR=\u20ac, GBP=\u00a3, JPY=JP\u00a5; normalization, errors, concurrency, cancellation",
+          "seconds": 2.466
+        },
+        {
+          "name": "AudioStreamer",
+          "status": "PASS",
+          "result": "PASS native PCM playback, bounded buffering, pause/resume, cancellation, drain and clean restart; Avalonia DI disposal, pending writes, host recreation, controls and minimize/restart",
+          "seconds": 13.204
+        },
+        {
+          "name": "VolumeMonitor",
+          "status": "PASS",
+          "result": "PASS initial levels, independent subscriptions, cancellation and restart; hardware volume changes require separate verification",
+          "seconds": 2.927
+        },
+        {
+          "name": "PdfViewerQt",
+          "status": "PASS",
+          "result": "PASS two native PDF views, three-page document, navigation, zoom, independent state, detach and reopen",
+          "seconds": 2.805
+        },
+        {
+          "name": "PdfViewerGtk",
+          "status": "PASS",
+          "result": "PASS two native PDF views, three-page document, navigation, zoom, independent state, detach and reopen",
+          "seconds": 2.744
+        },
+        {
+          "name": "Interop",
+          "status": "PASS",
+          "result": "PASS Linux: typed calls, DTOs, bytes, null, errors, callbacks, UI dispatch, 16 concurrent calls, cancellation, timeouts, handle and session disposal, bidirectional JSON/string/binary/standard messages, null events, stream errors and independent subscription cleanup; native views: instances, creation arguments, callbacks, reconnect, unload/reload, stale channels, cancellation and UI dispatch; view stress: 32 reconnects",
+          "seconds": 6.887
+        }
+      ],
+      "browserChannel": null,
+      "sampleInputManifests": {
+        "AudioStreamer": "423379c245ebe945d21a1fb6479133450a8815152198d7b6923dd727ecc95150",
+        "Currency": "9cb95e25ff3a9f2de018e924ae1a271ead22dbc2166e1e5a5fd98df442068269",
+        "Interop": "10637f138e32ccdd16a1f594083e6d47b0a8e57c7e2c523c39954516295d527f",
+        "PdfViewerGtk": "a7f7ff5aee1b450b94c4b596f97227f914e9e82b4b8d24000817949b89439936",
+        "PdfViewerQt": "980054c59b3ceb0b7a2157f90a78355641d44f9fcd3095da61c5ca2e324d7a64",
+        "VolumeMonitor": "dd9b1d3fc9ec49c6ab44dacea388d0715cafb48c4a2709187ea491049630e529"
+      }
+    },
+    {
+      "framework": "avalonia",
+      "platform": "browser",
+      "host": "Windows-11-10.0.26200-SP0",
+      "evidenceId": "20261019-152613-5475446e",
+      "buildEvidenceId": "20261019-151737-18ea66e7",
+      "summarySha256": "87abbb51c603328dfc9a88fe4bb022acf403418722582ca7ea94fdb24b66475e",
+      "buildSource": {
+        "commit": "4f1079baeea12e7708f81940d832e8ddc3d58aa0",
+        "status": "",
+        "sourceSha256": "ea7864e3bbe06ecc7b491390696c62f000f7b5a8f75518e2255d92d2174aeaae",
+        "diffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "currentSource": {
+        "commit": "4f1079baeea12e7708f81940d832e8ddc3d58aa0",
+        "status": "",
+        "sourceSha256": "ea7864e3bbe06ecc7b491390696c62f000f7b5a8f75518e2255d92d2174aeaae",
+        "diffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "results": [
+        {
+          "name": "Currency",
+          "status": "PASS",
+          "result": "PASS browser: USD=$, EUR=\u20ac, GBP=\u00a3, JPY=\u00a5; normalization, errors, concurrency, cancellation",
+          "seconds": 4.125
+        },
+        {
+          "name": "AudioStreamer",
+          "status": "PASS",
+          "result": "PASS native PCM playback, bounded buffering, pause/resume, cancellation, drain and clean restart",
+          "seconds": 3.953
+        },
+        {
+          "name": "VolumeMonitor",
+          "status": "PASS",
+          "result": "PASS page-owned volume initial value and change; browsers do not expose OS volume",
+          "seconds": 2.609
+        },
+        {
+          "name": "PdfViewer",
+          "status": "PASS",
+          "result": "PASS two native PDF views, three-page document, navigation, zoom, independent state, detach and reopen",
+          "seconds": 3.094
+        },
+        {
+          "name": "Interop",
+          "status": "PASS",
+          "result": "PASS Browser: typed calls, DTOs, bytes, null, errors, callbacks, UI dispatch, 16 concurrent calls, cancellation, timeouts, handle and session disposal, bidirectional JSON/string/binary/standard messages, null events, stream errors and independent subscription cleanup; native views: instances, creation arguments, callbacks, reconnect, unload/reload, stale channels, cancellation and UI dispatch; view stress: 32 reconnects; background-thread rejection not applicable to this single-threaded browser runtime",
+          "seconds": 4.609
+        }
+      ],
+      "browserChannel": "chrome",
+      "sampleInputManifests": {
+        "AudioStreamer": "c394850d174239b9d84ec708d0983d4c67d47288a91eead7d8a77573b6c78192",
+        "Currency": "3ffa2cf77295826c4623cf1261c7a5627cb3283b8d4bb58d362fe3103742f4c4",
+        "Interop": "b192e81958f880f69a569b5aaec5c54e3aa42299877962c47b2c4c88a27b3efb",
+        "PdfViewer": "f3e8fefd322b16398b02acd0b49c54a487493afdf2ee5e740c38c3a658b6bb1f",
+        "VolumeMonitor": "18f439182f6d142a276996be824ac6a9dc2b56547cf735af19e3e948f10f0793"
+      }
+    },
+    {
+      "framework": "maui",
+      "platform": "windows",
+      "host": "Windows-11-10.0.26200-SP0",
+      "evidenceId": "20261019-151150-c7c68511",
+      "buildEvidenceId": "20261019-151150-c7c68511",
+      "summarySha256": "2c1480b89213a99e274d6819eacc120639de324b222c7ef85979075a5dc1f33e",
+      "buildSource": {
+        "commit": "4f1079baeea12e7708f81940d832e8ddc3d58aa0",
+        "status": "",
+        "sourceSha256": "ea7864e3bbe06ecc7b491390696c62f000f7b5a8f75518e2255d92d2174aeaae",
+        "diffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "currentSource": {
+        "commit": "4f1079baeea12e7708f81940d832e8ddc3d58aa0",
+        "status": "",
+        "sourceSha256": "ea7864e3bbe06ecc7b491390696c62f000f7b5a8f75518e2255d92d2174aeaae",
+        "diffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "results": [
+        {
+          "name": "Currency",
+          "status": "PASS",
+          "result": "PASS windows: USD=$, EUR=\u20ac, GBP=\u00a3, JPY=\u00a5; normalization, errors, concurrency, cancellation",
+          "seconds": 9.141
+        },
+        {
+          "name": "AudioStreamer",
+          "status": "PASS",
+          "result": "PASS native PCM playback, bounded buffering, pause/resume, cancellation, drain and clean restart",
+          "seconds": 8.516
+        },
+        {
+          "name": "VolumeMonitor",
+          "status": "PASS",
+          "result": "PASS initial levels, independent subscriptions, cancellation and restart; hardware volume changes require separate verification",
+          "seconds": 8.078
+        },
+        {
+          "name": "PdfViewer",
+          "status": "PASS",
+          "result": "PASS document, navigation, zoom, native callback, isolation, errors and detach/reconnect",
+          "seconds": 8.656
+        },
+        {
+          "name": "Interop",
+          "status": "PASS",
+          "result": "PASS Windows: typed calls, DTOs, bytes, null, errors, callbacks, UI dispatch, 16 concurrent calls, cancellation, timeouts, handle and session disposal, bidirectional JSON/string/binary/standard messages, null events, stream errors and independent subscription cleanup; native views: instances, creation arguments, callbacks, reconnect, unload/reload, stale channels, cancellation and UI dispatch; view stress: 32 reconnects",
+          "seconds": 8.875
+        }
+      ],
+      "browserChannel": null,
+      "sampleInputManifests": {
+        "AudioStreamer": "f8f720df154ede3e3acdda6b068a7bff0188ceba9659676b3e70c10bcaf63d81",
+        "Currency": "b140dd3a0673de93fa847670248d3150a29cb19e14c95494cd0428f92fda6bd1",
+        "Interop": "0295948773f333f220c9ca12a8e364c0107e117690df2cd4b428929956504dae",
+        "PdfViewer": "aaa5f18ad87dc7d9fa3a07d309858c1bc171c7aa3f2297754afc7ffe544a1753",
+        "VolumeMonitor": "2ef8a9bc30cffffa723e708888ca929f6ca4a60c80338018a6aa7fb17c0d854c"
+      }
+    },
+    {
+      "framework": "maui",
+      "platform": "android",
+      "host": "Windows-11-10.0.26200-SP0",
+      "evidenceId": "20261019-155922-0b7aafcc",
+      "buildEvidenceId": "20261019-153803-ce754c68",
+      "summarySha256": "8ad3aac298c29dc4222b826c9b7b62a644ae6bb473d721abe16b4261c63cda83",
+      "buildSource": {
+        "commit": "4f1079baeea12e7708f81940d832e8ddc3d58aa0",
+        "status": "",
+        "sourceSha256": "ea7864e3bbe06ecc7b491390696c62f000f7b5a8f75518e2255d92d2174aeaae",
+        "diffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "currentSource": {
+        "commit": "4f1079baeea12e7708f81940d832e8ddc3d58aa0",
+        "status": "",
+        "sourceSha256": "ea7864e3bbe06ecc7b491390696c62f000f7b5a8f75518e2255d92d2174aeaae",
+        "diffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "results": [
+        {
+          "name": "Currency",
+          "status": "PASS",
+          "result": "PASS android: USD=$, EUR=\u20ac, GBP=\u00a3, JPY=\u00a5; normalization, errors, concurrency, cancellation",
+          "seconds": 14.688
+        },
+        {
+          "name": "AudioStreamer",
+          "status": "PASS",
+          "result": "PASS native PCM playback, bounded buffering, pause/resume, cancellation, drain and clean restart",
+          "seconds": 7.094
+        },
+        {
+          "name": "VolumeMonitor",
+          "status": "PASS",
+          "result": "PASS initial levels, independent subscriptions, cancellation and restart; hardware volume changes require separate verification",
+          "seconds": 4.766
+        },
+        {
+          "name": "PdfViewer",
+          "status": "PASS",
+          "result": "PASS document, navigation, zoom, native callback, isolation, errors and detach/reconnect",
+          "seconds": 5.313
+        },
+        {
+          "name": "Interop",
+          "status": "PASS",
+          "result": "PASS android: typed calls, DTOs, bytes, null, errors, callbacks, UI dispatch, 16 concurrent calls, cancellation, timeouts, handle and session disposal, bidirectional JSON/string/binary/standard messages, null events, stream errors and independent subscription cleanup; native views: instances, creation arguments, callbacks, reconnect, unload/reload, stale channels, cancellation and UI dispatch; view stress: 32 reconnects",
+          "seconds": 8.297
+        }
+      ],
+      "browserChannel": null,
+      "sampleInputManifests": {
+        "AudioStreamer": "b708d963a091b9d593884475ee94ef862ef83bb96d7f20a581e2b3d19e319edc",
+        "Currency": "188088412b66918d8d2837c64ccd000871efcde1aa00a205c0ef416c0393769c",
+        "Interop": "bb11efb37d7849bcf39f2124c31e06e8863055a293423fbf73db8d0cd80c4427",
+        "PdfViewer": "5e15652733ab2f460b4821880b84c10628ac7ab89785b1a876d09dc2d8631ddb",
+        "VolumeMonitor": "5e00549ee691c471a79469a94453d0548a4a8e0c6d0b0c80a5620bc5260e77b9"
+      }
+    },
+    {
+      "framework": "maui",
+      "platform": "ios",
+      "host": "macOS-26.2-arm64-arm-64bit",
+      "evidenceId": "20261019-152544-01c3572d",
+      "buildEvidenceId": "20261019-152544-01c3572d",
+      "summarySha256": "ab38e9681368985ff1fbf272c46a76249b205ee494d960db5f69b27791a38718",
+      "buildSource": {
+        "commit": "4f1079baeea12e7708f81940d832e8ddc3d58aa0",
+        "status": "",
+        "sourceSha256": "dabd68dde9613cdb61d9796ce794b36fc341fd19d32a098923cc139ff07d6ff0",
+        "diffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "currentSource": {
+        "commit": "4f1079baeea12e7708f81940d832e8ddc3d58aa0",
+        "status": "",
+        "sourceSha256": "dabd68dde9613cdb61d9796ce794b36fc341fd19d32a098923cc139ff07d6ff0",
+        "diffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "results": [
+        {
+          "name": "Currency",
+          "status": "PASS",
+          "result": "PASS apple: USD=US$, EUR=\u20ac, GBP=\u00a3, JPY=JP\u00a5; normalization, errors, concurrency, cancellation",
+          "seconds": 11.676
+        },
+        {
+          "name": "AudioStreamer",
+          "status": "PASS",
+          "result": "PASS native PCM playback, bounded buffering, pause/resume, cancellation, drain and clean restart",
+          "seconds": 4.18
+        },
+        {
+          "name": "VolumeMonitor",
+          "status": "PASS",
+          "result": "PASS initial levels, independent subscriptions, cancellation and restart; hardware volume changes require separate verification",
+          "seconds": 3.147
+        },
+        {
+          "name": "PdfViewer",
+          "status": "PASS",
+          "result": "PASS document, navigation, zoom, native callback, isolation, errors and detach/reconnect",
+          "seconds": 3.196
+        },
+        {
+          "name": "Interop",
+          "status": "PASS",
+          "result": "PASS apple: typed calls, DTOs, bytes, null, errors, callbacks, UI dispatch, 16 concurrent calls, cancellation, timeouts, handle and session disposal, bidirectional JSON/string/binary/standard messages, null events, stream errors and independent subscription cleanup; native views: instances, creation arguments, callbacks, reconnect, unload/reload, stale channels, cancellation and UI dispatch; view stress: 32 reconnects",
+          "seconds": 3.231
+        }
+      ],
+      "browserChannel": null,
+      "sampleInputManifests": {
+        "AudioStreamer": "7a4698462b294ccde12af9c1586eb0ede01f73b62e7227fa7824c29d58cc83ae",
+        "Currency": "10737818093e53ddc1cead50f16c3616aa6f6f7969ee629e0928a2c1b0a319c9",
+        "Interop": "94fa668aa39d9c6e1ba0f0ee009de1bf7c716224809ed9d2e8deae2335060fbd",
+        "PdfViewer": "352243113e4d1194b26e2f13ce4db57173df9155bce9c6fed8379faa664eba47",
+        "VolumeMonitor": "09394c943097d26b2f741dc2a7f50d3289ce811c9e96fafdacd49ddffa9295d3"
+      }
+    },
+    {
+      "framework": "maui",
+      "platform": "maccatalyst",
+      "host": "macOS-26.2-arm64-arm-64bit",
+      "evidenceId": "20261019-152211-7a2cfe79",
+      "buildEvidenceId": "20261019-152211-7a2cfe79",
+      "summarySha256": "b4c09c54a065ce1db529c9e213fe3d6404ab54716b359e5c309efcaa8ca06be8",
+      "buildSource": {
+        "commit": "4f1079baeea12e7708f81940d832e8ddc3d58aa0",
+        "status": "",
+        "sourceSha256": "dabd68dde9613cdb61d9796ce794b36fc341fd19d32a098923cc139ff07d6ff0",
+        "diffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "currentSource": {
+        "commit": "4f1079baeea12e7708f81940d832e8ddc3d58aa0",
+        "status": "",
+        "sourceSha256": "dabd68dde9613cdb61d9796ce794b36fc341fd19d32a098923cc139ff07d6ff0",
+        "diffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "results": [
+        {
+          "name": "Currency",
+          "status": "PASS",
+          "result": "PASS apple: USD=US$, EUR=\u20ac, GBP=\u00a3, JPY=JP\u00a5; normalization, errors, concurrency, cancellation",
+          "seconds": 4.151
+        },
+        {
+          "name": "AudioStreamer",
+          "status": "PASS",
+          "result": "PASS native PCM playback, bounded buffering, pause/resume, cancellation, drain and clean restart",
+          "seconds": 3.072
+        },
+        {
+          "name": "VolumeMonitor",
+          "status": "PASS",
+          "result": "PASS initial levels, independent subscriptions, cancellation and restart; hardware volume changes require separate verification",
+          "seconds": 2.575
+        },
+        {
+          "name": "PdfViewer",
+          "status": "PASS",
+          "result": "PASS document, navigation, zoom, native callback, isolation, errors and detach/reconnect",
+          "seconds": 2.121
+        },
+        {
+          "name": "Interop",
+          "status": "PASS",
+          "result": "PASS apple: typed calls, DTOs, bytes, null, errors, callbacks, UI dispatch, 16 concurrent calls, cancellation, timeouts, handle and session disposal, bidirectional JSON/string/binary/standard messages, null events, stream errors and independent subscription cleanup; native views: instances, creation arguments, callbacks, reconnect, unload/reload, stale channels, cancellation and UI dispatch; view stress: 32 reconnects",
+          "seconds": 2.106
+        }
+      ],
+      "browserChannel": null,
+      "sampleInputManifests": {
+        "AudioStreamer": "84f5c031fd1c639cba422b4451268d3a355a1695963da94479e3bf3abfcae78b",
+        "Currency": "7cd6dfd556ab7a1e0e7b174d6f305b820fbe46acc26b649c217606b82bb83c92",
+        "Interop": "8aac88f6424328ab8fda94147f3a7ae70918642448d95071e3565001f406da68",
+        "PdfViewer": "522fcb4e23fcb52ea62cc45484d41d796602099feaba58de953624ed6803616c",
+        "VolumeMonitor": "b8ca6d78969439351bffaf9fe194b3031553da8edb82eacec92c8fbcb0d5ae3b"
+      }
+    }
+  ],
+  "limitations": [
+    "Windows x64 only; no Windows ARM64 execution",
+    "Android x86_64 emulator and iOS ARM64 simulator; no fresh physical-phone check",
+    "Apple ARM64 only; no Apple x64 execution",
+    "Linux x64 with Xvfb/X11 and PulseAudio null sink; native Wayland unverified",
+    "Chromium only; other browser engines unverified",
+    "Audible audio, visual PDF fidelity, hardware volume controls and accessibility require manual checks",
+    "No new long-running heap/lifecycle soak, signing/store distribution or third-party SDK checks",
+    "External dependency caches reused; framework and reference-plugin caches isolated"
+  ]
+}

@@ -12,6 +12,7 @@ public sealed class AppDelegate : AvaloniaAppDelegate<App>
 {
     protected override AppBuilder CustomizeAppBuilder(AppBuilder builder)
     {
+        App.ExitAfterVerification = NSProcessInfo.ProcessInfo.Arguments.Contains("--verify");
         App.ResultReported = result =>
         {
             var directory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);

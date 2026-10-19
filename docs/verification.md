@@ -2,11 +2,11 @@
 
 The current 0.2 [Avalonia reference sample matrix](../samples/Avalonia/README.md)
 adds AudioStreamer, VolumeMonitor and PdfViewer implementation heads for all six
-targets, including separate C++ Qt/GTK Linux PDF apps. Windows and browser heads
-and the new Linux native adapters/heads have build checks; package audits cover
-those three feeds. Android, iOS and macOS builds and all new runtime behavior
-remain unverified. These implementation checks do not extend the runtime evidence
-recorded below or complete 0.2 acceptance.
+targets, including separate C++ Qt/GTK Linux PDF apps. Local execution of all five
+samples on Windows, Android, Linux, browser and Apple targets is recorded below,
+with package audits and source provenance. The October 19 combined-package
+candidate passed local acceptance below; publication and broader platform
+coverage remain separate.
 
 This record separates implementation, compilation, runtime checks, and manual observations.
 Package acceptance requires verification of the exact source revision and generated archives.
@@ -19,11 +19,164 @@ Package acceptance requires verification of the exact source revision and genera
 | Executed | The scenario ran on the stated environment |
 | Unverified | The scenario has not been checked on that environment |
 
-The current support record covers MAUI. Complete Avalonia integration (0.2) and Uno integration
-(0.3) are [planned](roadmap.md) for Android, iOS, Windows, desktop macOS, Linux, and browser/WebAssembly.
-None of those additional host combinations is accepted on `main` yet. The Currency proofs below
-are partial milestone work; they do not establish other contracts, targets, or released support.
-Future records must distinguish unavailable OS/browser capabilities from checks that have not run.
+The published 0.1 support record covers MAUI. The unreleased 0.2 candidate adds
+Avalonia on six targets and has passed local combined-package verification. Uno
+remains [planned](roadmap.md) for 0.3. Historical Currency proofs below establish
+only their recorded scope; the newer complete suites do not establish publication,
+physical-device support, or capabilities unavailable on an OS/browser.
+
+## Local combined 0.2 preview candidate — 2026-10-19 {#local-02-candidate}
+
+All ten suites passed against the same six framework packages and symbols built
+from clean commit `4f1079baeea12e7708f81940d832e8ddc3d58aa0`: **51 sample executions**,
+including both Linux PDF heads. The [machine-readable report](/verification/preview-02-local.json)
+records archive hashes, the combined API result, clean build/execution identities,
+summary hashes, per-sample input-manifest hashes and the acceptance receipt.
+
+| Framework | Executed environment | Result | Evidence ID |
+| --- | --- | --- | --- |
+| Avalonia | Windows x64 | 5/5 PASS | `20261019-150945-6cd00232` |
+| Avalonia | Android API 36 x86_64 emulator | 5/5 PASS | `20261019-152634-dd7a5008` |
+| Avalonia | iOS simulator ARM64 | 5/5 PASS | `20261019-151239-9f940927` |
+| Avalonia | macOS ARM64 | 5/5 PASS | `20261019-150956-65035cef` |
+| Avalonia | Linux x64 / X11 | 6/6 PASS | `20261019-120958-7aa7d328` |
+| Avalonia | Browser / Chromium | 5/5 PASS | `20261019-152613-5475446e` |
+| MAUI | Windows x64 | 5/5 PASS | `20261019-151150-c7c68511` |
+| MAUI | Android API 36 x86_64 emulator | 5/5 PASS | `20261019-155922-0b7aafcc` |
+| MAUI | iOS simulator ARM64 | 5/5 PASS | `20261019-152544-01c3572d` |
+| MAUI | Mac Catalyst ARM64 | 5/5 PASS | `20261019-152211-7a2cfe79` |
+
+Windows used build 26200 and the API 36 Android emulator; browser checks used
+Chrome 155.0.8059.80 through Playwright. Linux ran in the Ubuntu 24.04 x64 VM (kernel 6.8.0-142,
+glibc 2.39), with Xvfb/Openbox and a temporary PulseAudio null sink. The Mac ran
+macOS 26.2 ARM64, Xcode 26.6 (17F113), and an iPhone 17 Pro iOS 26.5 simulator.
+All hosts used .NET SDK 10.0.401. External dependencies were reused through
+hardlinked caches; framework/reference-plugin restores used isolated caches.
+
+Package assembly checked all ten clean-source inputs, seven transport targets,
+six package identities, managed symbols and browser assets. The five existing
+package APIs passed comparison with the hash-pinned 0.1.0-preview.1 baseline;
+Avalonia is new. Every consumer verified its resolved local archive hashes before
+execution. The acceptance gate checked all ten summaries against the exact
+candidate and API-report hashes. Full local evidence is under
+`artifacts/preview-02-r3/`; Apple and Linux reports were copied to its `results/`
+subdirectory. Original per-app logs and hashes remain with the suite evidence. The first
+browser launch lacked Playwright's downloaded Chromium; the same built binaries
+then passed using the installed Chrome channel, without rebuilding packages.
+The first MAUI Android run timed out in AudioStreamer because a System UI ANR
+dialog held window focus. After rebooting that emulator, the complete suite
+passed with the same binaries. Both failed attempts remain in the local evidence.
+
+Preparation fixed a real cross-target API mismatch: Linux APIs in the portable
+assembly must also exist in the platform assemblies. Linux module construction
+still requires Linux. The API checker now resolves same-feed framework dependencies
+so inherited MAUI options are compared correctly. Negative checks still reject
+the original Linux mismatch and a deliberately removed inherited option. Apple
+consumer builds now refresh the Interop sample framework for the current target.
+The final revision also passed 187 packaging regressions; 23 local runner/candidate
+tests and 52 targeted transport/plugin tests passed during preparation.
+
+This is local preview acceptance. The validation stage ran no workflows and
+performed no tag, push or publication. The subsequent [local publisher](publishing.md)
+can replay this evidence for six-package publication. Windows ARM64, Apple x64, physical phones, native Wayland, other
+browser engines, signing/store deployment, accessibility and long native heap
+soaks remain unverified here. Audio audibility, hardware volume changes and PDF
+visual fidelity remain manual checks. See [preview scope](preview-02.md).
+
+## Local Windows, Android, Linux and browser sample execution — 2026-10-18–19
+
+The local sample runner passed the following suites. Windows execution used
+Windows 11 x64 build 26200 and .NET SDK 10.0.401. Android execution used the
+API 36 x86_64 emulator on that Windows host. Browser execution used Playwright
+Chromium on Windows. Linux execution used the Ubuntu VM, x64 kernel 6.8.0-142,
+glibc 2.39, Xvfb and a temporary PulseAudio null sink. No GitHub workflows ran.
+
+| Framework | Target | Executed result | Local summary under `artifacts/local-samples/` |
+| --- | --- | --- | --- |
+| Avalonia | Windows x64 | 5/5 PASS | `windows/20261018-114801-84e7db3c/summary.json` |
+| Avalonia | Android API 36 emulator | 5/5 PASS | `android/20261018-121658-ce6541da/summary.json` |
+| Avalonia | Linux x64 VM | 6/6 PASS (both Qt and GTK PDF heads) | `linux-vm/20261018-084355-c233d06c/summary.json` |
+| Avalonia | Browser / Chromium | 5/5 PASS | `browser/20261018-114635-7291d3f9/summary.json` |
+| MAUI | Windows x64 | 5/5 PASS | `maui/windows/20261018-124704-a9954098/summary.json` |
+| MAUI | Android API 36 emulator | 5/5 PASS | `maui/android/20261018-125339-f1cbf1ac/summary.json` |
+| MAUI | Windows x64, updated runner with existing binaries | 5/5 PASS | `maui/windows/20261019-122754-38532347/summary.json` |
+
+Each suite covers Currency, AudioStreamer, VolumeMonitor, PdfViewer and Interop
+(ChannelExplorer in MAUI). Checks exercise native calls, playback state and
+buffering, volume subscriptions, PDF state/navigation and native-view lifecycle,
+plus the runner's completion and cleanup checks. MAUI has no Linux or browser
+heads in this repository.
+
+These are development working-tree builds, not clean builds of the current HEAD:
+
+- Avalonia Windows and browser builds were based on `5c98b8856afb79ef438d6b8fb1e7fcaae638619c`
+  with the local automation and sample fixes subsequently committed in `bee64e2`.
+- Avalonia Android and both MAUI builds were based on `bee64e2cd20db899c120ef53e73155c6b4b04f0a`
+  with local fixes subsequently committed in `593739c`. Their reports retain the
+  distinct source hashes and dirty-tree records for each build.
+- The Linux VM had a synchronized working tree over its older checkout at
+  `9c1a15506cce74f06fb981f430e1b5f563857ef2`. Its recorded build source SHA-256 is
+  `255cfe217232d45bbab68f4fb46acac64c2ddb28e714f5ec55dc6733138d5909`;
+  the commit alone does not identify the tested source. The table points to the
+  copied report on Windows; its manifest refers to the original Linux VM path.
+- Browser, Linux and Avalonia Android execution reused their recorded build
+  manifests. Reports distinguish build source from execution source; a later
+  runner or source change does not rebuild those binaries.
+- The October 19 Windows MAUI rerun used the runner at clean commit
+  `9e515b0ec62f93d975deeeae4385ebc5c5055500` with the October 18 binaries.
+  It verified combined stdout/stderr cleanup handling, not a fresh application
+  build of the Apple commit. Ten runner tests and the evaluated PDF packaging
+  scope test also passed on Windows; Windows-only PDF targeting was checked.
+
+Builds used local package feeds, package audits and package-only consumer checks.
+Reports and manifests retain source provenance; per-sample logs and input hashes
+identify the executed outputs. Fixes included browser audio/native-view lifecycle,
+Linux PDF handling, Android AppCompat hosting and application lifetime, and shared
+MAUI verification/cleanup. Windows MAUI uses a short isolated package-cache path
+to avoid WinUI compiler path-length failures.
+
+Audio audibility remains a manual check; Linux null-sink execution does not prove
+audible output. Visual PDF fidelity, hardware volume buttons, accessibility and
+physical-device lifecycle behavior remain manual or unverified. Browser volume
+checks concern page-owned audio, and its single-threaded runtime cannot exercise
+background-thread rejection. These results do not establish released-platform
+acceptance or a fresh cross-platform run of one common source revision.
+
+## Local Apple sample execution — 2026-10-18–19
+
+The `develop` working tree based on `593739c8d2e97709093e474da3f5b56aa27aa399`,
+with the local Apple runner/sample fixes, passed all five samples sequentially on
+macOS 26.2 ARM64. Tooling: .NET SDK/workload set 10.0.401, Xcode 26.6 (17F113),
+and iPhone 17 Pro simulator running iOS 26.5. No GitHub workflows were invoked.
+
+| Framework | Target | Executed result | Local summary under `artifacts/local-samples/` |
+| --- | --- | --- | --- |
+| Avalonia | macOS ARM64 | 5/5 PASS | `macos/20261018-151455-3e072b83/summary.json` |
+| Avalonia | iOS simulator ARM64 | 5/5 PASS | `ios/20261018-153208-19d1b093/summary.json` |
+| MAUI | Mac Catalyst ARM64 | 5/5 PASS | `maui/maccatalyst/20261018-155309-0d25b091/summary.json` |
+| MAUI | iOS simulator ARM64 | 5/5 PASS | `maui/ios/20261019-024126-e8ca7719/summary.json` |
+
+Each suite covers Currency, AudioStreamer, VolumeMonitor, PdfViewer, and Interop
+(ChannelExplorer in MAUI), including cleanup. Packages were rebuilt and audited,
+and consumers restored from fresh scoped caches with exact local package checks.
+External dependencies were hardlinked between caches to conserve disk space.
+The MAUI iOS final execution reused its fresh build manifest after host sleep and
+maintenance-wake audio failures; the unchanged binaries passed with the Mac fully awake.
+Each report records its own build source and execution source hashes.
+
+Fixes cover AppKit button title assignment, runnable Apple bundle output, native
+iOS launch argument detection, Apple-only MAUI PDF packaging, and Catalyst cleanup
+markers written to stderr. Checks passed: ten runner contract tests, one evaluated
+PDF packaging-scope test, 185 packaging regressions, changed-file formatting, and
+the documentation build. Logs and environment details are retained in
+`artifacts/local-samples/session-20261018/`. Earlier suites' app binaries were removed
+to conserve disk space; their reports, hashes, package audits and manifests remain.
+
+Audio audibility, visual PDF fidelity, hardware volume buttons, accessibility and
+physical-device lifecycle behavior remain manual or unverified. No loopback audio
+recording was added. Avalonia iOS builds emitted an IL2104 DesignerSupport trimming
+warning; simulator logs also contain Apple accessibility duplicate-class warnings.
+These local results do not change released-platform acceptance.
 
 ## Reusable Avalonia host foundation — 2026-10-17
 

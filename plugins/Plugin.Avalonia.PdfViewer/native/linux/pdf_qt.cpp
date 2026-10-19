@@ -7,6 +7,9 @@
 #include <memory>
 
 class QtPdf final : public PdfModule {
+  // Release our QApplication on the UI thread with the last view, before
+  // process-wide Qt teardown. An application supplied by the host is not owned.
+  std::shared_ptr<QApplication> application;
   std::unique_ptr<QPdfView> view;
   std::unique_ptr<QPdfDocument> document;
   std::unique_ptr<QWindow> parentWindow;
@@ -43,9 +46,12 @@ public:
     static int argc = 1;
     static char name[] = "nativechannels-pdf";
     static char *argv[] = {name, nullptr};
-    static std::unique_ptr<QApplication> app;
-    if (!QApplication::instance())
-      app = std::make_unique<QApplication>(argc, argv);
+    static std::weak_ptr<QApplication> app;
+    application = app.lock();
+    if (!QApplication::instance()) {
+      application = std::make_shared<QApplication>(argc, argv);
+      app = application;
+    }
     identity = id;
     parentWindow.reset(QWindow::fromWinId(parent));
     if (!parentWindow)

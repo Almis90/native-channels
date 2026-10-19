@@ -11,6 +11,14 @@ public sealed class SampleApplication : global::Avalonia.Application
     private SamplePage? _page;
     private Task? _closing;
     private bool _closed;
+    private bool _verifying;
+    private int _exitCode;
+    public static bool VerifyOnLoad { get; set; } =
+#if IOS
+        Foundation.NSProcessInfo.ProcessInfo.Arguments.Contains("--verify");
+#else
+        Environment.GetCommandLineArgs().Contains("--verify");
+#endif
 
     public override void Initialize() => Styles.Add(new FluentTheme());
 
@@ -25,7 +33,18 @@ public sealed class SampleApplication : global::Avalonia.Application
         if (_page is { IsClosed: false })
             return;
         _page = SampleFeature.Create(this.GetNativeChannels().CreateSession());
-        if (ApplicationLifetime is ISingleViewApplicationLifetime single)
+        _page.Loaded += async (_, _) =>
+        {
+            if (VerifyOnLoad)
+                await VerifyAsync();
+        };
+        if (ApplicationLifetime is IActivityApplicationLifetime activities)
+            activities.MainViewFactory = () =>
+            {
+                EnsureView();
+                return _page!;
+            };
+        else if (ApplicationLifetime is ISingleViewApplicationLifetime single)
             single.MainView = _page;
         else if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
@@ -64,6 +83,47 @@ public sealed class SampleApplication : global::Avalonia.Application
 
     public Task SuspendAsync() => _page?.SuspendForLifecycleAsync() ?? Task.CompletedTask;
 
+    public async Task<string> VerifyAsync()
+    {
+        if (_verifying || _closed || _page is null)
+            throw new InvalidOperationException("Verification requires a fresh, loaded sample.");
+        _verifying = true;
+        string result;
+        try
+        {
+            result = await _page.VerifyAsync();
+            if (!result.StartsWith("PASS ", StringComparison.Ordinal))
+                throw new InvalidOperationException(result);
+        }
+        catch (Exception error)
+        {
+            _exitCode = 1;
+            result = "FAIL " + error;
+        }
+        try
+        {
+            await CloseAsync();
+        }
+        catch (Exception error)
+        {
+            _exitCode = 1;
+            result = "FAIL cleanup: " + error + "; " + result;
+        }
+        Console.WriteLine("NATIVECHANNELS_LOCAL_RESULT " + result.Replace('\n', ' ').Replace('\r', ' '));
+        if (!OperatingSystem.IsBrowser())
+        {
+            var destination = Environment.GetEnvironmentVariable("NATIVECHANNELS_SAMPLE_RESULT");
+            if (!string.IsNullOrWhiteSpace(destination))
+            {
+                File.WriteAllText(destination + ".tmp", result);
+                File.Move(destination + ".tmp", destination, overwrite: true);
+            }
+        }
+        if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+            desktop.Shutdown(_exitCode);
+        return result;
+    }
+
     public async Task CloseViewAsync()
     {
         if (_page is not null)
@@ -97,7 +157,7 @@ public sealed class SampleApplication : global::Avalonia.Application
             finally
             {
                 _closed = true;
-                if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+                if (!_verifying && ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
                     desktop.Shutdown();
             }
         }
@@ -111,6 +171,7 @@ public abstract class SamplePage(AvaloniaChannelSession owner) : UserControl, IA
     public bool IsClosed { get; private set; }
     private Task? _closing;
     public abstract Task SuspendAsync();
+    public abstract Task<string> VerifyAsync();
 
     internal Task SuspendForLifecycleAsync() => Attempt(SuspendAsync);
 

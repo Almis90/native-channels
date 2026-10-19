@@ -11,11 +11,19 @@
         <EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
     </PropertyGroup>
     <ItemGroup>
+        <Using Remove="Android.App" />
+        <Using Remove="Android.Widget" />
         <PackageReference Include="Avalonia.Android" />
         <PackageReference Include="Avalonia.Themes.Fluent" />
         <PackageReference Include="NativeChannels.Avalonia" />
         <PackageReference Include="Plugin.Maui.VolumeMonitor" />
         <Compile Include="../../Shared/SampleApplication.cs" Link="SampleApplication.cs" />
         <Compile Include="../Shared/*.cs" Link="%(Filename)%(Extension)" />
+    </ItemGroup>
+    <ItemGroup>
+        <Compile
+            Include="../../../Maui/VolumeMonitor/VolumeVerification.cs"
+            Link="VolumeVerification.cs"
+        />
     </ItemGroup>
 </Project>

@@ -6,6 +6,8 @@
         <DefineConstants>$(DefineConstants);WINDOWS</DefineConstants>
     </PropertyGroup>
     <ItemGroup>
+        <Compile Include="../../src/NativeChannels/Platforms/Linux/ILinuxChannelModule.cs" />
+        <Compile Include="../../src/NativeChannels/Platforms/Linux/LinuxNativeModule.cs" />
         <!-- Exercise the shipping Windows transport on every CI host, without a UI workload. -->
         <Compile
             Include="../../src/NativeChannels/NativeChannelTransport.cs"

@@ -47,6 +47,7 @@
         <AndroidLinkTool>r8</AndroidLinkTool>
     </PropertyGroup>
     <ItemGroup>
+        <Compile Include="../Shared/LocalVerification.cs" Link="LocalVerification.cs" />
         <MauiIcon Include="Resources/AppIcon/appicon.svg" />
         <MauiSplashScreen
             Include="Resources/Splash/splash.svg"

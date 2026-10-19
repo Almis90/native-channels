@@ -7,6 +7,7 @@
         <DefineConstants>$(DefineConstants);WINDOWS</DefineConstants>
     </PropertyGroup>
     <ItemGroup>
+        <Compile Include="../../src/NativeChannels/Platforms/Linux/ILinuxChannelModule.cs" />
         <!-- Run the real Windows transport without installing a MAUI UI workload. -->
         <Compile
             Include="../../src/NativeChannels/NativeChannelTransport.cs"

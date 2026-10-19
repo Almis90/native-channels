@@ -2,6 +2,7 @@ using Microsoft.Maui;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Graphics;
 using Microsoft.Maui.Storage;
+using NativeSamples;
 using Plugin.Maui.VolumeMonitor;
 
 namespace VolumeMonitor.Sample;
@@ -99,7 +100,7 @@ public sealed class MainPage : ContentPage
         _listening = new();
         _run = VerifyAsync(_listening.Token);
         await _run;
-        if (!_listening.IsCancellationRequested)
+        if (!LocalVerification.Enabled && !_listening.IsCancellationRequested)
             await StartAsync();
     }
 
@@ -126,6 +127,19 @@ public sealed class MainPage : ContentPage
             ),
             result
         );
+        if (
+            await LocalVerification.CompleteAsync(
+                this,
+                result,
+                () =>
+                {
+                    _audioSession?.Dispose();
+                    _audioSession = null;
+                    return Task.CompletedTask;
+                }
+            )
+        )
+            return;
         _state.Text = "Ready";
         _start.IsEnabled = true;
     }

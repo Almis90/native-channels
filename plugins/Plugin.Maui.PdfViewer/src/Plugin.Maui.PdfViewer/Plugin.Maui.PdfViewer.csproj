@@ -5,6 +5,8 @@
             >$(TargetFrameworks);net10.0-windows10.0.19041.0</TargetFrameworks>
         <TargetFrameworks Condition="'$(NativeChannelsAndroidOnly)' == 'true'"
             >net10.0-android</TargetFrameworks>
+        <TargetFrameworks Condition="'$(NativeChannelsAppleTarget)' != ''"
+            >net10.0-$(NativeChannelsAppleTarget)</TargetFrameworks>
         <TargetFrameworks Condition="'$(NativeChannelsWindowsOnly)' == 'true'"
             >net10.0-windows10.0.19041.0</TargetFrameworks>
         <UseMaui>true</UseMaui>
@@ -39,7 +41,7 @@
         />
         <None
             Include="../../native/android/build/outputs/aar/pdf-release.aar"
-            Condition="'$(NativeChannelsWindowsOnly)' != 'true'"
+            Condition="'$(NativeChannelsWindowsOnly)' != 'true' And '$(NativeChannelsAppleTarget)' == ''"
             Pack="true"
             PackagePath="native/android/pdf.aar"
         />
@@ -57,7 +59,7 @@
         Condition="'$(NativeChannelsWindowsOnly)' != 'true'"
     >
         <Error
-            Condition="!Exists('../../native/android/build/outputs/aar/pdf-release.aar')"
+            Condition="'$(NativeChannelsAppleTarget)' == '' And !Exists('../../native/android/build/outputs/aar/pdf-release.aar')"
             Text="Build the Plugin.Maui.PdfViewer Android adapter before packing."
         />
         <Error

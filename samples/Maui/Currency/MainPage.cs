@@ -3,6 +3,7 @@ using Microsoft.Maui;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Graphics;
 using Microsoft.Maui.Storage;
+using NativeSamples;
 using Plugin.Maui.Currency;
 
 namespace Currency.Sample;
@@ -115,6 +116,8 @@ public sealed class MainPage : ContentPage
         resultPath = Environment.GetEnvironmentVariable("CURRENCY_SAMPLE_RESULT") ?? resultPath;
 #endif
         await File.WriteAllTextAsync(resultPath, result);
+        if (await LocalVerification.CompleteAsync(this, result))
+            return;
         await LookupAsync();
     }
 

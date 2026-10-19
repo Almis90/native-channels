@@ -48,6 +48,12 @@ internal sealed class InteropPage : SamplePage
         return _run = CheckAsync();
     }
 
+    public override async Task<string> VerifyAsync()
+    {
+        await _views.ResetAsync();
+        return "PASS " + await new NativeVerification(Owner.Channels).RunAsync() + "; " + await _views.RunAsync();
+    }
+
     private async Task CheckAsync()
     {
         Status.Text = "Checking native methods, messages, streams and views…";

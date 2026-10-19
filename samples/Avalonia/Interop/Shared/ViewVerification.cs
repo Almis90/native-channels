@@ -122,20 +122,28 @@ internal sealed class ViewVerification
             First.Disconnected -= Disconnected;
             First.Connected -= Connected;
         }
-        await Task.Run(() =>
-        {
-            try
+        // The single-threaded browser runtime schedules Task.Run on the same UI
+        // thread. Only threaded targets can exercise off-thread rejection.
+        if (!OperatingSystem.IsBrowser())
+            await Task.Run(() =>
             {
-                First.Reconnect();
-            }
-            catch (InvalidOperationException)
-            {
-                return;
-            }
-            throw new InvalidOperationException("Background reconnect was accepted.");
-        });
+                try
+                {
+                    First.Reconnect();
+                }
+                catch (InvalidOperationException)
+                {
+                    return;
+                }
+                throw new InvalidOperationException("Background reconnect was accepted.");
+            });
         await VerifyRepeatedReconnectsAsync();
-        return "native views: instances, creation arguments, callbacks, reconnect, unload/reload, stale channels, cancellation and UI dispatch; view stress: 32 reconnects";
+        return "native views: instances, creation arguments, callbacks, reconnect, unload/reload, stale channels, cancellation and UI dispatch; view stress: 32 reconnects"
+            + (
+                OperatingSystem.IsBrowser()
+                    ? "; background-thread rejection not applicable to this single-threaded browser runtime"
+                    : ""
+            );
     }
 
     private async Task VerifyRepeatedReconnectsAsync()

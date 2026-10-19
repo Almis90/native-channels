@@ -3,6 +3,7 @@ using Microsoft.Maui;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Graphics;
 using Microsoft.Maui.Storage;
+using NativeSamples;
 using Plugin.Maui.AudioStreamer;
 
 namespace AudioStreamer.Sample;
@@ -131,6 +132,8 @@ public sealed class MainPage : ContentPage
             ),
             result
         );
+        if (await LocalVerification.CompleteAsync(this, result, () => _audio.DisposeAsync().AsTask()))
+            return;
         _short.IsEnabled = _continuous.IsEnabled = true;
     }
 

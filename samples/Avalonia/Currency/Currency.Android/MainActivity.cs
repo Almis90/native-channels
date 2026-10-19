@@ -13,6 +13,12 @@ namespace Currency.Android;
 )]
 public sealed class MainActivity : AvaloniaMainActivity
 {
+    protected override void OnCreate(global::Android.OS.Bundle? savedInstanceState)
+    {
+        App.ExitAfterVerification = Intent?.GetBooleanExtra("verify", false) == true;
+        base.OnCreate(savedInstanceState);
+    }
+
     protected override void OnDestroy()
     {
         // Each recreated activity gets a new view and session. Do not block Android's UI thread

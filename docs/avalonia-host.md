@@ -9,7 +9,9 @@ This is development work for 0.2, not a published package or complete Avalonia a
 `AvaloniaChannelView` now owns native/DOM view attachment, per-instance channels and
 asynchronous disposal. The [reference samples](../samples/Avalonia/README.md) implement
 mobile suspension and browser page hooks explicitly; they are sample policies rather than
-automatic application-wide behavior. New heads and adapters still need runtime verification.
+automatic application-wide behavior. All five samples have passed local checks on
+the six targets; see [verification](verification.md) for the tested environments.
+Final combined-package acceptance and broader lifecycle/device coverage remain separate.
 
 ## Register
 

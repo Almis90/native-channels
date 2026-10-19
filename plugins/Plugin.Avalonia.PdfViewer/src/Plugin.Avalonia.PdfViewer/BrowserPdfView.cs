@@ -26,13 +26,14 @@ public static partial class PdfBrowser
     internal static partial JSObject CreateView(string identity);
 
     [JSImport("destroyView", "NativeChannels.Pdf")]
-    internal static partial void DestroyView(string identity);
+    internal static partial Task DestroyView(string identity);
 }
 
 internal sealed class BrowserPdfView : IAvaloniaNativeView
 {
     private readonly ChannelService _channels;
     private bool _closed;
+    private Task _destroying = Task.CompletedTask;
     public IPlatformHandle Handle { get; }
     public MethodChannel Channel { get; }
     public string InstanceId { get; }
@@ -59,14 +60,21 @@ internal sealed class BrowserPdfView : IAvaloniaNativeView
         if (_closed)
             return;
         _closed = true;
-        PdfBrowser.DestroyView(InstanceId);
+        _destroying = PdfBrowser.DestroyView(InstanceId);
         ((JSObjectControlHandle)Handle).Destroy();
     }
 
     public async ValueTask DisposeAsync()
     {
         Destroy();
-        await _channels.DisposeAsync();
+        try
+        {
+            await _destroying;
+        }
+        finally
+        {
+            await _channels.DisposeAsync();
+        }
     }
 }
 #endif

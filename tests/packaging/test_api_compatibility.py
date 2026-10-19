@@ -14,6 +14,35 @@ spec.loader.exec_module(compatibility)
 
 
 class CompatibilityTests(unittest.TestCase):
+    def test_references_select_matching_platform_and_portable_dependencies(self):
+        assets = {
+            'Host': {'net10.0-android36.0': Path('/candidate/Host.dll')},
+            'Transport': {'net10.0-android36.0': Path('/candidate/Android.dll'),
+                          'net10.0-ios26.0': Path('/candidate/Apple.dll'),
+                          'net10.0': Path('/candidate/Linux.dll')},
+            'Core': {'net10.0': Path('/candidate/Core.dll')},
+        }
+        args = compatibility.reference_arguments('--package-assembly-references', 'Host', assets)
+        self.assertEqual(args, ['--package-assembly-references',
+                              '.NETCoreApp,Version=v10.0+android,Version=36.0|' +
+                              ','.join(str(Path('/candidate') / name) for name in ('Android.dll', 'Core.dll'))])
+        self.assertEqual(compatibility.moniker('net10.0'), '.NETCoreApp,Version=v10.0')
+        self.assertEqual(compatibility.moniker('net10.0-browser'), '.NETCoreApp,Version=v10.0+browser,Version=0.0')
+
+    def test_reference_extraction_keeps_baseline_and_candidate_separate(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            for side, content in (('baseline', b'old'), ('candidate', b'new')):
+                path = root / (side + '.nupkg')
+                with zipfile.ZipFile(path, 'w') as archive:
+                    archive.writestr('lib/net10.0/Dependency.dll', content)
+                    archive.writestr('lib/net10.0/Other.dll', b'ignored')
+                assets = compatibility.extract_references({'Dependency': path}, root / side)
+                self.assertEqual(assets['Dependency']['net10.0'].read_bytes(), content)
+            self.assertEqual((root / 'baseline/Dependency/net10.0/Dependency.dll').read_bytes(), b'old')
+            with self.assertRaises(ValueError):
+                compatibility.moniker('..')
+
     def test_baseline_pins_all_framework_packages_and_core_version(self):
         manifest = json.loads((ROOT / 'eng/api-baseline.json').read_text())
         self.assertEqual({'NativeChannels.Core', 'NativeChannels', 'NativeChannels.Maui',
