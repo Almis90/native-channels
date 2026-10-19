@@ -58,7 +58,7 @@
                     }
                 })
         }
-        private func update() { button.setTitle("\(title) · \(count) taps", for: .normal) }
+        private func update() { button.title = "\(title) · \(count) taps" }
         @objc private func clicked() { tap(nil) }
         private func tap(_ result: MethodResult?) {
             guard !closed else { return }

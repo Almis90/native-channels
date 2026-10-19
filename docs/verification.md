@@ -4,9 +4,9 @@ The current 0.2 [Avalonia reference sample matrix](../samples/Avalonia/README.md
 adds AudioStreamer, VolumeMonitor and PdfViewer implementation heads for all six
 targets, including separate C++ Qt/GTK Linux PDF apps. Windows and browser heads
 and the new Linux native adapters/heads have build checks; package audits cover
-those three feeds. Android, iOS and macOS builds and all new runtime behavior
-remain unverified. These implementation checks do not extend the runtime evidence
-recorded below or complete 0.2 acceptance.
+those three feeds. Local Apple execution of all five samples is recorded below.
+That evidence is limited to the stated working tree and Apple environments; it does
+not establish other targets or complete 0.2 acceptance.
 
 This record separates implementation, compilation, runtime checks, and manual observations.
 Package acceptance requires verification of the exact source revision and generated archives.
@@ -24,6 +24,42 @@ The current support record covers MAUI. Complete Avalonia integration (0.2) and 
 None of those additional host combinations is accepted on `main` yet. The Currency proofs below
 are partial milestone work; they do not establish other contracts, targets, or released support.
 Future records must distinguish unavailable OS/browser capabilities from checks that have not run.
+
+## Local Apple sample execution — 2026-10-18–19
+
+The `develop` working tree based on `593739c8d2e97709093e474da3f5b56aa27aa399`,
+with the local Apple runner/sample fixes, passed all five samples sequentially on
+macOS 26.2 ARM64. Tooling: .NET SDK/workload set 10.0.401, Xcode 26.6 (17F113),
+and iPhone 17 Pro simulator running iOS 26.5. No GitHub workflows were invoked.
+
+| Framework | Target | Executed result | Local summary under `artifacts/local-samples/` |
+| --- | --- | --- | --- |
+| Avalonia | macOS ARM64 | 5/5 PASS | `macos/20261018-151455-3e072b83/summary.json` |
+| Avalonia | iOS simulator ARM64 | 5/5 PASS | `ios/20261018-153208-19d1b093/summary.json` |
+| MAUI | Mac Catalyst ARM64 | 5/5 PASS | `maui/maccatalyst/20261018-155309-0d25b091/summary.json` |
+| MAUI | iOS simulator ARM64 | 5/5 PASS | `maui/ios/20261019-024126-e8ca7719/summary.json` |
+
+Each suite covers Currency, AudioStreamer, VolumeMonitor, PdfViewer, and Interop
+(ChannelExplorer in MAUI), including cleanup. Packages were rebuilt and audited,
+and consumers restored from fresh scoped caches with exact local package checks.
+External dependencies were hardlinked between caches to conserve disk space.
+The MAUI iOS final execution reused its fresh build manifest after host sleep and
+maintenance-wake audio failures; the unchanged binaries passed with the Mac fully awake.
+Each report records its own build source and execution source hashes.
+
+Fixes cover AppKit button title assignment, runnable Apple bundle output, native
+iOS launch argument detection, Apple-only MAUI PDF packaging, and Catalyst cleanup
+markers written to stderr. Checks passed: ten runner contract tests, one evaluated
+PDF packaging-scope test, 185 packaging regressions, changed-file formatting, and
+the documentation build. Logs and environment details are retained in
+`artifacts/local-samples/session-20261018/`. Earlier suites' app binaries were removed
+to conserve disk space; their reports, hashes, package audits and manifests remain.
+
+Audio audibility, visual PDF fidelity, hardware volume buttons, accessibility and
+physical-device lifecycle behavior remain manual or unverified. No loopback audio
+recording was added. Avalonia iOS builds emitted an IL2104 DesignerSupport trimming
+warning; simulator logs also contain Apple accessibility duplicate-class warnings.
+These local results do not change released-platform acceptance.
 
 ## Reusable Avalonia host foundation — 2026-10-17
 

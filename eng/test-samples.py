@@ -155,7 +155,10 @@ def build(args, destination):
                 extra += ['-r', rid + architecture]
             if target in ('windows', 'linux'):
                 extra += ['--self-contained', 'false' if args.framework_dependent else 'true']
-            verb = 'build' if target == 'android' else 'publish'
+            # Apple publish emits distribution archives in -o, leaving the runnable
+            # .app in bin. Build places the app in our isolated evidence directory
+            # and also supports iOS simulator RIDs (which cannot be published).
+            verb = 'build' if target in ('android', 'macos', 'ios', 'maccatalyst') else 'publish'
             command([dotnet, verb, csproj, '-c', 'Release', '-o', output, '--disable-build-servers', *common, *extra])
             command([sys.executable, 'eng/verify-consumer-assets.py', csproj.parent / 'obj/project.assets.json', feed])
             item = dict(name=name, sample=sample, directory=str(output), framework=args.framework)
@@ -220,7 +223,11 @@ def desktop(entry, target, folder, timeout):
                 process.kill()
                 process.wait(timeout=10)
     text = result.read_text(encoding='utf-8-sig') if result.exists() else ''
-    validate_result(sample, text, (folder / 'stdout.log').read_text(encoding='utf-8', errors='replace'), code, entry.get('framework', 'avalonia'))
+    # Apple MAUI routes Console.WriteLine through NSLog to stderr. Keep both
+    # streams as evidence and require exactly one cleanup marker across them.
+    logs = '\n'.join((folder / name).read_text(encoding='utf-8', errors='replace')
+                     for name in ('stdout.log', 'stderr.log'))
+    validate_result(sample, text, logs, code, entry.get('framework', 'avalonia'))
     return text
 
 

@@ -13,7 +13,12 @@ public sealed class SampleApplication : global::Avalonia.Application
     private bool _closed;
     private bool _verifying;
     private int _exitCode;
-    public static bool VerifyOnLoad { get; set; } = Environment.GetCommandLineArgs().Contains("--verify");
+    public static bool VerifyOnLoad { get; set; } =
+#if IOS
+        Foundation.NSProcessInfo.ProcessInfo.Arguments.Contains("--verify");
+#else
+        Environment.GetCommandLineArgs().Contains("--verify");
+#endif
 
     public override void Initialize() => Styles.Add(new FluentTheme());
 

@@ -12,6 +12,27 @@ SPEC.loader.exec_module(runner)
 
 
 class LocalSamplesTests(unittest.TestCase):
+    def test_apple_builds_runnable_bundles_in_manifest_directories(self):
+        for framework, target in (('avalonia', 'macos'), ('avalonia', 'ios'),
+                                  ('maui', 'maccatalyst'), ('maui', 'ios')):
+            with self.subTest(framework=framework, target=target), tempfile.TemporaryDirectory() as temporary:
+                args = SimpleNamespace(platform=target, framework=framework, dotnet='dotnet',
+                                       reuse_external_cache=None, arch='arm64')
+                with patch.object(runner, 'command') as command, \
+                     patch.object(runner, 'source_identity', return_value={}):
+                    manifest_path = runner.build(args, Path(temporary))
+                import json
+                manifest = json.loads(manifest_path.read_text())
+                consumers = [call.args[0] for call in command.call_args_list
+                             if any(str(arg).endswith('.csproj') for arg in call.args[0])]
+                self.assertEqual(len(consumers), 5)
+                for invocation, app in zip(consumers, manifest['apps']):
+                    self.assertEqual(invocation[1], 'build')
+                    self.assertEqual(str(invocation[invocation.index('-o') + 1]), app['directory'])
+                    self.assertIn('Release', invocation)
+                    self.assertIn(('iossimulator-' if target == 'ios' else
+                                   'maccatalyst-' if target == 'maccatalyst' else 'osx-') + 'arm64', invocation)
+
     def test_success_requires_process_exit_and_cleanup(self):
         runner.validate_result('Currency', 'PASS native checks', 'CURRENCY_AVALONIA_CLOSED\n')
         for text, log, code in [('PASS native checks', '', 0), ('PASS native checks', 'CURRENCY_AVALONIA_CLOSED', 1),
@@ -25,6 +46,27 @@ class LocalSamplesTests(unittest.TestCase):
             runner.validate_result('AudioStreamer', 'PASS PCM', '')
         runner.validate_result('AudioStreamer', 'PASS PCM', 'AUDIO_AVALONIA_CLOSED')
         runner.validate_result('AudioStreamer', 'PASS PCM', 'NATIVECHANNELS_LOCAL_RESULT PASS PCM')
+
+    def test_desktop_cleanup_checks_both_output_streams(self):
+        marker = 'NATIVECHANNELS_MAUI_CLOSED'
+        for stdout, stderr, succeeds in (('', marker, True), (marker, '', True),
+                                          ('', '', False), (marker, marker, False)):
+            with self.subTest(stdout=stdout, stderr=stderr), tempfile.TemporaryDirectory() as temporary:
+                folder = Path(temporary)
+
+                def launch(*args, **kwargs):
+                    kwargs['stdout'].write(stdout)
+                    kwargs['stderr'].write(stderr)
+                    (folder / 'result.txt').write_text('PASS native checks')
+                    return SimpleNamespace(wait=lambda **kwargs: 0, poll=lambda: 0)
+
+                entry = dict(sample='Currency', name='Currency', framework='maui', directory=temporary)
+                with patch.object(runner.subprocess, 'Popen', side_effect=launch):
+                    if succeeds:
+                        self.assertEqual(runner.desktop(entry, 'windows', folder, 1), 'PASS native checks')
+                    else:
+                        with self.assertRaisesRegex(RuntimeError, 'one completed MAUI cleanup marker'):
+                            runner.desktop(entry, 'windows', folder, 1)
 
     def test_timeout_kills_owned_process(self):
         import subprocess

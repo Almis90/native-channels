@@ -10,6 +10,8 @@ internal static class LocalVerification
     public static bool Enabled =>
 #if ANDROID
         Platform.CurrentActivity?.Intent?.GetBooleanExtra("verify", false) == true;
+#elif IOS || MACCATALYST
+        Foundation.NSProcessInfo.ProcessInfo.Arguments.Contains("--verify");
 #else
         Environment.GetCommandLineArgs().Contains("--verify");
 #endif

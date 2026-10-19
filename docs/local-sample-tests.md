@@ -103,7 +103,15 @@ from the test runner.
 ## Apple platforms
 
 On your Mac, install the pinned SDK/workloads, compatible Xcode, and its simulator
-runtimes. The build uses the repository's existing Swift/XCFramework scripts.
+runtimes. Use Python 3.11 or newer (the Python bundled with Xcode may be older).
+The build uses the repository's existing Swift/XCFramework scripts. Apple consumers
+use Release `dotnet build` to place runnable `.app` bundles in the evidence directory;
+`dotnet publish` produces distribution archives instead and is unsuitable for these
+simulator runs.
+Keep the Mac fully awake during execution. A maintenance/dark wake can leave the
+simulator's audio service unavailable and invalidate playback timing checks. A
+process-scoped `caffeinate -diu` wrapper prevents idle sleep, but cannot override
+lid closure. Do not increase verification deadlines to compensate for host sleep.
 
 ```sh
 python3 eng/test-samples.py --platform macos
