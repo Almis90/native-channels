@@ -6,7 +6,7 @@ code in `Shared`. They pin Uno SDK 6.7.30 and the local NativeChannels
 
 | App | Interactive behavior | Automated Windows checks |
 | --- | --- | --- |
-| Interop | Host lifecycle checks; two Windows native buttons with reconnect and removal controls | Managed method/message echo, events, dispatch, cancellation, isolated windows, reconnect and stale channels |
+| Interop | Host lifecycle checks; two Windows native buttons with reconnect and removal controls | Managed channel/lifecycle checks plus real HWND parenting, independent bounds/resize, focus, direct mouse/keyboard messages, reconnect and cleanup |
 | Currency | Enter an ISO code and query its native symbol | EUR, USD, unknown-code error |
 | AudioStreamer | Play the original shared music loop; pause, resume and stop | Silent PCM write, native pause/resume, disposal |
 | VolumeMonitor | Start/stop observing the output volume without changing it | Initial native reading and subscription disposal |
@@ -84,8 +84,10 @@ macOS needs the native dylibs and has no public arbitrary native-view embedding
 API in the pinned Uno version. Linux needs its native plugin assets.
 
 Step 5 remains partial until native PDF adapters and native views are working,
-and all five apps have run on all six platforms. Windows native attachment,
-input/focus, visibility, two-view independence and resize must still be tested
-interactively. The Interop app exposes controls for this but does not mark these
-checks passed. The protocol/host checks link the same fixtures used by the
+and all five apps have run on all six platforms. Windows native parenting,
+bounds/resize, focus, direct input-message dispatch and two-view independence now
+pass automated checks. The adapter supplies `WS_CHILD` before Uno reparents the
+HWND; leaving `WS_POPUP` set caused the earlier failure. Automated runs are hidden:
+physical input and visual appearance still need interactive review. The
+protocol/host checks link the same fixtures used by the
 feasibility consumer so their results can be compared without duplicated tests.

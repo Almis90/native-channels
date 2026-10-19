@@ -33,7 +33,7 @@ and the [sample instructions](../samples/Uno/README.md).
 
 | Platform | Executed evidence | Still required |
 | --- | --- | --- |
-| Windows | Five package-only apps build and pass their bounded smoke checks; real Currency, silent audio and volume plugins execute | Native view parenting/visibility/input/resize, native PDF rendering, broader lifecycle and audible playback checks |
+| Windows | Five package-only apps pass bounded smoke checks; real Currency, silent audio and volume plugins execute. Corrected button adapters pass native parenting, layout/resize, focus, direct input messages and cleanup | Visible review and physical input, native PDF rendering, broader lifecycle and audible playback checks |
 | macOS | Earlier ARM64 transport and native contract probe; x64 native libraries cross-compile | Full five-app execution, shared plugin runtime, public native-view hosting path and PDF integration |
 | Linux | Earlier portable transport selection/method/disposal test in an Ubuntu VM | Five Uno app executions, native plugin packaging and view/PDF integration |
 | Android | Sample heads exist | Uno package integration, native method/view probes and five-app device/emulator execution |
@@ -83,8 +83,10 @@ not be used as a release approval.
 
 ## Remaining release gates
 
-- Resolve Windows native attachment and verify two simultaneous views, input,
-  focus, resize, reconnect, stale channel invalidation and cleanup.
+- Complete visible Windows review and physical input verification. The corrected
+  adapter passes automated two-view parenting, layout, focus, direct input messages,
+  reconnect, stale channel invalidation and cleanup checks; see the
+  [Windows probe correction](uno-feasibility.md#windows-native-view-probe).
 - Establish a public supported macOS native embedding path. The pinned Uno
   release exposes its arbitrary native-element wrapper internally; reflection,
   separate windows and rendered-image substitutes do not meet the planned contract.

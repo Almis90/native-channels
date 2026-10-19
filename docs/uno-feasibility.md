@@ -72,6 +72,24 @@ or a separate native window would not satisfy the planned embedded-view contract
 
 ### Windows native-view probe
 
+Update on October 20: the attachment failure was traced to the probe adapter's
+`WS_POPUP` window style. Uno reparents the HWND but does not convert it to a child
+window. The adapter now clears `WS_POPUP` and sets `WS_CHILD | WS_TABSTOP` before
+handing the wrapper to Uno, following the Windows
+[SetParent contract](https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-setparent).
+Both initial attachment and recreation now pass. No Uno internal API or host
+workaround is needed. The diagnostic reports both `GetParent` and `GetAncestor`
+alongside the actual style bits, so an owner/parent mismatch is visible.
+
+The Interop sample additionally checks two real native controls: separate HWNDs
+and channel identities, native bounds, resizing one without changing the other,
+show-style flags, focus transfer, direct mouse/keyboard message delivery,
+reconnect isolation, stale channels and native handle destruction. The app is
+launched hidden; these are structural and message-dispatch checks, not screenshot
+or physical-input verification. Manual visual/input acceptance remains open.
+
+Historical result before this correction:
+
 The automated hidden launch created native button windows but the parent checks
 after assignment to Uno content returned false, including after recreating the
 button. This result is unresolved: it does not establish that Uno's documented
@@ -175,8 +193,9 @@ and publication remain gated on the unfinished acceptance below. See the
 
 ## Remaining gates
 
-1. Resolve the Windows control probe and verify native parenting, visibility,
-   input and resize. Packaged Windows method/plugin calls already pass.
+1. Complete visible Windows review and physical input/focus checks. Native
+   parenting, layout/resize and direct input-message checks now pass, as do
+   packaged Windows method/plugin calls.
 2. Extend desktop package acceptance into production plugin packaging and release
    CI, retaining the plain-.NET macOS bridge outside the UI host package.
 3. Establish a supported macOS native-element extension path against this pinned

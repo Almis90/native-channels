@@ -82,6 +82,7 @@ public sealed partial class MainPage : Page
                 {
                     nativeView = first && second ? "attached-and-recreated" : "failed",
                     firstAttached = first,
+                    window = Win32Probe.Snapshot(_button),
                     secondAttached = second,
                     nativeMethod = "not-executed; see dependency probe",
                     inputFocusAndVisibility = "not-verified (hidden automated launch)",

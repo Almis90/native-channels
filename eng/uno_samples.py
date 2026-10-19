@@ -21,7 +21,7 @@ VERSION = '0.3.0-preview.6'
 PACKAGES = ('NativeChannels.Core', 'NativeChannels', 'NativeChannels.Uno',
             'Plugin.Currency', 'Plugin.AudioStreamer', 'Plugin.VolumeMonitor', 'Plugin.Uno.PdfViewer')
 GAPS = {
-    'windows': 'Native view attachment/input and PDF rendering are not accepted.',
+    'windows': 'Native parenting/layout/focus and direct input messages pass; physical input/visual review and native PDF rendering remain unverified.',
     'linux': 'Native plugin assets and Uno runtime/native views/PDF are not verified.',
     'macos': 'Native plugin runtime is not verified; pinned Uno lacks public arbitrary NSView embedding.',
     'android': 'Uno mobile package integration, native views and device execution are pending.',

@@ -47,8 +47,10 @@ awaits asynchronous disposal. Explicit disconnect suppresses automatic reattachm
 until `Reconnect` is called. Dispose views before their session.
 
 `Connected` reports assignment to Uno's presenter, not verified native parenting,
-visibility, input, or focus. This surface is experimental: the Windows feasibility
-probe has not established native attachment, and macOS throws an explicit
+visibility, input, or focus. The Windows adapter must supply child-window styles
+before Uno reparents its HWND; see the [corrected Windows probe](uno-feasibility.md#windows-native-view-probe).
+Native parenting, layout, focus and direct input-message checks now pass on Windows,
+but visual review and physical input remain unverified. macOS throws an explicit
 `PlatformNotSupportedException` because the pinned release has no public arbitrary
 AppKit embedding API. Other platforms need runtime verification. No reflection into
 Uno internals, rendered-image substitute, or separate-window fallback is used.

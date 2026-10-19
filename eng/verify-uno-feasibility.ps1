@@ -64,6 +64,9 @@ try {
             if ($PluginProbe -and (Get-Content -Raw -LiteralPath $resultFile | ConvertFrom-Json).plugins -ne 'passed') {
                 throw "Uno plugin probe failed. Inspect $resultFile"
             }
+            if (-not $HostProbe -and -not $PluginProbe -and (Get-Content -Raw -LiteralPath $resultFile | ConvertFrom-Json).nativeView -ne 'attached-and-recreated') {
+                throw "Uno Windows native attachment probe failed. Inspect $resultFile"
+            }
         }
         finally {
             $env:DOTNET_ROOT = $previousRoot

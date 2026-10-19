@@ -4,7 +4,7 @@ internal sealed partial class SamplePage
 {
     private const string Title = "Interop";
     private const string Limitation =
-        "Managed loopback lifecycle checks only. Native views, input and resize acceptance pending.";
+        "Windows native parenting, layout, focus and direct input-message checks; physical input and visual fidelity remain unverified. Other platforms pending.";
     private bool _ran;
 #if SAMPLE_DESKTOP
     private NativeButtons? _buttons;
@@ -19,7 +19,7 @@ internal sealed partial class SamplePage
             {
                 await VerifyAsync();
                 _status.Text =
-                    "Managed host checks passed: dispatch, cancellation, reconnect, stale channels, event shutdown and isolated windows. "
+                    "Host and Windows native-control checks passed: dispatch, lifecycle, parenting, layout, focus and direct input messages. "
                     + Limitation;
             }
         );
@@ -68,6 +68,21 @@ internal sealed partial class SamplePage
             await client.GetBasicMessageChannel("messages/echo").SendAsync<string>("hello") == "hello",
             "Message echo"
         );
+#if SAMPLE_DESKTOP
+        if (OperatingSystem.IsWindows())
+        {
+            _buttons = new NativeButtons();
+            _surface.Content = _buttons.Panel;
+            try
+            {
+                await _buttons.VerifyAsync();
+            }
+            finally
+            {
+                await StopAsync();
+            }
+        }
+#endif
     }
 
     public async Task StopAsync()

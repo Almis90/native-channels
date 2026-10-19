@@ -55,7 +55,8 @@ contains the Uno control, PDF state validation, UI-dispatched state callbacks,
 and reconnect/disposal behavior. It requires an explicit `IUnoNativeView` factory.
 **No built-in Uno native PDF adapter is bundled or validated yet.** macOS lacks
 the public embedding API required by the pinned Uno release, and Windows native
-attachment remains unresolved. Mobile, Linux and browser adapters still need
+attachment is verified for the button sample, but a PDF adapter is still missing.
+Mobile, Linux and browser adapters still need
 integration. A protocol fixture does not satisfy PDF rendering acceptance.
 
 ## Executed acceptance
