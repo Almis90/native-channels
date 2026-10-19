@@ -23,6 +23,12 @@ The baseline versions and SHA-256 hashes live in [eng/api-baseline.json](../eng/
 Baseline archives come directly from NuGet.org and are checked before every comparison, including
 cache hits. Candidate hashes and results are saved in `artifacts/api-compatibility/result.json`.
 These checks reuse built packages; they do not rebuild native prerequisites.
+Framework dependency assemblies are extracted separately from the candidate and
+hash-verified baseline feeds, selecting matching platform assets or the portable
+asset. This allows inherited APIs, including the shared MAUI options, to be
+compared without relying on an ambient developer package cache. Diagnostics for
+external platform/MAUI SDK references remain in the raw log; native ABI and
+third-party SDK compatibility still require their own checks.
 
 ## Run locally
 

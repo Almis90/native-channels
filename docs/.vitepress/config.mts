@@ -3,7 +3,7 @@ import { repository, repositoryLinks, sourcePath } from './repository-links.mjs'
 
 export default defineConfig({
   title: 'NativeChannels',
-  description: 'Native platform channels for .NET MAUI. Connect C# with Kotlin, Swift, and Windows APIs through generic bridges.',
+  description: 'Native platform channels for .NET MAUI and Avalonia. Connect .NET with Kotlin, Swift, C++, Windows APIs, and JavaScript.',
   base: '/native-channels/',
   cleanUrls: true,
   lastUpdated: true,

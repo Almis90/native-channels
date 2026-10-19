@@ -14,7 +14,8 @@ browser, and all six Linux heads, including both PDF backends. Linux VM verifica
 PulseAudio null sink; this does not establish audible output. Local package feeds
 pass metadata/platform audits and consumers are checked against their archives.
 Builds use the pinned .NET SDK 10.0.401 and may reuse external dependency caches;
-this is not final combined-package release acceptance. Android and iOS results use
+the October 19 combined candidate passed local acceptance as recorded above;
+publication remains separate. Android and iOS results use
 emulators/simulators. No workflows are invoked by the local runner.
 
 | Sample | Android | iOS | Windows | macOS | Linux | Browser |

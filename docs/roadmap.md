@@ -14,8 +14,8 @@ frameworks, while keeping platform lifecycle and native view hosting explicit.
 These are milestone acceptance criteria, not a released support matrix. The
 [verification record](verification.md) now includes all five samples passing locally
 on all six Avalonia targets and all four MAUI targets, including both Linux PDF
-backends. Those runs span development builds; final combined-package validation
-and publication remain separate. See the [0.2 preview preparation](preview-02.md)
+backends. The October 19 candidate also passed local validation of one exact
+combined feed; publication remains separate. See the [0.2 preview preparation](preview-02.md)
 for the local candidate process and explicit limitations. Uno remains planned.
 
 ## Initial preview

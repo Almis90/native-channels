@@ -1,8 +1,10 @@
 # Preparing 0.2.0-preview.1 locally
 
-All five samples passed local suites on the six Avalonia targets and four MAUI
-targets. See [verification](verification.md) for actual environments and source
-revisions. Those development feeds are not the final distribution archives.
+The combined candidate from `4f1079b` passed local acceptance on October 19:
+all five samples across six Avalonia targets and four MAUI targets, with both
+Linux PDF heads (51 executions). See [verification](verification.md#local-02-candidate)
+for exact package hashes, environments and limitations. The candidate is unpublished;
+these commands reproduce the local preparation and acceptance process.
 
 ## Candidate scope
 

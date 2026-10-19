@@ -4,8 +4,9 @@ The current 0.2 [Avalonia reference sample matrix](../samples/Avalonia/README.md
 adds AudioStreamer, VolumeMonitor and PdfViewer implementation heads for all six
 targets, including separate C++ Qt/GTK Linux PDF apps. Local execution of all five
 samples on Windows, Android, Linux, browser and Apple targets is recorded below,
-with package audits and source provenance. Evidence is limited to each recorded
-build and environment; these runs do not complete 0.2 acceptance.
+with package audits and source provenance. The October 19 combined-package
+candidate passed local acceptance below; publication and broader platform
+coverage remain separate.
 
 This record separates implementation, compilation, runtime checks, and manual observations.
 Package acceptance requires verification of the exact source revision and generated archives.
@@ -18,11 +19,69 @@ Package acceptance requires verification of the exact source revision and genera
 | Executed | The scenario ran on the stated environment |
 | Unverified | The scenario has not been checked on that environment |
 
-The current support record covers MAUI. Complete Avalonia integration (0.2) and Uno integration
-(0.3) are [planned](roadmap.md) for Android, iOS, Windows, desktop macOS, Linux, and browser/WebAssembly.
-None of those additional host combinations is accepted on `main` yet. The Currency proofs below
-are partial milestone work; they do not establish other contracts, targets, or released support.
-Future records must distinguish unavailable OS/browser capabilities from checks that have not run.
+The published 0.1 support record covers MAUI. The unreleased 0.2 candidate adds
+Avalonia on six targets and has passed local combined-package verification. Uno
+remains [planned](roadmap.md) for 0.3. Historical Currency proofs below establish
+only their recorded scope; the newer complete suites do not establish publication,
+physical-device support, or capabilities unavailable on an OS/browser.
+
+## Local combined 0.2 preview candidate — 2026-10-19 {#local-02-candidate}
+
+All ten suites passed against the same six framework packages and symbols built
+from clean commit `4f1079baeea12e7708f81940d832e8ddc3d58aa0`: **51 sample executions**,
+including both Linux PDF heads. The [machine-readable report](/verification/preview-02-local.json)
+records archive hashes, the combined API result, clean build/execution identities,
+summary hashes, per-sample input-manifest hashes and the acceptance receipt.
+
+| Framework | Executed environment | Result | Evidence ID |
+| --- | --- | --- | --- |
+| Avalonia | Windows x64 | 5/5 PASS | `20261019-150945-6cd00232` |
+| Avalonia | Android API 36 x86_64 emulator | 5/5 PASS | `20261019-152634-dd7a5008` |
+| Avalonia | iOS simulator ARM64 | 5/5 PASS | `20261019-151239-9f940927` |
+| Avalonia | macOS ARM64 | 5/5 PASS | `20261019-150956-65035cef` |
+| Avalonia | Linux x64 / X11 | 6/6 PASS | `20261019-120958-7aa7d328` |
+| Avalonia | Browser / Chromium | 5/5 PASS | `20261019-152613-5475446e` |
+| MAUI | Windows x64 | 5/5 PASS | `20261019-151150-c7c68511` |
+| MAUI | Android API 36 x86_64 emulator | 5/5 PASS | `20261019-155922-0b7aafcc` |
+| MAUI | iOS simulator ARM64 | 5/5 PASS | `20261019-152544-01c3572d` |
+| MAUI | Mac Catalyst ARM64 | 5/5 PASS | `20261019-152211-7a2cfe79` |
+
+Windows used build 26200 and the API 36 Android emulator; browser checks used
+Chrome 155.0.8059.80 through Playwright. Linux ran in the Ubuntu 24.04 x64 VM (kernel 6.8.0-142,
+glibc 2.39), with Xvfb/Openbox and a temporary PulseAudio null sink. The Mac ran
+macOS 26.2 ARM64, Xcode 26.6 (17F113), and an iPhone 17 Pro iOS 26.5 simulator.
+All hosts used .NET SDK 10.0.401. External dependencies were reused through
+hardlinked caches; framework/reference-plugin restores used isolated caches.
+
+Package assembly checked all ten clean-source inputs, seven transport targets,
+six package identities, managed symbols and browser assets. The five existing
+package APIs passed comparison with the hash-pinned 0.1.0-preview.1 baseline;
+Avalonia is new. Every consumer verified its resolved local archive hashes before
+execution. The acceptance gate checked all ten summaries against the exact
+candidate and API-report hashes. Full local evidence is under
+`artifacts/preview-02-r3/`; Apple and Linux reports were copied to its `results/`
+subdirectory. Original per-app logs and hashes remain with the suite evidence. The first
+browser launch lacked Playwright's downloaded Chromium; the same built binaries
+then passed using the installed Chrome channel, without rebuilding packages.
+The first MAUI Android run timed out in AudioStreamer because a System UI ANR
+dialog held window focus. After rebooting that emulator, the complete suite
+passed with the same binaries. Both failed attempts remain in the local evidence.
+
+Preparation fixed a real cross-target API mismatch: Linux APIs in the portable
+assembly must also exist in the platform assemblies. Linux module construction
+still requires Linux. The API checker now resolves same-feed framework dependencies
+so inherited MAUI options are compared correctly. Negative checks still reject
+the original Linux mismatch and a deliberately removed inherited option. Apple
+consumer builds now refresh the Interop sample framework for the current target.
+The final revision also passed 187 packaging regressions; 23 local runner/candidate
+tests and 52 targeted transport/plugin tests passed during preparation.
+
+This is local preview acceptance. No workflows ran, and no tag, push or publication
+was performed. Publication tooling still needs explicit preparation for the six
+package set. Windows ARM64, Apple x64, physical phones, native Wayland, other
+browser engines, signing/store deployment, accessibility and long native heap
+soaks remain unverified here. Audio audibility, hardware volume changes and PDF
+visual fidelity remain manual checks. See [preview scope](preview-02.md).
 
 ## Local Windows, Android, Linux and browser sample execution — 2026-10-18–19
 

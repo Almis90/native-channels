@@ -105,6 +105,14 @@ and force-stops each sample afterward. It does not clear device logs. Specify a 
 when multiple devices are connected. Android setup and emulator creation are separate
 from the test runner.
 
+MAUI AudioStreamer waits for the activity to be top-resumed and its window to
+have focus before requesting playback. A lock screen or Android System UI ANR
+dialog can prevent verification from starting. Check the foreground window with
+`adb -s <serial> shell dumpsys window`; restore a healthy, unlocked test device
+(or reboot the emulator), then rerun the complete suite with its existing manifest.
+Keep the failed report; do not remove the foreground guard or extend deadlines
+to hide an emulator failure.
+
 ## Apple platforms
 
 On your Mac, install the pinned SDK/workloads, compatible Xcode, and its simulator
