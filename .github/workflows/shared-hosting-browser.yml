@@ -2,10 +2,10 @@ name: Verify Avalonia Browser
 on:
   pull_request:
     branches: [main, milestone-0.2-shared-hosting]
-    paths: ['src/**', 'plugins/Plugin.Maui.Currency/**', 'samples/Avalonia/Currency/**', 'samples/Currency.Shared/**', 'tests/**', 'eng/**', 'Directory.*.props', 'global.json', '.github/workflows/shared-hosting-browser.yml', '!**/*.md']
+    paths: ['src/**', 'plugins/Plugin.Currency/**', 'samples/Avalonia/Currency/**', 'samples/Currency.Shared/**', 'tests/**', 'eng/**', 'Directory.*.props', 'global.json', '.github/workflows/shared-hosting-browser.yml', '!**/*.md']
   push:
     branches: [main, milestone-0.2-shared-hosting]
-    paths: ['src/**', 'plugins/Plugin.Maui.Currency/**', 'samples/Avalonia/Currency/**', 'samples/Currency.Shared/**', 'tests/**', 'eng/**', 'Directory.*.props', 'global.json', '.github/workflows/shared-hosting-browser.yml', '!**/*.md']
+    paths: ['src/**', 'plugins/Plugin.Currency/**', 'samples/Avalonia/Currency/**', 'samples/Currency.Shared/**', 'tests/**', 'eng/**', 'Directory.*.props', 'global.json', '.github/workflows/shared-hosting-browser.yml', '!**/*.md']
   workflow_dispatch:
 permissions:
   contents: read

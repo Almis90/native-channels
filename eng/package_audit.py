@@ -70,7 +70,7 @@ def audit_android_scope(path, record):
     package_id = record["id"]
     permitted = {
         "NativeChannels.Core", "NativeChannels", "NativeChannels.Maui", "NativeChannels.Avalonia", "NativeChannels.Native.Android",
-        "Plugin.Maui.Currency", "Plugin.Maui.AudioStreamer", "Plugin.Maui.VolumeMonitor", "Plugin.Maui.PdfViewer", "Plugin.Avalonia.PdfViewer",
+        "Plugin.Currency", "Plugin.AudioStreamer", "Plugin.VolumeMonitor", "Plugin.Maui.PdfViewer", "Plugin.Avalonia.PdfViewer",
     }
     if package_id not in permitted:
         raise ValueError(f"{path.name}: unexpected Android feed package {package_id}")
@@ -104,7 +104,7 @@ def audit_platform_scope(path, record, platform):
     permitted = {"NativeChannels.Core", "NativeChannels", "NativeChannels.Maui", "NativeChannels.Avalonia"}
     if platform in {"macos", "linux", "browser"}:
         permitted.remove("NativeChannels.Maui")
-    permitted.update({"Plugin.Maui.Currency", "Plugin.Maui.AudioStreamer", "Plugin.Maui.VolumeMonitor", "Plugin.Avalonia.PdfViewer"})
+    permitted.update({"Plugin.Currency", "Plugin.AudioStreamer", "Plugin.VolumeMonitor", "Plugin.Avalonia.PdfViewer"})
     if platform in {"windows", "ios", "maccatalyst"}:
         permitted.add("Plugin.Maui.PdfViewer")
     if apple:
@@ -126,9 +126,9 @@ def audit_platform_scope(path, record, platform):
                (not apple and (".xcframework/" in name or name.endswith(".resources.zip"))) for name in files):
             raise ValueError(f"{path.name}: unrelated native payload in {platform} feed")
         if platform == 'linux':
-            expected = {'Plugin.Maui.Currency': ['libnc_currency.so'],
-                        'Plugin.Maui.AudioStreamer': ['libnc_audio.so'],
-                        'Plugin.Maui.VolumeMonitor': ['libnc_volume.so'],
+            expected = {'Plugin.Currency': ['libnc_currency.so'],
+                        'Plugin.AudioStreamer': ['libnc_audio.so'],
+                        'Plugin.VolumeMonitor': ['libnc_volume.so'],
                         'Plugin.Avalonia.PdfViewer': ['libnc_pdf_qt.so', 'libnc_pdf_gtk.so']}.get(package_id, [])
             runtime_files = {name for name in files if name.startswith('runtimes/') and not name.endswith('/')}
             required = {f'runtimes/linux-x64/native/{name}' for name in expected}
@@ -141,9 +141,9 @@ def audit_platform_scope(path, record, platform):
         if platform == 'browser':
             required = {
                 'NativeChannels': ['browser/nativechannels.mjs', 'browser/json-codec.mjs'],
-                'Plugin.Maui.Currency': ['browser/currency.mjs'],
-                'Plugin.Maui.AudioStreamer': ['browser/audiostreamer.mjs'],
-                'Plugin.Maui.VolumeMonitor': ['browser/volumemonitor.mjs'],
+                'Plugin.Currency': ['browser/currency.mjs'],
+                'Plugin.AudioStreamer': ['browser/audiostreamer.mjs'],
+                'Plugin.VolumeMonitor': ['browser/volumemonitor.mjs'],
                 'Plugin.Avalonia.PdfViewer': ['browser/pdf-dom.mjs', 'browser/pdfviewer.mjs',
                     'browser/vendor/pdf.mjs', 'browser/vendor/pdf.worker.mjs', 'browser/vendor/LICENSE'],
             }.get(package_id, [])

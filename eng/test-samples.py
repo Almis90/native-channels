@@ -85,7 +85,7 @@ def build(args, destination):
     cache.mkdir(parents=True)
     if args.reuse_external_cache:
         for package in args.reuse_external_cache.resolve().iterdir():
-            if package.is_dir() and not package.name.lower().startswith(('nativechannels', 'plugin.maui.', 'plugin.avalonia.')):
+            if package.is_dir() and not package.name.lower().startswith(('nativechannels', 'plugin.')):
                 def link_or_copy(source, destination):
                     try:
                         os.link(source, destination)
@@ -101,7 +101,7 @@ def build(args, destination):
     ET.SubElement(sources, 'add', key='nuget', value='https://api.nuget.org/v3/index.json')
     mapping = ET.SubElement(xml, 'packageSourceMapping')
     local = ET.SubElement(mapping, 'packageSource', key='local')
-    for pattern in ('NativeChannels*', 'Plugin.Maui.*', 'Plugin.Avalonia.*'):
+    for pattern in ('NativeChannels*', 'Plugin.*'):
         ET.SubElement(local, 'package', pattern=pattern)
     ET.SubElement(ET.SubElement(mapping, 'packageSource', key='nuget'), 'package', pattern='*')
     ET.ElementTree(xml).write(config, encoding='utf-8', xml_declaration=True)
@@ -121,7 +121,7 @@ def build(args, destination):
         # Rebuild for this target: an earlier run may have left other slices here.
         command([sys.executable, 'eng/build-apple.py', *apple])
         for name in SAMPLES[:4]:
-            command([sys.executable, f'plugins/Plugin.Maui.{name}/eng/build-apple.py', *apple])
+            command([sys.executable, f'plugins/Plugin.{"Maui." if name == "PdfViewer" else ""}{name}/eng/build-apple.py', *apple])
     elif target == 'browser':
         command(['npm.cmd' if os.name == 'nt' else 'npm', '--prefix', 'plugins/Plugin.Avalonia.PdfViewer',
                  'ci', '--ignore-scripts', '--no-audit', '--no-fund'])
@@ -150,7 +150,7 @@ def build(args, destination):
             pack('src/NativeChannels.Maui', '-p:' + flags[target], '-p:NativeChannelsUseCorePackage=true')
         else:
             pack('src/NativeChannels.Avalonia', '-p:NativeChannelsUseCorePackage=true')
-    for name in ('Plugin.Maui.Currency', 'Plugin.Maui.AudioStreamer', 'Plugin.Maui.VolumeMonitor',
+    for name in ('Plugin.Currency', 'Plugin.AudioStreamer', 'Plugin.VolumeMonitor',
                  'Plugin.Maui.PdfViewer' if maui else 'Plugin.Avalonia.PdfViewer'):
         extra = [f'-p:TargetFrameworks={tfm}'] if name == 'Plugin.Maui.PdfViewer' else []
         pack(f'plugins/{name}/src/{name}', '-p:' + flags[target], *extra)

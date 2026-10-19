@@ -41,10 +41,10 @@
             Include="NativeChannels.Native.Apple"
             Version="$(NativeChannelsPackageVersion)"
         />
-        <PackageVersion Include="Plugin.Maui.AudioStreamer" Version="0.1.0-alpha.1" />
+        <PackageVersion Include="Plugin.AudioStreamer" Version="0.1.0-alpha.1" />
         <PackageVersion Include="Plugin.Maui.PdfViewer" Version="0.1.0-alpha.1" />
-        <PackageVersion Include="Plugin.Maui.VolumeMonitor" Version="0.1.0-alpha.1" />
-        <PackageVersion Include="Plugin.Maui.Currency" Version="$(CurrencyPackageVersion)" />
+        <PackageVersion Include="Plugin.VolumeMonitor" Version="0.1.0-alpha.1" />
+        <PackageVersion Include="Plugin.Currency" Version="$(CurrencyPackageVersion)" />
         <PackageVersion Include="NativeChannels.Maui" Version="$(NativeChannelsPackageVersion)" />
     </ItemGroup>
 </Project>

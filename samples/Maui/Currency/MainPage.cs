@@ -4,7 +4,7 @@ using Microsoft.Maui.Controls;
 using Microsoft.Maui.Graphics;
 using Microsoft.Maui.Storage;
 using NativeSamples;
-using Plugin.Maui.Currency;
+using Plugin.Currency;
 
 namespace Currency.Sample;
 

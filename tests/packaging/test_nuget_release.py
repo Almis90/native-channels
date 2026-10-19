@@ -101,7 +101,7 @@ class ReleaseTests(unittest.TestCase):
             self.prepare()
 
     def test_extra_or_missing_package_rejected_even_with_updated_feed_hash(self):
-        self.members['artifacts/packages/Plugin.Maui.Currency.1.0.0.nupkg'] = b'not a framework package'
+        self.members['artifacts/packages/Plugin.Currency.1.0.0.nupkg'] = b'not a framework package'
         self.write_feed()
         for row in self.evidence['results']:
             row['feedSha256'] = release.digest(self.feed)

@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
+import xml.etree.ElementTree as ET
 
 spec = importlib.util.spec_from_file_location('shared_hosting', Path(__file__).resolve().parents[2] / 'eng/verify-shared-hosting.py')
 proof = importlib.util.module_from_spec(spec)
@@ -11,6 +12,17 @@ spec.loader.exec_module(proof)
 
 
 class SharedHostingTests(unittest.TestCase):
+    def test_messaging_plugins_do_not_require_ui_hosts(self):
+        root = Path(__file__).resolve().parents[2]
+        for name in ('Currency', 'AudioStreamer', 'VolumeMonitor'):
+            package = f'Plugin.{name}'
+            project = ET.parse(root / f'plugins/{package}/src/{package}/{package}.csproj')
+            with self.subTest(package=package):
+                self.assertEqual(package, project.findtext('.//PackageId'))
+                self.assertNotEqual('true', project.findtext('.//UseMaui'))
+                dependencies = {node.attrib['Include'] for node in project.findall('.//PackageReference')}
+                self.assertEqual({'NativeChannels'}, dependencies)
+
     def setUp(self):
         temporary = tempfile.TemporaryDirectory()
         self.addCleanup(temporary.cleanup)
@@ -21,7 +33,7 @@ class SharedHostingTests(unittest.TestCase):
 
     def create_assets(self, platform='android'):
         self.assets = {}
-        self.names = ['NativeChannels.Core', 'NativeChannels', 'Plugin.Maui.Currency']
+        self.names = ['NativeChannels.Core', 'NativeChannels', 'Plugin.Currency']
         if platform not in {'windows', 'linux', 'browser'}:
             self.names.append('NativeChannels.Native.Apple' if platform in {'ios', 'macos'} else 'NativeChannels.Native.Android')
         for host in (['avalonia'] if platform in {'macos', 'linux', 'browser'} else ['maui', 'avalonia']):
@@ -160,8 +172,8 @@ class SharedHostingTests(unittest.TestCase):
                 proof.package_proof(assets, self.feed)
 
     def test_wrong_package_bytes_and_sources_are_rejected(self):
-        directory = self.root / 'avalonia/plugin.maui.currency/1.0.0'
-        archive = directory / 'plugin.maui.currency.1.0.0.nupkg'
+        directory = self.root / 'avalonia/plugin.currency/1.0.0'
+        archive = directory / 'plugin.currency.1.0.0.nupkg'
         original = archive.read_bytes()
         archive.write_bytes(b'stale package')
         with self.assertRaisesRegex(ValueError, 'bytes differ'):
@@ -173,7 +185,7 @@ class SharedHostingTests(unittest.TestCase):
 
     def test_missing_package_and_project_reference_are_rejected(self):
         assets = copy.deepcopy(self.assets)
-        del assets['avalonia']['libraries']['Plugin.Maui.Currency/1.0.0']
+        del assets['avalonia']['libraries']['Plugin.Currency/1.0.0']
         with self.assertRaisesRegex(ValueError, 'missing shared packages'):
             proof.package_proof(assets, self.feed)
         self.assets['avalonia']['libraries']['SourceProject/1.0'] = {'type': 'project'}

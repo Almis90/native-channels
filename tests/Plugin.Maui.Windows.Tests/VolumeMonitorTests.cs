@@ -1,6 +1,6 @@
 using System.Runtime.InteropServices;
 using NativeChannels;
-using Plugin.Maui.VolumeMonitor;
+using Plugin.VolumeMonitor;
 using Xunit;
 
 namespace Plugin.Maui.Windows.Tests;

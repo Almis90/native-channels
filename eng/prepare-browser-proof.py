@@ -17,7 +17,7 @@ spec.loader.exec_module(proof)
 
 def check_published_modules(published, feed):
     modules = {}
-    for package_id in ('NativeChannels', 'Plugin.Maui.Currency'):
+    for package_id in ('NativeChannels', 'Plugin.Currency'):
         candidates = list(feed.glob(package_id + '.[0-9]*.nupkg'))
         if len(candidates) != 1:
             raise ValueError(f'Expected one {package_id} archive')

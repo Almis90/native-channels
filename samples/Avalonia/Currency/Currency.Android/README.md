@@ -2,7 +2,7 @@
 
 Part of the [template-generated Avalonia solution](../README.md).
 
-This package-only sample looks up native currency symbols using the same `Plugin.Maui.Currency`
+This package-only sample looks up native currency symbols using the same `Plugin.Currency`
 package as the [MAUI sample](../../../Maui/Currency/README.md). It targets .NET 10 Android and pins
 Avalonia 12.1.4. It has no MAUI package dependency and references only the shared application project.
 The view and session in `samples/Avalonia/Currency/Currency` are also used by the

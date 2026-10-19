@@ -1,0 +1,95 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFrameworks>net10.0-android;net10.0-ios;net10.0-maccatalyst</TargetFrameworks>
+        <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))"
+            >$(TargetFrameworks);net10.0-windows10.0.19041.0</TargetFrameworks>
+        <TargetFrameworks Condition="'$(NativeChannelsAndroidOnly)' == 'true'"
+            >net10.0-android</TargetFrameworks>
+        <TargetFrameworks Condition="'$(NativeChannelsWindowsOnly)' == 'true'"
+            >net10.0-windows10.0.19041.0</TargetFrameworks>
+        <TargetFrameworks Condition="'$(NativeChannelsAppleTarget)' != ''"
+            >net10.0-$(NativeChannelsAppleTarget)</TargetFrameworks>
+        <TargetFrameworks Condition="'$(NativeChannelsBrowserOnly)' == 'true'"
+            >net10.0-browser</TargetFrameworks>
+        <SupportedOSPlatformVersion
+            Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'macos'"
+            >14.0</SupportedOSPlatformVersion>
+        <TargetFrameworks Condition="'$(NativeChannelsLinuxOnly)' == 'true'"
+            >net10.0</TargetFrameworks>
+        <DefineConstants Condition="'$(NativeChannelsLinuxOnly)' == 'true'"
+            >$(DefineConstants);LINUX</DefineConstants>
+        <PackageId>Plugin.VolumeMonitor</PackageId>
+        <Version>0.1.0-alpha.1</Version>
+        <Description>Reference plugin demonstrating native volume event streaming and reusable packaging with NativeChannels.</Description>
+        <SupportedOSPlatformVersion
+            Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'"
+            >24</SupportedOSPlatformVersion>
+        <SupportedOSPlatformVersion
+            Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios' Or $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'"
+            >15.0</SupportedOSPlatformVersion>
+        <SupportedOSPlatformVersion
+            Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'"
+            >10.0.17763.0</SupportedOSPlatformVersion>
+    </PropertyGroup>
+    <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">
+        <Compile
+            Include="../../native/windows/**/*.cs"
+            Link="native/windows/%(RecursiveDir)%(Filename)%(Extension)"
+        />
+    </ItemGroup>
+    <ItemGroup>
+        <InternalsVisibleTo Include="Plugin.Maui.Windows.Tests" />
+        <PackageReference Include="NativeChannels" />
+        <None Remove="$(MSBuildThisFileDirectory)../../../../README.md" />
+        <None Include="../../README.md" Pack="true" PackagePath="/" />
+        <None
+            Include="buildTransitive/Plugin.VolumeMonitor.targets"
+            Pack="true"
+            PackagePath="buildTransitive/"
+        />
+        <None
+            Include="../../native/android/build/outputs/aar/volume-release.aar"
+            Condition="'$(NativeChannelsAppleTarget)' == '' And '$(NativeChannelsWindowsOnly)' != 'true' And '$(NativeChannelsLinuxOnly)' != 'true' And '$(NativeChannelsBrowserOnly)' != 'true'"
+            Pack="true"
+            PackagePath="native/android/volume.aar"
+        />
+        <None
+            Include="../../../../artifacts/native/MauiVolumeMonitorNative.xcframework/**/*"
+            Condition="'$(NativeChannelsWindowsOnly)' != 'true' And '$(NativeChannelsLinuxOnly)' != 'true' And '$(NativeChannelsBrowserOnly)' != 'true' And '$(NativeChannelsAndroidOnly)' != 'true'"
+            Pack="true"
+            Exclude="../../../../artifacts/native/MauiVolumeMonitorNative.xcframework/**/Modules/MauiVolumeMonitorNative.swiftmodule/**/*"
+            PackagePath="native/apple/MauiVolumeMonitorNative.xcframework/"
+        />
+    </ItemGroup>
+    <Target
+        Name="ValidateMauiVolumeMonitorNativeAssets"
+        BeforeTargets="GenerateNuspec"
+        Condition="'$(NativeChannelsWindowsOnly)' != 'true' And '$(NativeChannelsLinuxOnly)' != 'true' And '$(NativeChannelsBrowserOnly)' != 'true'"
+    >
+        <Error
+            Condition="'$(NativeChannelsAppleTarget)' == '' And !Exists('../../native/android/build/outputs/aar/volume-release.aar')"
+            Text="Build the Plugin.VolumeMonitor Android adapter before packing."
+        />
+        <Error
+            Condition="'$(NativeChannelsAndroidOnly)' != 'true' And !Exists('../../../../artifacts/native/MauiVolumeMonitorNative.xcframework/Info.plist')"
+            Text="Build the Plugin.VolumeMonitor Apple adapter before packing."
+        />
+    </Target>
+    <ItemGroup Condition="'$(NativeChannelsBrowserOnly)' == 'true'">
+        <None Include="../../native/browser/*.mjs" Pack="true" PackagePath="browser/" />
+    </ItemGroup>
+    <ItemGroup Condition="'$(NativeChannelsLinuxOnly)' == 'true'">
+        <None
+            Include="../../../../artifacts/native/linux-x64/libnc_volume.so"
+            Pack="true"
+            PackagePath="runtimes/linux-x64/native/"
+        />
+    </ItemGroup>
+    <Target
+        Name="BuildLinuxVolume"
+        BeforeTargets="BeforeBuild;GenerateNuspec"
+        Condition="'$(NativeChannelsLinuxOnly)' == 'true'"
+    >
+        <Exec Command="bash &quot;$(MSBuildThisFileDirectory)../../../../eng/build-linux-native.sh&quot; volume" />
+    </Target>
+</Project>

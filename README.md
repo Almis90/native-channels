@@ -39,9 +39,9 @@ The latest published preview is [0.1.0-preview.2 on NuGet.org](https://www.nuget
 
 | Contract | API | Reference example |
 | --- | --- | --- |
-| Named operations with typed results and structured errors | `MethodChannel` | [Currency](plugins/Plugin.Maui.Currency/README.md): currency code â†’ native symbol |
-| Values or binary chunks with an asynchronous reply | `BasicMessageChannel` | [AudioStreamer](plugins/Plugin.Maui.AudioStreamer/README.md): PCM playback through AudioTrack / AVAudioEngine / Windows waveOut |
-| Native observations with independent subscriptions | `EventChannel` | [VolumeMonitor](plugins/Plugin.Maui.VolumeMonitor/README.md): volume levels and listener cleanup |
+| Named operations with typed results and structured errors | `MethodChannel` | [Currency](plugins/Plugin.Currency/README.md): currency code â†’ native symbol |
+| Values or binary chunks with an asynchronous reply | `BasicMessageChannel` | [AudioStreamer](plugins/Plugin.AudioStreamer/README.md): PCM playback through AudioTrack / AVAudioEngine / Windows waveOut |
+| Native observations with independent subscriptions | `EventChannel` | [VolumeMonitor](plugins/Plugin.VolumeMonitor/README.md): volume levels and listener cleanup |
 | Embedded native UI with an instance-specific channel | `PlatformChannelView` | [PdfViewer](plugins/Plugin.Maui.PdfViewer/README.md): PDFKit / PdfRenderer / Windows.Data.Pdf with navigation and zoom |
 
 All four examples include native adapters and a separate MAUI application that consumes local packages.
@@ -71,6 +71,12 @@ platform-specific lifecycle behavior. See [architecture](docs/architecture.md).
 
 ## Get started
 
+Choose the optional `NativeChannels.Maui` or `NativeChannels.Avalonia` package for your
+application's startup, UI dispatch, and native view integration. For messaging alone,
+reference `NativeChannels` and use `services.AddNativeChannels(...)`, managing service
+ownership and UI dispatch in your application. See [package boundaries](docs/architecture.md#package-boundaries).
+The Currency, AudioStreamer, and VolumeMonitor plugins are framework-independent.
+
 Add the package to a .NET 10 MAUI application:
 
 ```sh
@@ -89,7 +95,7 @@ adapter registration, and a complete native round trip. Then follow one path:
 - **Integrate a native SDK:** follow [getting started](docs/getting-started.md), then the
   [Android](docs/android-integration.md) and [Apple](docs/ios-integration.md) adapter guides.
 - **Build a reusable plugin:** follow [plugin authoring](docs/plugin-authoring.md) and study the
-  [Currency reference implementation](plugins/Plugin.Maui.Currency/README.md).
+  [Currency reference implementation](plugins/Plugin.Currency/README.md).
 
 Repository samples use local feeds to test source changes. For those feeds, device commands, and
 the pinned toolchain, see [building from source](docs/building.md).

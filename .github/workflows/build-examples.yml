@@ -1,5 +1,5 @@
 name: Examples / Package build
-run-name: Example ${{ inputs.sample }} · framework run ${{ inputs.framework_run }}
+run-name: Example ${{ inputs.sample }} Ã‚Â· framework run ${{ inputs.framework_run }}
 on:
   workflow_dispatch:
     inputs:
@@ -90,7 +90,8 @@ jobs:
         env:
           SAMPLE: ${{ inputs.sample }}
         run: |
-          project="tests/Plugin.Maui.$SAMPLE.Tests/Plugin.Maui.$SAMPLE.Tests.csproj"
+          PACKAGE="Plugin.$SAMPLE"; if [[ "$SAMPLE" == PdfViewer ]]; then PACKAGE="Plugin.Maui.PdfViewer"; fi
+          project="tests/$PACKAGE.Tests/$PACKAGE.Tests.csproj"
           if [[ -f "$project" ]]; then
             bash eng/dotnet.sh test "$project" -c Release --logger trx --results-directory artifacts/example-tests
           fi
@@ -107,9 +108,10 @@ jobs:
             *) exit 2 ;;
           esac
           native/android/gradlew -p native/android --no-daemon ":$module:assembleRelease" ":$module:testReleaseUnitTest"
-          python3 "plugins/Plugin.Maui.$SAMPLE/eng/build-apple.py"
+          PACKAGE="Plugin.$SAMPLE"; if [[ "$SAMPLE" == PdfViewer ]]; then PACKAGE="Plugin.Maui.PdfViewer"; fi
+          python3 "plugins/$PACKAGE/eng/build-apple.py"
           if [[ "$SAMPLE" == Currency ]]; then
-            xcrun swiftc -swift-version 5 plugins/Plugin.Maui.Currency/native/apple/Sources/CurrencySymbols.swift plugins/Plugin.Maui.Currency/native/apple/Tests/main.swift -o artifacts/currency-swift-tests
+            xcrun swiftc -swift-version 5 plugins/Plugin.Currency/native/apple/Sources/CurrencySymbols.swift plugins/Plugin.Currency/native/apple/Tests/main.swift -o artifacts/currency-swift-tests
             artifacts/currency-swift-tests
           fi
       - name: Pack and inspect selected mobile plugin
@@ -117,12 +119,13 @@ jobs:
         env:
           SAMPLE: ${{ inputs.sample }}
         run: |
-          bash "plugins/Plugin.Maui.$SAMPLE/eng/pack.sh"
-          python3 "plugins/Plugin.Maui.$SAMPLE/eng/inspect-package.py"
+          PACKAGE="Plugin.$SAMPLE"; if [[ "$SAMPLE" == PdfViewer ]]; then PACKAGE="Plugin.Maui.PdfViewer"; fi
+          bash "plugins/$PACKAGE/eng/pack.sh"
+          python3 "plugins/$PACKAGE/eng/inspect-package.py"
       - uses: actions/upload-artifact@v4
         with:
           name: mobile-example-package
-          path: artifacts/packages/Plugin.Maui.${{ inputs.sample }}.*
+          path: artifacts/packages/Plugin.${{ inputs.sample == 'PdfViewer' && 'Maui.PdfViewer' || inputs.sample }}.*
           retention-days: 7
           if-no-files-found: error
       - uses: actions/upload-artifact@v4
@@ -190,7 +193,8 @@ jobs:
           mv artifacts/packages artifacts/mobile-packages
           mv artifacts/combined-packages artifacts/packages
           python3 eng/inspect-packages.py --combined
-          python3 "plugins/Plugin.Maui.$SAMPLE/eng/inspect-package.py" --combined
+          PACKAGE="Plugin.$SAMPLE"; if [[ "$SAMPLE" == PdfViewer ]]; then PACKAGE="Plugin.Maui.PdfViewer"; fi
+          python3 "plugins/$PACKAGE/eng/inspect-package.py" --combined
           python3 eng/package_audit.py artifacts/packages/*.nupkg --source-commit "$GITHUB_SHA"
           tar -czf artifacts/package-feed.tar.gz artifacts/packages artifacts/package-audit.json \
             native/android/sample/build/outputs/aar/sample-release.aar artifacts/native/NativeChannelsSample.xcframework

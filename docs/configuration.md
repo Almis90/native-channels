@@ -79,7 +79,7 @@ platform-specific application can register Currency using the same plugin archiv
 ```csharp
 using Microsoft.Extensions.DependencyInjection;
 using NativeChannels;
-using Plugin.Maui.Currency;
+using Plugin.Currency;
 
 var services = new ServiceCollection();
 services.AddNativeChannels(options => options.AddCurrency());
@@ -89,7 +89,7 @@ var currency = provider.GetRequiredService<ICurrencyService>();
 string symbol = await currency.GetSymbolAsync("EUR");
 ```
 
-Reference `Plugin.Maui.Currency` and `Microsoft.Extensions.DependencyInjection`; use a supported
+Reference `Plugin.Currency` and `Microsoft.Extensions.DependencyInjection`; use a supported
 platform target such as `net10.0-windows10.0.19041.0` or `net10.0-android`. The platform package and
 native adapters arrive through the plugin dependency. This API supplies channel services; the host
 still controls startup, UI dispatch, and disposal. The

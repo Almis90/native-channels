@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { register } from '../../plugins/Plugin.Maui.AudioStreamer/native/browser/audiostreamer.mjs';
+import { register } from '../../plugins/Plugin.AudioStreamer/native/browser/audiostreamer.mjs';
 
 test('PCM acknowledgements preserve BinaryMessageCodec framing, including errors', async () => {
     const previous = globalThis.document;

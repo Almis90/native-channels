@@ -24,8 +24,21 @@ as communication. A lower-level bridge regression consumer lives in `tests/Packa
 `NativeChannels.Core` has no MAUI or native runtime dependencies. It owns named endpoints,
 request correlation, cancellation, timeout handling, serialization, and channel contracts.
 `NativeChannels` supplies platform transports, shared service registration, and native module configuration.
-`NativeChannels.Maui` supplies DI/startup integration and native view handlers.
+`NativeChannels.Maui` and `NativeChannels.Avalonia` are optional, thin application integrations:
+they supply framework startup, UI dispatch, and native view attachment and cleanup.
+Avalonia also supplies owned sessions for independently managed windows or activities.
+Messaging, codecs, platform transports, and shared registration stay outside these packages.
 The generic Android and Apple bindings are separate implementation packages.
+
+For messaging-only applications, reference `NativeChannels` and call
+`services.AddNativeChannels(...)` directly. The application owns the service provider,
+its disposal, and any UI dispatch needed by handlers. Neither UI host package is required.
+Choose a host package when its startup or view integration is useful.
+
+`Plugin.Currency`, `Plugin.AudioStreamer`, and `Plugin.VolumeMonitor` depend on
+`NativeChannels` and can be reused across hosts. `Plugin.Maui.PdfViewer` and
+`Plugin.Avalonia.PdfViewer` retain framework names because their controls depend on
+their respective UI frameworks.
 
 Native sessions are instance-scoped. Explicit module registration replaces global discovery.
 Kotlin modules implement `NativeModule`; Swift modules implement the Objective-C-compatible
@@ -78,10 +91,10 @@ registration and adds startup integration and native view handlers. Its existing
 `NativeChannelsOptions` extends the shared settings with MAUI view factories.
 
 Currency depends on the platform package rather than the MAUI host. Applications choose their host
-explicitly; the MAUI Currency sample references both `Plugin.Maui.Currency` and `NativeChannels.Maui`.
+explicitly; the MAUI Currency sample references both `Plugin.Currency` and `NativeChannels.Maui`.
 The [Avalonia Android sample](../samples/Avalonia/Currency/Currency.Android/README.md) consumes the same Currency
-package through shared registration and owns disposal at the activity boundary. It is a method-call
-proof; a general Avalonia host and native view integration remain [roadmap](roadmap.md) work.
+package through shared registration and owns disposal at the activity boundary.
+The [Avalonia host](avalonia-host.md) supplies reusable session and native view integration.
 The [iOS sample](../samples/Avalonia/Currency/Currency.iOS/README.md) shares the view and session code, uses
 Avalonia's single-view application lifetime, and verifies its own Apple package/runtime boundary.
 The [Windows sample](../samples/Avalonia/Currency/Currency.Desktop/Windows.md) uses the same view and session

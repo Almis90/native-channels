@@ -531,7 +531,7 @@ Both apps compile the same verification source.
 
 The two fresh NuGet caches contained identical `NativeChannels.Core`, `NativeChannels`, Android
 binding and Currency archives. Avalonia's dependency graph contained no `NativeChannels.Maui` or
-`Microsoft.Maui.*` packages. The Android development package `Plugin.Maui.Currency` 1.1.0-alpha.1 had
+`Microsoft.Maui.*` packages. The Android development package `Plugin.Currency` 1.1.0-alpha.1 had
 SHA-256 `e10129f0347ccfceab5d2d709e360c94febe1661ee252e90789cab1bd7a12270` in both hosts.
 The `shared-hosting-android` artifact retains all four package hashes, app logs and `verification.json`.
 
@@ -572,7 +572,7 @@ applications displaying the USD result and successful native checks.
 
 Separate fresh caches contained identical `NativeChannels.Core`, `NativeChannels`, Apple binding
 and Currency archives. Avalonia's graph contained no `NativeChannels.Maui` or `Microsoft.Maui.*`
-dependencies. The iOS development package `Plugin.Maui.Currency` 1.1.0-alpha.1 had SHA-256
+dependencies. The iOS development package `Plugin.Currency` 1.1.0-alpha.1 had SHA-256
 `74cc039391e5e23243b20e06e8b0cb2417f3dee3f0c6d846b534d70ba9e9f2b1` in both hosts and contained
 no Android AAR. The `shared-hosting-ios` artifact retains all four package hashes, source revision,
 runtime results, logs and screenshots; its `verification.json` records `success: true`.
@@ -682,7 +682,7 @@ Separate fresh caches contained identical shared archives:
 | --- | --- | --- |
 | NativeChannels.Core | 0.1.0-preview.1 | `7694351f5aad6e405bcc92e9383e6f24269fc1f62d14d392e1bd46c6cd43526c` |
 | NativeChannels | 0.1.0-preview.1 | `912fd9dc65762fa3032574d288e79c084bb345531a5a67ec0fb870ff0ecb4209` |
-| Plugin.Maui.Currency | 1.1.0-alpha.1 | `c3937dac7f5acb9f16951ac9dc7558195c8352a229eed04da94e48c2975bc343` |
+| Plugin.Currency | 1.1.0-alpha.1 | `c3937dac7f5acb9f16951ac9dc7558195c8352a229eed04da94e48c2975bc343` |
 
 Both graphs contained no library project references or mobile channel bindings. Avalonia used its
 Win32 backend with no MAUI or Windows App SDK dependency. Framework package metadata matched the

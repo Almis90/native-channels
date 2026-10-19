@@ -19,7 +19,7 @@
         <PackageReference Include="Xamarin.AndroidX.Core.SplashScreen" />
         <AndroidResource Include="Icon.png" Link="Resources/drawable/Icon.png" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
-        <PackageReference Include="Plugin.Maui.Currency" />
+        <PackageReference Include="Plugin.Currency" />
         <Compile
             Include="../../../Currency.Shared/PluginVerification.cs"
             Link="PluginVerification.cs"

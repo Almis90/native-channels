@@ -107,7 +107,7 @@ def main():
                 if len(native_paths) != 1:
                     raise ValueError('Expected the loaded C++ Currency adapter')
                 native_path = Path(next(iter(native_paths)))
-                archives = list((ROOT / 'artifacts/packages').glob('Plugin.Maui.Currency.*.nupkg'))
+                archives = list((ROOT / 'artifacts/packages').glob('Plugin.Currency.*.nupkg'))
                 if len(archives) != 1:
                     raise ValueError('Expected one local Currency archive')
                 with zipfile.ZipFile(archives[0]) as archive:

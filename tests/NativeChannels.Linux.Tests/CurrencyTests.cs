@@ -1,7 +1,7 @@
 using System.Globalization;
 using Currency.Verification;
 using Microsoft.Extensions.DependencyInjection;
-using Plugin.Maui.Currency;
+using Plugin.Currency;
 using Xunit;
 
 namespace NativeChannels.Linux.Tests;

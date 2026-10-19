@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using NativeChannels;
-using Plugin.Maui.AudioStreamer;
+using Plugin.AudioStreamer;
 
 namespace AudioStreamer.Avalonia;
 

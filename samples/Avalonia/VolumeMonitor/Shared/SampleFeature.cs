@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using NativeChannels;
-using Plugin.Maui.VolumeMonitor;
+using Plugin.VolumeMonitor;
 
 namespace ReferenceSamples;
 

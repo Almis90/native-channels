@@ -63,6 +63,6 @@
     <ItemGroup>
         <PackageReference Include="Microsoft.Maui.Controls" />
         <PackageReference Include="NativeChannels.Maui" />
-        <PackageReference Include="Plugin.Maui.VolumeMonitor" />
+        <PackageReference Include="Plugin.VolumeMonitor" />
     </ItemGroup>
 </Project>

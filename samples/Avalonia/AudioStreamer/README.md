@@ -1,7 +1,7 @@
 # AudioStreamer with Avalonia on Windows
 
 This package-only desktop sample uses `NativeChannels.Avalonia` and the same
-`Plugin.Maui.AudioStreamer` facade and Windows `waveOut` adapter as the MAUI sample.
+`Plugin.AudioStreamer` facade and Windows `waveOut` adapter as the MAUI sample.
 It has no MAUI or Windows App SDK dependency. The package name stays unchanged for
 existing consumers; MAUI applications now reference `NativeChannels.Maui` explicitly.
 
@@ -31,7 +31,7 @@ python eng/consumer-config.py "$cache/NuGet.Config"
 $projects = @(
     'src/NativeChannels',
     'src/NativeChannels.Avalonia',
-    'plugins/Plugin.Maui.AudioStreamer/src/Plugin.Maui.AudioStreamer'
+    'plugins/Plugin.AudioStreamer/src/Plugin.AudioStreamer'
 )
 foreach ($project in $projects) {
     dotnet restore $project -p:NativeChannelsWindowsOnly=true -p:NativeChannelsUseCorePackage=true --packages $cache --configfile "$cache/NuGet.Config" --force --no-http-cache
@@ -41,7 +41,7 @@ foreach ($project in $projects) {
     dotnet pack $project -c Release -p:NativeChannelsWindowsOnly=true -p:NativeChannelsUseCorePackage=true --no-restore -o artifacts/packages
     if ($LASTEXITCODE) { throw "Pack failed: $project" }
 }
-python plugins/Plugin.Maui.AudioStreamer/eng/inspect-package.py --windows-only
+python plugins/Plugin.AudioStreamer/eng/inspect-package.py --windows-only
 dotnet restore samples/Avalonia/AudioStreamer -r win-x64 -p:SelfContained=true --packages $cache --configfile "$cache/NuGet.Config" --force --no-http-cache
 python eng/verify-consumer-assets.py samples/Avalonia/AudioStreamer/obj/project.assets.json
 dotnet publish samples/Avalonia/AudioStreamer -c Release -r win-x64 -p:SelfContained=true --no-restore -o artifacts/audio-avalonia/windows/app
@@ -78,6 +78,6 @@ resolve `IAudioStreamer` from its `Services`. Dispose each playback session befo
 opening another. The DI session owns the streamer and channel bridge as a final
 cleanup boundary. Keep Avalonia's dispatcher alive until disposal finishes.
 
-See the [plugin contract](../../../plugins/Plugin.Maui.AudioStreamer/README.md),
+See the [plugin contract](../../../plugins/Plugin.AudioStreamer/README.md),
 [reusable host](../../../docs/avalonia-host.md), and
-[verification record](../../../plugins/Plugin.Maui.AudioStreamer/VERIFICATION.md).
+[verification record](../../../plugins/Plugin.AudioStreamer/VERIFICATION.md).

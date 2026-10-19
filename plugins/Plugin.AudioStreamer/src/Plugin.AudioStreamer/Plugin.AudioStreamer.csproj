@@ -1,0 +1,95 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFrameworks>net10.0-android;net10.0-ios;net10.0-maccatalyst</TargetFrameworks>
+        <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))"
+            >$(TargetFrameworks);net10.0-windows10.0.19041.0</TargetFrameworks>
+        <TargetFrameworks Condition="'$(NativeChannelsAndroidOnly)' == 'true'"
+            >net10.0-android</TargetFrameworks>
+        <TargetFrameworks Condition="'$(NativeChannelsWindowsOnly)' == 'true'"
+            >net10.0-windows10.0.19041.0</TargetFrameworks>
+        <TargetFrameworks Condition="'$(NativeChannelsLinuxOnly)' == 'true'"
+            >net10.0</TargetFrameworks>
+        <DefineConstants Condition="'$(NativeChannelsLinuxOnly)' == 'true'"
+            >$(DefineConstants);LINUX</DefineConstants>
+        <TargetFrameworks Condition="'$(NativeChannelsAppleTarget)' != ''"
+            >net10.0-$(NativeChannelsAppleTarget)</TargetFrameworks>
+        <TargetFrameworks Condition="'$(NativeChannelsBrowserOnly)' == 'true'"
+            >net10.0-browser</TargetFrameworks>
+        <SupportedOSPlatformVersion
+            Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'macos'"
+            >14.0</SupportedOSPlatformVersion>
+        <PackageId>Plugin.AudioStreamer</PackageId>
+        <Version>0.1.0-alpha.1</Version>
+        <Description>Reference plugin demonstrating bounded native PCM audio streaming and reusable packaging with NativeChannels.</Description>
+        <SupportedOSPlatformVersion
+            Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'"
+            >31</SupportedOSPlatformVersion>
+        <SupportedOSPlatformVersion
+            Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios' Or $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'"
+            >15.0</SupportedOSPlatformVersion>
+        <SupportedOSPlatformVersion
+            Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'"
+            >10.0.17763.0</SupportedOSPlatformVersion>
+    </PropertyGroup>
+    <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">
+        <Compile
+            Include="../../native/windows/**/*.cs"
+            Link="native/windows/%(RecursiveDir)%(Filename)%(Extension)"
+        />
+    </ItemGroup>
+    <ItemGroup Condition="'$(NativeChannelsLinuxOnly)' == 'true'">
+        <None
+            Include="../../../../artifacts/native/linux-x64/libnc_audio.so"
+            Pack="true"
+            PackagePath="runtimes/linux-x64/native/"
+        />
+    </ItemGroup>
+    <Target
+        Name="BuildLinuxAudio"
+        BeforeTargets="BeforeBuild;GenerateNuspec"
+        Condition="'$(NativeChannelsLinuxOnly)' == 'true'"
+    >
+        <Exec Command="bash &quot;$(MSBuildThisFileDirectory)../../../../eng/build-linux-native.sh&quot; audio" />
+    </Target>
+    <ItemGroup>
+        <InternalsVisibleTo Include="Plugin.Maui.Windows.Tests" />
+        <PackageReference Include="NativeChannels" />
+        <None Remove="$(MSBuildThisFileDirectory)../../../../README.md" />
+        <None Include="../../README.md" Pack="true" PackagePath="/" />
+        <None
+            Include="buildTransitive/Plugin.AudioStreamer.targets"
+            Pack="true"
+            PackagePath="buildTransitive/"
+        />
+        <None
+            Include="../../native/android/build/outputs/aar/audio-release.aar"
+            Condition="'$(NativeChannelsAppleTarget)' == '' And '$(NativeChannelsWindowsOnly)' != 'true' And '$(NativeChannelsBrowserOnly)' != 'true' And '$(NativeChannelsLinuxOnly)' != 'true'"
+            Pack="true"
+            PackagePath="native/android/audio.aar"
+        />
+        <None
+            Include="../../../../artifacts/native/MauiAudioStreamerNative.xcframework/**/*"
+            Condition="'$(NativeChannelsWindowsOnly)' != 'true' And '$(NativeChannelsBrowserOnly)' != 'true' And '$(NativeChannelsLinuxOnly)' != 'true' And '$(NativeChannelsAndroidOnly)' != 'true'"
+            Pack="true"
+            Exclude="../../../../artifacts/native/MauiAudioStreamerNative.xcframework/**/Modules/MauiAudioStreamerNative.swiftmodule/**/*"
+            PackagePath="native/apple/MauiAudioStreamerNative.xcframework/"
+        />
+    </ItemGroup>
+    <Target
+        Name="ValidateMauiAudioStreamerNativeAssets"
+        BeforeTargets="GenerateNuspec"
+        Condition="'$(NativeChannelsWindowsOnly)' != 'true' And '$(NativeChannelsBrowserOnly)' != 'true' And '$(NativeChannelsLinuxOnly)' != 'true'"
+    >
+        <Error
+            Condition="'$(NativeChannelsAppleTarget)' == '' And !Exists('../../native/android/build/outputs/aar/audio-release.aar')"
+            Text="Build the Plugin.AudioStreamer Android adapter before packing."
+        />
+        <Error
+            Condition="'$(NativeChannelsAndroidOnly)' != 'true' And !Exists('../../../../artifacts/native/MauiAudioStreamerNative.xcframework/Info.plist')"
+            Text="Build the Plugin.AudioStreamer Apple adapter before packing."
+        />
+    </Target>
+    <ItemGroup Condition="'$(NativeChannelsBrowserOnly)' == 'true'">
+        <None Include="../../native/browser/*.mjs" Pack="true" PackagePath="browser/" />
+    </ItemGroup>
+</Project>

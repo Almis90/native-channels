@@ -1,1 +1,1 @@
-<!--@include: ../plugins/Plugin.Maui.VolumeMonitor/README.md-->
+<!--@include: ../plugins/Plugin.VolumeMonitor/README.md-->

@@ -1,5 +1,5 @@
 using NativeChannels;
-using Plugin.Maui.AudioStreamer;
+using Plugin.AudioStreamer;
 using Xunit;
 
 namespace Plugin.Maui.Windows.Tests;

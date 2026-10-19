@@ -1,5 +1,5 @@
 name: Consumers / iOS simulator
-run-name: iOS simulator · ${{ inputs.sample }} · ${{ inputs.package_source }} feed ${{ inputs.package_run }}
+run-name: iOS simulator Â· ${{ inputs.sample }} Â· ${{ inputs.package_source }} feed ${{ inputs.package_run }}
 on:
   workflow_call:
     inputs:
@@ -61,7 +61,8 @@ jobs:
         env:
           SAMPLE: ${{ inputs.sample }}
         run: |
-          if ! compgen -G "artifacts/packages/Plugin.Maui.$SAMPLE.*.nupkg" > /dev/null; then
+          PACKAGE="Plugin.$SAMPLE"; if [[ "$SAMPLE" == PdfViewer ]]; then PACKAGE="Plugin.Maui.PdfViewer"; fi
+          if ! compgen -G "artifacts/packages/$PACKAGE.*.nupkg" > /dev/null; then
             echo "The example feed does not contain $SAMPLE." >&2
             exit 1
           fi

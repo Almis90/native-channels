@@ -1,11 +1,11 @@
 # AudioStreamer sample
 
-A separate MAUI consumer of the local `Plugin.Maui.AudioStreamer` reference package. It generates a
+A separate MAUI consumer of the local `Plugin.AudioStreamer` reference package. It generates a
 16-second original instrumental loop in C#, sends PCM chunks through BasicMessageChannel, and plays
 them with Kotlin AudioTrack or Swift AVAudioEngine. Choose Play for one pass or Loop for continuous music. It exposes signal level, pause/resume, stop,
 native buffer occupancy, and mean enqueue wait.
 
-See the [plugin guide](../../../plugins/Plugin.Maui.AudioStreamer/README.md) for build/run instructions,
+See the [plugin guide](../../../plugins/Plugin.AudioStreamer/README.md) for build/run instructions,
 format, backpressure, and lifecycle. The app references the plugin package and `NativeChannels.Maui`;
 its native adapters arrive transitively. Android requires API 31+.
 The [Avalonia Windows sample](../../Avalonia/AudioStreamer/README.md) reuses the music generator,

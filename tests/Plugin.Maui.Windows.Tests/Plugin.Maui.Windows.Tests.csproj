@@ -7,11 +7,11 @@
     </PropertyGroup>
     <ItemGroup>
         <PackageReference
-            Include="Plugin.Maui.AudioStreamer"
+            Include="Plugin.AudioStreamer"
             Condition="'$(WindowsTestPlugin)' == '' Or '$(WindowsTestPlugin)' == 'AudioStreamer'"
         />
         <PackageReference
-            Include="Plugin.Maui.VolumeMonitor"
+            Include="Plugin.VolumeMonitor"
             Condition="'$(WindowsTestPlugin)' == '' Or '$(WindowsTestPlugin)' == 'VolumeMonitor'"
         />
         <PackageReference

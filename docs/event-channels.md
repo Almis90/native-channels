@@ -104,6 +104,6 @@ C# bindings or introduce Flutter protocol compatibility.
 
 ## Volume observation example
 
-[VolumeMonitor](../plugins/Plugin.Maui.VolumeMonitor/README.md) demonstrates a real native event source,
+[VolumeMonitor](../plugins/Plugin.VolumeMonitor/README.md) demonstrates a real native event source,
 initial values, per-listener observers, cancellation cleanup, and a live MAUI display. Its verification
 record distinguishes simulator subscription checks from actual system volume changes.

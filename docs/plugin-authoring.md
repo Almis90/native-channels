@@ -8,7 +8,7 @@ A NativeChannels plugin packages a typed C# API together with platform adapters 
 consume that API and configure the plugin at startup. SDK-specific operations stay in native code;
 the existing generic bridge carries their requests and replies.
 
-This guide follows [Plugin.Maui.Currency](currency.md), the smallest complete reference plugin.
+This guide follows [Plugin.Currency](currency.md), the smallest complete reference plugin.
 Its [sample](currency-sample.md) consumes the local package without project references or manual
 native asset imports. For streams, binary transfer, and views, see the other [examples](examples.md).
 
@@ -47,7 +47,7 @@ interface with familiar .NET types and cancellation tokens.
 Currency's implementation validates input, performs the native call, checks the result, and disposes
 its channel when the DI container ends its lifetime:
 
-<<< ../plugins/Plugin.Maui.Currency/src/Plugin.Maui.Currency/CurrencyService.cs
+<<< ../plugins/Plugin.Currency/src/Plugin.Currency/CurrencyService.cs
 
 The facade owns a handle; disposing it leaves other handles usable. A long-lived service is suitable
 for recurring calls. Subscription services should create an enumeration per caller and propagate its
@@ -74,7 +74,7 @@ The reference plugins include `../../native/windows/**/*.cs` from their `.csproj
 Windows target. Those C# files compile into the plugin's Windows assembly; they do not need a
 separate native binary. A C++ or other native implementation can live in the same directory with
 its own build project and C# interop layer. See the
-[Currency Windows adapter](../plugins/Plugin.Maui.Currency/native/windows/WindowsCurrencyModule.cs).
+[Currency Windows adapter](../plugins/Plugin.Currency/native/windows/WindowsCurrencyModule.cs).
 
 ## 3. Implement native adapters
 
@@ -90,8 +90,8 @@ as well as facade inputs: other callers can send directly to the endpoint. Retur
 with a documented code and useful details.
 
 The working Currency adapters are
-[CurrencyModule.kt](../plugins/Plugin.Maui.Currency/native/android/src/main/java/dev/nativechannels/currency/CurrencyModule.kt)
-and [CurrencyModule.swift](../plugins/Plugin.Maui.Currency/native/apple/Sources/CurrencyModule.swift).
+[CurrencyModule.kt](../plugins/Plugin.Currency/native/android/src/main/java/dev/nativechannels/currency/CurrencyModule.kt)
+and [CurrencyModule.swift](../plugins/Plugin.Currency/native/apple/Sources/CurrencyModule.swift).
 The [Android](android-integration.md), [Apple](ios-integration.md), and
 [Windows](windows-integration.md) guides explain module construction,
 async callbacks, UI dispatch, and cancellation.
@@ -107,7 +107,7 @@ inside the application's single `UseNativeChannels` call:
 
 ```csharp
 using NativeChannels;
-using Plugin.Maui.Currency;
+using Plugin.Currency;
 
 builder.UseNativeChannels(options => options.AddCurrency());
 builder.Services.AddCurrency();
@@ -115,7 +115,7 @@ builder.Services.AddCurrency();
 
 The reference implementation centralizes module identities and avoids duplicate registration:
 
-<<< ../plugins/Plugin.Maui.Currency/src/Plugin.Maui.Currency/CurrencyExtensions.cs
+<<< ../plugins/Plugin.Currency/src/Plugin.Currency/CurrencyExtensions.cs
 
 Use the same pattern for your plugin's extension names and module identities. Native view plugins
 add `NativeViewFactoryRegistration` entries to `options.ViewFactories`; see [native views](native-views.md).
@@ -140,9 +140,9 @@ so the application needs no path to the plugin's source checkout.
 
 Currency's actual imports are:
 
-<<< ../plugins/Plugin.Maui.Currency/src/Plugin.Maui.Currency/buildTransitive/Plugin.Maui.Currency.targets{xml}
+<<< ../plugins/Plugin.Currency/src/Plugin.Currency/buildTransitive/Plugin.Currency.targets{xml}
 
-Use [its package project](../plugins/Plugin.Maui.Currency/src/Plugin.Maui.Currency/Plugin.Maui.Currency.csproj)
+Use [its package project](../plugins/Plugin.Currency/src/Plugin.Currency/Plugin.Currency.csproj)
 as the packaging reference. Give your plugin its own package ID, namespaces, channel names, native
 class names, framework name, and target filename. `Plugin.Maui.<Feature>` is a naming pattern used
 by these examples; NativeChannels does not require that prefix.
@@ -160,9 +160,9 @@ For the Currency example, after building the framework packages:
 
 ```sh
 native/android/gradlew -p native/android --no-daemon :currency:assembleRelease :currency:testReleaseUnitTest
-python3 plugins/Plugin.Maui.Currency/eng/build-apple.py
-bash plugins/Plugin.Maui.Currency/eng/pack.sh
-python3 plugins/Plugin.Maui.Currency/eng/inspect-package.py
+python3 plugins/Plugin.Currency/eng/build-apple.py
+bash plugins/Plugin.Currency/eng/pack.sh
+python3 plugins/Plugin.Currency/eng/inspect-package.py
 
 bash eng/restore-currency-sample.sh -p:TargetFrameworks=net10.0-ios -r iossimulator-arm64
 bash eng/dotnet.sh build samples/Maui/Currency -c Release -f net10.0-ios -r iossimulator-arm64 --no-restore

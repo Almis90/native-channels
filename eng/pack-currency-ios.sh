@@ -9,12 +9,12 @@ if [[ $# -gt 1 || ( "$TARGET" != ios && "$TARGET" != maccatalyst && "$TARGET" !=
 fi
 native_args=()
 if [[ "$TARGET" == macos ]]; then native_args=(--macos-only); fi
-PROJECT=plugins/Plugin.Maui.Currency/src/Plugin.Maui.Currency/Plugin.Maui.Currency.csproj
+PROJECT=plugins/Plugin.Currency/src/Plugin.Currency/Plugin.Currency.csproj
 # Reuse the selected framework feed and Apple native artifact from this workflow run.
 python3 eng/package_audit.py artifacts/packages/*.nupkg --platform-only "$TARGET"
-python3 plugins/Plugin.Maui.Currency/eng/build-apple.py ${native_args[@]+"${native_args[@]}"}
-xcrun swiftc -swift-version 5 plugins/Plugin.Maui.Currency/native/apple/Sources/CurrencySymbols.swift \
-    plugins/Plugin.Maui.Currency/native/apple/Tests/main.swift -o artifacts/currency-apple-tests
+python3 plugins/Plugin.Currency/eng/build-apple.py ${native_args[@]+"${native_args[@]}"}
+xcrun swiftc -swift-version 5 plugins/Plugin.Currency/native/apple/Sources/CurrencySymbols.swift \
+    plugins/Plugin.Currency/native/apple/Tests/main.swift -o artifacts/currency-apple-tests
 artifacts/currency-apple-tests
 python3 eng/cache-dependencies.py
 CACHE="$(mktemp -d "$ROOT/artifacts/consumer-packages.XXXXXX")"
@@ -23,5 +23,5 @@ bash eng/dotnet.sh restore "$PROJECT" "-p:NativeChannelsAppleTarget=$TARGET" \
     --packages "$CACHE" --configfile "$CACHE/NuGet.Config" --force --no-http-cache
 python3 eng/verify-consumer-assets.py "$(dirname "$PROJECT")/obj/project.assets.json"
 bash eng/dotnet.sh pack "$PROJECT" -c Release "-p:NativeChannelsAppleTarget=$TARGET" --no-restore -o artifacts/packages
-python3 plugins/Plugin.Maui.Currency/eng/inspect-package.py --platform-only "$TARGET"
+python3 plugins/Plugin.Currency/eng/inspect-package.py --platform-only "$TARGET"
 python3 eng/package_audit.py artifacts/packages/*.nupkg

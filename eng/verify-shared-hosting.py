@@ -11,7 +11,7 @@ import sys
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from consumer_projects import verify_project_references
 
-SHARED = {'nativechannels.core', 'nativechannels', 'plugin.maui.currency'}
+SHARED = {'nativechannels.core', 'nativechannels', 'plugin.currency'}
 MARKERS = {'maui': 'CURRENCY_SAMPLE', 'avalonia': 'CURRENCY_AVALONIA'}
 PLATFORMS = {
     'browser': {'binding': None, 'host': 'avalonia.browser',

@@ -13,7 +13,7 @@
         <PackageReference Include="Avalonia.iOS" />
         <PackageReference Include="Avalonia.Themes.Fluent" />
         <PackageReference Include="NativeChannels.Avalonia" />
-        <PackageReference Include="Plugin.Maui.VolumeMonitor" />
+        <PackageReference Include="Plugin.VolumeMonitor" />
         <Compile Include="../../Shared/SampleApplication.cs" Link="SampleApplication.cs" />
         <Compile Include="../Shared/*.cs" Link="%(Filename)%(Extension)" />
     </ItemGroup>

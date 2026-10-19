@@ -1,1 +1,1 @@
-<!--@include: ../plugins/Plugin.Maui.AudioStreamer/VERIFICATION.md-->
+<!--@include: ../plugins/Plugin.AudioStreamer/VERIFICATION.md-->

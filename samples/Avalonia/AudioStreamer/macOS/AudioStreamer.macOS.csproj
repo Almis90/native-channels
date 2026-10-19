@@ -13,7 +13,7 @@
         <PackageReference Include="Avalonia.Desktop" />
         <PackageReference Include="Avalonia.Themes.Fluent" />
         <PackageReference Include="NativeChannels.Avalonia" />
-        <PackageReference Include="Plugin.Maui.AudioStreamer" />
+        <PackageReference Include="Plugin.AudioStreamer" />
         <Compile Include="../../Shared/SampleApplication.cs" Link="SampleApplication.cs" />
         <Compile Include="../CrossPlatform/*.cs" Link="%(Filename)%(Extension)" />
         <Compile Include="../../../Maui/AudioStreamer/MusicGenerator.cs" Link="MusicGenerator.cs" />

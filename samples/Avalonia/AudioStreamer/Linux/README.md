@@ -1,7 +1,7 @@
 # AudioStreamer with Avalonia on Linux
 
 This Linux desktop head reuses the Windows sample's Avalonia UI, music generator,
-verification scenarios and managed audio facade. `Plugin.Maui.AudioStreamer` supplies
+verification scenarios and managed audio facade. `Plugin.AudioStreamer` supplies
 a C++ Linux module linking the system **ALSA** library; the application consumes four local
 NuGet packages and has no MAUI dependency.
 
@@ -64,7 +64,7 @@ Logs, source and package hashes, and OS/library versions are saved under
 Run the adapter tests separately with the same audio session:
 
 ```sh
-bash eng/dotnet.sh test tests/Plugin.Maui.AudioStreamer.Linux.Tests -c Release
+bash eng/dotnet.sh test tests/Plugin.AudioStreamer.Linux.Tests -c Release
 bash eng/test-linux-native.sh
 ```
 
@@ -86,7 +86,7 @@ including while paused.
 All audio/session logic lives in C++. The shared [Linux bridge](../../../../native/linux/README.md)
 only forwards channel requests and replies through a C ABI; it contains no ALSA bindings.
 
-The PCM format and binary protocol are identical to the [plugin contract](../../../../plugins/Plugin.Maui.AudioStreamer/README.md).
+The PCM format and binary protocol are identical to the [plugin contract](../../../../plugins/Plugin.AudioStreamer/README.md).
 Native progress does not establish audible quality, physical latency or output-route
-behavior. See [execution results](../../../../plugins/Plugin.Maui.AudioStreamer/VERIFICATION.md)
+behavior. See [execution results](../../../../plugins/Plugin.AudioStreamer/VERIFICATION.md)
 and the [ALSA PCM API](https://www.alsa-project.org/alsa-doc/alsa-lib/group___p_c_m.html).

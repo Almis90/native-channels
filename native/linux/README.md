@@ -38,7 +38,7 @@ bash eng/build-linux-native.sh currency
 bash eng/build-linux-native.sh audio
 bash eng/test-linux-native.sh
 bash eng/dotnet.sh test tests/NativeChannels.Linux.Tests -c Release
-bash eng/dotnet.sh test tests/Plugin.Maui.AudioStreamer.Linux.Tests -c Release
+bash eng/dotnet.sh test tests/Plugin.AudioStreamer.Linux.Tests -c Release
 ```
 
 The C++ audio tests use a fake native device to check partial writes, bounds, pause,

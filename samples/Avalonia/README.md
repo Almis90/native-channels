@@ -30,7 +30,7 @@ The Avalonia application UI and shared host are C#. Native plugin implementation
 demonstrate the platform's own APIs and languages. Linux system and toolkit APIs
 are implemented in C++, behind a generic language-neutral C ABI.
 
-Audio and volume use `Plugin.Maui.AudioStreamer` and `Plugin.Maui.VolumeMonitor`:
+Audio and volume use `Plugin.AudioStreamer` and `Plugin.VolumeMonitor`:
 those package names are retained, but their service APIs do not require MAUI.
 PDF uses `Plugin.Avalonia.PdfViewer` because its embedded control is host-specific.
 The original MAUI PDF package and samples remain available separately.

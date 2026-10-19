@@ -15,8 +15,8 @@ for key, pattern in [('local', 'NativeChannels*'), ('dependencies', '*'), ('nuge
     source = ET.SubElement(mapping, 'packageSource', key=key)
     ET.SubElement(source, 'package', pattern=pattern)
     if key == 'local':
-        ET.SubElement(source, 'package', pattern='Plugin.Maui.Currency')
-        ET.SubElement(source, 'package', pattern='Plugin.Maui.AudioStreamer')
-        ET.SubElement(source, 'package', pattern='Plugin.Maui.VolumeMonitor')
+        ET.SubElement(source, 'package', pattern='Plugin.Currency')
+        ET.SubElement(source, 'package', pattern='Plugin.AudioStreamer')
+        ET.SubElement(source, 'package', pattern='Plugin.VolumeMonitor')
         ET.SubElement(source, 'package', pattern='Plugin.Maui.PdfViewer')
 ET.ElementTree(configuration).write(sys.argv[1], encoding='utf-8', xml_declaration=True)

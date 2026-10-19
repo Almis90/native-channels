@@ -1,7 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Maui.Hosting;
 using NativeChannels;
-using Plugin.Maui.Currency;
+using Plugin.Currency;
 
 namespace Currency.Sample;
 

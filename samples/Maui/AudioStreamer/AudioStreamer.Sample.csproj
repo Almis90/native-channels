@@ -63,6 +63,6 @@
     <ItemGroup>
         <PackageReference Include="Microsoft.Maui.Controls" />
         <PackageReference Include="NativeChannels.Maui" />
-        <PackageReference Include="Plugin.Maui.AudioStreamer" />
+        <PackageReference Include="Plugin.AudioStreamer" />
     </ItemGroup>
 </Project>

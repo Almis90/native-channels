@@ -2,6 +2,14 @@
 
 ## 0.2.0-preview.1 — Unreleased
 
+- Renamed the framework-independent reference packages and C# namespaces from
+  `Plugin.Maui.Currency`, `Plugin.Maui.AudioStreamer`, and `Plugin.Maui.VolumeMonitor`
+  to `Plugin.Currency`, `Plugin.AudioStreamer`, and `Plugin.VolumeMonitor`.
+  Update package references and `using` directives, then rebuild local plugin feeds.
+  Browser assets now use the new package IDs under `_content/`. Existing native channel
+  identifiers and Apple framework names are preserved for protocol compatibility.
+  The MAUI and Avalonia integration packages remain optional; PDF view plugins retain
+  their framework-specific names.
 - Framework-independent registration and diagnostics, with a reusable Avalonia host for
   owned sessions, UI dispatch, and native/DOM view lifetimes.
 - Avalonia implementations of ChannelExplorer/Interop, Currency, AudioStreamer, VolumeMonitor,

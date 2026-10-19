@@ -74,12 +74,12 @@ results and CI evidence.
 
 ## Verify a reusable plugin
 
-The [currency sample](../samples/Maui/Currency/README.md) references `Plugin.Maui.Currency` and
+The [currency sample](../samples/Maui/Currency/README.md) references `Plugin.Currency` and
 its explicit `NativeChannels.Maui` host through packages. The plugin itself has no MAUI dependency;
 the Windows package tests verify its dependency graph as well as real native currency calls.
 Its AAR and XCFramework arrive through the package's `buildTransitive` imports. Run its fresh-cache
 restore and Release runtime checks after changing the plugin, its native modules, or packaging.
-`plugins/Plugin.Maui.Currency/eng/inspect-package.py` checks the native classes, preservation rules,
+`plugins/Plugin.Currency/eng/inspect-package.py` checks the native classes, preservation rules,
 framework slices, dependencies, and import paths inside the actual archive.
 
 The [Avalonia Android proof](../samples/Avalonia/Currency/Currency.Android/README.md) and

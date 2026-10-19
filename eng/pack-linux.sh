@@ -14,7 +14,7 @@ bash eng/pack-avalonia.sh
 python3 eng/cache-dependencies.py
 CACHE="$(mktemp -d "$ROOT/artifacts/consumer-packages.XXXXXX")"
 python3 eng/consumer-config.py "$CACHE/NuGet.Config"
-PROJECT=plugins/Plugin.Maui.Currency/src/Plugin.Maui.Currency/Plugin.Maui.Currency.csproj
+PROJECT=plugins/Plugin.Currency/src/Plugin.Currency/Plugin.Currency.csproj
 bash eng/dotnet.sh restore "$PROJECT" -p:NativeChannelsLinuxOnly=true \
     --packages "$CACHE" --configfile "$CACHE/NuGet.Config" --force --no-http-cache
 python3 eng/verify-consumer-assets.py "$(dirname "$PROJECT")/obj/project.assets.json"

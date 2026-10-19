@@ -41,33 +41,33 @@ def classify(paths):
     core = False
     for path in paths:
         if not path.endswith('.md') and path.startswith(('samples/Avalonia/Currency/Currency.Desktop/',
-                'samples/Maui/Currency/Platforms/Windows/', 'plugins/Plugin.Maui.Currency/native/windows/')):
+                'samples/Maui/Currency/Platforms/Windows/', 'plugins/Plugin.Currency/native/windows/')):
             selected.add('windows')
             core = True
             continue
         if not path.endswith('.md') and (path.startswith(('samples/Avalonia/Currency/Currency.Android/',
-                'samples/Maui/Currency/Platforms/Android/', 'plugins/Plugin.Maui.Currency/native/android/'))
+                'samples/Maui/Currency/Platforms/Android/', 'plugins/Plugin.Currency/native/android/'))
                 or path in {'eng/pack-currency-android.sh', 'eng/verify-shared-hosting-android.sh'}):
             selected.add('android')
             core = True
             continue
         if not path.endswith('.md') and (path.startswith(('samples/Avalonia/Currency/Currency.iOS/',
-                'samples/Maui/Currency/Platforms/iOS/', 'plugins/Plugin.Maui.Currency/native/apple/'))
+                'samples/Maui/Currency/Platforms/iOS/', 'plugins/Plugin.Currency/native/apple/'))
                 or path in {'eng/pack-currency-ios.sh', 'eng/verify-shared-hosting-ios.sh',
-                            'plugins/Plugin.Maui.Currency/eng/build-apple.py'}):
+                            'plugins/Plugin.Currency/eng/build-apple.py'}):
             selected.add('ios')
             core = True
             continue
         if not path.endswith('.md') and (path.startswith(('samples/Avalonia/Currency/Currency/',
-                'samples/Currency.Shared/', 'plugins/Plugin.Maui.Currency/src/'))
+                'samples/Currency.Shared/', 'plugins/Plugin.Currency/src/'))
                 or (path.startswith('samples/Maui/Currency/') and '/Platforms/' not in path)
                 or path in {'samples/Avalonia/Currency/Directory.Packages.props', 'samples/Avalonia/Currency/Currency.slnx',
                             'eng/restore-currency-avalonia.sh', 'eng/restore-currency-sample.sh',
-                            'eng/verify-shared-hosting.py', 'plugins/Plugin.Maui.Currency/eng/inspect-package.py'}):
+                            'eng/verify-shared-hosting.py', 'plugins/Plugin.Currency/eng/inspect-package.py'}):
             selected |= {'android', 'ios', 'windows'}
             core = True
             continue
-        if path.startswith(("docs/", "plugins/", "benchmarks/", "tests/Plugin.Maui.")):
+        if path.startswith(("docs/", "plugins/", "benchmarks/", "tests/Plugin.")):
             continue
         if path.startswith("samples/") and not path.startswith("samples/Maui/ChannelExplorer/"):
             continue
