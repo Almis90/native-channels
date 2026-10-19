@@ -9,7 +9,7 @@
 [![Verify distribution](https://github.com/Almis90/native-channels/actions/workflows/verify-distribution.yml/badge.svg?branch=main&event=workflow_dispatch)](https://github.com/Almis90/native-channels/actions/workflows/verify-distribution.yml)
 [![MIT license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-**Native integrations for .NET MAUI, through one reusable bridge.**
+**Native integrations for .NET applications, through one reusable bridge.**
 
 NativeChannels connects C# with Kotlin, Swift, and Windows APIs through asynchronous calls, messages, event streams,
 and embedded native views. Keep SDK operations in a native adapter and expose a typed C# API to
@@ -27,7 +27,9 @@ string? reply = await channel.InvokeAsync<string>("echo", "Hello from .NET");
 MAUI integration. The core messaging layer is independent of MAUI.
 `main` now develops **0.2.0-preview.1**, with an Avalonia host and all five samples implemented
 across six targets. Platform verification and release acceptance remain incomplete; see the
-[sample matrix](samples/Avalonia/README.md). Uno remains planned for 0.3.
+[sample matrix](samples/Avalonia/README.md). Experimental Uno 0.3 development now includes
+an optional host and five samples; six-platform runtime and native-view acceptance
+remain incomplete. See [0.3 preparation](docs/preview-03.md).
 The latest published preview is [0.1.0-preview.2 on NuGet.org](https://www.nuget.org/packages/NativeChannels.Maui/0.1.0-preview.2).
 
 [Documentation](https://almis90.github.io/native-channels/) Â·
@@ -76,6 +78,8 @@ application's startup, UI dispatch, and native view integration. For messaging a
 reference `NativeChannels` and use `services.AddNativeChannels(...)`, managing service
 ownership and UI dispatch in your application. See [package boundaries](docs/architecture.md#package-boundaries).
 The Currency, AudioStreamer, and VolumeMonitor plugins are framework-independent.
+The experimental [Uno host](docs/uno-host.md) follows the same optional boundary;
+try its [local package samples](samples/Uno/README.md) with the documented limitations.
 
 Add the package to a .NET 10 MAUI application:
 
@@ -127,12 +131,11 @@ See [configuration](docs/configuration.md), [lifecycle](docs/lifecycle.md), and
 | Mac Catalyst | Apple adapters and UIKit views on macOS |
 | Windows | C# adapters for WinRT, COM, and native libraries; WinUI views |
 
-MAUI is the current application host. Mac Catalyst support does not provide an AppKit desktop host.
-See [platform verification](docs/verification.md) for executed scenarios and remaining gaps,
-and the [roadmap](docs/roadmap.md) for planned Avalonia (0.2) and Uno (0.3) integration across Android,
-iOS, Windows, desktop macOS, Linux, and browser/WebAssembly. These planned targets do not extend
-the current support matrix. Browser Currency has an initial packaged JavaScript proof; DOM views
-and complete browser hosting remain planned.
+MAUI is the published 0.1 application host. Mac Catalyst support does not provide an AppKit desktop host.
+Unreleased Avalonia 0.2 and experimental Uno 0.3 work target Android, iOS, Windows,
+desktop macOS, Linux, and browser/WebAssembly. See [platform verification](docs/verification.md)
+for executed scenarios and [Uno release gates](docs/preview-03.md) for its remaining
+runtime, native-view and PDF gaps. Development work does not extend the published support matrix.
 
 ## Documentation
 

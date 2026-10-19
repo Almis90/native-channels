@@ -24,21 +24,24 @@ as communication. A lower-level bridge regression consumer lives in `tests/Packa
 `NativeChannels.Core` has no MAUI or native runtime dependencies. It owns named endpoints,
 request correlation, cancellation, timeout handling, serialization, and channel contracts.
 `NativeChannels` supplies platform transports, shared service registration, and native module configuration.
-`NativeChannels.Maui` and `NativeChannels.Avalonia` are optional, thin application integrations:
+`NativeChannels.Maui`, `NativeChannels.Avalonia`, and the experimental
+`NativeChannels.Uno` are optional, thin application integrations:
 they supply framework startup, UI dispatch, and native view attachment and cleanup.
-Avalonia also supplies owned sessions for independently managed windows or activities.
+Avalonia and Uno also supply owned sessions for independently managed windows.
+Uno native-view acceptance remains incomplete; see [Uno host limitations](uno-host.md).
 Messaging, codecs, platform transports, and shared registration stay outside these packages.
 The generic Android and Apple bindings are separate implementation packages.
 
 For messaging-only applications, reference `NativeChannels` and call
 `services.AddNativeChannels(...)` directly. The application owns the service provider,
-its disposal, and any UI dispatch needed by handlers. Neither UI host package is required.
+its disposal, and any UI dispatch needed by handlers. No UI host package is required.
 Choose a host package when its startup or view integration is useful.
 
 `Plugin.Currency`, `Plugin.AudioStreamer`, and `Plugin.VolumeMonitor` depend on
-`NativeChannels` and can be reused across hosts. `Plugin.Maui.PdfViewer` and
-`Plugin.Avalonia.PdfViewer` retain framework names because their controls depend on
-their respective UI frameworks.
+`NativeChannels` and can be reused across hosts. `Plugin.Maui.PdfViewer`,
+`Plugin.Avalonia.PdfViewer`, and the experimental `Plugin.Uno.PdfViewer` retain
+framework names because their controls depend on their respective UI frameworks.
+The Uno control requires an adapter factory and does not bundle a native renderer.
 
 Native sessions are instance-scoped. Explicit module registration replaces global discovery.
 Kotlin modules implement `NativeModule`; Swift modules implement the Objective-C-compatible

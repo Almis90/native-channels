@@ -46,7 +46,9 @@ from NuGet.org and follow [getting started](getting-started.md).
 Development on `main` uses **0.2.0-preview.1**. The Avalonia host and all five samples have
 implementations for Android, iOS, Windows, macOS, Linux, and browser/WebAssembly;
 platform verification and release acceptance remain incomplete. See the
-[sample matrix](../samples/Avalonia/README.md). Uno is planned for 0.3.
+[sample matrix](../samples/Avalonia/README.md). Uno 0.3 is in experimental development:
+its optional host and five samples exist, but native-view/PDF and six-platform
+runtime acceptance remain incomplete. See [0.3 preparation](preview-03.md).
 
 </div>
 

@@ -105,6 +105,7 @@ export default defineConfig({
         { text: 'API compatibility', link: '/api-compatibility' },
         { text: 'Performance and stress', link: '/performance' },
         { text: 'Release checklist', link: '/release-checklist' },
+        { text: 'Uno 0.3 preparation', link: '/preview-03' },
         { text: 'Publishing to NuGet', link: '/publishing' },
         { text: 'Roadmap', link: '/roadmap' },
         { text: 'Verified platforms', link: '/verification' },

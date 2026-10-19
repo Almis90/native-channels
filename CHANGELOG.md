@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.3 — In development (unreleased)
+
+- Added an optional, thin `NativeChannels.Uno` host for Uno Skia with per-window
+  sessions, UI dispatch, asynchronous shutdown and experimental view lifecycle.
+- Portable desktop transport now selects Windows, Linux or macOS at runtime;
+  the macOS path uses a plain-.NET C ABI bridge over the existing native implementation.
+- Reused Currency, AudioStreamer and VolumeMonitor without Uno-specific copies.
+  Added the experimental `Plugin.Uno.PdfViewer` control/protocol contract; it does
+  not include a native PDF renderer.
+- Added five package-only Uno samples, a unified local runner with package-origin
+  audits, and desktop build CI definitions for Windows, Linux and macOS.
+- All five Windows apps passed local smoke checks. Interop and PDF automated
+  results cover managed protocol/lifecycle fixtures, not native rendering.
+- Six-platform runtime, native-view/PDF and combined distribution acceptance
+  remain incomplete. Local `0.3.0-preview.6` packages are diagnostic builds;
+  the repository release version is unchanged. See [0.3 preparation](docs/preview-03.md).
+
 ## 0.2.0-preview.1 — Unreleased
 
 - Renamed the framework-independent reference packages and C# namespaces from

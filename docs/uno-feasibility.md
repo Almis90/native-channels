@@ -1,9 +1,10 @@
 # Uno 0.3 feasibility
 
-Status: **investigation started; six-platform feasibility is not established**.
-The first gate identified desktop transport and macOS native-view blockers.
-Step 2 adds runtime selection to the portable transport and a plain-.NET macOS
-bridge. Step 3 introduces an experimental Uno host; native-view feasibility remains open.
+Status: **experimental implementation; six-platform feasibility is not established**.
+Steps 2–6 added the portable desktop transport, optional host, shared plugin
+integration, five sample apps and build/audit automation. Native-view and PDF
+acceptance remain open. The results below retain their original scope; see
+[0.3 preparation](preview-03.md) for the current matrix and release gates.
 
 ## Pinned baseline
 
@@ -159,10 +160,23 @@ Step 4 remains partial: native PDF integration and the other platforms' plugin
 acceptance are outstanding. See [Uno plugin integration](uno-plugins.md) for exact
 test scope and lifecycle responsibilities.
 
-## Next gate
+## Steps 5–7: samples, automation and release documentation
 
-1. Resolve the Windows control probe and prove a packaged method call on a
-   compatible Windows configuration.
+Five separate Uno sample apps now share startup, shutdown and verification code.
+The unified runner repacks into an isolated feed, audits package metadata and
+restored archive origin/bytes, and runs all five Windows smoke checks. The local
+step-6 run passed; Interop and PDF still use managed protocol/lifecycle fixtures
+for their automated checks. Desktop CI definitions cover Windows, Linux and macOS
+builds; no execution of those CI jobs is claimed here.
+
+Step 7 documents current behavior and prepares unreleased notes. Release versions
+and publication remain gated on the unfinished acceptance below. See the
+[sample instructions](../samples/Uno/README.md) and [release status](preview-03.md).
+
+## Remaining gates
+
+1. Resolve the Windows control probe and verify native parenting, visibility,
+   input and resize. Packaged Windows method/plugin calls already pass.
 2. Extend desktop package acceptance into production plugin packaging and release
    CI, retaining the plain-.NET macOS bridge outside the UI host package.
 3. Establish a supported macOS native-element extension path against this pinned
@@ -172,5 +186,5 @@ test scope and lifecycle responsibilities.
    package feeds and real runtimes. Record each backend, architecture, package
    hash and execution result separately.
 
-Keep the full host, PDF integration and five-sample expansion gated on these
-findings. No runtime support is inferred from template generation or source inspection.
+Keep full native-view/PDF and release acceptance gated on these findings.
+No runtime support is inferred from template generation or source inspection.

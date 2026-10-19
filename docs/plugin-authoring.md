@@ -12,10 +12,11 @@ This guide follows [Plugin.Currency](currency.md), the smallest complete referen
 Its [sample](currency-sample.md) consumes the local package without project references or manual
 native asset imports. For streams, binary transfer, and views, see the other [examples](examples.md).
 
-The setup and package dependencies below describe the current MAUI integration. Shared plugin
-registration, complete Avalonia hosting (0.2), and Uno hosting (0.3) are [planned](roadmap.md).
-The Android Currency proof is the first part of that work, not a completed Avalonia integration.
-Future hosts must verify reusable plugins on each target; browser plugins require JavaScript
+The setup below describes the MAUI integration. Shared plugin registration is
+framework-independent; the optional Avalonia host is part of unreleased 0.2 work.
+The experimental [Uno host](uno-host.md) reuses the same messaging plugins, with
+runtime/native-view acceptance still incomplete. Each host must verify reusable
+plugins on each target; browser plugins require JavaScript
 adapters and explicit capability limits, as described in the [browser plan](roadmap.md#browser-and-webassembly).
 
 ## 1. Define the contract

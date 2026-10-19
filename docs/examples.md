@@ -8,6 +8,12 @@ The repository includes four reference plugins and a framework verification app.
 a different native contract and has a separate MAUI application that consumes its local package.
 Use the implementations as patterns for your own integration.
 
+The [Uno sample suite](../samples/Uno/README.md) contains Interop, Currency,
+AudioStreamer, VolumeMonitor and PdfViewer apps. It reuses the shared messaging
+plugins and keeps the Uno host optional. Windows smoke checks pass; the PDF app
+tests its protocol without rendering, and native-view/six-platform acceptance
+remain incomplete. See [Uno 0.3 status](preview-03.md).
+
 ## Pick an example
 
 | Example | Native APIs | What it teaches | Guide |

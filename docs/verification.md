@@ -21,7 +21,8 @@ Package acceptance requires verification of the exact source revision and genera
 
 The published 0.1 support record covers MAUI. The unreleased 0.2 candidate adds
 Avalonia on six targets and has passed local combined-package verification. Uno
-remains [planned](roadmap.md) for 0.3. Historical Currency proofs below establish
+is in [experimental 0.3 development](preview-03.md), with local Windows smoke
+checks but incomplete six-platform/native-view acceptance. Historical Currency proofs below establish
 only their recorded scope; the newer complete suites do not establish publication,
 physical-device support, or capabilities unavailable on an OS/browser.
 

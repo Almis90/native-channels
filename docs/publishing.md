@@ -151,7 +151,8 @@ Only these five framework packages belong to this release:
 
 Each package includes a NuGet-specific README; a corresponding `.snupkg` contains managed symbols.
 Currency, AudioStreamer, VolumeMonitor, and PdfViewer remain reference plugins and are not included.
-Avalonia and Uno packages are [planned](roadmap.md), not part of the current release.
+Avalonia and Uno host packages are unreleased development work, not part of this
+0.1 publication path. Uno publication remains gated on [0.3 acceptance](preview-03.md).
 
 ## One-time account setup
 

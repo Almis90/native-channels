@@ -16,7 +16,9 @@ These are milestone acceptance criteria, not a released support matrix. The
 on all six Avalonia targets and all four MAUI targets, including both Linux PDF
 backends. The October 19 candidate also passed local validation of one exact
 combined feed; publication remains separate. See the [0.2 preview preparation](preview-02.md)
-for the local candidate process and explicit limitations. Uno remains planned.
+for the local candidate process and explicit limitations. Uno 0.3 is now in
+experimental development; see [0.3 preparation](preview-03.md) for implemented
+work, executed checks and the remaining release gates.
 
 ## Initial preview
 
