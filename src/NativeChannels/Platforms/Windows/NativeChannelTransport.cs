@@ -1,8 +1,19 @@
-#if WINDOWS
+#if WINDOWS || DESKTOP
 namespace NativeChannels;
 
 public sealed partial class NativeChannelTransport
 {
+#if WINDOWS && !DESKTOP
+    private partial void Initialize(IEnumerable<NativeModuleRegistration> modules) => InitializeWindows(modules);
+
+    private partial IDisposable SendNative(TransportRequest request, Action<TransportResponse> completed) =>
+        SendWindowsNative(request, completed);
+
+    private partial void CancelNative(Guid id) => CancelWindowsNative(id);
+
+    private partial Task ShutdownNativeAsync() => ShutdownWindowsNativeAsync();
+#endif
+
     private InMemoryTransport _windowsEndpoint = null!;
     private ChannelService _windowsChannels = null!;
     private readonly List<IWindowsChannelModule> _windowsModules = [];
@@ -10,7 +21,7 @@ public sealed partial class NativeChannelTransport
 
     internal IChannelService WindowsChannels => _windowsChannels;
 
-    private partial void Initialize(IEnumerable<NativeModuleRegistration> modules)
+    private void InitializeWindows(IEnumerable<NativeModuleRegistration> modules)
     {
         // Windows adapters can call native APIs directly from .NET. Separate endpoints still
         // serialize every message and preserve the same ownership and dispatch rules as mobile.
@@ -36,7 +47,7 @@ public sealed partial class NativeChannelTransport
         {
             try
             {
-                ShutdownNativeAsync().GetAwaiter().GetResult();
+                ShutdownWindowsNativeAsync().GetAwaiter().GetResult();
             }
             catch (Exception cleanupError)
             {
@@ -52,7 +63,7 @@ public sealed partial class NativeChannelTransport
         }
     }
 
-    private partial IDisposable SendNative(TransportRequest request, Action<TransportResponse> completed)
+    private IDisposable SendWindowsNative(TransportRequest request, Action<TransportResponse> completed)
     {
         var operation = new WindowsRequest();
         if (!_windowsRequests.TryAdd(request.Id, operation))
@@ -91,7 +102,7 @@ public sealed partial class NativeChannelTransport
         completed(response);
     }
 
-    private partial void CancelNative(Guid id)
+    private void CancelWindowsNative(Guid id)
     {
         if (_windowsRequests.TryGetValue(id, out var operation))
         {
@@ -99,7 +110,7 @@ public sealed partial class NativeChannelTransport
         }
     }
 
-    private async partial Task ShutdownNativeAsync()
+    private async Task ShutdownWindowsNativeAsync()
     {
         // Stop both directions before releasing adapter resources, including if a module throws.
         await _windowsEndpoint.DisposeAsync().ConfigureAwait(false);

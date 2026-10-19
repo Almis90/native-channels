@@ -1,8 +1,9 @@
 # Uno 0.3 feasibility
 
 Status: **investigation started; six-platform feasibility is not established**.
-The first gate has identified desktop transport and macOS native-view blockers.
-No Uno host package or production transport changes have been introduced.
+The first gate identified desktop transport and macOS native-view blockers.
+Step 2 adds runtime selection to the portable transport and a plain-.NET macOS
+bridge. No Uno host package has been introduced; native-view feasibility remains open.
 
 ## Pinned baseline
 
@@ -16,7 +17,7 @@ The isolated [probe project](../samples/Uno/Feasibility/README.md) has its own S
 and dependency configuration. It does not change the existing MAUI or Avalonia
 builds or bump the framework release version.
 
-## Results on October 19, 2026
+## Initial step 1 results on October 19, 2026
 
 The blank Uno desktop application and the package-consuming probe both built in
 Release on Windows with zero warnings and errors. The probe consumed freshly
@@ -40,7 +41,7 @@ view results, resolved assets and package hashes in each completed `runs/` direc
 
 The restored Uno `net10.0-desktop` target selects
 `NativeChannels/0.2.0-preview.1/lib/net10.0/NativeChannels.dll`. Our current
-`net10.0` assembly is compiled with `LINUX`. On Windows, constructing its transport
+`net10.0` assembly at the step 1 baseline was compiled with `LINUX`. On Windows, constructing its transport
 throws `PlatformNotSupportedException: The Linux transport requires Linux.`
 No native method call ran. Successful restore/build is therefore insufficient.
 
@@ -49,7 +50,7 @@ transport relies on `Foundation`, `ObjCRuntime` and the `net10.0-macos` binding.
 Do not assume that the current Apple package can be consumed unchanged. The next
 transport phase must establish platform selection and a compatible macOS bridge,
 potentially through a plain-.NET C ABI shim over the existing native implementation.
-This is a proposed approach, not an implemented solution.
+Step 2 implements that approach; see the desktop transport results below.
 
 ### macOS native views
 
@@ -77,12 +78,58 @@ Win32 embedding API is unsupported. Investigate host activation/layout and nativ
 wrapper behavior, then verify a visible interactive instance, input and focus.
 The probe explicitly records these latter checks as unverified.
 
+## Step 2: portable desktop transport
+
+The portable `net10.0` assembly now selects the Windows, Linux, or macOS transport
+at runtime. `NativeChannelsDesktopOnly=true` builds this assembly; the existing
+`NativeChannelsLinuxOnly=true` switch remains compatible. Windows and Linux reuse
+their existing adapters. Specialized Apple, Android, browser, and Windows targets
+retain their existing transport paths.
+
+macOS uses a small exported C ABI around the existing Swift `NativeBridge`.
+It passes channel envelopes unchanged and does not reference .NET Apple bindings
+or Uno UI types. Native module classes retain their existing names. Adapter dylibs
+are loaded once per process because Objective-C class registration is global.
+The bridge normalizes UUID casing when correlating native-to-managed replies.
+
+Local packages use version `0.3.0-preview.3`; this is a probe version, not a release
+version bump. Build both macOS architectures with `eng/build-apple-desktop.py` and
+pack with `NativeChannelsIncludeAppleDesktopAssets=true` to include
+`runtimes/osx-arm64/native/libNativeChannelsNative.dylib` and its `osx-x64` sibling.
+The test-only `NativeChannels.Desktop.ProbeAssets` package supplies Currency and
+sample adapter dylibs. Production plugin packaging and release CI are still later
+work; this fixture is not a new plugin product or a published package.
+
+Executed checks:
+
+- Windows: the package-only Uno consumer calls Win32 `GetDoubleClickTime` through
+  the portable transport. Nine desktop transport tests pass, including factory
+  selection, callbacks, messages, streams, cancellation, and session cleanup.
+- macOS ARM64: the package-only Uno consumer loads the Swift Currency adapter and
+  returns `€`. Three successive native sample sessions pass method callbacks,
+  Int64 envelopes, native errors, missing methods, binary callbacks, finite events,
+  request cancellation, reuse after cancellation, and disposal with pending work.
+- macOS x64: native libraries cross-compile; execution has not been verified.
+- Linux x64 (Ubuntu VM): the portable runtime-selection test passes, including
+  a method round trip and module disposal. A package-only Uno Linux run remains pending.
+- Existing managed regression suites: 135 tests pass (Core, Windows, Currency,
+  and Avalonia).
+
+Reproduce the macOS package gate with `python3 eng/verify-uno-apple-desktop.py`
+with the pinned SDK on `PATH`. It builds both native architectures, checks RID
+assets in the package, restores a package-only Uno consumer into a fresh cache,
+and retains JSON results, contract logs, and package SHA-256 hashes. A failed
+contract makes this gate fail. These checks do not validate UI dispatch or native
+views; the Windows control probe and macOS public hosting API remain unresolved.
+The fresh-cache macOS run passed with evidence under
+`artifacts/uno-feasibility/runs/b8b047d602884cc280d961b7a064a49b/`.
+
 ## Next gate
 
 1. Resolve the Windows control probe and prove a packaged method call on a
    compatible Windows configuration.
-2. Implement or prototype desktop transport selection and macOS bridge loading
-   outside the UI host package (the transport work from plan step 2).
+2. Extend desktop package acceptance into production plugin packaging and release
+   CI, retaining the plain-.NET macOS bridge outside the UI host package.
 3. Establish a supported macOS native-element extension path against this pinned
    release, or identify the upstream change needed. Do not silently reduce the
    six-target native-view acceptance requirement.

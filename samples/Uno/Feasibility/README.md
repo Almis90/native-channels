@@ -3,8 +3,8 @@
 This is an isolated investigation, not `NativeChannels.Uno` or a supported sample.
 It pins Uno.Sdk **6.7.30** (Uno runtime **6.7.135**) and .NET SDK **10.0.401**.
 The application originated from the matching blank Uno template. Template heads
-exist for Android, iOS, browser and desktop; only the Windows desktop probe has
-been built and executed so far. No library project references are used.
+exist for Android, iOS, browser and desktop. Windows and macOS desktop transport
+probes have been built and executed. No library project references are used.
 
 Run the desktop gate on Windows from the repository root:
 
@@ -12,11 +12,22 @@ Run the desktop gate on Windows from the repository root:
 pwsh -File eng/verify-uno-feasibility.ps1
 ```
 
-This rebuilds Core and the current portable Linux transport into a local feed,
+This rebuilds Core and the portable desktop transport into a local feed,
 restores the Uno desktop consumer into a fresh cache, and records dependency and
 native-view results under `artifacts/uno-feasibility/runs/`. A successful command
 means that evidence was collected, not that the integration works. Inspect the
 individual JSON statuses. The runner does not publish packages or start CI.
+
+On macOS, put the pinned .NET SDK on `PATH`, then run:
+
+```sh
+python3 eng/verify-uno-apple-desktop.py
+```
+
+This builds both macOS native architectures and test adapter packages, restores
+into a fresh cache, and verifies native methods, callbacks, binary messages,
+events, cancellation, and disposal on the current architecture. Xcode is required.
+The test asset package is local-only; native view hosting is a separate gate.
 
 For a diagnostic rerun when disk space is limited, pass
 `-ReuseCache artifacts/uno-feasibility/cache`. This mode is recorded in

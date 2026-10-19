@@ -1,6 +1,7 @@
 using System.Reflection;
 using System.Reflection.Metadata;
 using System.Reflection.PortableExecutable;
+using System.Runtime.InteropServices;
 using System.Text.Json;
 using NativeChannels;
 
@@ -16,13 +17,16 @@ internal static class DependencyProbe
             ["os"] = System.Runtime.InteropServices.RuntimeInformation.OSDescription,
             ["framework"] = System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription,
             ["nativeChannelsAssembly"] = typeof(NativeChannelTransport).Assembly.Location,
-            ["nativeMethod"] = "not-executed"
+            ["nativeMethod"] = "not-executed",
         };
         try
         {
-            var transport = new NativeChannelTransport();
-            transport.DisposeAsync().AsTask().GetAwaiter().GetResult();
-            report["transportInitialization"] = "passed (no modules registered)";
+            ProbeMethodAsync(report).GetAwaiter().GetResult();
+            if (OperatingSystem.IsMacOS())
+            {
+                DesktopContractProbe.RunAsync().WaitAsync(TimeSpan.FromSeconds(30)).GetAwaiter().GetResult();
+                report["desktopContract"] = "passed";
+            }
         }
         catch (Exception error)
         {
@@ -35,13 +39,55 @@ internal static class DependencyProbe
         var metadata = pe.GetMetadataReader();
         report["macOSAssembly"] = path;
         report["macOSAssemblyVersion"] = metadata.GetAssemblyDefinition().Version.ToString();
-        report["macOSNativeTypes"] = metadata.TypeDefinitions.Select(handle => metadata.GetTypeDefinition(handle))
+        report["macOSNativeTypes"] = metadata
+            .TypeDefinitions.Select(handle => metadata.GetTypeDefinition(handle))
             .Where(type => metadata.GetString(type.Name).Contains("NativeElement"))
             .Select(type => new
             {
                 name = metadata.GetString(type.Namespace) + "." + metadata.GetString(type.Name),
-                visibility = (type.Attributes & TypeAttributes.VisibilityMask).ToString()
-            }).ToArray();
+                visibility = (type.Attributes & TypeAttributes.VisibilityMask).ToString(),
+            })
+            .ToArray();
         return JsonSerializer.Serialize(report, new JsonSerializerOptions { WriteIndented = true });
     }
+
+    private static async Task ProbeMethodAsync(Dictionary<string, object?> report)
+    {
+        var registration = OperatingSystem.IsMacOS()
+            ? new NativeModuleRegistration("", "MCCurrencyModule", "MauiCurrencyNative")
+            : new NativeModuleRegistration("", "")
+            {
+                WindowsFactory = () => new NativeProbeModule(),
+                LinuxFactory = () => new NativeProbeModule(),
+            };
+        await using var channels = new ChannelService(new BinaryMessenger(new NativeChannelTransport([registration])));
+        report["transportInitialization"] = "passed";
+        using var channel = channels.GetMethodChannel(
+            OperatingSystem.IsMacOS() ? "plugin.maui.currency" : "desktop.probe"
+        );
+        var result = await channel.InvokeAsync<object>(OperatingSystem.IsMacOS() ? "getSymbol" : "native", "EUR");
+        report["nativeMethod"] = "passed";
+        report["nativeResult"] = result;
+    }
+
+    private sealed class NativeProbeModule : IWindowsChannelModule, ILinuxChannelModule
+    {
+        public void Register(IChannelService channels) =>
+            channels
+                .GetMethodChannel("desktop.probe")
+                .SetMethodCallHandler(
+                    (_, _) =>
+                        ValueTask.FromResult<object?>(
+                            OperatingSystem.IsWindows() ? (long)GetDoubleClickTime() : GetProcessId()
+                        )
+                );
+
+        public void Dispose() { }
+    }
+
+    [DllImport("user32.dll")]
+    private static extern uint GetDoubleClickTime();
+
+    [DllImport("libc", EntryPoint = "getpid")]
+    private static extern int GetProcessId();
 }

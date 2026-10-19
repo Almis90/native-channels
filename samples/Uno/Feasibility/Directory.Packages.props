@@ -6,6 +6,7 @@
     See https://aka.platform.uno/using-uno-sdk#implicit-packages for more information regarding the Implicit Packages.
   -->
   <ItemGroup>
-    <PackageVersion Include="NativeChannels" Version="0.2.0-preview.1" />
+    <PackageVersion Include="NativeChannels" Version="0.3.0-preview.3" />
+    <PackageVersion Include="NativeChannels.Desktop.ProbeAssets" Version="0.3.0-preview.3" />
   </ItemGroup>
 </Project>

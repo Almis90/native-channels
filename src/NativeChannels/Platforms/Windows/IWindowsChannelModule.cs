@@ -1,4 +1,4 @@
-#if WINDOWS
+#if WINDOWS || DESKTOP
 namespace NativeChannels;
 
 /// <summary>A Windows adapter that accesses WinRT, COM, or native SDKs through C#.</summary>

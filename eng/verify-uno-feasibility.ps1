@@ -15,10 +15,9 @@ function Invoke-ProbeDotnet {
 
 Push-Location $repo
 try {
-    # The current portable desktop asset is Linux-only. Rebuild it from this checkout
-    # to demonstrate selection on Uno's desktop target, without using historical feeds.
-    Invoke-ProbeDotnet pack src/NativeChannels.Core/NativeChannels.Core.csproj -c Release -o $feed
-    Invoke-ProbeDotnet pack src/NativeChannels/NativeChannels.csproj -c Release '-p:NativeChannelsLinuxOnly=true' -o $feed
+    # Rebuild the runtime-selected desktop transport from this checkout.
+    Invoke-ProbeDotnet pack src/NativeChannels.Core/NativeChannels.Core.csproj -c Release '-p:Version=0.3.0-preview.3' -o $feed
+    Invoke-ProbeDotnet pack src/NativeChannels/NativeChannels.csproj -c Release '-p:Version=0.3.0-preview.3' '-p:NativeChannelsDesktopOnly=true' -o $feed
     $settings = @('-p:TargetFrameworks=net10.0-desktop', "-p:RestorePackagesPath=$cache")
     Invoke-ProbeDotnet restore $project @settings '-p:Configuration=Release' --configfile $config
     Invoke-ProbeDotnet build $project @settings -c Release --no-restore
