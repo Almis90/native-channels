@@ -175,15 +175,20 @@ def push(path, api_key):
     body += f'\r\n--{boundary}--\r\n'.encode()
     request = urllib.request.Request(endpoint, data=body, method='PUT', headers={
         'Content-Type': f'multipart/form-data; boundary={boundary}', 'X-NuGet-ApiKey': api_key,
+        # Required by nuget.org, including accounts with modern push security policies.
+        'X-NuGet-Protocol-Version': '4.1.0',
         'User-Agent': 'NativeChannels-local-preview-publisher/1'})
     try:
         with urllib.request.build_opener(NoRedirect()).open(request, timeout=120) as response:
             if response.status not in (200, 201, 202):
                 raise ValueError(f'{path.name}: unexpected upload status {response.status}')
     except urllib.error.HTTPError as error:
-        # Response bodies can echo headers. Report only the status, never credentials or server text.
+        # NuGet explains package/policy rejection in the body. Redact credentials before
+        # truncating diagnostics, and never include request headers or the exception repr.
+        detail = error.read(65536).decode('utf-8', errors='replace').replace(api_key, '[redacted]')
+        detail = ' '.join(detail.split())[:2048]
         raise ValueError(f'{path.name}: NuGet returned HTTP {error.code}; retain the release and inspect '
-                         'partial uploads/indexing before retrying') from None
+                         f'partial uploads/indexing before retrying. {detail}') from None
     except (urllib.error.URLError, TimeoutError, OSError):
         raise ValueError(f'{path.name}: upload outcome is unknown; inspect NuGet before retrying') from None
 

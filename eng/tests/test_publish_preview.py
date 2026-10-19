@@ -181,14 +181,17 @@ class PublishPreviewTests(unittest.TestCase):
         self.prepare()
         path = self.output / 'candidate' / f'NativeChannels.Core.{VERSION}.nupkg'
         with patch.object(publisher.urllib.request, 'build_opener') as opener:
-            opener.return_value.open.side_effect = urllib.error.HTTPError('url', 403, 'secret-key', {}, None)
+            opener.return_value.open.side_effect = urllib.error.HTTPError(
+                'url', 403, 'secret-key', {}, io.BytesIO(b'Policy rejected secret-key'))
             with self.assertRaises(ValueError) as error:
                 publisher.push(path, 'secret-key')
             self.assertNotIn('secret-key', str(error.exception))
+            self.assertIn('Policy rejected [redacted]', str(error.exception))
             request = opener.return_value.open.call_args.args[0]
             self.assertEqual(request.method, 'PUT')
             self.assertIn(path.read_bytes(), request.data)
             self.assertEqual('secret-key', request.get_header('X-nuget-apikey'))
+            self.assertEqual('4.1.0', request.get_header('X-nuget-protocol-version'))
             self.assertIsNone(publisher.NoRedirect().redirect_request(request, None, 302, '', {}, 'https://example.com'))
 
     def test_symbol_conflict_is_pending_indexing_not_success(self):
@@ -198,6 +201,9 @@ class PublishPreviewTests(unittest.TestCase):
             opener.return_value.open.side_effect = urllib.error.HTTPError('url', 409, 'pending', {}, None)
             with self.assertRaisesRegex(ValueError, '409'):
                 publisher.push(path, 'secret-key')
+            request = opener.return_value.open.call_args.args[0]
+            self.assertEqual('https://www.nuget.org/api/v2/symbolpackage', request.full_url)
+            self.assertEqual('4.1.0', request.get_header('X-nuget-protocol-version'))
 
 
 if __name__ == '__main__':
