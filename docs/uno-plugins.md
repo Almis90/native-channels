@@ -60,6 +60,12 @@ integration. A protocol fixture does not satisfy PDF rendering acceptance.
 
 ## Executed acceptance
 
+The five separate [Uno samples](../samples/Uno/README.md) now provide interactive
+Currency, AudioStreamer and VolumeMonitor apps, an Interop diagnostic app, and
+a PDF protocol app. Run `eng/verify-uno-samples.ps1` after creating the local
+preview packages. This is partial step-5 delivery: PDF rendering, native view
+acceptance and the remaining platform runs are still outstanding.
+
 On Windows, run:
 
 ```powershell
