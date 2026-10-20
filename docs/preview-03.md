@@ -18,7 +18,7 @@ these packages from a public feed expecting the behavior described here.
 | `NativeChannels` | Platform transports and shared native module registration |
 | `NativeChannels.Uno` | Optional Uno startup, per-window sessions, UI dispatch and experimental view lifecycle |
 | `Plugin.Currency`, `Plugin.AudioStreamer`, `Plugin.VolumeMonitor` | Shared messaging plugins; no dependency on a UI host |
-| `Plugin.Uno.PdfViewer` | Uno PDF control/protocol contract requiring an explicit adapter factory; no bundled renderer |
+| `Plugin.Uno.PdfViewer` | Uno PDF control with a Windows.Data.Pdf child-window renderer; custom factories remain supported |
 
 The desktop transport selects Windows, Linux or macOS at runtime. The macOS
 plain-.NET bridge stays in the transport/native layer. It does not belong in
@@ -33,7 +33,7 @@ and the [sample instructions](../samples/Uno/README.md).
 
 | Platform | Executed evidence | Still required |
 | --- | --- | --- |
-| Windows | Five package-only apps pass bounded smoke checks; real Currency, silent audio and volume plugins execute. Corrected button adapters pass native parenting, layout/resize, focus, direct input messages and cleanup | Visible review and physical input, native PDF rendering, broader lifecycle and audible playback checks |
+| Windows | Five package-only apps pass bounded smoke checks; real Currency, silent audio and volume plugins execute. Corrected button adapters pass native checks; Windows PDF painting, page/zoom, invalid-input and cleanup checks also pass | Visible review and physical input, broader PDF/document/lifecycle coverage and audible playback checks |
 | macOS | Earlier ARM64 transport and native contract probe; x64 native libraries cross-compile | Full five-app execution, shared plugin runtime, public native-view hosting path and PDF integration |
 | Linux | Earlier portable transport selection/method/disposal test in an Ubuntu VM | Five Uno app executions, native plugin packaging and view/PDF integration |
 | Android | Sample heads exist | Uno package integration, native method/view probes and five-app device/emulator execution |
@@ -90,7 +90,9 @@ not be used as a release approval.
 - Establish a public supported macOS native embedding path. The pinned Uno
   release exposes its arbitrary native-element wrapper internally; reflection,
   separate windows and rendered-image substitutes do not meet the planned contract.
-- Supply and verify real Uno PDF adapters. Protocol fixture success is insufficient.
+- Supply and verify Uno PDF adapters for the other five platforms. Windows native
+  painting and lifecycle checks now pass; physical input and broader visual/document
+  review remain outstanding. Protocol fixtures alone are insufficient.
 - Finish Android, iOS and browser transport/package integration and validate
   desktop native assets for Linux and both macOS architectures.
 - Execute all five apps across all six platforms against one intended package

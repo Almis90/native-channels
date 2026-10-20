@@ -21,7 +21,7 @@ VERSION = '0.3.0-preview.6'
 PACKAGES = ('NativeChannels.Core', 'NativeChannels', 'NativeChannels.Uno',
             'Plugin.Currency', 'Plugin.AudioStreamer', 'Plugin.VolumeMonitor', 'Plugin.Uno.PdfViewer')
 GAPS = {
-    'windows': 'Native parenting/layout/focus and direct input messages pass; physical input/visual review and native PDF rendering remain unverified.',
+    'windows': 'Native view and Windows PDF painting checks pass; physical input and broader visual/lifecycle review remain unverified.',
     'linux': 'Native plugin assets and Uno runtime/native views/PDF are not verified.',
     'macos': 'Native plugin runtime is not verified; pinned Uno lacks public arbitrary NSView embedding.',
     'android': 'Uno mobile package integration, native views and device execution are pending.',
@@ -54,7 +54,25 @@ def audit_feed(feed, commit):
             if record['id'] in ('Plugin.Currency', 'Plugin.AudioStreamer', 'Plugin.VolumeMonitor'):
                 if any('Uno' in name for name in dependencies):
                     raise ValueError('Shared messaging plugins must remain independent of Uno')
+            if record['id'] == 'Plugin.Uno.PdfViewer':
+                required = {'buildTransitive/Plugin.Uno.PdfViewer.targets',
+                            'buildTransitive/windows/Microsoft.Windows.SDK.NET.dll',
+                            'buildTransitive/windows/WinRT.Runtime.dll'}
+                if not required <= set(archive.namelist()):
+                    raise ValueError('Uno PDF package is missing its Windows projection/runtime assets')
     return records
+
+
+def audit_pdf_runtime(feed, output):
+    """Verify raw private references really came from the audited PDF archive."""
+    hashes = {}
+    with zipfile.ZipFile(feed / f'Plugin.Uno.PdfViewer.{VERSION}.nupkg') as archive:
+        for name in ('Microsoft.Windows.SDK.NET.dll', 'WinRT.Runtime.dll'):
+            expected = hashlib.sha256(archive.read('buildTransitive/windows/' + name)).hexdigest()
+            if not (output / name).is_file() or sha256(output / name) != expected:
+                raise ValueError(f'Windows PDF runtime asset differs from its package: {name}')
+            hashes[name] = expected
+    return hashes
 
 
 def audit_consumer(assets, feed, sample):
@@ -174,6 +192,8 @@ def run(args, source_identity):
                 assets = json.loads(assets_path.read_text(encoding='utf-8-sig'))
                 record['packages'] = audit_consumer(assets, feed, sample)
                 shutil.copy2(assets_path, folder / f'{sample}-assets.json')
+                if sample == 'PdfViewer' and args.platform == 'windows':
+                    record['windowsProjections'] = audit_pdf_runtime(feed, project.parent / 'bin/Release/net10.0-desktop')
                 record['build'] = 'passed'
                 if not args.build_only:
                     binary = project.parent / f'bin/Release/net10.0-desktop/{sample}.exe'

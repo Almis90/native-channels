@@ -7,6 +7,23 @@ public sealed record PdfState(string InstanceId, int Page, int PageCount, double
 
 public sealed class PdfViewer : ContentControl, IAsyncDisposable
 {
+    public PdfViewer()
+        : this(CreateNativeView) { }
+
+    public static IUnoNativeView CreateNativeView(string instanceId)
+    {
+        if (!OperatingSystem.IsWindowsVersionAtLeast(10, 0, 17763))
+            throw new PlatformNotSupportedException(
+                "The bundled PDF adapter requires Windows 10 1809 or later. Supply a custom native factory on other platforms."
+            );
+        return CreateWindowsView(instanceId);
+    }
+
+    // Keep Windows projection types out of the JIT path on other Uno backends.
+    [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.NoInlining)]
+    [System.Runtime.Versioning.SupportedOSPlatform("windows10.0.17763")]
+    private static IUnoNativeView CreateWindowsView(string instanceId) => new WindowsPdfView(instanceId);
+
     private readonly UnoChannelView _native;
     private IDisposable? _callback;
     public PdfState? State { get; private set; }

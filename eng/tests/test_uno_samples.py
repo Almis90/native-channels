@@ -5,6 +5,7 @@ import sys
 import tempfile
 from types import SimpleNamespace
 import unittest
+import zipfile
 from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).parents[1]))
@@ -12,6 +13,20 @@ import uno_samples as uno
 
 
 class UnoSamplesTests(unittest.TestCase):
+    def test_pdf_private_runtime_references_match_packaged_bytes(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            output = root / 'output'
+            output.mkdir()
+            with zipfile.ZipFile(root / f'Plugin.Uno.PdfViewer.{uno.VERSION}.nupkg', 'w') as archive:
+                for name in ('Microsoft.Windows.SDK.NET.dll', 'WinRT.Runtime.dll'):
+                    archive.writestr('buildTransitive/windows/' + name, name.encode())
+                    (output / name).write_bytes(name.encode())
+            self.assertEqual(len(uno.audit_pdf_runtime(root, output)), 2)
+            (output / 'WinRT.Runtime.dll').write_bytes(b'stale projection')
+            with self.assertRaisesRegex(ValueError, 'runtime asset differs'):
+                uno.audit_pdf_runtime(root, output)
+
     def test_protocol_result_cannot_claim_missing_identity_or_hide_limitations(self):
         good = dict(sample='PdfViewer', checks='passed', limitation='Protocol only')
         uno.validate_result(good, 'PdfViewer')

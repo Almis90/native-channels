@@ -39,7 +39,7 @@ try {
     @{ freshCache = -not [bool]$ReuseCache; cache = $cache; buildOnly = [bool]$BuildOnly } | ConvertTo-Json |
         Set-Content -LiteralPath (Join-Path $output 'restore-mode.json') -Encoding utf8
     Write-Output "Evidence: $output"
-    Write-Output 'This is not six-platform acceptance; native PDF rendering and native view acceptance remain pending.'
+    Write-Output 'This is not six-platform acceptance; other-platform PDF adapters and broader visual/input review remain pending.'
 }
 finally {
     $env:DOTNET_ROOT = $previousRoot

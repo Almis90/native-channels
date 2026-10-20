@@ -1,0 +1,17 @@
+<Project>
+    <!-- Keep Windows projections out of Uno's global compile namespace. They are
+       explicit private references so the app's deps.json records their runtime
+       identities; other OS/target builds do not consume Windows SDK assemblies. -->
+    <ItemGroup Condition="$([MSBuild]::IsOSPlatform('windows')) And ('$(TargetFramework)' == 'net10.0' Or '$(TargetFramework)' == 'net10.0-desktop')">
+        <Reference Include="Microsoft.Windows.SDK.NET">
+            <HintPath>$(MSBuildThisFileDirectory)windows/Microsoft.Windows.SDK.NET.dll</HintPath>
+            <Aliases>WindowsSdk</Aliases>
+            <Private>true</Private>
+        </Reference>
+        <Reference Include="WinRT.Runtime">
+            <HintPath>$(MSBuildThisFileDirectory)windows/WinRT.Runtime.dll</HintPath>
+            <Aliases>WindowsSdk</Aliases>
+            <Private>true</Private>
+        </Reference>
+    </ItemGroup>
+</Project>

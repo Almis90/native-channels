@@ -10,8 +10,8 @@ Use the implementations as patterns for your own integration.
 
 The [Uno sample suite](../samples/Uno/README.md) contains Interop, Currency,
 AudioStreamer, VolumeMonitor and PdfViewer apps. It reuses the shared messaging
-plugins and keeps the Uno host optional. Windows smoke checks pass; the PDF app
-tests its protocol without rendering, and native-view/six-platform acceptance
+plugins and keeps the Uno host optional. Windows native PDF painting and lifecycle
+checks now pass; broader visual/input review and six-platform acceptance
 remain incomplete. See [Uno 0.3 status](preview-03.md).
 
 ## Pick an example

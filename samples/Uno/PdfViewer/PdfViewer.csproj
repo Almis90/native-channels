@@ -18,5 +18,16 @@
         <Compile Include="../Shared/App.cs" Link="App.xaml.cs" />
         <Compile Include="../Shared/SamplePage.cs" Link="SamplePage.cs" />
         <Compile Include="../Shared/PdfProtocolProbe.cs" Link="PdfProtocolProbe.cs" />
+        <Content
+            Include="../../Maui/PdfViewer/Resources/Raw/nativechannels-guide.pdf"
+            Link="nativechannels-guide.pdf"
+            CopyToOutputDirectory="PreserveNewest"
+        />
+    </ItemGroup>
+    <PropertyGroup Condition="'$(TargetFramework)' == 'net10.0-desktop'">
+        <DefineConstants>$(DefineConstants);SAMPLE_DESKTOP</DefineConstants>
+    </PropertyGroup>
+    <ItemGroup Condition="'$(TargetFramework)' != 'net10.0-desktop'">
+        <Compile Remove="NativePdfProbe.cs" />
     </ItemGroup>
 </Project>

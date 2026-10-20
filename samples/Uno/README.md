@@ -10,9 +10,11 @@ code in `Shared`. They pin Uno SDK 6.7.30 and the local NativeChannels
 | Currency | Enter an ISO code and query its native symbol | EUR, USD, unknown-code error |
 | AudioStreamer | Play the original shared music loop; pause, resume and stop | Silent PCM write, native pause/resume, disposal |
 | VolumeMonitor | Start/stop observing the output volume without changing it | Initial native reading and subscription disposal |
-| PdfViewer | Run the experimental control's protocol checks | Page, zoom, callbacks, identity, reconnect and disposal using a managed fixture |
+| PdfViewer | Open local PDFs in a native Windows view; page, zoom, pan, reconnect and close | Real Windows.Data.Pdf page pixels, page/zoom changes, invalid input, reconnect and pending-request cleanup |
 
-**The PDF app does not render a document.** No Uno native PDF adapter is bundled.
+The PDF app now renders through Windows.Data.Pdf into a native Win32 child window.
+The separate protocol-fixture button tests managed contracts only. Other platforms
+do not yet have bundled PDF adapters.
 Interop's native controls are Windows-only diagnostics; successful channel
 connectivity is not evidence of native attachment, rendering or input.
 
@@ -83,7 +85,7 @@ packaging and runtime checks remain necessary before those targets are usable.
 macOS needs the native dylibs and has no public arbitrary native-view embedding
 API in the pinned Uno version. Linux needs its native plugin assets.
 
-Step 5 remains partial until native PDF adapters and native views are working,
+Step 5 remains partial until native PDF adapters and native views work on all targets,
 and all five apps have run on all six platforms. Windows native parenting,
 bounds/resize, focus, direct input-message dispatch and two-view independence now
 pass automated checks. The adapter supplies `WS_CHILD` before Uno reparents the

@@ -180,11 +180,21 @@ test scope and lifecycle responsibilities.
 
 ## Steps 5–7: samples, automation and release documentation
 
+Subsequent Windows PDF integration adds a default Windows.Data.Pdf adapter inside
+an Uno-hosted child HWND. It reuses the existing Windows document source without
+a MAUI/Avalonia package dependency. Native page/zoom pixel checks, invalid input,
+reconnect and pending-request cleanup now pass; the managed protocol fixture
+remains a separate check. See [PDF setup and limitations](../plugins/Plugin.Uno.PdfViewer/README.md).
+
 Five separate Uno sample apps now share startup, shutdown and verification code.
 The unified runner repacks into an isolated feed, audits package metadata and
 restored archive origin/bytes, and runs all five Windows smoke checks. The local
-step-6 run passed; Interop and PDF still use managed protocol/lifecycle fixtures
-for their automated checks. Desktop CI definitions cover Windows, Linux and macOS
+step-6 run passed with managed protocol/lifecycle fixtures for Interop and PDF.
+The subsequent native PDF run passes its runtime projection audit and rendering
+checks, but the full regression run exposes an intermittent VolumeMonitor process
+shutdown timeout after its passing result is written. This remains unresolved;
+the current full Windows smoke suite must not be reported as passing.
+Desktop CI definitions cover Windows, Linux and macOS
 builds; no execution of those CI jobs is claimed here.
 
 Step 7 documents current behavior and prepares unreleased notes. Release versions

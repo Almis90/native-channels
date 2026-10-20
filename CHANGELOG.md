@@ -7,12 +7,13 @@
 - Portable desktop transport now selects Windows, Linux or macOS at runtime;
   the macOS path uses a plain-.NET C ABI bridge over the existing native implementation.
 - Reused Currency, AudioStreamer and VolumeMonitor without Uno-specific copies.
-  Added the experimental `Plugin.Uno.PdfViewer` control/protocol contract; it does
-  not include a native PDF renderer.
+  Added `Plugin.Uno.PdfViewer` with a Windows.Data.Pdf renderer in a native HWND;
+  other platform adapters remain pending.
 - Added five package-only Uno samples, a unified local runner with package-origin
   audits, and desktop build CI definitions for Windows, Linux and macOS.
-- All five Windows apps passed local smoke checks. Interop and PDF automated
-  results cover managed protocol/lifecycle fixtures, not native rendering.
+- All five Windows apps passed local checks. Interop now verifies real HWND
+  attachment/layout/focus and direct input messages; PDF verifies native page
+  painting, navigation/zoom, invalid input and reconnect/shutdown cleanup.
 - Six-platform runtime, native-view/PDF and combined distribution acceptance
   remain incomplete. Local `0.3.0-preview.6` packages are diagnostic builds;
   the repository release version is unchanged. See [0.3 preparation](docs/preview-03.md).

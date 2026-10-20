@@ -2,10 +2,43 @@
     <PropertyGroup>
         <TargetFramework>net10.0</TargetFramework>
         <Version>0.1.0-alpha.1</Version>
-        <Description>Experimental Uno PDF control and native adapter lifecycle. Requires a compatible native view factory.</Description>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <DefineConstants>$(DefineConstants);UNO_WINDOWS_PDF</DefineConstants>
+        <WindowsPdfSdkVersion>10.0.19041.57</WindowsPdfSdkVersion>
+        <Description>Uno PDF control with a Windows.Data.Pdf native child-window renderer and custom adapter lifecycle.</Description>
     </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="NativeChannels.Uno" />
+        <PackageReference Include="NativeChannels" />
+        <PackageReference Include="System.Drawing.Common" />
+        <!-- Private projection: Uno defines its own Windows.* types. Compile with
+             an alias and ship SDK runtime assemblies only for Windows consumers. -->
+        <PackageDownload
+            Include="Microsoft.Windows.SDK.NET.Ref"
+            Version="[$(WindowsPdfSdkVersion)]"
+        />
+        <Reference Include="Microsoft.Windows.SDK.NET">
+            <HintPath>$(NuGetPackageRoot)/microsoft.windows.sdk.net.ref/$(WindowsPdfSdkVersion)/lib/net8.0/Microsoft.Windows.SDK.NET.dll</HintPath>
+            <Aliases>WindowsSdk</Aliases>
+        </Reference>
+        <Reference Include="WinRT.Runtime">
+            <HintPath>$(NuGetPackageRoot)/microsoft.windows.sdk.net.ref/$(WindowsPdfSdkVersion)/lib/net8.0/WinRT.Runtime.dll</HintPath>
+        </Reference>
+        <None
+            Include="$(NuGetPackageRoot)/microsoft.windows.sdk.net.ref/$(WindowsPdfSdkVersion)/lib/net8.0/Microsoft.Windows.SDK.NET.dll;$(NuGetPackageRoot)/microsoft.windows.sdk.net.ref/$(WindowsPdfSdkVersion)/lib/net8.0/WinRT.Runtime.dll"
+            Pack="true"
+            PackagePath="buildTransitive/windows/"
+        />
+        <None
+            Include="buildTransitive/Plugin.Uno.PdfViewer.targets"
+            Pack="true"
+            PackagePath="buildTransitive/"
+        />
+        <Compile
+            Include="../../../Plugin.Maui.PdfViewer/native/windows/WindowsPdfDocument.cs"
+            Link="WindowsPdfDocument.cs"
+        />
+        <Compile Include="../../native/windows/WindowsPdfView.cs" Link="WindowsPdfView.cs" />
         <None Remove="$(MSBuildThisFileDirectory)../../../../README.md" />
         <None Include="../../README.md" Pack="true" PackagePath="/README.md" />
     </ItemGroup>

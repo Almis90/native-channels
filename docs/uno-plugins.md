@@ -52,20 +52,28 @@ plugin packages have not been executed for this step.
 
 The experimental [Plugin.Uno.PdfViewer](../plugins/Plugin.Uno.PdfViewer/README.md)
 contains the Uno control, PDF state validation, UI-dispatched state callbacks,
-and reconnect/disposal behavior. It requires an explicit `IUnoNativeView` factory.
-**No built-in Uno native PDF adapter is bundled or validated yet.** macOS lacks
-the public embedding API required by the pinned Uno release, and Windows native
-attachment is verified for the button sample, but a PDF adapter is still missing.
-Mobile, Linux and browser adapters still need
-integration. A protocol fixture does not satisfy PDF rendering acceptance.
+and reconnect/disposal behavior. Its default constructor now uses a bundled
+Windows.Data.Pdf renderer inside an Uno-hosted Win32 child window. The Windows
+sample tests real page pixels, page/zoom changes, errors and lifecycle. Custom
+`IUnoNativeView` factories remain supported. macOS lacks the required public
+embedding API; mobile, Linux and browser adapters still need integration.
+
+Run the current native PDF check with:
+
+```powershell
+python eng/test-samples.py --framework uno --platform windows --sample PdfViewer --dotnet .tools/dotnet/dotnet.exe
+```
+
+It audits private Windows projection DLLs against the package and captures native
+painting. Physical input and broader visual/document review remain outstanding.
 
 ## Executed acceptance
 
 The five separate [Uno samples](../samples/Uno/README.md) now provide interactive
 Currency, AudioStreamer and VolumeMonitor apps, an Interop diagnostic app, and
-a PDF protocol app. Run `eng/verify-uno-samples.ps1` after creating the local
-preview packages. This is partial step-5 delivery: PDF rendering, native view
-acceptance and the remaining platform runs are still outstanding.
+a native Windows PDF app with a separate protocol-fixture check. Run `eng/verify-uno-samples.ps1` after creating the local
+preview packages. The remaining platform runs and broader visual/input acceptance are still outstanding.
+The earlier feasibility probe below continues to use the managed PDF fixture.
 
 On Windows, run:
 
