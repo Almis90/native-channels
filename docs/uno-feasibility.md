@@ -117,6 +117,25 @@ Build/runtime logs and the result are retained in the Mac checkout's
 `artifacts/uno-feasibility/mac-20261021/`. Next is AudioStreamer on macOS with
 the existing shared scenarios. Native-view/PDF support remains blocked as above.
 
+#### AudioStreamer sample execution on macOS
+
+The ARM64 Uno AudioStreamer app built with zero warnings/errors using the same
+fresh native packages and existing cache as Currency. The shared MAUI/Avalonia
+PCM verifier passed playback progress, bounded buffering, pause/resume,
+cancellation, exact drain counts and restart. The existing shared host verifier
+also passed three session lifetimes, pending-write disposal, DI cleanup and
+rejection after disposal. The Uno control path passed pause/resume, explicit
+suspension, restart and stop, followed by page cleanup with paused playback and
+normal window close (exit 0 within the 45-second bound).
+
+On macOS this control check invokes `SuspendAsync` directly; it does not minimize
+the window. The result log now distinguishes `suspend/restart` from Windows'
+actual `minimize/restart`. No additional scenarios were introduced. Audible
+playback and actual macOS background/minimize event delivery remain unverified.
+Evidence is in `artifacts/uno-feasibility/audio-macos-*` on the Mac and copied to
+local `artifacts/uno-feasibility/mac-20261021/`. Next is VolumeMonitor on macOS
+with the existing shared subscription verifier.
+
 ### Windows native-view probe
 
 Update on October 20: the attachment failure was traced to the probe adapter's

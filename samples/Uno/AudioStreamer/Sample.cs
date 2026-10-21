@@ -7,7 +7,7 @@ internal sealed partial class SamplePage
 {
     private const string Title = "AudioStreamer";
     private const string Limitation =
-        "Windows desktop silent transport verified; listening and other platforms pending.";
+        "Windows and macOS ARM64 desktop silent transport verified; listening and other platforms pending.";
     private AudioStreamSession? _playback;
     private CancellationTokenSource? _playing;
     private Task _producer = Task.CompletedTask;
@@ -134,7 +134,8 @@ internal sealed partial class SamplePage
         await PauseAsync();
         Require(!_producer.IsCompleted && _playbackError is null, "cleanup with active paused playback");
         // The shared sample runner disposes this page and closes its real window.
-        Console.WriteLine("PASS host disposal, pending writes, three host sessions, controls and minimize/restart");
+        var lifecycle = OperatingSystem.IsWindows() ? "minimize/restart" : "suspend/restart";
+        Console.WriteLine($"PASS host disposal, pending writes, three host sessions, controls and {lifecycle}");
     }
 
     public async Task StopAsync()
