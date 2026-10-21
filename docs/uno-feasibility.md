@@ -267,8 +267,27 @@ page by dragging and scrolling; document removal still worked.
 
 That run passed all five builds and four smoke tests, but Interop failed its
 existing empty-clipping-region assertion. An isolated retry of the same binary
-passed (`artifacts/uno-feasibility/interop-input-followup.json`); the intermittent
-clipping failure remains unresolved and the full run is not recorded as passing.
+passed (`artifacts/uno-feasibility/interop-input-followup.json`); that full run is
+not recorded as passing.
+
+The clipping-test follow-up replaced its single check after a fixed 250 ms sleep
+with a bounded readiness check: both live, attached, shown HWNDs must have
+positive bounds and nonempty (or unrestricted) clipping for 250 ms, within five
+seconds. The same check now runs after resize and reconnect. Timeout diagnostics
+include each HWND, parent, bounds, region type and clip rectangle. Ten unchanged
+baseline runs passed, so the original intermittent failure was not reproduced;
+late render readiness is a hypothesis, not a confirmed production root cause.
+Ten runs of the hardened check also passed. In a temporary diagnostic build,
+forcing empty native regions for 600 ms recovered and passed; forcing them
+permanently failed with the expected region diagnostics. Injection code was
+removed before rebuilding. Evidence is in
+`artifacts/uno-feasibility/interop-clipping-{baseline,stable}-*.json` and
+`interop-clipping-{delayed,permanent}.json`. This hardens the test without changing
+production clipping or suppressing persistent empty regions.
+The first fresh-package follow-up (`20261021-123337-b6b19d76`) passed all five
+builds/smoke tests, but the runner rejected acceptance because these documentation
+edits changed the source snapshot during execution. A new run must use a stable
+source snapshot; this run is diagnostic evidence only.
 
 The interactive PDF
 window also remained open with disabled controls after Alt+F4 and was terminated

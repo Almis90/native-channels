@@ -44,12 +44,7 @@ internal sealed class NativeButtons : IAsyncDisposable
                 ),
             "native attachment and show styles"
         );
-        // Allow subsequent render passes to apply the native clipping regions.
-        await Task.Delay(250);
-        Check(
-            _adapters.All(a => GetWindowRgnBox(a.Handle, out _) != 1),
-            "native controls must not be clipped to empty regions"
-        );
+        await WaitForClippingAsync(_adapters);
         Check(_adapters.Count == 2, "two adapters created");
         Check(
             _adapters.All(a => (GetWindowLongW(GetParent(a.Handle), -16) & 0x02000000) != 0),
@@ -89,6 +84,7 @@ internal sealed class NativeButtons : IAsyncDisposable
                 && unchanged.Right - unchanged.Left == other.Right - other.Left,
             "resizing first control preserves second bounds"
         );
+        await WaitForClippingAsync([first, second]);
         Check(await _first.Channel!.InvokeAsync<bool>("attached"), "per-view channel reads native state");
         // Deliver input messages directly to these owned controls, without moving
         // the user's pointer or injecting keys into the desktop input queue.
@@ -118,6 +114,7 @@ internal sealed class NativeButtons : IAsyncDisposable
             "reconnected attachment"
         );
         Check(first.Destroyed && !IsWindow(first.Handle), "old native handle destroyed");
+        await WaitForClippingAsync([_adapters[2], second]);
         Check(_first.InstanceId != first.InstanceId, "new view identity");
         Check(
             Win32Probe.IsAttached(_adapters[2].Handle) && Win32Probe.IsAttached(second.Handle),
@@ -138,6 +135,50 @@ internal sealed class NativeButtons : IAsyncDisposable
     {
         if (!condition)
             throw new InvalidOperationException("Windows native view check failed: " + operation);
+    }
+
+    private static async Task WaitForClippingAsync(IReadOnlyList<ButtonAdapter> adapters)
+    {
+        // Native attachment/show styles can precede the render pass that applies
+        // the final clipping region. Require sustained readiness, not one sample
+        // after an arbitrary sleep. A permanently empty region must still fail.
+        var elapsed = System.Diagnostics.Stopwatch.StartNew();
+        TimeSpan? readySince = null;
+        while (true)
+        {
+            var ready = true;
+            var states = new List<string>();
+            foreach (var adapter in adapters)
+            {
+                var window = adapter.Handle;
+                var valid = IsWindow(window);
+                var hasBounds = GetWindowRect(window, out var bounds);
+                var region = GetWindowRgnBox(window, out var clip);
+                // RGN_ERROR (0) also means no explicit region: the full window
+                // is drawable. NULLREGION (1) is an explicitly empty clip.
+                ready &=
+                    valid
+                    && Win32Probe.IsAttached(window)
+                    && (GetWindowLongW(window, -16) & 0x10000000) != 0
+                    && hasBounds
+                    && bounds.Right > bounds.Left
+                    && bounds.Bottom > bounds.Top
+                    && (region == 0 || (region is 2 or 3 && clip.Right > clip.Left && clip.Bottom > clip.Top));
+                states.Add(
+                    $"HWND=0x{window:X}, valid={valid}, parent=0x{GetParent(window):X}, "
+                        + $"bounds=({bounds.Left},{bounds.Top},{bounds.Right},{bounds.Bottom}), "
+                        + $"region={region}, clip=({clip.Left},{clip.Top},{clip.Right},{clip.Bottom})"
+                );
+            }
+            readySince = ready ? readySince ?? elapsed.Elapsed : null;
+            if (readySince is { } since && elapsed.Elapsed - since >= TimeSpan.FromMilliseconds(250))
+                return;
+            Check(
+                elapsed.Elapsed < TimeSpan.FromSeconds(5),
+                "native controls must have stable nonempty clipping regions; " + string.Join("; ", states)
+            );
+            await Task.Delay(25);
+        }
     }
 
     private static async Task WaitAsync(Func<bool> ready, string operation)

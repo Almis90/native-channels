@@ -86,8 +86,9 @@ child HWNDs. The Uno host now enables child clipping on the actual parent and
 requests a repaint. All five fresh-package smoke checks pass; desktop-tool review
 confirms stable buttons and PDF pages, navigation, zoom and reconnect. PDF
 panning now passes native input tests and desktop-tool review. Interactive window
-close and broader acceptance remain open. A later run hit an Interop clipping
-assertion that passed on isolated retry; the intermittent failure remains open. See
+close and broader acceptance remain open. An intermittent Interop clipping
+assertion led to a bounded stable-readiness check with timeout diagnostics;
+the original failure's cause has not been conclusively reproduced. See
 [visible review findings](uno-feasibility.md#windows-visible-review-october-21-2026).
 
 ## Remaining release gates
