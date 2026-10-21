@@ -32,6 +32,7 @@ internal static class NativePdfProbe
             surface.UpdateLayout();
             await Task.Delay(200, timeout.Token);
             Require(GetParent(handle) != 0, "PDF HWND parent");
+            Require(GetWindowRgnBox(handle, out _) != 1, "PDF HWND must not be clipped to an empty region");
             using var first = Capture(handle);
             Require(HasInk(first), "native renderer produced page pixels");
             var result = Environment.GetEnvironmentVariable("NATIVECHANNELS_UNO_SAMPLE_RESULT");
@@ -151,6 +152,9 @@ internal static class NativePdfProbe
             Right,
             Bottom;
     }
+
+    [DllImport("user32.dll")]
+    private static extern int GetWindowRgnBox(nint window, out Rect rect);
 
     [DllImport("user32.dll")]
     private static extern bool GetClientRect(nint window, out Rect rect);

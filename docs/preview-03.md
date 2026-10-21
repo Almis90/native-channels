@@ -1,6 +1,6 @@
 # Uno 0.3 preparation
 
-Status on October 20, 2026: **experimental development; not release-ready**.
+Status on October 21, 2026: **experimental development; not release-ready**.
 The optional Uno host, shared messaging plugins, five sample apps and desktop
 build automation exist. Full six-platform runtime and native-view acceptance
 remain blocked. No 0.3 release, tag or publication has been performed by this work.
@@ -80,6 +80,12 @@ runtime requests produce blocked evidence and exit 2. Even successful Windows
 smoke checks record full acceptance as `blocked`. Add `--require-acceptance` to
 make incomplete acceptance fail the command. A zero smoke/build exit code must
 not be used as a release approval.
+
+The October 21 visible review did not pass: native controls and PDF content became
+blank in the captured windows despite attachment/state and hidden painting checks
+passing. See [visible review findings](uno-feasibility.md#windows-visible-review-october-21-2026).
+The capture/composition cause remains unresolved; native-region checks alone do
+not prove visible rendering or input usability.
 
 ## Remaining release gates
 

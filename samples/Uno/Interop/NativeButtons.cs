@@ -44,6 +44,12 @@ internal sealed class NativeButtons : IAsyncDisposable
                 ),
             "native attachment and show styles"
         );
+        // Allow subsequent render passes to apply the native clipping regions.
+        await Task.Delay(250);
+        Check(
+            _adapters.All(a => GetWindowRgnBox(a.Handle, out _) != 1),
+            "native controls must not be clipped to empty regions"
+        );
         Check(_adapters.Count == 2, "two adapters created");
         var first = _adapters[0];
         var second = _adapters[1];
@@ -148,6 +154,9 @@ internal sealed class NativeButtons : IAsyncDisposable
             Right,
             Bottom;
     }
+
+    [DllImport("user32.dll")]
+    private static extern int GetWindowRgnBox(nint window, out Rect rect);
 
     [DllImport("user32.dll")]
     private static extern bool GetWindowRect(nint window, out Rect rect);

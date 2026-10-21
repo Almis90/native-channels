@@ -204,6 +204,35 @@ Step 7 documents current behavior and prepares unreleased notes. Release version
 and publication remain gated on the unfinished acceptance below. See the
 [sample instructions](../samples/Uno/README.md) and [release status](preview-03.md).
 
+## Windows visible review (October 21, 2026)
+
+The shutdown workaround is committed as `c0a4935`. A subsequent visible review
+used the Windows computer-use capture/input tools against the Interop and PDF
+samples. In Interop, clicking **Show two native Windows controls** attached both
+HWNDs, but the captured view showed their content only briefly before the reserved
+area became blank. In PDF, **Open PDF** with the pinned runtime reported page 1/3
+at zoom 1 while the captured page area became blank. These observations do not
+establish whether the remaining issue is native composition, repainting, or the
+capture path. Stable visible rendering and mouse/keyboard acceptance remain blocked.
+
+A parent `WS_CLIPCHILDREN` experiment and explicit content-stretch settings did not
+resolve the Interop observation; neither change was retained. Added native-region
+checks reject an explicitly empty HWND clipping region. Both targeted hidden
+probes still pass those checks and the existing lifecycle/painting checks; they
+must not be interpreted as resolving the visible failure. Evidence is recorded
+locally in `artifacts/uno-feasibility/visible-Interop-clip.json` and
+`artifacts/uno-feasibility/visible-PdfViewer-clip.json`.
+
+Launching PDF directly through the desktop tool selected system .NET 10.0.5 and
+crashed in Uno's `Win32UIAutomationInterop.UiaRaiseStructureChangedEvent` (Windows
+Application events 1000/1026). Relaunching with the repository `DOTNET_ROOT` opened
+the document without that crash during this review. Keep the runtime distinction
+explicit; the system-runtime crash has not been fixed or fully isolated.
+
+Next: isolate the blank native-content observation with an independent visible
+review, then verify clicks, keyboard focus, resize, PDF navigation/zoom and cleanup.
+No visual/input acceptance is claimed by this review.
+
 ## Remaining gates
 
 1. Complete visible Windows review and physical input/focus checks. Native
