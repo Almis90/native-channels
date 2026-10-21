@@ -97,6 +97,26 @@ macOS using its existing shared verifier while the native-view API remains
 blocked. The Mac had about 1.9 GiB free after this fresh-cache run; recover build
 cache space before further broad restores.
 
+#### Currency sample execution on macOS
+
+Removed only the two dependency-cache directories from the earlier
+`/tmp/nativechannels-uno-step2-00d61d9` probe, retaining its reports and packages.
+Free space increased from 1.9 to 8.2 GiB. The current probe cache and freshly
+built native packages were reused for the ARM64 Currency sample.
+
+The actual Uno Currency app built with zero warnings/errors and ran the same
+`samples/Currency.Shared/PluginVerification.cs` used by MAUI and Avalonia. Native
+lookups, normalization, structured errors, concurrency and cancellation passed
+with the `apple` platform expectation. The result file reported `checks=passed`
+and the process exited normally with code 0 within the 45-second bound, including
+the shared page/session cleanup and window-close path. No new test scenarios
+were added. The sample's limitation text now includes macOS ARM64.
+
+Build/runtime logs and the result are retained in the Mac checkout's
+`artifacts/uno-feasibility/currency-macos-*` files and copied to local
+`artifacts/uno-feasibility/mac-20261021/`. Next is AudioStreamer on macOS with
+the existing shared scenarios. Native-view/PDF support remains blocked as above.
+
 ### Windows native-view probe
 
 Update on October 20: the attachment failure was traced to the probe adapter's
