@@ -4,9 +4,9 @@ namespace UnoFeasibility;
 
 internal static class Win32Probe
 {
-    public static nint CreateButton(bool toggle = false)
+    public static nint CreateButton(bool toggle = false, string name = "Native Win32 button")
     {
-        var window = CreateWindowExW(0, "BUTTON", "Native Win32 button", 0x80000000, 0, 0, 320, 80, 0, 0, 0, 0);
+        var window = CreateWindowExW(0, "BUTTON", name, 0x80000000, 0, 0, 320, 80, 0, 0, 0, 0);
         if (window == 0)
             throw new System.ComponentModel.Win32Exception(Marshal.GetLastWin32Error());
         // SetParent does not convert WS_POPUP to WS_CHILD. Uno owns reparenting,

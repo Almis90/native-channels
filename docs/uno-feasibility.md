@@ -307,6 +307,63 @@ input/accessibility, GPU rendering and other-platform acceptance remain open.
 
 ## Remaining gates
 
+### Windows keyboard and accessibility review (October 21, 2026)
+
+Reviewed the packaged Windows software-rendered Interop and PDF binaries from
+`artifacts/local-samples/uno/windows/20261021-124000-29dc9baf` using the repository
+runtime (`DOTNET_ROOT=.tools/dotnet`). Desktop-tool mouse/key injection and UI
+Automation inspection are not physical-device or screen-reader acceptance.
+
+| Check | Observation | Result |
+| --- | --- | --- |
+| Native checkbox discovery | Both native controls appear as check boxes in the UI Automation tree. | Passed discovery only |
+| Native activation | Clicking the first checkbox focuses/checks it; Space clears it, with the second unchanged. | Passed injected input |
+| Native keyboard traversal | With the first checkbox focused, Tab and Shift+Tab both leave focus on that checkbox. | Blocked: focus trap |
+| Native accessible names | Both controls are named `Native Win32 button`. | Needs distinct sample labels |
+| PDF controls/status | Path field, command buttons and `Page 1/3` through `Page 3/3` status appear in the accessibility tree. | Passed discovery only |
+| PDF page content | Native surface appears as `text PDF`; no rendered document text is exposed in the inspected tree. | Blocked: document accessibility |
+| PDF focus reporting/traversal | After clicking the native page, UI Automation still reports the path field as focused; Tab does not advance to the next surrounding control. | Blocked: focus integration |
+| PDF visible navigation | All three guide pages render at 1x; maximizing preserves the page. | Passed for bundled guide |
+
+Reproduce the native focus trap by launching Interop, choosing **Show two native
+Windows controls**, clicking the first checkbox, and pressing Tab then Shift+Tab.
+Space still toggles the checkbox. Reproduce the PDF observation by opening the
+guide, clicking its native page, then pressing Tab and inspecting focus. These
+findings do not yet establish whether Uno or our host should supply the missing
+focus bridge; direct `SetFocus`/input-message smoke tests do not cover traversal.
+
+The follow-up adds a Windows root-HWND focus bridge in `UnoChannelView`. Native
+focus updates Uno's logical focus; managed entry focuses the native HWND, and
+Tab/Shift+Tab routes through the window's managed tab order. Reconnect recreates
+the presenter to force native layout and restores focus once the child is shown.
+Disconnection advances focus and removes the native subclass before destruction.
+Interop now uses distinct first/second checkbox names. Regression checks cover
+managed/native focus synchronization, forward/reverse traversal, focused reconnect
+and focused removal. A diagnostic run passed after reproducing a replacement-HWND
+layout failure with the new focused-reconnect test.
+
+Desktop-tool checks confirmed first-to-second native Tab, native-to-managed Tab,
+and managed-to-native Shift+Tab. PDF Tab advances from the page to the path field
+and then Open PDF. The PDF accessibility tool still reported the path field while
+the visible focus border was on Open PDF, so accessibility focus reporting is not
+certified. Compound native controls with child HWNDs are outside this root-HWND
+bridge's verified scope.
+
+Next address the PDF accessibility
+contract: a raster surface and page status do not establish readable document
+content. A screen reader must verify names, roles, states, reading and focus after
+these changes; a UI Automation tree alone is insufficient.
+
+Broader PDF acceptance still needs landscape/rotated and mixed-size pages,
+image-heavy/scanned documents, Unicode/embedded fonts, long documents and large
+pages, plus zoom limits, resize while zoomed, failure recovery and shutdown during
+rendering. Existing automated invalid-file/page and lifecycle checks remain useful
+but do not certify visual fidelity for that corpus. After the known keyboard
+blockers are fixed, a person must repeat mouse, wheel, Tab/Shift+Tab and Space
+checks with physical devices, and record DPI/monitor and screen-reader results.
+
+### Cross-platform and release gates
+
 1. Complete visible Windows review and physical input/focus checks. Native
    parenting, layout/resize and direct input-message checks now pass, as do
    packaged Windows method/plugin calls.

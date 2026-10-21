@@ -19,6 +19,9 @@
   and capture handling; consumers need no gesture workaround.
 - Fixed reentrant window close in the shared Uno samples by queuing cleanup
   before the final close request. Smoke tests now verify normal window shutdown.
+- Added Windows root-HWND keyboard traversal to the Uno host, including focus
+  restoration on reconnect and focus transfer on removal. Interop checks cover
+  these transitions and use distinct native checkbox labels.
 - All five Windows apps passed local checks. Interop now verifies real HWND
   attachment/layout/focus and direct input messages; PDF verifies native page
   painting, navigation/zoom, invalid input and reconnect/shutdown cleanup.

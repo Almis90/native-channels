@@ -52,6 +52,12 @@ before Uno reparents its HWND; see the [corrected Windows probe](uno-feasibility
 The host enables `WS_CLIPCHILDREN` on the attached HWND's actual parent and
 invalidates the child once so software presentation cannot erase it. This flag
 remains for the parent window lifetime and is shared by sibling native views.
+For Windows root HWNDs, the host synchronizes native focus with the managed tab
+position and routes Tab/Shift+Tab through Uno's focus manager. Reconnect restores
+focus after the replacement child is shown; removing a focused view advances
+focus before destroying the HWND. Each root HWND is one tab stop. Compound native
+controls must manage traversal within their own child HWND trees; that case is
+not covered by this bridge. This does not provide PDF document accessibility.
 Native parenting, layout, focus and direct input-message checks pass on Windows.
 Desktop-tool visual review confirms buttons and PDF content remain visible;
 broader physical input and accessibility coverage remain outstanding. macOS throws an explicit

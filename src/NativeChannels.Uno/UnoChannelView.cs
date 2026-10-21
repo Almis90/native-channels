@@ -18,12 +18,13 @@ public interface IUnoNativeView : IAsyncDisposable
 public sealed class UnoChannelView : ContentControl, IAsyncDisposable
 {
     private readonly Func<string, IUnoNativeView> _create;
-    private readonly ContentPresenter _presenter = new();
+    private ContentPresenter _presenter = new();
     private IUnoNativeView? _current;
     private Task _cleanup = Task.CompletedTask;
     private bool _disabled;
     private bool _disposed;
     private nint _preparedWindow;
+    private WindowsNativeViewFocus? _focus;
     public MethodChannel? Channel => _current?.Channel;
     public string? InstanceId => _current?.InstanceId;
     public event EventHandler? Connected;
@@ -53,7 +54,10 @@ public sealed class UnoChannelView : ContentControl, IAsyncDisposable
         _current = view;
         try
         {
-            _presenter.Content = view.NativeElement;
+            // Recreate the presenter so Uno arranges the replacement HWND even
+            // when the host retains its previous size and focus state.
+            _presenter = new ContentPresenter { Content = view.NativeElement };
+            Content = _presenter;
             PrepareWindowsParent();
         }
         catch
@@ -74,16 +78,23 @@ public sealed class UnoChannelView : ContentControl, IAsyncDisposable
         )
             return;
         if (WindowsNativeViewClipping.Prepare(window.Hwnd))
+        {
+            IsTabStop = true;
+            _focus = new WindowsNativeViewFocus(this, window.Hwnd);
             _preparedWindow = window.Hwnd;
+        }
     }
 
     public void Reconnect()
     {
         VerifyAccess();
         ObjectDisposedException.ThrowIf(_disposed, this);
+        var restoreFocus = _focus?.HasFocus == true;
         Release();
         _disabled = false;
         Attach();
+        if (restoreFocus)
+            _focus?.Focus();
     }
 
     public Task DisconnectAsync()
@@ -102,6 +113,9 @@ public sealed class UnoChannelView : ContentControl, IAsyncDisposable
         _preparedWindow = 0;
         if (view is null)
             return;
+        _focus?.Dispose();
+        _focus = null;
+        IsTabStop = false;
         var errors = new List<Exception>();
         try
         {

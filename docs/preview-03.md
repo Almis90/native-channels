@@ -99,6 +99,9 @@ the original failure's cause has not been conclusively reproduced. See
   adapter passes automated two-view parenting, layout, focus, direct input messages,
   reconnect, stale channel invalidation and cleanup checks; see the
   [Windows probe correction](uno-feasibility.md#windows-native-view-probe).
+  The follow-up fixes root-HWND Tab/Shift+Tab focus trapping; PDF document text
+  and reliable accessibility focus reporting remain outstanding. See the
+  [keyboard and accessibility review](uno-feasibility.md#windows-keyboard-and-accessibility-review-october-21-2026).
 - Establish a public supported macOS native embedding path. The pinned Uno
   release exposes its arbitrary native-element wrapper internally; reflection,
   separate windows and rendered-image substitutes do not meet the planned contract.

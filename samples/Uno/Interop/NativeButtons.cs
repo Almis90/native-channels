@@ -27,7 +27,7 @@ internal sealed class NativeButtons : IAsyncDisposable
 
     private IUnoNativeView Create(string id)
     {
-        var adapter = new ButtonAdapter(id);
+        var adapter = new ButtonAdapter(id, _adapters.Count == 1 ? "Second native checkbox" : "First native checkbox");
         _adapters.Add(adapter);
         return adapter;
     }
@@ -93,6 +93,20 @@ internal sealed class NativeButtons : IAsyncDisposable
         {
             SetFocus(first.Handle);
             Check(GetFocus() == first.Handle, "first native focus");
+            Check(
+                ReferenceEquals(Microsoft.UI.Xaml.Input.FocusManager.GetFocusedElement(_first.XamlRoot!), _first),
+                "native focus synchronizes managed tab position"
+            );
+            SendMessageW(first.Handle, 0x0100, 9, 0);
+            await WaitAsync(() => GetFocus() == second.Handle, "Tab moves to second native control");
+            Check(
+                Microsoft.UI.Xaml.Input.FocusManager.TryMoveFocus(
+                    Microsoft.UI.Xaml.Input.FocusNavigationDirection.Previous,
+                    new Microsoft.UI.Xaml.Input.FindNextElementOptions { SearchRoot = _first.XamlRoot!.Content }
+                ),
+                "reverse managed traversal"
+            );
+            await WaitAsync(() => GetFocus() == first.Handle, "reverse traversal restores native focus");
             SendMessageW(first.Handle, 0x0201, 1, 0x000A000A); // WM_LBUTTONDOWN
             SendMessageW(first.Handle, 0x0202, 0, 0x000A000A); // WM_LBUTTONUP
             Check(SendMessageW(first.Handle, 0x00F0, 0, 0) == 1, "native mouse-message toggle");
@@ -108,6 +122,7 @@ internal sealed class NativeButtons : IAsyncDisposable
             SetFocus(previousFocus);
         }
         var oldChannel = _first.Channel!;
+        SetFocus(first.Handle);
         _first.Reconnect();
         await WaitAsync(
             () => _adapters.Count == 3 && Win32Probe.IsAttached(_adapters[2].Handle),
@@ -115,11 +130,11 @@ internal sealed class NativeButtons : IAsyncDisposable
         );
         Check(first.Destroyed && !IsWindow(first.Handle), "old native handle destroyed");
         await WaitForClippingAsync([_adapters[2], second]);
+        Check(GetFocus() == _adapters[2].Handle, "reconnect restores focus to replacement HWND");
         Check(_first.InstanceId != first.InstanceId, "new view identity");
-        Check(
-            Win32Probe.IsAttached(_adapters[2].Handle) && Win32Probe.IsAttached(second.Handle),
-            "reconnect keeps both views attached"
-        );
+        await _first.DisconnectAsync();
+        await WaitAsync(() => GetFocus() == second.Handle, "focused removal advances to remaining native control");
+        Check(Win32Probe.IsAttached(second.Handle), "disconnect preserves second view attachment");
         Check(SendMessageW(second.Handle, 0x00F0, 0, 0) == 1, "reconnect preserves second control state");
         try
         {
@@ -241,10 +256,10 @@ internal sealed class NativeButtons : IAsyncDisposable
         public MethodChannel Channel { get; }
         public string InstanceId { get; }
 
-        public ButtonAdapter(string id)
+        public ButtonAdapter(string id, string name)
         {
             InstanceId = id;
-            Handle = Win32Probe.CreateButton(toggle: true);
+            Handle = Win32Probe.CreateButton(toggle: true, name: name);
             NativeElement = new Uno.UI.NativeElementHosting.Win32NativeWindow(Handle);
             var pair = InMemoryTransport.CreatePair();
             _managed = new(new BinaryMessenger(pair.Managed));
