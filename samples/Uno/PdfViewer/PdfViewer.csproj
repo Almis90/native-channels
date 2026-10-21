@@ -3,6 +3,7 @@
         <TargetFrameworks>net10.0-android;net10.0-ios;net10.0-browserwasm;net10.0-desktop</TargetFrameworks>
         <OutputType>Exe</OutputType>
         <RootNamespace>UnoSamples</RootNamespace>
+        <DefineConstants>$(DefineConstants);UNO_SAMPLE</DefineConstants>
         <UnoSingleProject>true</UnoSingleProject>
         <UnoFeatures>SkiaRenderer</UnoFeatures>
         <ApplicationTitle>NativeChannels PdfViewer</ApplicationTitle>
@@ -27,6 +28,13 @@
     <PropertyGroup Condition="'$(TargetFramework)' == 'net10.0-desktop'">
         <DefineConstants>$(DefineConstants);SAMPLE_DESKTOP</DefineConstants>
     </PropertyGroup>
+    <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">
+        <Compile Include="../../Maui/PdfViewer/PdfVerification.cs" Link="PdfVerification.cs" />
+        <EmbeddedResource
+            Include="../../Maui/PdfViewer/Resources/Raw/nativechannels-guide.pdf"
+            LogicalName="Verification.pdf"
+        />
+    </ItemGroup>
     <ItemGroup Condition="'$(TargetFramework)' != 'net10.0-desktop'">
         <Compile Remove="NativePdfProbe.cs" />
         <Compile Remove="PdfAccessibilityProbe.cs" />

@@ -708,8 +708,21 @@ Initial successful Mac evidence is
 retained at `artifacts/uno-ios/interop/`. The first compile attempt caught a
 dispatcher delegate mismatch and missing sample friend-assembly access; both
 were corrected before runtime testing. Debug simulator limits still apply.
-The remaining iOS sample is PdfViewer: integrate the existing PDFKit backend
-and reuse the MAUI/Avalonia PDF scenarios.
+The subsequent iOS PdfViewer run also passed. The thin Uno adapter reuses the
+existing `MauiPdfViewerNative` PDFKit framework without a MAUI dependency. The
+sample links MAUI's `PdfVerification.cs`; only framework aliases differ, with
+no additional assertions. It verifies the three-page document, page navigation,
+2x zoom, UI callbacks, independent instances, errors preserving the document,
+reconnect, pending-work detach and reopening.
+
+Integration caught two issues in our control/package: the iOS library must use
+Uno's Skia UI assets to match the host, and both nested content controls must
+stretch the native PDF view. Both are handled in the package; consumers need no
+workaround or Uno patch. Evidence is retained locally at `artifacts/uno-ios/pdf/`.
+The iOS build has two existing JSON trimming warnings and no errors. All five
+iOS samples now pass their shared automated scenarios on the Debug ARM64
+simulator. Physical-device input, visual acceptance and combined release
+packaging remain outstanding.
 
 1. Continue comparison against existing MAUI/Avalonia sample scenarios. The
    native PDF probe now checks two independent viewers. Keep completed native parenting, layout/resize

@@ -1,4 +1,10 @@
 <Project>
+    <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">
+        <NativeReference Include="$(MSBuildThisFileDirectory)../native/apple/MauiPdfViewerNative.xcframework">
+            <Kind>Framework</Kind>
+            <SmartLink>false</SmartLink>
+        </NativeReference>
+    </ItemGroup>
     <!-- Keep Windows projections out of Uno's global compile namespace. They are
        explicit private references so the app's deps.json records their runtime
        identities; other OS/target builds do not consume Windows SDK assemblies. -->

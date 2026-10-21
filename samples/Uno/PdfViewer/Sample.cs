@@ -5,8 +5,13 @@ namespace UnoSamples;
 internal sealed partial class SamplePage
 {
     private const string Title = "PdfViewer";
+#if IOS
+    private const string Limitation =
+        "PDFKit UIKit views; simulator checks use the existing MAUI PDF verifier. Physical-device input remains unverified.";
+#else
     private const string Limitation =
         "Windows.Data.Pdf renders into a native HWND. Physical input/visual review and other platform adapters remain unverified.";
+#endif
     private PdfControl? _pdf;
     private readonly TextBox _path = new()
     {
@@ -16,14 +21,32 @@ internal sealed partial class SamplePage
 
     private void Build()
     {
+#if IOS
+        PdfVerificationThread.Dispatcher = DispatcherQueue;
+        using (
+            var input =
+                typeof(SamplePage).Assembly.GetManifestResourceStream("Verification.pdf")
+                ?? throw new InvalidOperationException("Missing verification PDF.")
+        )
+        {
+            _path.Text = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "nativechannels-guide.pdf"
+            );
+            using var output = File.Create(_path.Text);
+            input.CopyTo(output);
+        }
+#endif
         _status.Text = Limitation;
         _panel.Children.Add(_path);
         Button(
             "Open PDF",
             async () =>
             {
-                if (!OperatingSystem.IsWindowsVersionAtLeast(10, 0, 17763))
-                    throw new PlatformNotSupportedException("The bundled renderer requires Windows 10 1809 or later.");
+                if (!OperatingSystem.IsIOS() && !OperatingSystem.IsWindowsVersionAtLeast(10, 0, 17763))
+                    throw new PlatformNotSupportedException(
+                        "The bundled renderer requires iOS or Windows 10 1809 or later."
+                    );
                 if (_pdf is null)
                 {
                     _pdf = new PdfControl
@@ -104,6 +127,24 @@ internal sealed partial class SamplePage
 
     private async Task VerifyAsync()
     {
+#if IOS
+        await using var first = new PdfControl { Height = 240 };
+        await using var second = new PdfControl { Height = 240 };
+        _surface.Content = new StackPanel { Children = { first, second } };
+        try
+        {
+            _surface.UpdateLayout();
+            await WaitForPdfAsync(first);
+            await WaitForPdfAsync(second);
+            Console.WriteLine(await global::PdfViewer.Sample.PdfVerification.RunAsync(first, second, _path.Text));
+        }
+        finally
+        {
+            await first.DisconnectAsync();
+            await second.DisconnectAsync();
+            _surface.Content = null;
+        }
+#else
 #if SAMPLE_DESKTOP
         if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 17763))
         {
@@ -112,6 +153,7 @@ internal sealed partial class SamplePage
         }
 #endif
         throw new PlatformNotSupportedException("Native PDF acceptance currently requires Windows.");
+#endif
     }
 
     public async Task StopAsync()
@@ -122,3 +164,11 @@ internal sealed partial class SamplePage
         _surface.Content = null;
     }
 }
+
+#if IOS
+internal static class PdfVerificationThread
+{
+    public static Microsoft.UI.Dispatching.DispatcherQueue Dispatcher { get; set; } = null!;
+    public static bool IsMainThread => Dispatcher.HasThreadAccess;
+}
+#endif

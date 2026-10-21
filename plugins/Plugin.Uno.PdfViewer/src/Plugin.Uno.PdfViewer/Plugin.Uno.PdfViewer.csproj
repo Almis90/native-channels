@@ -1,15 +1,27 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <TargetFramework>net10.0</TargetFramework>
+        <TargetFramework Condition="'$(NativeChannelsAppleTarget)' == 'ios'"
+            >net10.0-ios</TargetFramework>
+        <SupportedOSPlatformVersion Condition="'$(NativeChannelsAppleTarget)' == 'ios'"
+            >15.0</SupportedOSPlatformVersion>
         <Version>0.1.0-alpha.1</Version>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-        <DefineConstants>$(DefineConstants);UNO_WINDOWS_PDF</DefineConstants>
+        <DefineConstants Condition="'$(NativeChannelsAppleTarget)' != 'ios'"
+            >$(DefineConstants);UNO_WINDOWS_PDF</DefineConstants>
         <WindowsPdfSdkVersion>10.0.19041.57</WindowsPdfSdkVersion>
-        <Description>Uno PDF control with a Windows.Data.Pdf native child-window renderer and custom adapter lifecycle.</Description>
+        <Description>Uno Skia PDF control with Windows.Data.Pdf and iOS PDFKit native renderers and custom adapter lifecycle.</Description>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(NativeChannelsAppleTarget)' == 'ios'">
+        <!-- Match the optional Uno host's Skia UI with the iOS native transport. -->
+        <UnoUIRuntimeIdentifier>Skia</UnoUIRuntimeIdentifier>
+        <UnoWinRTRuntimeIdentifier>iOS</UnoWinRTRuntimeIdentifier>
     </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="NativeChannels.Uno" />
         <PackageReference Include="NativeChannels" />
+    </ItemGroup>
+    <ItemGroup Condition="'$(NativeChannelsAppleTarget)' != 'ios'">
         <PackageReference Include="System.Drawing.Common" />
         <!-- Private projection: Uno defines its own Windows.* types. Compile with
              an alias and ship SDK runtime assemblies only for Windows consumers. -->
@@ -29,17 +41,41 @@
             Pack="true"
             PackagePath="buildTransitive/windows/"
         />
-        <None
-            Include="buildTransitive/Plugin.Uno.PdfViewer.targets"
-            Pack="true"
-            PackagePath="buildTransitive/"
-        />
         <Compile
             Include="../../../Plugin.Maui.PdfViewer/native/windows/WindowsPdfDocument.cs"
             Link="WindowsPdfDocument.cs"
         />
         <Compile Include="../../native/windows/WindowsPdfView.cs" Link="WindowsPdfView.cs" />
-        <Compile Include="../../native/windows/WindowsPdfAccessibility.cs" Link="WindowsPdfAccessibility.cs" />
+        <Compile
+            Include="../../native/windows/WindowsPdfAccessibility.cs"
+            Link="WindowsPdfAccessibility.cs"
+        />
+    </ItemGroup>
+    <ItemGroup Condition="'$(NativeChannelsAppleTarget)' == 'ios'">
+        <Compile Remove="WindowsPdfImports.cs" />
+        <None
+            Include="../../../../artifacts/native/MauiPdfViewerNative.xcframework/**/*"
+            Exclude="../../../../artifacts/native/MauiPdfViewerNative.xcframework/**/Modules/MauiPdfViewerNative.swiftmodule/**/*"
+            Pack="true"
+            PackagePath="native/apple/MauiPdfViewerNative.xcframework/"
+        />
+    </ItemGroup>
+    <Target
+        Name="ValidateApplePdfAssets"
+        BeforeTargets="GenerateNuspec"
+        Condition="'$(NativeChannelsAppleTarget)' == 'ios'"
+    >
+        <Error
+            Condition="!Exists('../../../../artifacts/native/MauiPdfViewerNative.xcframework/Info.plist')"
+            Text="Build the Apple PDF adapter before packing."
+        />
+    </Target>
+    <ItemGroup>
+        <None
+            Include="buildTransitive/Plugin.Uno.PdfViewer.targets"
+            Pack="true"
+            PackagePath="buildTransitive/"
+        />
         <None Remove="$(MSBuildThisFileDirectory)../../../../README.md" />
         <None Include="../../README.md" Pack="true" PackagePath="/README.md" />
     </ItemGroup>

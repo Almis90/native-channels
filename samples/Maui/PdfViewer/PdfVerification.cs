@@ -1,7 +1,13 @@
-using Microsoft.Maui.ApplicationModel;
 using NativeChannels;
+#if UNO_SAMPLE
+using MainThread = UnoSamples.PdfVerificationThread;
+using Plugin.Uno.PdfViewer;
+using DocumentViewer = Plugin.Uno.PdfViewer.PdfViewer;
+#else
+using Microsoft.Maui.ApplicationModel;
 using Plugin.Maui.PdfViewer;
 using DocumentViewer = Plugin.Maui.PdfViewer.PdfViewer;
+#endif
 
 namespace PdfViewer.Sample;
 

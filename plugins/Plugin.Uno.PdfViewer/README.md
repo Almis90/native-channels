@@ -3,6 +3,7 @@
 `new PdfViewer()` now uses Windows.Data.Pdf inside an Uno-hosted Win32 child
 window on Windows 10 1809 or later. It reuses the document/rendering source from
 the existing Windows PDF implementations, with Uno dispatch and lifecycle.
+On iOS with Uno's Skia renderer it reuses the existing PDFKit UIKit backend.
 No MAUI or Avalonia package is required.
 
 ```csharp
@@ -25,7 +26,8 @@ channels and late results are rejected.
 
 The custom `PdfViewer(Func<string, IUnoNativeView>)` constructor remains available.
 `CreateNativeView(instanceId)` exposes the default factory for composition and
-testing. Other platforms require a custom adapter and fail explicitly otherwise.
+testing. Platforms other than Windows and iOS require a custom adapter and fail
+explicitly otherwise.
 `OpenBytesAsync` remains browser-only. StateChanged reports command results and
 UI-dispatched adapter callbacks; the Windows pointer gestures pan the page locally.
 
@@ -63,6 +65,15 @@ page/zoom and drag/wheel pixel changes, native hit testing, focus/capture,
 cancelled drags, invalid documents/pages, reconnect, stale channels and
 shutdown with a pending request. Capturing the native paint surface does not prove
 compositor visibility, physical input or every document's visual fidelity.
-macOS remains blocked by Uno's public embedding API; Linux, Android, iOS and
+The iOS sample runs the existing MAUI PDF verifier against two real PDFKit views
+on an ARM64 simulator: document loading, navigation, zoom, UI callbacks,
+isolation, errors, detach/reconnect and pending-work cleanup. The iOS package
+uses Skia UI assets and stretches its native content internally; no consumer
+workaround is required. Build the shared native backend with
+`python3 plugins/Plugin.Maui.PdfViewer/eng/build-apple.py` and pack with
+`NativeChannelsAppleTarget=ios`; the iOS runner automates both steps.
+Physical-device input and visual acceptance remain unverified.
+
+macOS remains blocked by Uno's public embedding API; Linux, Android and
 browser adapters are still pending. The separate managed protocol fixture is
 not counted as native rendering evidence.

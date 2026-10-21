@@ -1,5 +1,6 @@
 using NativeChannels;
 using Plugin.Uno.PdfViewer;
+using PdfControl = Plugin.Uno.PdfViewer.PdfViewer;
 
 namespace UnoFeasibility;
 
@@ -8,7 +9,7 @@ internal static class PdfProtocolProbe
     public static async Task RunAsync(ContentPresenter surface)
     {
         var adapters = new List<PdfAdapter>();
-        await using var pdf = new PdfViewer(id =>
+        await using var pdf = new PdfControl(id =>
         {
             var adapter = new PdfAdapter(id);
             adapters.Add(adapter);

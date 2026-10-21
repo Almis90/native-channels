@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate package-only Uno Interop or messaging on an ARM64 iOS simulator."""
+"""Validate package-only Uno samples on an ARM64 iOS simulator."""
 import argparse
 import hashlib
 import json
@@ -23,7 +23,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--dotnet', required=True, type=Path)
     parser.add_argument('--device', required=True)
-    parser.add_argument('--sample', choices=('Interop', 'Currency', 'AudioStreamer', 'VolumeMonitor'), default='Currency')
+    parser.add_argument('--sample', choices=('Interop', 'Currency', 'AudioStreamer', 'VolumeMonitor', 'PdfViewer'), default='Currency')
     parser.add_argument('--reuse-external-cache', type=Path)
     args = parser.parse_args()
     if platform.system() != 'Darwin' or platform.machine() != 'arm64':
@@ -75,12 +75,13 @@ def main():
         bootstrap.write_text('<configuration><packageSources><clear/><add key="nuget" value="https://api.nuget.org/v3/index.json"/></packageSources><packageSourceMapping><clear/></packageSourceMapping></configuration>')
         command(['python3', 'eng/build-apple.py'], 'native-bridge')
         if sample != 'Interop':
-            command(['python3', f'plugins/Plugin.{sample}/eng/build-apple.py'], 'native-plugin')
+            native_plugin = 'Maui.PdfViewer' if sample == 'PdfViewer' else sample
+            command(['python3', f'plugins/Plugin.{native_plugin}/eng/build-apple.py'], 'native-plugin')
         common = [f'-p:Version={VERSION}', f'-p:NativeChannelsPackageVersion={VERSION}',
                   '-p:NativeChannelsAppleTarget=ios', f'-p:RestorePackagesPath={cache}']
         packages = ['NativeChannels.Core', 'NativeChannels.Native.Apple', 'NativeChannels', 'NativeChannels.Uno']
         if sample != 'Interop':
-            packages.append(f'Plugin.{sample}')
+            packages.append('Plugin.Uno.PdfViewer' if sample == 'PdfViewer' else f'Plugin.{sample}')
         for name in packages:
             project = ROOT / (f'plugins/{name}/src/{name}' if name.startswith('Plugin.') else f'src/{name}')
             settings = [f'-p:RestoreConfigFile={bootstrap if name == "NativeChannels.Core" else config}']
@@ -133,6 +134,10 @@ def main():
                 logs = '\n'.join((folder / name).read_text(errors='replace') for name in ('stdout.log', 'stderr.log'))
                 if not all(marker in logs for marker in ('typed calls, DTOs', 'view stress: 32 reconnects')):
                     raise RuntimeError('Interop did not complete both shared native verifiers')
+            if sample == 'PdfViewer':
+                logs = '\n'.join((folder / name).read_text(errors='replace') for name in ('stdout.log', 'stderr.log'))
+                if 'document, navigation, zoom, native callback, isolation, errors and detach/reconnect' not in logs:
+                    raise RuntimeError('PdfViewer did not complete the shared PDF verifier')
             report['runtime'] = 'passed'
         finally:
             subprocess.run(['xcrun', 'simctl', 'terminate', args.device, bundle], capture_output=True, timeout=15)

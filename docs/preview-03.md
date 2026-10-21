@@ -18,7 +18,7 @@ these packages from a public feed expecting the behavior described here.
 | `NativeChannels` | Platform transports and shared native module registration |
 | `NativeChannels.Uno` | Optional Uno startup, per-window sessions, UI dispatch and experimental view lifecycle |
 | `Plugin.Currency`, `Plugin.AudioStreamer`, `Plugin.VolumeMonitor` | Shared messaging plugins; no dependency on a UI host |
-| `Plugin.Uno.PdfViewer` | Uno PDF control with a Windows.Data.Pdf child-window renderer; custom factories remain supported |
+| `Plugin.Uno.PdfViewer` | Uno PDF control with Windows.Data.Pdf and iOS PDFKit renderers; custom factories remain supported |
 
 The desktop transport selects Windows, Linux or macOS at runtime. The macOS
 plain-.NET bridge stays in the transport/native layer. It does not belong in
@@ -37,7 +37,7 @@ and the [sample instructions](../samples/Uno/README.md).
 | macOS | Earlier ARM64 transport and native contract probe; x64 native libraries cross-compile | Full five-app execution, shared plugin runtime, public native-view hosting path and PDF integration |
 | Linux | Earlier portable transport selection/method/disposal test in an Ubuntu VM | Five Uno app executions, native plugin packaging and view/PDF integration |
 | Android | Sample heads exist | Uno package integration, native method/view probes and five-app device/emulator execution |
-| iOS | Interop native methods/UIKit views, Currency, silent AudioStreamer and VolumeMonitor pass shared verifiers on an ARM64 iPhone simulator with fresh iOS packages | PDFKit integration; physical-device behavior remains unverified |
+| iOS | All five apps pass shared verifiers on an ARM64 iPhone simulator, including Interop native methods/UIKit views and PDFKit document/navigation/zoom/lifecycle checks | Physical-device behavior and release packaging remain unverified |
 | Browser | Sample heads exist | Uno transport/assets integration, DOM/PDF hosting and five-app browser execution |
 
 The latest local step-6 Windows run rebuilt all seven diagnostic packages,

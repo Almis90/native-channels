@@ -1,3 +1,4 @@
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using NativeChannels;
 
@@ -5,24 +6,30 @@ namespace Plugin.Uno.PdfViewer;
 
 public sealed record PdfState(string InstanceId, int Page, int PageCount, double Zoom);
 
-public sealed class PdfViewer : ContentControl, IAsyncDisposable
+public sealed partial class PdfViewer : ContentControl, IAsyncDisposable
 {
     public PdfViewer()
         : this(CreateNativeView) { }
 
     public static IUnoNativeView CreateNativeView(string instanceId)
     {
+#if IOS
+        return new ApplePdfView(instanceId);
+#else
         if (!OperatingSystem.IsWindowsVersionAtLeast(10, 0, 17763))
             throw new PlatformNotSupportedException(
                 "The bundled PDF adapter requires Windows 10 1809 or later. Supply a custom native factory on other platforms."
             );
         return CreateWindowsView(instanceId);
+#endif
     }
 
+#if !IOS
     // Keep Windows projection types out of the JIT path on other Uno backends.
     [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.NoInlining)]
     [System.Runtime.Versioning.SupportedOSPlatform("windows10.0.17763")]
     private static IUnoNativeView CreateWindowsView(string instanceId) => new WindowsPdfView(instanceId);
+#endif
 
     private readonly UnoChannelView _native;
     private IDisposable? _callback;
@@ -34,7 +41,13 @@ public sealed class PdfViewer : ContentControl, IAsyncDisposable
 
     public PdfViewer(Func<string, IUnoNativeView> create)
     {
-        _native = new(create);
+        HorizontalContentAlignment = HorizontalAlignment.Stretch;
+        VerticalContentAlignment = VerticalAlignment.Stretch;
+        _native = new(create)
+        {
+            HorizontalContentAlignment = HorizontalAlignment.Stretch,
+            VerticalContentAlignment = VerticalAlignment.Stretch,
+        };
         _native.Connected += (_, _) =>
         {
             var dispatcher = new UnoChannelDispatcher(DispatcherQueue);
@@ -135,7 +148,7 @@ public sealed class PdfViewer : ContentControl, IAsyncDisposable
             || result.Zoom < 0.99
             || result.Zoom > 4.01
         )
-            throw new ChannelSerializationException("Invalid native PDF state.");
+            throw new ChannelSerializationException($"Invalid native PDF state: {result}.");
         return result;
     }
 }
