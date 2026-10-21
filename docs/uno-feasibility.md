@@ -70,6 +70,18 @@ change must be investigated before promising AppKit/PDFKit embedding. Reflection
 into internal types is not an accepted production design. A rendered PDF image
 or a separate native window would not satisfy the planned embedded-view contract.
 
+The separate `uno-macos-embedding` checkout now contains a proposed public
+`MacOSNativeView` wrapper against upstream commit
+`503f37142d4c7055fb8c2f75da819a7ab9ee6993`. Five focused runtime tests passed on
+the ARM64 Mac, including native callbacks, reconnect/reparent, ownership cleanup
+and independent PDFKit views. The patch remains local for review; it is not
+installed into this project's pinned Uno packages and no upstream PR is open.
+This is a missing public capability, not proof that embedding without an Uno
+change is impossible. Reflection or application-owned native hosting may be
+possible, but would put compatibility and lifecycle maintenance on this project;
+those alternatives have not been validated. Keep that distinction when deciding
+whether to propose the API upstream.
+
 #### MacBook revalidation: October 21, 2026
 
 Ran the existing `eng/verify-uno-apple-desktop.py` against committed source
@@ -631,6 +643,48 @@ follows the documented
 [server-side UIA provider contract](https://learn.microsoft.com/en-us/windows/win32/winauto/uiauto-serversideprovider).
 
 ### Outstanding platform work
+
+#### iOS messaging validation: October 21, 2026
+
+Executed the three Uno messaging apps on the iPhone 17 Pro simulator, iOS 26.5,
+ARM64, with Xcode 26.6 and .NET SDK 10.0.401. `eng/verify-uno-ios.py` packs the
+Apple binding, transport, optional Uno host and selected plugin into a fresh
+per-run feed. It rejects library project references and verifies each restored
+local package's origin and bytes against that feed. Third-party dependencies
+were reused. The existing production transport and plugin code needed no change.
+
+| Sample | Runtime result | Existing scenarios exercised |
+| --- | --- | --- |
+| Currency | Passed | Native symbols, normalization, structured errors, concurrency, cancellation and reuse |
+| AudioStreamer | Passed | Silent PCM, buffering, pause/resume, cancelled writes, drain/restart, three host sessions, controls and disposal |
+| VolumeMonitor | Passed | Initial output levels, independent listeners, cancellation and subscription restart |
+
+Mac evidence is under `artifacts/uno-ios/` in these runs:
+`847c8c19284b4bccb516ba5ce91ca445` (Currency),
+`7a52300d0e0841eeba52c98e0d101160` (AudioStreamer), and
+`ff9d86f61c28451ea79755798a3c0621` (VolumeMonitor).
+Logs, summaries, resolved assets and package hashes were copied locally to
+`artifacts/uno-ios/{currency,audio,volume}/`. Source was `06bb92e` plus the
+uncommitted runner; sample limitation labels were updated after execution.
+The separate macOS Uno API patch was not used in these runs.
+
+The first launch failed before managed startup because the runner disabled
+signing. The crash report recorded `CODESIGNING / Invalid Page`; normal SDK
+simulator signing fixed it. All three final builds had zero errors and two
+existing trimming warnings from the sample's JSON result serialization.
+All checks ran in Debug. No physical-device, audible-playback, hardware-volume,
+or actual OS background-transition acceptance is inferred; AudioStreamer calls
+the existing suspension cleanup directly. No additional verifier scenarios
+were added, and these separate feeds are not a combined release candidate.
+
+Interop is not counted as an iOS pass: its shared native method/view verifier
+is included only for desktop and invoked only on Windows. PdfViewer explicitly
+rejects non-Windows native verification. Next wire the existing Apple module
+and UIKit view checks into Uno Interop, then integrate the existing PDFKit
+backend into the Uno PDF control. These are our integration gaps, not evidence
+of an iOS Uno framework defect.
+
+#### Remaining work
 
 1. Continue comparison against existing MAUI/Avalonia sample scenarios. The
    native PDF probe now checks two independent viewers. Keep completed native parenting, layout/resize

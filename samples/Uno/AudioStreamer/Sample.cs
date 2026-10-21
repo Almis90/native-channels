@@ -7,7 +7,7 @@ internal sealed partial class SamplePage
 {
     private const string Title = "AudioStreamer";
     private const string Limitation =
-        "Windows and macOS ARM64 desktop silent transport verified; listening and other platforms pending.";
+        "Windows, macOS ARM64 desktop and iOS ARM64 simulator silent transport verified; listening and other targets pending.";
     private AudioStreamSession? _playback;
     private CancellationTokenSource? _playing;
     private Task _producer = Task.CompletedTask;
