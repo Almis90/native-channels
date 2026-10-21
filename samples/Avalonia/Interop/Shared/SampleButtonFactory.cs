@@ -1,13 +1,16 @@
-using Avalonia.Platform;
 using NativeChannels;
+#if !UNO_SAMPLE
+using Avalonia.Platform;
 #if ANDROID
 using Avalonia.Android;
 #elif IOS
 using Avalonia.iOS;
 #endif
+#endif
 
 namespace ChannelExplorer;
 
+#if !UNO_SAMPLE
 internal static partial class SampleButtonFactory
 {
     public static IAvaloniaNativeView Create(IPlatformHandle parent, string identity, string title)
@@ -25,9 +28,15 @@ internal static partial class SampleButtonFactory
 #endif
     }
 }
+#endif
 
 #if ANDROID || IOS || MACOS
-internal sealed class MobileButtonView : IAvaloniaNativeView
+internal sealed class MobileButtonView :
+#if UNO_SAMPLE
+    IUnoNativeView
+#else
+    IAvaloniaNativeView
+#endif
 {
     private readonly ChannelService _channels;
 #if ANDROID
@@ -35,19 +44,35 @@ internal sealed class MobileButtonView : IAvaloniaNativeView
 #else
     private readonly NativeChannels.Native.Apple.NativeViewHost _view;
 #endif
+#if UNO_SAMPLE
+    public object NativeElement { get; }
+#else
     public IPlatformHandle Handle { get; }
+#endif
     public MethodChannel Channel { get; }
     public string InstanceId { get; }
     private bool _destroyed;
 
+#if UNO_SAMPLE
+    public MobileButtonView(string identity, string title)
+#else
     public MobileButtonView(IPlatformHandle parent, string identity, string title)
+#endif
     {
         InstanceId = identity;
         var transport = new NativeChannelTransport();
         _channels = new(new BinaryMessenger(transport));
         Channel = _channels.GetMethodChannel(
             "nativechannels.view." + identity,
-            new() { HandlerDispatcher = AvaloniaChannelDispatchers.UIThread }
+            new()
+            {
+                HandlerDispatcher =
+#if UNO_SAMPLE
+                SampleThread.Dispatcher.DispatchAsync
+#else
+                AvaloniaChannelDispatchers.UIThread
+#endif
+            }
         );
         var factory = new NativeModuleRegistration(
             "dev.nativechannels.sample.ButtonViewFactory",
@@ -74,7 +99,11 @@ internal sealed class MobileButtonView : IAvaloniaNativeView
                 new JsonMessageCodec().Encode(new Dictionary<string, object?> { ["title"] = title }).ToArray()
             );
 #if IOS
+#if UNO_SAMPLE
+            NativeElement = _view.View!;
+#else
             Handle = new UIViewControlHandle(_view.View!);
+#endif
 #else
             Handle = new PlatformHandle(_view.View!.Handle, "NSView");
 #endif

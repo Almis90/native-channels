@@ -3,8 +3,13 @@ namespace UnoSamples;
 internal sealed partial class SamplePage
 {
     private const string Title = "Interop";
+#if IOS
+    private const string Limitation =
+        "iOS UIKit native methods and views use the shared MAUI/Avalonia checks; physical-device input remains unverified.";
+#else
     private const string Limitation =
         "Windows native parenting, layout, focus and direct input-message checks; physical input and visual fidelity remain unverified. Other platforms pending.";
+#endif
     private bool _ran;
 #if SAMPLE_DESKTOP
     private NativeButtons? _buttons;
@@ -19,7 +24,7 @@ internal sealed partial class SamplePage
             {
                 await VerifyAsync();
                 _status.Text =
-                    "Shared native method, message, stream and view checks passed, including 32 reconnects. Host and Windows input regressions passed. "
+                    "Shared native method, message, stream and view checks passed, including 32 reconnects. "
                     + Limitation;
             }
         );
@@ -57,9 +62,11 @@ internal sealed partial class SamplePage
             throw new InvalidOperationException("Restart the app to repeat the application registration checks.");
         _ran = true;
         await StopAsync();
+#if !IOS
         await UnoFeasibility.HostProbe.RunAsync(_window, _surface);
-#if SAMPLE_DESKTOP
-        if (OperatingSystem.IsWindows())
+#endif
+#if SAMPLE_DESKTOP || IOS
+        if (OperatingSystem.IsWindows() || OperatingSystem.IsIOS())
         {
             ChannelExplorer.SampleThread.Dispatcher = new NativeChannels.UnoChannelDispatcher(DispatcherQueue);
             var session = Session(services =>
@@ -69,19 +76,20 @@ internal sealed partial class SamplePage
                     options.Json.TypeInfoResolver = ChannelExplorer.SampleJsonContext.Default;
                 })
             );
-            await new ChannelExplorer.NativeVerification(session.Channels).RunAsync();
+            Console.WriteLine(await new ChannelExplorer.NativeVerification(session.Channels).RunAsync());
             var parityViews = new ChannelExplorer.ViewVerification();
             _surface.Content = parityViews.Panel;
             try
             {
                 _surface.UpdateLayout();
-                await parityViews.RunAsync();
+                Console.WriteLine(await parityViews.RunAsync());
             }
             finally
             {
                 await parityViews.DisconnectAsync();
                 _surface.Content = null;
             }
+#if SAMPLE_DESKTOP
             _buttons = new NativeButtons();
             _surface.Content = _buttons.Panel;
             try
@@ -92,6 +100,7 @@ internal sealed partial class SamplePage
             {
                 await StopAsync();
             }
+#endif
         }
 #endif
     }

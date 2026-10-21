@@ -12,8 +12,12 @@ internal static class SamplePlatform
 {
     public static NativeModuleRegistration CreateModule()
     {
+#if IOS
+        return new("dev.nativechannels.sample.SampleModule", "MCSampleModule", "NativeChannelsSample");
+#else
         if (!OperatingSystem.IsWindows())
             throw new PlatformNotSupportedException("The Uno native Interop parity suite currently requires Windows.");
         return new("", "") { WindowsFactory = () => new WindowsSampleModule() };
+#endif
     }
 }

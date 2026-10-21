@@ -37,7 +37,7 @@ and the [sample instructions](../samples/Uno/README.md).
 | macOS | Earlier ARM64 transport and native contract probe; x64 native libraries cross-compile | Full five-app execution, shared plugin runtime, public native-view hosting path and PDF integration |
 | Linux | Earlier portable transport selection/method/disposal test in an Ubuntu VM | Five Uno app executions, native plugin packaging and view/PDF integration |
 | Android | Sample heads exist | Uno package integration, native method/view probes and five-app device/emulator execution |
-| iOS | Currency, silent AudioStreamer and VolumeMonitor pass shared verifiers on an ARM64 iPhone simulator with fresh iOS packages | Interop native method/view wiring and PDFKit integration; physical-device behavior remains unverified |
+| iOS | Interop native methods/UIKit views, Currency, silent AudioStreamer and VolumeMonitor pass shared verifiers on an ARM64 iPhone simulator with fresh iOS packages | PDFKit integration; physical-device behavior remains unverified |
 | Browser | Sample heads exist | Uno transport/assets integration, DOM/PDF hosting and five-app browser execution |
 
 The latest local step-6 Windows run rebuilt all seven diagnostic packages,

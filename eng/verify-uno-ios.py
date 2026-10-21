@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate a package-only Uno messaging sample on an ARM64 iOS simulator."""
+"""Validate package-only Uno Interop or messaging on an ARM64 iOS simulator."""
 import argparse
 import hashlib
 import json
@@ -23,7 +23,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--dotnet', required=True, type=Path)
     parser.add_argument('--device', required=True)
-    parser.add_argument('--sample', choices=('Currency', 'AudioStreamer', 'VolumeMonitor'), default='Currency')
+    parser.add_argument('--sample', choices=('Interop', 'Currency', 'AudioStreamer', 'VolumeMonitor'), default='Currency')
     parser.add_argument('--reuse-external-cache', type=Path)
     args = parser.parse_args()
     if platform.system() != 'Darwin' or platform.machine() != 'arm64':
@@ -74,10 +74,14 @@ def main():
         bootstrap = folder / 'Bootstrap.Config'
         bootstrap.write_text('<configuration><packageSources><clear/><add key="nuget" value="https://api.nuget.org/v3/index.json"/></packageSources><packageSourceMapping><clear/></packageSourceMapping></configuration>')
         command(['python3', 'eng/build-apple.py'], 'native-bridge')
-        command(['python3', f'plugins/Plugin.{sample}/eng/build-apple.py'], 'native-plugin')
+        if sample != 'Interop':
+            command(['python3', f'plugins/Plugin.{sample}/eng/build-apple.py'], 'native-plugin')
         common = [f'-p:Version={VERSION}', f'-p:NativeChannelsPackageVersion={VERSION}',
                   '-p:NativeChannelsAppleTarget=ios', f'-p:RestorePackagesPath={cache}']
-        for name in ('NativeChannels.Core', 'NativeChannels.Native.Apple', 'NativeChannels', 'NativeChannels.Uno', f'Plugin.{sample}'):
+        packages = ['NativeChannels.Core', 'NativeChannels.Native.Apple', 'NativeChannels', 'NativeChannels.Uno']
+        if sample != 'Interop':
+            packages.append(f'Plugin.{sample}')
+        for name in packages:
             project = ROOT / (f'plugins/{name}/src/{name}' if name.startswith('Plugin.') else f'src/{name}')
             settings = [f'-p:RestoreConfigFile={bootstrap if name == "NativeChannels.Core" else config}']
             if name in ('NativeChannels', 'NativeChannels.Uno'):
@@ -103,7 +107,8 @@ def main():
             if Path(metadata['source']).resolve() != feed.resolve() or hashlib.sha256(archive.read_bytes()).digest() != hashlib.sha256((restored / f'{name.lower()}.{version}.nupkg').read_bytes()).digest():
                 raise RuntimeError(f'Consumer package does not match this run: {identity}')
         report['build'] = 'passed'
-        app = project.parent / f'bin/Debug/net10.0-ios/iossimulator-arm64/{sample}.app'
+        assembly = 'NativeChannels.Interop.Uno' if sample == 'Interop' else sample
+        app = project.parent / f'bin/Debug/net10.0-ios/iossimulator-arm64/{assembly}.app'
         bundle = plistlib.loads((app / 'Info.plist').read_bytes())['CFBundleIdentifier']
         command(['xcrun', 'simctl', 'bootstatus', args.device, '-b', '-d'], 'simulator-boot')
         command(['xcrun', 'simctl', 'install', args.device, app], 'simulator-install')
@@ -124,6 +129,10 @@ def main():
             shutil.copy2(result, folder / 'sample-result.json')
             if payload.get('checks') != 'passed' or payload.get('sample') != sample:
                 raise RuntimeError(f'{sample} runtime verification failed')
+            if sample == 'Interop':
+                logs = '\n'.join((folder / name).read_text(errors='replace') for name in ('stdout.log', 'stderr.log'))
+                if not all(marker in logs for marker in ('typed calls, DTOs', 'view stress: 32 reconnects')):
+                    raise RuntimeError('Interop did not complete both shared native verifiers')
             report['runtime'] = 'passed'
         finally:
             subprocess.run(['xcrun', 'simctl', 'terminate', args.device, bundle], capture_output=True, timeout=15)

@@ -686,6 +686,31 @@ of an iOS Uno framework defect.
 
 #### Remaining work
 
+The subsequent iOS Interop run also passed both existing shared suites. Uno now
+links MAUI's `NativeVerification.cs`, Avalonia's `ViewVerification.cs`, and the
+existing Apple `MobileButtonView` adapter. The framework branches select Uno's
+dispatcher, `IUnoNativeView`, and the UIKit `UIView` content; assertions are
+unchanged. The sample has the same explicit friend-assembly access to our
+native-view factory as Avalonia's Interop sample. No Uno dependency change,
+reflection workaround, or new production view API was needed.
+
+The simulator log confirms typed DTO/byte/null/Int64 calls, errors, UI callbacks,
+16 concurrent calls, timeout/cancellation, handle/session disposal, all four
+message codecs and event cleanup. Native views pass two-instance independence,
+creation arguments, acknowledged callbacks, pending-work disposal, reconnect,
+unload/reload, stale-channel rejection, UI-thread enforcement and 32 reconnects.
+Only these existing shared verifiers run for iOS; the desktop-specific host and
+Win32 regressions remain on their existing path. The Windows Interop build also
+passes with zero warnings/errors after the shared-file changes.
+
+Initial successful Mac evidence is
+`artifacts/uno-ios/c80c3c697d6942ef9b6aa106f374b290/`; final local evidence is
+retained at `artifacts/uno-ios/interop/`. The first compile attempt caught a
+dispatcher delegate mismatch and missing sample friend-assembly access; both
+were corrected before runtime testing. Debug simulator limits still apply.
+The remaining iOS sample is PdfViewer: integrate the existing PDFKit backend
+and reuse the MAUI/Avalonia PDF scenarios.
+
 1. Continue comparison against existing MAUI/Avalonia sample scenarios. The
    native PDF probe now checks two independent viewers. Keep completed native parenting, layout/resize
    and direct input-message regressions; do not add Uno-only certification gates.

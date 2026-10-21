@@ -28,7 +28,11 @@ internal sealed class ViewVerification
 
     private static AvaloniaChannelView Create(string title) =>
 #if UNO_SAMPLE
+#if IOS
+        new(id => new MobileButtonView(id, title)) { Height = 72 };
+#else
         new(id => new WindowsButtonView(id, title)) { Height = 72 };
+#endif
 #else
         new((parent, id) => SampleButtonFactory.Create(parent, id, title)) { Height = 72 };
 #endif

@@ -92,15 +92,19 @@ python3 eng/verify-uno-ios.py --sample Currency --dotnet /absolute/path/to/dotne
 ```
 
 Run from the repository root on an ARM64 Mac with Xcode and the iOS workload.
-Repeat with `--sample AudioStreamer` or `--sample VolumeMonitor`. The optional
+Repeat with `--sample Interop`, `--sample AudioStreamer` or `--sample VolumeMonitor`. The optional
 cache argument reuses only external dependencies; local packages are fresh and
 their restored bytes/source are checked. Normal simulator code signing stays
 enabled. Results, package hashes and logs are under `artifacts/uno-ios/<run>/`.
-All three passed on the iOS 26.5 simulator on October 21, 2026. These are Debug
+All four passed on the iOS 26.5 simulator on October 21, 2026. These are Debug
 simulator checks, not physical-device or release-candidate acceptance. Audio is
 silent; hardware volume changes and actual OS background transitions were not
-tested. Interop's shared native checks still have Windows-only wiring, and the
-PDF sample requires a UIKit/PDFKit adapter before native iOS acceptance can run.
+tested. Interop links the existing MAUI native verifier and Avalonia view verifier
+with unchanged assertions, using the shared Apple view adapter with Uno's
+dispatcher and UIKit embedding. Its native fixture is built from the same Swift
+sample as MAUI/Avalonia. The runner requires both verifier completion markers,
+including 32 reconnects. The PDF sample still requires a UIKit/PDFKit adapter
+before native iOS acceptance can run.
 
 The projects include Android, iOS, browser and desktop heads (desktop covers
 Windows, Linux and macOS). Those heads are not a six-platform support claim.
