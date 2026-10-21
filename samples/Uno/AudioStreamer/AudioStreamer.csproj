@@ -3,6 +3,7 @@
         <TargetFrameworks>net10.0-android;net10.0-ios;net10.0-browserwasm;net10.0-desktop</TargetFrameworks>
         <OutputType>Exe</OutputType>
         <RootNamespace>UnoSamples</RootNamespace>
+        <DefineConstants>$(DefineConstants);UNO_SAMPLE</DefineConstants>
         <UnoSingleProject>true</UnoSingleProject>
         <UnoFeatures>SkiaRenderer</UnoFeatures>
         <ApplicationTitle>NativeChannels AudioStreamer</ApplicationTitle>
@@ -18,5 +19,7 @@
         <Compile Include="../Shared/App.cs" Link="App.xaml.cs" />
         <Compile Include="../Shared/SamplePage.cs" Link="SamplePage.cs" />
         <Compile Include="../../Maui/AudioStreamer/MusicGenerator.cs" Link="MusicGenerator.cs" />
+        <Compile Include="../../Maui/AudioStreamer/AudioVerification.cs" Link="AudioVerification.cs" />
+        <Compile Include="../../Avalonia/AudioStreamer/AvaloniaAudioVerification.cs" Link="HostAudioVerification.cs" />
     </ItemGroup>
 </Project>

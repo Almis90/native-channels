@@ -366,7 +366,24 @@ platform and details, invalid-length rejection, pre-cancellation and a successfu
 lookup after cancellation. Uno selects the expected platform at runtime because
 its desktop target framework is shared across operating systems; assertions are
 unchanged. Windows execution is verified separately from the other pending Uno
-platforms. AudioStreamer is the next sample to compare.
+platforms.
+
+### AudioStreamer parity: Windows
+
+Uno links MAUI's `AudioVerification.cs`, already reused by Avalonia, with unchanged
+assertions for silent PCM playback progress, bounded buffering, paused-write
+cancellation, resume/drain with exact frame counts, and clean restart. It also
+links Avalonia's host-disposal verifier; only host/session creation differs.
+Three sessions check worker-thread disposal with a pending paused writer,
+DI-owned cleanup, repeated disposal and rejection after disposal.
+
+The Uno Play/Pause/Resume/Stop commands are shared with its silent control check,
+matching Avalonia's desktop scenarios. Minimizing now invokes the existing
+suspension cleanup path. The check minimizes/restores the actual sample window,
+verifies stopped playback, restarts and stops, then leaves paused playback for
+the shared runner's page disposal and window close. These are existing Avalonia
+scenarios, not additional certification requirements. Listening and non-Windows
+execution remain unverified. VolumeMonitor is the next sample to compare.
 
 ### Windows keyboard and accessibility review (October 21, 2026)
 
