@@ -5,7 +5,10 @@ namespace UnoSamples;
 internal sealed partial class SamplePage
 {
     private const string Title = "PdfViewer";
-#if IOS || ANDROID || UNO_LINUX_SAMPLE
+#if UNO_BROWSER_SAMPLE
+    private const string Limitation =
+        "Browser PDF.js views use the existing Avalonia verifier; physical input and visual acceptance remain unverified.";
+#elif IOS || ANDROID || UNO_LINUX_SAMPLE
     private const string Limitation =
         "Native PDF views; automated checks use the existing MAUI PDF verifier. Physical-device input remains unverified.";
 #else
@@ -13,6 +16,9 @@ internal sealed partial class SamplePage
         "Windows.Data.Pdf renders into a native HWND. Physical input/visual review and other platform adapters remain unverified.";
 #endif
     private PdfControl? _pdf;
+#if UNO_BROWSER_SAMPLE
+    private byte[]? _browserPdfBytes;
+#endif
     private readonly TextBox _path = new()
     {
         Header = "Absolute PDF path",
@@ -41,7 +47,9 @@ internal sealed partial class SamplePage
         }
 #endif
         _status.Text = Limitation;
+#if !UNO_BROWSER_SAMPLE
         _panel.Children.Add(_path);
+#endif
         Button(
             "Open PDF",
             async () =>
@@ -50,11 +58,28 @@ internal sealed partial class SamplePage
                     !OperatingSystem.IsIOS()
                     && !OperatingSystem.IsAndroid()
                     && !OperatingSystem.IsLinux()
+                    && !OperatingSystem.IsBrowser()
                     && !OperatingSystem.IsWindowsVersionAtLeast(10, 0, 17763)
                 )
                     throw new PlatformNotSupportedException(
-                        "The bundled renderer requires Linux, Android, iOS or Windows 10 1809 or later."
+                        "The bundled renderer requires browser, Linux, Android, iOS or Windows 10 1809 or later."
                     );
+#if UNO_BROWSER_SAMPLE
+                var picker = new Windows.Storage.Pickers.FileOpenPicker();
+                picker.FileTypeFilter.Add(".pdf");
+                var file = await picker.PickSingleFileAsync();
+                if (file is null)
+                    return;
+                using var stream = await file.OpenReadAsync();
+                if (stream.Size > 8 * 1024 * 1024)
+                    throw new InvalidOperationException("Select a PDF up to 8 MiB.");
+                using var reader = new Windows.Storage.Streams.DataReader(stream);
+                await reader.LoadAsync((uint)stream.Size);
+                var bytes = new byte[(int)stream.Size];
+                reader.ReadBytes(bytes);
+                _browserPdfBytes = bytes;
+                await Plugin.Uno.PdfViewer.PdfBrowser.InitializeAsync();
+#endif
                 if (_pdf is null)
                 {
                     _pdf = new PdfControl
@@ -68,7 +93,11 @@ internal sealed partial class SamplePage
                     _surface.Content = _pdf;
                     await WaitForPdfAsync(_pdf);
                 }
+#if UNO_BROWSER_SAMPLE
+                await _pdf.OpenBytesAsync(_browserPdfBytes!);
+#else
                 await _pdf.OpenAsync(_path.Text);
+#endif
             }
         );
         Button(
@@ -111,7 +140,11 @@ internal sealed partial class SamplePage
                     return;
                 _pdf.Reconnect();
                 await WaitForPdfAsync(_pdf);
+#if UNO_BROWSER_SAMPLE
+                await _pdf.OpenBytesAsync(_browserPdfBytes!);
+#else
                 await _pdf.OpenAsync(_path.Text);
+#endif
             }
         );
         Button("Close document", StopAsync);
@@ -135,6 +168,24 @@ internal sealed partial class SamplePage
 
     private async Task VerifyAsync()
     {
+#if UNO_BROWSER_SAMPLE
+        await Plugin.Uno.PdfViewer.PdfBrowser.InitializeAsync();
+        await using var first = new PdfControl { Height = 240 };
+        await using var second = new PdfControl { Height = 240 };
+        _surface.Content = new StackPanel { Children = { first, second } };
+        try
+        {
+            Console.WriteLine(
+                await ReferenceSamples.SharedPdfVerification.RunAsync([first, second], [], _stopping.Token)
+            );
+        }
+        finally
+        {
+            await first.DisconnectAsync();
+            await second.DisconnectAsync();
+            _surface.Content = null;
+        }
+#else
 #if IOS || ANDROID || UNO_LINUX_SAMPLE
         await using var first = new PdfControl { Height = 240 };
         await using var second = new PdfControl { Height = 240 };
@@ -161,6 +212,7 @@ internal sealed partial class SamplePage
         }
 #endif
         throw new PlatformNotSupportedException("Native PDF acceptance currently requires Windows.");
+#endif
 #endif
     }
 

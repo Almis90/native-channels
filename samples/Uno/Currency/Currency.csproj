@@ -18,6 +18,20 @@
         <PackageReference Include="Plugin.Currency" />
         <Compile Include="../Shared/App.cs" Link="App.xaml.cs" />
         <Compile Include="../Shared/SamplePage.cs" Link="SamplePage.cs" />
-        <Compile Include="../../Currency.Shared/PluginVerification.cs" Link="PluginVerification.cs" />
+        <Compile
+            Include="../../Currency.Shared/PluginVerification.cs"
+            Link="PluginVerification.cs"
+        />
+    </ItemGroup>
+    <ItemGroup Condition="'$(TargetFramework)' == 'net10.0-browserwasm'">
+        <Compile
+            Include="../../Avalonia/Currency/Currency.Browser/TransportVerification.cs"
+            Link="TransportVerification.cs"
+        />
+        <Content
+            Include="../../Avalonia/Currency/Currency.Browser/wwwroot/*.mjs"
+            Link="wwwroot/%(Filename)%(Extension)"
+            CopyToOutputDirectory="PreserveNewest"
+        />
     </ItemGroup>
 </Project>

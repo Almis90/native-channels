@@ -12,7 +12,9 @@ internal static class SamplePlatform
 {
     public static NativeModuleRegistration CreateModule()
     {
-#if UNO_LINUX_SAMPLE
+#if UNO_BROWSER_SAMPLE
+        return new("", "", "") { BrowserModule = "./sample.mjs" };
+#elif UNO_LINUX_SAMPLE
         return new("", "")
         {
             LinuxFactory = () =>

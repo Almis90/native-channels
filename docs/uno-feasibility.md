@@ -823,4 +823,58 @@ also passed with zero warnings/errors.
 These are Debug Linux x64 X11/Xvfb checks with a null audio sink. They do not
 establish visible rendering, physical input, audible playback, hardware volume
 changes, Wayland, other architectures or combined release packaging. Browser
-integration/execution and the separate macOS native-embedding blocker remain.
+results follow below; the separate macOS native-embedding blocker remains.
+
+#### Browser validation: October 22, 2026
+
+All five Uno samples passed the existing applicable MAUI/Avalonia browser
+verifiers in headless Chromium 156.0.8078.4 on Windows x64, using .NET SDK
+10.0.401 and Uno SDK 6.7.30/runtime 6.7.135. No additional scenarios were added.
+Currency reuses the existing currency and browser transport checks. Interop
+reuses typed calls and two-view checks, including 32 reconnects. PDF reuses
+Avalonia's two-view, three-page, navigation, zoom, isolation and reconnect checks.
+Audio reuses its existing browser playback verifier. Volume reuses Avalonia's
+page-owned HTML audio volume initial/change check; browsers do not expose OS
+output volume. Shared PDF and volume assertions were extracted without changing
+their conditions so both samples compile the same source.
+
+The browser-only transport and messaging packages now include both `browser`
+and Uno's `browserwasm` framework identities, with the same JavaScript modules.
+No consumer asset-fallback setting is required. Button and PDF adapters place
+the existing DOM views inside Uno's public `BrowserHtmlElement` container.
+PDF reuses the existing PDF.js assets and has no MAUI/Avalonia managed package
+dependency. No Uno source patch is required.
+
+Initial runs exposed incorrect static hosting paths, an unavailable hot-reload
+module, DOM ownership cleanup and lazy audio/volume initialization. The runner
+serves the app at the root with hot reload disabled; the adapters use Uno-owned
+containers; audio and volume initialize at page construction, as in Avalonia.
+The original assertions remain intact. Failed-run logs are preserved.
+
+Evidence under `artifacts/uno-browser/`:
+
+| Sample | Run |
+| --- | --- |
+| Currency | `25b8ec0cebeb41779381a0de4c4dfe08` |
+| Interop | `2930f398f2dd48b48c8efdde1e0bed12` |
+| PdfViewer | `0b4d7ae3fc594671a94266b6eef437a3` |
+| AudioStreamer | `a214ff04a4a748c19a3c347cabb92d33` |
+| VolumeMonitor | `25a62f8507124025bfe9bc6f960ee34f` |
+
+Each run retains fresh package hashes, restored assets, source status, build and
+browser logs, result and screenshot. Restored local package bytes/source match
+the run's feed. All five report successful build/runtime checks and empty browser
+error logs. Source was `37822eb` plus the browser working-tree changes, followed
+by formatting/documentation; these are not clean-source release-candidate runs.
+Package audit confirms both browser identities in shared packages, PDF.js worker
+and licensing assets, and no Windows projections in the Uno browser PDF package.
+Avalonia Currency Browser, VolumeMonitor Browser and PDF Windows regression
+builds passed with zero warnings/errors after the shared verifier extraction.
+
+Uno builds retain CA1416 browser/platform-identity warnings, IL2026 warnings in
+the desktop JSON result path, and NuGet vulnerability warnings for transitive
+System.Security.Cryptography.Pkcs/Xml 10.0.12. These were not suppressed or
+resolved by this integration. Runtime success does not close release readiness.
+Coverage is Debug interpreter execution in one headless Chromium version, with
+silent audio checks. Cross-browser behavior, physical input, visual fidelity,
+audible playback and combined release packaging remain unverified.

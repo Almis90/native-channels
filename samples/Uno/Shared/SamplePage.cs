@@ -30,6 +30,20 @@ internal sealed partial class SamplePage : Page, IAsyncDisposable
             if (_loaded)
                 return;
             _loaded = true;
+#if UNO_BROWSER_SAMPLE
+            await BrowserVerification.RegisterAsync(async () =>
+            {
+                try
+                {
+                    await VerifyAsync();
+                    return "PASS " + Title;
+                }
+                finally
+                {
+                    await DisposeAsync();
+                }
+            });
+#endif
             var result = Environment.GetEnvironmentVariable("NATIVECHANNELS_UNO_SAMPLE_RESULT");
             if (string.IsNullOrEmpty(result))
                 return;

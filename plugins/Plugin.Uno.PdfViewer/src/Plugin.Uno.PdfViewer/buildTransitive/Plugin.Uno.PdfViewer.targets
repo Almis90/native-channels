@@ -26,4 +26,12 @@
             <Private>true</Private>
         </Reference>
     </ItemGroup>
+    <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'browser' Or $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'browserwasm'">
+        <Content
+            Include="$(MSBuildThisFileDirectory)../browser/**/*"
+            Link="wwwroot/_content/Plugin.Uno.PdfViewer/%(RecursiveDir)%(Filename)%(Extension)"
+            CopyToOutputDirectory="PreserveNewest"
+            CopyToPublishDirectory="PreserveNewest"
+        />
+    </ItemGroup>
 </Project>

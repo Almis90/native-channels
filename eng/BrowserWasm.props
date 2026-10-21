@@ -1,0 +1,15 @@
+<Project>
+    <!-- Uno uses a distinct browserwasm TFM. Compile the same browser implementation
+         for both framework identities, without bringing Uno into shared plugins. -->
+    <PropertyGroup Condition="'$(TargetFramework)' == 'net10.0-browserwasm'">
+        <TargetPlatformSupported>true</TargetPlatformSupported>
+        <TargetPlatformVersion>1.0</TargetPlatformVersion>
+        <SupportedOSPlatformVersion>1.0</SupportedOSPlatformVersion>
+        <DefineConstants>$(DefineConstants);BROWSER</DefineConstants>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    </PropertyGroup>
+    <ItemGroup Condition="'$(TargetFramework)' == 'net10.0-browserwasm'">
+        <SupportedPlatform Include="browserwasm" />
+        <SdkSupportedTargetPlatformVersion Include="1.0" />
+    </ItemGroup>
+</Project>

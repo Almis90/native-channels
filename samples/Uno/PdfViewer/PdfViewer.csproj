@@ -45,4 +45,14 @@
     <PropertyGroup Condition="'$(UnoPdfBackend)' == 'Gtk'">
         <DefineConstants>$(DefineConstants);PDF_GTK</DefineConstants>
     </PropertyGroup>
+    <ItemGroup Condition="'$(TargetFramework)' == 'net10.0-browserwasm'">
+        <Compile
+            Include="../../Avalonia/PdfViewer/Shared/PdfVerification.cs"
+            Link="BrowserPdfVerification.cs"
+        />
+        <EmbeddedResource
+            Include="../../Maui/PdfViewer/Resources/Raw/nativechannels-guide.pdf"
+            LogicalName="Verification.pdf"
+        />
+    </ItemGroup>
 </Project>

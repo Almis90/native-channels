@@ -16,7 +16,7 @@
         <TargetFrameworks Condition="'$(NativeChannelsAppleTarget)' != ''"
             >net10.0-$(NativeChannelsAppleTarget)</TargetFrameworks>
         <TargetFrameworks Condition="'$(NativeChannelsBrowserOnly)' == 'true'"
-            >net10.0-browser</TargetFrameworks>
+            >net10.0-browser;net10.0-browserwasm</TargetFrameworks>
         <SupportedOSPlatformVersion
             Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'macos'"
             >14.0</SupportedOSPlatformVersion>
@@ -106,4 +106,5 @@
             PackagePath="runtimes/osx-x64/native/"
         />
     </ItemGroup>
+    <Import Project="../../../../eng/BrowserWasm.props" />
 </Project>

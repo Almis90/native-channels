@@ -18,7 +18,7 @@ these packages from a public feed expecting the behavior described here.
 | `NativeChannels` | Platform transports and shared native module registration |
 | `NativeChannels.Uno` | Optional Uno startup, per-window sessions, UI dispatch and experimental view lifecycle |
 | `Plugin.Currency`, `Plugin.AudioStreamer`, `Plugin.VolumeMonitor` | Shared messaging plugins; no dependency on a UI host |
-| `Plugin.Uno.PdfViewer` | Uno PDF control with Windows.Data.Pdf, iOS PDFKit, Android PdfRenderer and Linux X11 Qt/GTK backends; custom factories remain supported |
+| `Plugin.Uno.PdfViewer` | Uno PDF control with Windows.Data.Pdf, iOS PDFKit, Android PdfRenderer, Linux X11 Qt/GTK and browser PDF.js backends; custom factories remain supported |
 
 The desktop transport selects Windows, Linux or macOS at runtime. The macOS
 plain-.NET bridge stays in the transport/native layer. It does not belong in
@@ -38,7 +38,7 @@ and the [sample instructions](../samples/Uno/README.md).
 | Linux | All five fresh-package apps pass shared verifiers on Ubuntu 24.04 x64 X11/Xvfb, including native Interop views and both Qt/GTK PDF backends; audio uses a PulseAudio null sink | Visual/physical-input acceptance, audible playback, hardware volume changes, other architectures/backends and release packaging |
 | Android | All five package-only apps pass existing MAUI/Avalonia shared verifiers on an API 36 x64 emulator, including native Interop views and PdfRenderer | ARM64/physical-device behavior, visual/input acceptance and release packaging remain unverified |
 | iOS | All five apps pass shared verifiers on an ARM64 iPhone simulator, including Interop native methods/UIKit views and PDFKit document/navigation/zoom/lifecycle checks | Physical-device behavior and release packaging remain unverified |
-| Browser | Sample heads exist | Uno transport/assets integration, DOM/PDF hosting and five-app browser execution |
+| Browser | All five fresh-package apps pass existing shared browser verifiers in headless Chromium on Windows x64, including DOM button hosting and PDF.js; volume checks cover a page-owned audio element | Cross-browser and manual acceptance, audible playback and combined release packaging |
 
 The latest local step-6 Windows run rebuilt all seven diagnostic packages,
 audited their metadata and source commit, and verified that every local package
@@ -105,10 +105,10 @@ the original failure's cause has not been conclusively reproduced. See
 - Establish a public supported macOS native embedding path. The pinned Uno
   release exposes its arbitrary native-element wrapper internally; reflection,
   separate windows and rendered-image substitutes do not meet the planned contract.
-- Supply and verify Uno PDF adapters for macOS and browser. Windows,
-  Linux X11, iOS and Android automated checks now pass; physical input and broader visual/document
+- Supply and verify the Uno PDF adapter for macOS. Windows,
+  Linux X11, iOS, Android and browser automated checks now pass; physical input and broader visual/document
   review remain outstanding. Protocol fixtures alone are insufficient.
-- Finish browser transport/package integration, combined mobile packaging, and validate
+- Finish combined browser/mobile packaging, and validate
   combined desktop native assets for Linux and both macOS architectures.
 - Execute all five apps across all six platforms against one intended package
   candidate, recording backend, architecture, package hashes and lifecycle results.

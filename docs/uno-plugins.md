@@ -56,7 +56,7 @@ and reconnect/disposal behavior. Its default constructor now uses a bundled
 Windows.Data.Pdf renderer inside an Uno-hosted Win32 child window. The Windows
 sample tests real page pixels, page/zoom changes, errors and lifecycle. Custom
 `IUnoNativeView` factories remain supported. macOS lacks the required public
-embedding API; the browser adapter still needs integration.
+embedding API.
 On iOS with Skia, the default factory uses the existing PDFKit UIKit backend.
 The simulator sample runs MAUI's unchanged PDF assertions against two viewers;
 no MAUI package, Uno patch or consumer workaround is required.
@@ -65,6 +65,11 @@ packaged as an AAR with `NativeChannelsAndroidOnly=true`.
 The Linux X11 factory reuses the existing Qt/GTK native modules with Uno's public
 `X11NativeWindow` wrapper and UI dispatcher. Pack with `NativeChannelsLinuxOnly=true`;
 select `PdfLinux.Backend` before creating viewers (Qt by default, or Gtk).
+The browser factory reuses the existing PDF.js DOM modules inside a public Uno
+`BrowserHtmlElement` container. Initialize `PdfBrowser` before creating viewers
+and use `OpenBytesAsync`. Browser-only shared messaging packages now include both
+`net10.0-browser` and `net10.0-browserwasm` assets with the same implementation;
+consumers need no framework fallback workaround.
 No MAUI/Avalonia runtime dependency or Uno source patch is required.
 
 Run the current native PDF check with:

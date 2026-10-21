@@ -32,6 +32,9 @@ internal sealed partial class SamplePage
     {
         var result = await global::Currency.Verification.PluginVerification.RunAsync(Currency, _stopping.Token);
         Console.WriteLine(result);
+#if UNO_BROWSER_SAMPLE
+        Console.WriteLine(await global::Currency.Browser.TransportVerification.RunAsync(_window));
+#endif
     }
 
     public Task StopAsync() => Task.CompletedTask;

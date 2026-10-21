@@ -28,7 +28,9 @@ internal sealed class ViewVerification
 
     private static AvaloniaChannelView Create(string title) =>
 #if UNO_SAMPLE
-#if UNO_LINUX_SAMPLE
+#if UNO_BROWSER_SAMPLE
+        new(id => new UnoBrowserButtonView(id, title)) { Height = 72 };
+#elif UNO_LINUX_SAMPLE
         new(id => new NativeChannels.UnoLinuxNativeView(
             "nc_sample",
             typeof(SamplePlatform).Assembly,

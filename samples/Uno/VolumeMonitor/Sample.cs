@@ -22,28 +22,58 @@ internal sealed partial class SamplePage
     {
         _status.Text =
             "Listen for the initial output volume and changes. Use your device's volume controls. Each listener has its own lifetime.";
-        Button("Add system-volume listener", AddAsync);
+        Button("Add system-volume listener", () => AddAsync());
         Button("Cancel last listener", CancelLastAsync);
         Button("Stop all listeners", StopAsync);
+#if UNO_BROWSER_SAMPLE
+        _ = Volume;
+        _status.Text =
+            "Browsers cannot observe OS output volume. The separate page-volume example observes an HTML audio element.";
+        var slider = new Slider
+        {
+            Minimum = 0,
+            Maximum = 1,
+            Value = 0.5,
+        };
+        slider.ValueChanged += async (_, _) =>
+        {
+            try
+            {
+                _ = Volume;
+                using var channel = _session!.Channels.GetMethodChannel("example.browser.volume.control");
+                await channel.InvokeAsync("setVolume", slider.Value, _stopping.Token);
+            }
+            catch (Exception error)
+            {
+                _status.Text = error.Message;
+            }
+        };
+        _panel.Children.Add(slider);
+        Button("Add page-volume listener", () => AddAsync(true));
+#endif
     }
 
-    private Task AddAsync()
+    private Task AddAsync(bool page = false)
     {
         if (_stopping.IsCancellationRequested)
             return Task.CompletedTask;
         var volume = Volume;
         var stop = CancellationTokenSource.CreateLinkedTokenSource(_stopping.Token);
-        var run = WatchAsync(volume, ++_next, stop.Token);
+        var run = WatchAsync(volume, ++_next, stop.Token, page);
         _listeners.Add((stop, run));
         return Task.CompletedTask;
     }
 
-    private async Task WatchAsync(IVolumeMonitor volume, int id, CancellationToken token)
+    private async Task WatchAsync(IVolumeMonitor volume, int id, CancellationToken token, bool page)
     {
         try
         {
-            await foreach (var value in volume.ListenAsync(token))
-                _status.Text = $"Output volume: {value:P0} · listener {id} · {DateTime.Now:T}";
+            await using var events = page ? _session!.Channels.GetEventChannel("example.browser.volume") : null;
+            var values = events is null
+                ? volume.ListenAsync(token)
+                : events.ListenAsync<double>(cancellationToken: token);
+            await foreach (var value in values)
+                _status.Text = $"{(page ? "Page" : "Output")} volume: {value:P0} · listener {id} · {DateTime.Now:T}";
         }
         catch (OperationCanceledException) when (token.IsCancellationRequested) { }
         catch (Exception error)
@@ -54,7 +84,12 @@ internal sealed partial class SamplePage
 
     private async Task VerifyAsync()
     {
+#if UNO_BROWSER_SAMPLE
+        _ = Volume;
+        var result = await ReferenceSamples.BrowserVolumeVerification.RunAsync(_session!.Channels, _stopping.Token);
+#else
         var result = await global::VolumeMonitor.Sample.VolumeVerification.RunAsync(Volume, _stopping.Token);
+#endif
         Console.WriteLine(result);
     }
 

@@ -23,6 +23,10 @@ internal sealed partial class SamplePage
 
     private void Build()
     {
+#if UNO_BROWSER_SAMPLE
+        // Match Avalonia's eager session setup so the adapter can capture Play's user gesture.
+        _ = Audio;
+#endif
         _status.Text =
             "Play the shared original 16-second music loop at a low level. Playback starts only when requested.";
         Button("Play", () => StartAsync());
@@ -95,8 +99,10 @@ internal sealed partial class SamplePage
     private async Task VerifyAsync()
     {
         Console.WriteLine(await global::AudioStreamer.Sample.AudioVerification.RunAsync(Audio, _stopping.Token));
+#if !UNO_BROWSER_SAMPLE
         await global::AudioStreamer.Avalonia.AvaloniaAudioVerification.RunAsync(_host!, _window, _stopping.Token);
         await VerifyControlsAsync();
+#endif
     }
 
     private async Task VerifyControlsAsync()

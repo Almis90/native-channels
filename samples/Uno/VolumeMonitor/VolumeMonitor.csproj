@@ -22,4 +22,10 @@
             Link="VolumeVerification.cs"
         />
     </ItemGroup>
+    <ItemGroup Condition="'$(TargetFramework)' == 'net10.0-browserwasm'">
+        <Compile
+            Include="../../Avalonia/VolumeMonitor/Shared/BrowserVolumeVerification.cs"
+            Link="BrowserVolumeVerification.cs"
+        />
+    </ItemGroup>
 </Project>

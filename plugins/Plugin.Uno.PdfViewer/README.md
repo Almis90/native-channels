@@ -6,7 +6,8 @@ the existing Windows PDF implementations, with Uno dispatch and lifecycle.
 On iOS with Uno's Skia renderer it reuses the existing PDFKit UIKit backend;
 on Android it reuses the existing Android PdfRenderer backend.
 On Linux X11 it reuses the existing Qt/GTK native backends through Uno's public
-`X11NativeWindow` wrapper.
+`X11NativeWindow` wrapper. In the browser it reuses Avalonia's PDF.js modules
+inside a public Uno `BrowserHtmlElement` container.
 No MAUI or Avalonia package is required.
 
 ```csharp
@@ -29,7 +30,7 @@ channels and late results are rejected.
 
 The custom `PdfViewer(Func<string, IUnoNativeView>)` constructor remains available.
 `CreateNativeView(instanceId)` exposes the default factory for composition and
-testing. Platforms other than Windows, Linux X11, iOS and Android require a custom adapter and fail
+testing. Platforms other than Windows, Linux X11, browser, iOS and Android require a custom adapter and fail
 explicitly otherwise.
 `OpenBytesAsync` remains browser-only. StateChanged reports command results and
 UI-dispatched adapter callbacks; the Windows pointer gestures pan the page locally.
@@ -92,6 +93,14 @@ use GTK. This is the same choice exposed by the Avalonia adapter. Both passed
 the unchanged shared PDF verifier on Ubuntu 24.04 x64 X11/Xvfb; this does not
 establish visual rendering or physical-input acceptance.
 
-macOS remains blocked by Uno's public embedding API; the
-browser adapter is still pending. The separate managed protocol fixture is
+For browser builds, run `npm ci` in `plugins/Plugin.Avalonia.PdfViewer` to prepare
+the shared PDF.js dependency, then pack with `NativeChannelsBrowserOnly=true`.
+The package includes the existing PDF.js adapter, worker, fonts, CMaps, WASM
+helpers and license. Call `await PdfBrowser.InitializeAsync()` before creating
+viewers, then use `OpenBytesAsync` with a PDF up to 8 MiB. This initialization
+pattern matches the Avalonia browser adapter. The managed browser asset targets
+Uno's `net10.0-browserwasm` framework; no Avalonia package or Uno source patch is
+required.
+
+macOS remains blocked by Uno's public embedding API. The separate managed protocol fixture is
 not counted as native rendering evidence.

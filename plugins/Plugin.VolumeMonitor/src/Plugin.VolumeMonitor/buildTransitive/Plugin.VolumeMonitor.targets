@@ -1,5 +1,5 @@
 <Project>
-    <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'browser'">
+    <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'browser' Or $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'browserwasm'">
         <Content
             Include="$(MSBuildThisFileDirectory)../browser/*.mjs"
             Link="wwwroot/_content/Plugin.VolumeMonitor/%(Filename)%(Extension)"

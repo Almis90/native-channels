@@ -27,7 +27,7 @@
     <PropertyGroup Condition="($([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios' Or $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android')">
         <AssemblyName>NativeChannels.Interop.Uno</AssemblyName>
     </PropertyGroup>
-    <ItemGroup Condition="'$(TargetFramework)' == 'net10.0-desktop' Or ($([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios' Or $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android')">
+    <ItemGroup Condition="'$(TargetFramework)' == 'net10.0-desktop' Or '$(TargetFramework)' == 'net10.0-browserwasm' Or ($([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios' Or $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android')">
         <Compile Include="../../Maui/ChannelExplorer/GlobalUsings.cs" Link="ChannelUsings.cs" />
         <Compile
             Include="../../Maui/ChannelExplorer/NativeVerification.cs"
@@ -70,7 +70,7 @@
         <Compile Remove="NativeButtons.cs" />
         <Compile
             Remove="SamplePlatform.cs"
-            Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) != 'ios' And $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) != 'android'"
+            Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) != 'ios' And $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) != 'android' And '$(TargetFramework)' != 'net10.0-browserwasm'"
         />
     </ItemGroup>
     <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
@@ -91,6 +91,22 @@
         <None
             Include="../../../artifacts/native/linux-x64/libnc_sample.so"
             Link="libnc_sample.so"
+            CopyToOutputDirectory="PreserveNewest"
+        />
+    </ItemGroup>
+    <PropertyGroup Condition="'$(TargetFramework)' == 'net10.0-browserwasm'">
+        <DefineConstants>$(DefineConstants);UNO_SAMPLE</DefineConstants>
+        <AssemblyName>NativeChannels.Interop.Uno</AssemblyName>
+    </PropertyGroup>
+    <ItemGroup Condition="'$(TargetFramework)' == 'net10.0-browserwasm'">
+        <Content
+            Include="../../Avalonia/Interop/Browser/wwwroot/*.mjs"
+            Link="wwwroot/%(Filename)%(Extension)"
+            CopyToOutputDirectory="PreserveNewest"
+        />
+        <Content
+            Include="browser-button.mjs"
+            Link="wwwroot/browser-button.mjs"
             CopyToOutputDirectory="PreserveNewest"
         />
     </ItemGroup>

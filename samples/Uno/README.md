@@ -153,10 +153,27 @@ All five samples, including both PDF variants, passed on Ubuntu 24.04 x64
 X11/Xvfb on October 22, 2026. No verifier assertions or native implementations
 were changed; no Uno source patch was needed.
 
+The browser runner builds fresh browser packages and serves the generated Uno
+app at the HTTP root, then runs Chromium headlessly. Verification starts from a
+real button click, matching the existing Avalonia runner's audio user gesture:
+
+```powershell
+python eng/verify-uno-browser.py --sample Currency --dotnet .tools/dotnet/dotnet.exe --reuse-external-cache /absolute/path/to/nuget/packages
+```
+
+Repeat for `Interop`, `PdfViewer`, `AudioStreamer` and `VolumeMonitor`. Install
+the existing Playwright dependency from `tests/NativeChannels.Browser.Tests` and
+its Chromium binary; PDF also needs `npm ci` in `plugins/Plugin.Avalonia.PdfViewer`.
+The runner uses Debug interpreter builds with hot reload disabled for static
+hosting. It retains package provenance, browser logs and results under
+`artifacts/uno-browser/<run>/`. External dependencies may be reused; local
+packages are always rebuilt. Headless execution does not establish physical
+input, visual fidelity, audible output or cross-browser acceptance.
+
 The projects include Android, iOS, browser and desktop heads (desktop covers
 Windows, Linux and macOS). Those heads are not a six-platform support claim.
-The local preview feed built above contains desktop assets; mobile/browser
-packaging and runtime checks remain necessary before those targets are usable.
+The local preview feed built above contains desktop assets; use the dedicated
+platform runners for mobile/browser assets. Combined release packaging remains open.
 macOS needs the native dylibs and has no public arbitrary native-view embedding
 API in the pinned Uno version. Linux builds require its native plugin assets
 and system libraries.
