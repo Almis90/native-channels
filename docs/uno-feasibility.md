@@ -155,6 +155,79 @@ on macOS ARM64. Interop's native views and native PDF remain blocked by the
 missing public Uno macOS hosting API described above. The next macOS step is
 resolving that integration path before claiming all five samples pass.
 
+#### Upstream hosting investigation: October 21, 2026
+
+NuGet's stable version lists still end at Uno.Sdk 6.7.30 and Uno.WinUI 6.7.135,
+matching our pins. The current upstream source at
+[`503f37142d4c7055fb8c2f75da819a7ab9ee6993`](https://github.com/unoplatform/uno/blob/503f37142d4c7055fb8c2f75da819a7ab9ee6993/src/Uno.UI.Runtime.MacOS/Native/MacOSNativeElementHostingExtension.cs)
+also keeps the macOS wrapper and host extension internal (the runtime directory
+has been renamed). Its `ContentPresenter.INativeElementHostingExtension` remains
+internal as well. Neither a stable upgrade nor that inspected source revision
+provides the missing public integration route.
+
+A minimal compile probe on the Mac, referencing the actual restored sample
+assemblies, produces CS0122 for both types. It is retained in
+`artifacts/uno-feasibility/hosting-repro/` with `hosting-compile.log` on the Mac;
+copies are under local `artifacts/uno-feasibility/mac-20261021/`. This is diagnostic
+evidence of the API boundary, not an additional sample acceptance requirement.
+
+Simply changing the wrapper's visibility would be insufficient: its handle
+setter is internal, and the native host expects an Uno-specific
+`UNONativeElement` peer with parent and disposal behavior, not an arbitrary
+`NSView`. Ownership must also distinguish detachment from final destruction.
+The related upstream [reparenting issue #24172](https://github.com/unoplatform/uno/issues/24172)
+and [native-peer fix #24112](https://github.com/unoplatform/uno/pull/24112) describe
+that lifecycle concern; the inspected current source contains lifetime fixes but
+still lacks the public wrapper API.
+
+The concrete upstream request below is prepared for review, not posted. A
+maintained Uno fork would be a separate dependency/maintenance decision; no fork,
+private API access, reflection integration or dependency change was introduced.
+
+##### Draft upstream request: public AppKit view embedding for Skia macOS
+
+**Problem:** A third-party control library cannot place an adapter-owned AppKit
+view, such as a button or PDFKit `PDFView`, inside a Uno `ContentControl` on
+macOS. Equivalent public native wrappers exist on Windows and X11. On stable
+Uno.Sdk 6.7.30 / Uno.WinUI 6.7.135, even referencing the macOS wrapper or the
+hosting extension contract fails to compile:
+
+```csharp
+public static class HostingRepro
+{
+    public static System.Type Wrapper =>
+        typeof(Uno.UI.Runtime.Skia.MacOS.MacOSNativeElement); // CS0122
+    public static System.Type Extension =>
+        typeof(Microsoft.UI.Xaml.Controls.ContentPresenter.INativeElementHostingExtension); // CS0122
+}
+```
+
+Reproduce in a `net10.0` class library referencing the `Uno*.dll` files from a
+built Uno macOS desktop sample. On our ARM64 Mac, both expressions fail with
+"inaccessible due to its protection level"; the sample's native messaging calls
+work, isolating this from transport initialization.
+
+**Requested API:** A supported public macOS wrapper/factory accepting an AppKit
+view handle and defining ownership, analogous to the existing native wrappers.
+Uno should supply the native container/peer that participates in its rendering
+hierarchy, layout and clipping. Third-party adapters should not need to implement
+Uno's private Objective-C protocol or register a replacement global host.
+Define UI-thread creation/disposal, whether the supplied view is borrowed or
+retained, and when final release occurs. Detach/reparent must not destroy a peer
+that can be reattached. The adapter must be able to release callbacks and destroy
+its own view deterministically after detachment without double release.
+
+**Validation scope:** Reuse our existing MAUI/Avalonia sample scenarios: two
+independent native views, layout/clipping, callbacks, detach/reconnect,
+unload/reload and cleanup; then native PDF open, navigation, zoom, independent
+viewers and lifecycle. No new certification gates are requested.
+
+**Consumer impact:** Once a supported API exists, NativeChannels can implement
+the AppKit/PDFKit adapters behind its optional Uno host. Consumers should keep
+using the plugin API without private Uno workarounds. Until then, macOS native
+view/PDF support remains unavailable; the three messaging plugins are separately
+validated.
+
 ### Windows native-view probe
 
 Update on October 20: the attachment failure was traced to the probe adapter's
