@@ -1,19 +1,23 @@
-#if IOS
+#if IOS || ANDROID
 using Microsoft.UI.Dispatching;
 using NativeChannels;
 
 namespace Plugin.Uno.PdfViewer;
 
-internal sealed class ApplePdfView : IUnoNativeView
+internal sealed class MobilePdfView : IUnoNativeView
 {
     private readonly ChannelService _channels;
+#if ANDROID
+    private readonly NativeChannels.Native.Android.NativeViewHost _view;
+#else
     private readonly NativeChannels.Native.Apple.NativeViewHost _view;
+#endif
     private bool _destroyed;
     public object NativeElement { get; }
     public MethodChannel Channel { get; }
     public string InstanceId { get; }
 
-    public ApplePdfView(string identity)
+    public MobilePdfView(string identity)
     {
         var dispatcher = new UnoChannelDispatcher(DispatcherQueue.GetForCurrentThread());
         dispatcher.VerifyAccess();
@@ -28,6 +32,9 @@ internal sealed class ApplePdfView : IUnoNativeView
         {
             _view = transport.CreateView(
                 new("dev.nativechannels.pdf.PdfViewFactory", "MCPdfViewFactory", "MauiPdfViewerNative"),
+#if ANDROID
+                global::Android.App.Application.Context,
+#endif
                 identity,
                 Channel.Name,
                 StandardMessageCodec.Instance.Encode(null).ToArray()

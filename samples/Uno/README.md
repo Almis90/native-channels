@@ -12,11 +12,11 @@ code in `Shared`. They pin Uno SDK 6.7.30 and the local NativeChannels
 | VolumeMonitor | Start/stop observing the output volume without changing it | Initial native reading and subscription disposal |
 | PdfViewer | Open local PDFs in a native Windows view; page, zoom, pan, reconnect and close | Real Windows.Data.Pdf page pixels, page/zoom changes, invalid input, reconnect and pending-request cleanup |
 
-The PDF app now renders through Windows.Data.Pdf into a native Win32 child window.
-The separate protocol-fixture button tests managed contracts only. Other platforms
-do not yet have bundled PDF adapters.
-Interop's native controls are Windows-only diagnostics; successful channel
-connectivity is not evidence of native attachment, rendering or input.
+The PDF app renders through Windows.Data.Pdf on Windows, PDFKit on iOS, and
+PdfRenderer on Android. The separate protocol-fixture button tests managed
+contracts only. Interop uses the shared native method/view verifiers on iOS and
+Android; its extra Windows controls remain desktop diagnostics. Successful
+channel connectivity alone does not establish native rendering or physical input.
 
 ## Build and run
 
@@ -109,6 +109,29 @@ MAUI's PDF verifier unchanged apart from framework aliases. It checks document
 loading, navigation, zoom, UI callbacks, independent viewers, native errors,
 detach/reconnect and pending-work cleanup. This does not establish physical
 input or visual rendering acceptance.
+
+The Android runner builds the existing Kotlin adapters and fresh local packages,
+then runs the same shared verifiers on one explicit device or emulator:
+
+```powershell
+python eng/verify-uno-android.py --sample Currency --dotnet .tools/dotnet/dotnet.exe --device emulator-5554 --android-sdk .tools/android-sdk --java-sdk .tools/android-jdk/jdk-21.0.12.1+1 --reuse-external-cache /absolute/path/to/nuget/packages
+```
+
+Repeat with `Interop`, `AudioStreamer`, `VolumeMonitor` and `PdfViewer`. The
+samples require API 24, except AudioStreamer which requires API 31, matching
+the existing MAUI/Avalonia adapters. The
+runner selects ARM64 or x64 from the device ABI, embeds the managed assemblies
+in the Debug APK, and enables verification only for that build. It records
+package/APK hashes, restored package provenance, results and process logs under
+`artifacts/uno-android/<run>/`. Interactive builds do not auto-run verification.
+
+All five passed on the API 36 x64 emulator on October 21, 2026. Interop runs the
+existing native method/message/event suite and native-view suite, including 32
+reconnects. PDF runs the same shared document/navigation/zoom/lifecycle checks
+as iOS. Currency, AudioStreamer and VolumeMonitor keep their existing shared
+verifiers. No additional scenarios or Uno source patch were needed. These are
+Debug emulator results; ARM64/physical-device input, audible playback, hardware
+volume changes, visual acceptance and release packaging remain unverified.
 
 The projects include Android, iOS, browser and desktop heads (desktop covers
 Windows, Linux and macOS). Those heads are not a six-platform support claim.

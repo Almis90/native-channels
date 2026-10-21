@@ -28,7 +28,7 @@
     <PropertyGroup Condition="'$(TargetFramework)' == 'net10.0-desktop'">
         <DefineConstants>$(DefineConstants);SAMPLE_DESKTOP</DefineConstants>
     </PropertyGroup>
-    <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">
+    <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios' Or $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
         <Compile Include="../../Maui/PdfViewer/PdfVerification.cs" Link="PdfVerification.cs" />
         <EmbeddedResource
             Include="../../Maui/PdfViewer/Resources/Raw/nativechannels-guide.pdf"

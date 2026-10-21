@@ -13,8 +13,8 @@ public sealed partial class PdfViewer : ContentControl, IAsyncDisposable
 
     public static IUnoNativeView CreateNativeView(string instanceId)
     {
-#if IOS
-        return new ApplePdfView(instanceId);
+#if IOS || ANDROID
+        return new MobilePdfView(instanceId);
 #else
         if (!OperatingSystem.IsWindowsVersionAtLeast(10, 0, 17763))
             throw new PlatformNotSupportedException(
@@ -24,7 +24,7 @@ public sealed partial class PdfViewer : ContentControl, IAsyncDisposable
 #endif
     }
 
-#if !IOS
+#if !IOS && !ANDROID
     // Keep Windows projection types out of the JIT path on other Uno backends.
     [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.NoInlining)]
     [System.Runtime.Versioning.SupportedOSPlatform("windows10.0.17763")]

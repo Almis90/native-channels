@@ -82,7 +82,11 @@ internal sealed class MobileButtonView :
         try
         {
 #if ANDROID
+#if UNO_SAMPLE
+            var context = global::Android.App.Application.Context;
+#else
             var context = (parent as AndroidViewControlHandle)?.View.Context ?? global::Android.App.Application.Context;
+#endif
             _view = transport.CreateView(
                 factory,
                 context,
@@ -90,7 +94,11 @@ internal sealed class MobileButtonView :
                 Channel.Name,
                 new JsonMessageCodec().Encode(new Dictionary<string, object?> { ["title"] = title }).ToArray()
             );
+#if UNO_SAMPLE
+            NativeElement = _view.View!;
+#else
             Handle = new AndroidViewControlHandle(_view.View!);
+#endif
 #else
             _view = transport.CreateView(
                 factory,

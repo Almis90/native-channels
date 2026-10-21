@@ -7,10 +7,11 @@
             >15.0</SupportedOSPlatformVersion>
         <Version>0.1.0-alpha.1</Version>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-        <DefineConstants Condition="'$(NativeChannelsAppleTarget)' != 'ios'"
+        <DefineConstants
+            Condition="'$(NativeChannelsAppleTarget)' != 'ios' And '$(NativeChannelsAndroidOnly)' != 'true'"
             >$(DefineConstants);UNO_WINDOWS_PDF</DefineConstants>
         <WindowsPdfSdkVersion>10.0.19041.57</WindowsPdfSdkVersion>
-        <Description>Uno Skia PDF control with Windows.Data.Pdf and iOS PDFKit native renderers and custom adapter lifecycle.</Description>
+        <Description>Uno Skia PDF control with Windows.Data.Pdf, iOS PDFKit and Android PdfRenderer native backends and custom adapter lifecycle.</Description>
     </PropertyGroup>
     <PropertyGroup Condition="'$(NativeChannelsAppleTarget)' == 'ios'">
         <!-- Match the optional Uno host's Skia UI with the iOS native transport. -->
@@ -21,7 +22,7 @@
         <PackageReference Include="NativeChannels.Uno" />
         <PackageReference Include="NativeChannels" />
     </ItemGroup>
-    <ItemGroup Condition="'$(NativeChannelsAppleTarget)' != 'ios'">
+    <ItemGroup Condition="'$(NativeChannelsAppleTarget)' != 'ios' And '$(NativeChannelsAndroidOnly)' != 'true'">
         <PackageReference Include="System.Drawing.Common" />
         <!-- Private projection: Uno defines its own Windows.* types. Compile with
              an alias and ship SDK runtime assemblies only for Windows consumers. -->
@@ -79,4 +80,28 @@
         <None Remove="$(MSBuildThisFileDirectory)../../../../README.md" />
         <None Include="../../README.md" Pack="true" PackagePath="/README.md" />
     </ItemGroup>
+    <PropertyGroup Condition="'$(NativeChannelsAndroidOnly)' == 'true'">
+        <TargetFramework>net10.0-android</TargetFramework>
+        <SupportedOSPlatformVersion>24</SupportedOSPlatformVersion>
+        <UnoUIRuntimeIdentifier>Skia</UnoUIRuntimeIdentifier>
+        <UnoWinRTRuntimeIdentifier>Android</UnoWinRTRuntimeIdentifier>
+    </PropertyGroup>
+    <ItemGroup Condition="'$(NativeChannelsAndroidOnly)' == 'true'">
+        <Compile Remove="WindowsPdfImports.cs" />
+        <None
+            Include="../../../Plugin.Maui.PdfViewer/native/android/build/outputs/aar/pdf-release.aar"
+            Pack="true"
+            PackagePath="native/android/pdf.aar"
+        />
+    </ItemGroup>
+    <Target
+        Name="ValidateAndroidPdfAssets"
+        BeforeTargets="GenerateNuspec"
+        Condition="'$(NativeChannelsAndroidOnly)' == 'true'"
+    >
+        <Error
+            Condition="!Exists('../../../Plugin.Maui.PdfViewer/native/android/build/outputs/aar/pdf-release.aar')"
+            Text="Build the Android PDF adapter before packing."
+        />
+    </Target>
 </Project>

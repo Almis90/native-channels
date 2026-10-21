@@ -732,9 +732,45 @@ packaging remain outstanding.
 3. Establish a supported macOS native-element extension path against this pinned
    release, or identify the upstream change needed. Do not silently reduce the
    six-target native-view acceptance requirement.
-4. Complete Android, iOS, Linux and browser method/control probes with fresh
-   package feeds and real runtimes. Record each backend, architecture, package
+4. Complete Linux/browser probes and remaining mobile runtime acceptance with fresh
+   package feeds. Record each backend, architecture, package
    hash and execution result separately.
+
+#### Android validation: October 21, 2026
+
+All five Uno apps passed their existing shared MAUI/Avalonia verifiers on the
+API 36 x64 emulator with fresh local Android packages. The native Kotlin
+implementations and verifier assertions are unchanged. Interop links the
+existing Android sample AAR and native-view adapter; PDF reuses the shared
+PdfRenderer AAR through the thin mobile Uno adapter. No Uno source patch or
+consumer workaround was needed.
+
+The Uno templates needed API 24 generally and API 31 for AudioStreamer, matching
+the existing adapters and MAUI/Avalonia samples. The runner also needed to wait
+for activity startup before collecting its process ID. Currency's first launch
+attempt was interrupted by that runner timing error; the same built APK passed
+after the runner fix. Its successful result is retained separately from the
+failed launch report.
+
+Evidence under `artifacts/uno-android/`:
+
+| Sample | Run | Result file |
+| --- | --- | --- |
+| Currency | `ec4fbc93ad304d21b234e7436ece2809` | `runtime-retry.json` |
+| Interop | `281da44c2ab646e095718964c072f012` | `summary.json` |
+| PdfViewer | `3dac870fb6bf4c6e876d33ff1c5b8761` | `summary.json` |
+| AudioStreamer | `7c7f035eeef445ed8854d96261ac5706` | `summary.json` |
+| VolumeMonitor | `fa221d81023b440ea0beebff87a22310` | `summary.json` |
+
+Reports retain package/APK hashes, package provenance and source status. Builds
+used the working-tree changes recorded in each report. All five app builds had
+zero warnings/errors; Android binding packaging emitted BG8605/BG8606 warnings.
+The PDF package audit confirms an Android assembly and native PDF AAR without
+MAUI/Avalonia dependencies or Windows projection DLLs. Windows PDF plugin and
+Interop sample builds also passed with zero warnings/errors after these changes.
+This covers Debug x64 emulator execution only. Physical-device/ARM64, visual
+and input acceptance, audible playback, hardware volume changes, actual OS
+background transitions and combined release packaging remain outstanding.
 
 Keep full native-view/PDF and release acceptance gated on these findings.
 No runtime support is inferred from template generation or source inspection.

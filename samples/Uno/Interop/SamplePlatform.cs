@@ -12,7 +12,7 @@ internal static class SamplePlatform
 {
     public static NativeModuleRegistration CreateModule()
     {
-#if IOS
+#if IOS || ANDROID
         return new("dev.nativechannels.sample.SampleModule", "MCSampleModule", "NativeChannelsSample");
 #else
         if (!OperatingSystem.IsWindows())

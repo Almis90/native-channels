@@ -3,9 +3,9 @@ namespace UnoSamples;
 internal sealed partial class SamplePage
 {
     private const string Title = "Interop";
-#if IOS
+#if IOS || ANDROID
     private const string Limitation =
-        "iOS UIKit native methods and views use the shared MAUI/Avalonia checks; physical-device input remains unverified.";
+        "Mobile native methods and views use the shared MAUI/Avalonia checks; physical-device input remains unverified.";
 #else
     private const string Limitation =
         "Windows native parenting, layout, focus and direct input-message checks; physical input and visual fidelity remain unverified. Other platforms pending.";
@@ -62,11 +62,11 @@ internal sealed partial class SamplePage
             throw new InvalidOperationException("Restart the app to repeat the application registration checks.");
         _ran = true;
         await StopAsync();
-#if !IOS
+#if !IOS && !ANDROID
         await UnoFeasibility.HostProbe.RunAsync(_window, _surface);
 #endif
-#if SAMPLE_DESKTOP || IOS
-        if (OperatingSystem.IsWindows() || OperatingSystem.IsIOS())
+#if SAMPLE_DESKTOP || IOS || ANDROID
+        if (OperatingSystem.IsWindows() || OperatingSystem.IsIOS() || OperatingSystem.IsAndroid())
         {
             ChannelExplorer.SampleThread.Dispatcher = new NativeChannels.UnoChannelDispatcher(DispatcherQueue);
             var session = Session(services =>

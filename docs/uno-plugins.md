@@ -56,10 +56,12 @@ and reconnect/disposal behavior. Its default constructor now uses a bundled
 Windows.Data.Pdf renderer inside an Uno-hosted Win32 child window. The Windows
 sample tests real page pixels, page/zoom changes, errors and lifecycle. Custom
 `IUnoNativeView` factories remain supported. macOS lacks the required public
-embedding API; Android, Linux and browser adapters still need integration.
+embedding API; Linux and browser adapters still need integration.
 On iOS with Skia, the default factory uses the existing PDFKit UIKit backend.
 The simulator sample runs MAUI's unchanged PDF assertions against two viewers;
 no MAUI package, Uno patch or consumer workaround is required.
+The Android factory similarly reuses the shared Android PdfRenderer adapter,
+packaged as an AAR with `NativeChannelsAndroidOnly=true`.
 
 Run the current native PDF check with:
 

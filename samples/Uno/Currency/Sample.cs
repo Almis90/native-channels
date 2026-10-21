@@ -6,7 +6,8 @@ namespace UnoSamples;
 internal sealed partial class SamplePage
 {
     private const string Title = "Currency";
-    private const string Limitation = "Windows, macOS ARM64 desktop and iOS ARM64 simulator verified; other targets pending.";
+    private const string Limitation =
+        "Windows, macOS ARM64 desktop, iOS ARM64 simulator and Android x64 emulator verified; other targets pending.";
     private readonly TextBox _code = new() { Header = "ISO currency code", Text = "EUR" };
 
     private ICurrencyService Currency =>

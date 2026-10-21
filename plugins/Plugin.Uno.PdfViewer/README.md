@@ -3,7 +3,8 @@
 `new PdfViewer()` now uses Windows.Data.Pdf inside an Uno-hosted Win32 child
 window on Windows 10 1809 or later. It reuses the document/rendering source from
 the existing Windows PDF implementations, with Uno dispatch and lifecycle.
-On iOS with Uno's Skia renderer it reuses the existing PDFKit UIKit backend.
+On iOS with Uno's Skia renderer it reuses the existing PDFKit UIKit backend;
+on Android it reuses the existing Android PdfRenderer backend.
 No MAUI or Avalonia package is required.
 
 ```csharp
@@ -26,7 +27,7 @@ channels and late results are rejected.
 
 The custom `PdfViewer(Func<string, IUnoNativeView>)` constructor remains available.
 `CreateNativeView(instanceId)` exposes the default factory for composition and
-testing. Platforms other than Windows and iOS require a custom adapter and fail
+testing. Platforms other than Windows, iOS and Android require a custom adapter and fail
 explicitly otherwise.
 `OpenBytesAsync` remains browser-only. StateChanged reports command results and
 UI-dispatched adapter callbacks; the Windows pointer gestures pan the page locally.
@@ -74,6 +75,13 @@ workaround is required. Build the shared native backend with
 `NativeChannelsAppleTarget=ios`; the iOS runner automates both steps.
 Physical-device input and visual acceptance remain unverified.
 
-macOS remains blocked by Uno's public embedding API; Linux, Android and
+For Android, build `:pdf:assembleRelease` with `native/android/gradlew` and pack
+with `NativeChannelsAndroidOnly=true`. The package includes the shared PDF AAR
+and selects Uno's Skia UI assets with Android runtime types. The Android runner
+automates native build, packaging and the shared PDF verifier.
+The same PDF verifier passed on the API 36 x64 emulator; physical-device input
+and visual acceptance remain unverified.
+
+macOS remains blocked by Uno's public embedding API; Linux and
 browser adapters are still pending. The separate managed protocol fixture is
 not counted as native rendering evidence.

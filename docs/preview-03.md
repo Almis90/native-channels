@@ -18,7 +18,7 @@ these packages from a public feed expecting the behavior described here.
 | `NativeChannels` | Platform transports and shared native module registration |
 | `NativeChannels.Uno` | Optional Uno startup, per-window sessions, UI dispatch and experimental view lifecycle |
 | `Plugin.Currency`, `Plugin.AudioStreamer`, `Plugin.VolumeMonitor` | Shared messaging plugins; no dependency on a UI host |
-| `Plugin.Uno.PdfViewer` | Uno PDF control with Windows.Data.Pdf and iOS PDFKit renderers; custom factories remain supported |
+| `Plugin.Uno.PdfViewer` | Uno PDF control with Windows.Data.Pdf, iOS PDFKit and Android PdfRenderer backends; custom factories remain supported |
 
 The desktop transport selects Windows, Linux or macOS at runtime. The macOS
 plain-.NET bridge stays in the transport/native layer. It does not belong in
@@ -36,7 +36,7 @@ and the [sample instructions](../samples/Uno/README.md).
 | Windows | Five package-only apps pass bounded smoke checks; real Currency, silent audio and volume plugins execute. Corrected button adapters pass native checks; Windows PDF painting, page/zoom, invalid-input and cleanup checks also pass | Visible review and physical input, broader PDF/document/lifecycle coverage and audible playback checks |
 | macOS | Earlier ARM64 transport and native contract probe; x64 native libraries cross-compile | Full five-app execution, shared plugin runtime, public native-view hosting path and PDF integration |
 | Linux | Earlier portable transport selection/method/disposal test in an Ubuntu VM | Five Uno app executions, native plugin packaging and view/PDF integration |
-| Android | Sample heads exist | Uno package integration, native method/view probes and five-app device/emulator execution |
+| Android | All five package-only apps pass existing MAUI/Avalonia shared verifiers on an API 36 x64 emulator, including native Interop views and PdfRenderer | ARM64/physical-device behavior, visual/input acceptance and release packaging remain unverified |
 | iOS | All five apps pass shared verifiers on an ARM64 iPhone simulator, including Interop native methods/UIKit views and PDFKit document/navigation/zoom/lifecycle checks | Physical-device behavior and release packaging remain unverified |
 | Browser | Sample heads exist | Uno transport/assets integration, DOM/PDF hosting and five-app browser execution |
 
@@ -105,10 +105,10 @@ the original failure's cause has not been conclusively reproduced. See
 - Establish a public supported macOS native embedding path. The pinned Uno
   release exposes its arbitrary native-element wrapper internally; reflection,
   separate windows and rendered-image substitutes do not meet the planned contract.
-- Supply and verify Uno PDF adapters for the other five platforms. Windows native
-  painting and lifecycle checks now pass; physical input and broader visual/document
+- Supply and verify Uno PDF adapters for macOS, Linux and browser. Windows,
+  iOS and Android automated checks now pass; physical input and broader visual/document
   review remain outstanding. Protocol fixtures alone are insufficient.
-- Finish Android, iOS and browser transport/package integration and validate
+- Finish browser transport/package integration, combined mobile packaging, and validate
   desktop native assets for Linux and both macOS architectures.
 - Execute all five apps across all six platforms against one intended package
   candidate, recording backend, architecture, package hashes and lifecycle results.

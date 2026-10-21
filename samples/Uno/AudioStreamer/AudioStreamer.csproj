@@ -11,6 +11,9 @@
         <ApplicationDisplayVersion>0.3.0</ApplicationDisplayVersion>
         <ApplicationVersion>1</ApplicationVersion>
         <ApplicationPublisher>NativeChannels</ApplicationPublisher>
+        <SupportedOSPlatformVersion
+            Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'"
+            >31</SupportedOSPlatformVersion>
     </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="NativeChannels" />
@@ -19,7 +22,13 @@
         <Compile Include="../Shared/App.cs" Link="App.xaml.cs" />
         <Compile Include="../Shared/SamplePage.cs" Link="SamplePage.cs" />
         <Compile Include="../../Maui/AudioStreamer/MusicGenerator.cs" Link="MusicGenerator.cs" />
-        <Compile Include="../../Maui/AudioStreamer/AudioVerification.cs" Link="AudioVerification.cs" />
-        <Compile Include="../../Avalonia/AudioStreamer/AvaloniaAudioVerification.cs" Link="HostAudioVerification.cs" />
+        <Compile
+            Include="../../Maui/AudioStreamer/AudioVerification.cs"
+            Link="AudioVerification.cs"
+        />
+        <Compile
+            Include="../../Avalonia/AudioStreamer/AvaloniaAudioVerification.cs"
+            Link="HostAudioVerification.cs"
+        />
     </ItemGroup>
 </Project>

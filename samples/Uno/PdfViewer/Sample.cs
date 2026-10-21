@@ -5,9 +5,9 @@ namespace UnoSamples;
 internal sealed partial class SamplePage
 {
     private const string Title = "PdfViewer";
-#if IOS
+#if IOS || ANDROID
     private const string Limitation =
-        "PDFKit UIKit views; simulator checks use the existing MAUI PDF verifier. Physical-device input remains unverified.";
+        "Native mobile PDF views; automated checks use the existing MAUI PDF verifier. Physical-device input remains unverified.";
 #else
     private const string Limitation =
         "Windows.Data.Pdf renders into a native HWND. Physical input/visual review and other platform adapters remain unverified.";
@@ -21,7 +21,7 @@ internal sealed partial class SamplePage
 
     private void Build()
     {
-#if IOS
+#if IOS || ANDROID
         PdfVerificationThread.Dispatcher = DispatcherQueue;
         using (
             var input =
@@ -43,9 +43,13 @@ internal sealed partial class SamplePage
             "Open PDF",
             async () =>
             {
-                if (!OperatingSystem.IsIOS() && !OperatingSystem.IsWindowsVersionAtLeast(10, 0, 17763))
+                if (
+                    !OperatingSystem.IsIOS()
+                    && !OperatingSystem.IsAndroid()
+                    && !OperatingSystem.IsWindowsVersionAtLeast(10, 0, 17763)
+                )
                     throw new PlatformNotSupportedException(
-                        "The bundled renderer requires iOS or Windows 10 1809 or later."
+                        "The bundled renderer requires Android, iOS or Windows 10 1809 or later."
                     );
                 if (_pdf is null)
                 {
@@ -127,7 +131,7 @@ internal sealed partial class SamplePage
 
     private async Task VerifyAsync()
     {
-#if IOS
+#if IOS || ANDROID
         await using var first = new PdfControl { Height = 240 };
         await using var second = new PdfControl { Height = 240 };
         _surface.Content = new StackPanel { Children = { first, second } };
@@ -165,7 +169,7 @@ internal sealed partial class SamplePage
     }
 }
 
-#if IOS
+#if IOS || ANDROID
 internal static class PdfVerificationThread
 {
     public static Microsoft.UI.Dispatching.DispatcherQueue Dispatcher { get; set; } = null!;
