@@ -79,4 +79,19 @@
             Bind="false"
         />
     </ItemGroup>
+    <PropertyGroup Condition="'$(NativeChannelsLinuxOnly)' == 'true'">
+        <DefineConstants>$(DefineConstants);UNO_LINUX_SAMPLE</DefineConstants>
+        <AssemblyName>NativeChannels.Interop.Uno</AssemblyName>
+    </PropertyGroup>
+    <ItemGroup Condition="'$(NativeChannelsLinuxOnly)' == 'true'">
+        <Compile
+            Include="../../../src/Shared.NativeViews/UnoLinuxNativeView.cs"
+            Link="UnoLinuxNativeView.cs"
+        />
+        <None
+            Include="../../../artifacts/native/linux-x64/libnc_sample.so"
+            Link="libnc_sample.so"
+            CopyToOutputDirectory="PreserveNewest"
+        />
+    </ItemGroup>
 </Project>

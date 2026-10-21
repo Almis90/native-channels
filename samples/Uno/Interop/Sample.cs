@@ -3,15 +3,15 @@ namespace UnoSamples;
 internal sealed partial class SamplePage
 {
     private const string Title = "Interop";
-#if IOS || ANDROID
+#if IOS || ANDROID || UNO_LINUX_SAMPLE
     private const string Limitation =
-        "Mobile native methods and views use the shared MAUI/Avalonia checks; physical-device input remains unverified.";
+        "Native methods and views use the shared MAUI/Avalonia checks; physical-device input remains unverified.";
 #else
     private const string Limitation =
         "Windows native parenting, layout, focus and direct input-message checks; physical input and visual fidelity remain unverified. Other platforms pending.";
 #endif
     private bool _ran;
-#if SAMPLE_DESKTOP
+#if SAMPLE_DESKTOP && !UNO_LINUX_SAMPLE
     private NativeButtons? _buttons;
 #endif
 
@@ -28,7 +28,7 @@ internal sealed partial class SamplePage
                     + Limitation;
             }
         );
-#if SAMPLE_DESKTOP
+#if SAMPLE_DESKTOP && !UNO_LINUX_SAMPLE
         Button(
             "Show two native Windows controls",
             async () =>
@@ -62,11 +62,16 @@ internal sealed partial class SamplePage
             throw new InvalidOperationException("Restart the app to repeat the application registration checks.");
         _ran = true;
         await StopAsync();
-#if !IOS && !ANDROID
+#if !IOS && !ANDROID && !UNO_LINUX_SAMPLE
         await UnoFeasibility.HostProbe.RunAsync(_window, _surface);
 #endif
 #if SAMPLE_DESKTOP || IOS || ANDROID
-        if (OperatingSystem.IsWindows() || OperatingSystem.IsIOS() || OperatingSystem.IsAndroid())
+        if (
+            OperatingSystem.IsWindows()
+            || OperatingSystem.IsIOS()
+            || OperatingSystem.IsAndroid()
+            || OperatingSystem.IsLinux()
+        )
         {
             ChannelExplorer.SampleThread.Dispatcher = new NativeChannels.UnoChannelDispatcher(DispatcherQueue);
             var session = Session(services =>
@@ -89,7 +94,7 @@ internal sealed partial class SamplePage
                 await parityViews.DisconnectAsync();
                 _surface.Content = null;
             }
-#if SAMPLE_DESKTOP
+#if SAMPLE_DESKTOP && !UNO_LINUX_SAMPLE
             _buttons = new NativeButtons();
             _surface.Content = _buttons.Panel;
             try
@@ -107,7 +112,7 @@ internal sealed partial class SamplePage
 
     public async Task StopAsync()
     {
-#if SAMPLE_DESKTOP
+#if SAMPLE_DESKTOP && !UNO_LINUX_SAMPLE
         if (_buttons is not null)
             await _buttons.DisposeAsync();
         _buttons = null;

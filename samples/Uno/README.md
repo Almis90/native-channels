@@ -133,12 +133,33 @@ verifiers. No additional scenarios or Uno source patch were needed. These are
 Debug emulator results; ARM64/physical-device input, audible playback, hardware
 volume changes, visual acceptance and release packaging remain unverified.
 
+The Linux x64 runner builds the existing native adapters and fresh local packages,
+then runs the shared verifiers through Uno's X11 backend:
+
+```sh
+xvfb-run -a python3 eng/verify-uno-linux.py --display-kind xvfb --sample Currency --dotnet /absolute/path/to/dotnet --reuse-external-cache /absolute/path/to/nuget/packages
+```
+
+Repeat for `Interop`, `AudioStreamer`, `VolumeMonitor` and `PdfViewer`. Run PDF
+with both `--pdf-backend Qt` (default) and `--pdf-backend Gtk`, matching Avalonia's
+existing Linux variants. On a desktop X11 session, omit `xvfb-run` and use
+`--display-kind desktop`. Install the dependencies required by
+`eng/build-linux-native.sh`; audio and volume also require a running audio server.
+The runner disables optional Hot Design tooling, retains package hashes and
+provenance, and requires the shared result plus clean process exit. Evidence is
+under `artifacts/uno-linux/<run>/`. Xvfb and a null audio sink only establish
+automated execution, not visual, physical-input or audible acceptance.
+All five samples, including both PDF variants, passed on Ubuntu 24.04 x64
+X11/Xvfb on October 22, 2026. No verifier assertions or native implementations
+were changed; no Uno source patch was needed.
+
 The projects include Android, iOS, browser and desktop heads (desktop covers
 Windows, Linux and macOS). Those heads are not a six-platform support claim.
 The local preview feed built above contains desktop assets; mobile/browser
 packaging and runtime checks remain necessary before those targets are usable.
 macOS needs the native dylibs and has no public arbitrary native-view embedding
-API in the pinned Uno version. Linux needs its native plugin assets.
+API in the pinned Uno version. Linux builds require its native plugin assets
+and system libraries.
 
 Step 5 remains partial until native PDF adapters and native views work on all targets,
 and all five apps have run on all six platforms. Windows native parenting,

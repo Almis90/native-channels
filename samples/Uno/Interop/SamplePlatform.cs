@@ -12,7 +12,26 @@ internal static class SamplePlatform
 {
     public static NativeModuleRegistration CreateModule()
     {
-#if IOS || ANDROID
+#if UNO_LINUX_SAMPLE
+        return new("", "")
+        {
+            LinuxFactory = () =>
+                new LinuxNativeModule(
+                    "nc_sample",
+                    typeof(SamplePlatform).Assembly,
+                    ["sample", "sample.ui"],
+                    eventChannels: ["sample.events"],
+                    dispatcher: SampleThread.Dispatcher.DispatchAsync,
+                    rawChannels:
+                    [
+                        "sample.messages.json",
+                        "sample.messages.string",
+                        "sample.messages.binary",
+                        "sample.messages.standard",
+                    ]
+                ),
+        };
+#elif IOS || ANDROID
         return new("dev.nativechannels.sample.SampleModule", "MCSampleModule", "NativeChannelsSample");
 #else
         if (!OperatingSystem.IsWindows())

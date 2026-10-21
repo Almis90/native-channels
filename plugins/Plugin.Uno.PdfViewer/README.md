@@ -5,6 +5,8 @@ window on Windows 10 1809 or later. It reuses the document/rendering source from
 the existing Windows PDF implementations, with Uno dispatch and lifecycle.
 On iOS with Uno's Skia renderer it reuses the existing PDFKit UIKit backend;
 on Android it reuses the existing Android PdfRenderer backend.
+On Linux X11 it reuses the existing Qt/GTK native backends through Uno's public
+`X11NativeWindow` wrapper.
 No MAUI or Avalonia package is required.
 
 ```csharp
@@ -27,7 +29,7 @@ channels and late results are rejected.
 
 The custom `PdfViewer(Func<string, IUnoNativeView>)` constructor remains available.
 `CreateNativeView(instanceId)` exposes the default factory for composition and
-testing. Platforms other than Windows, iOS and Android require a custom adapter and fail
+testing. Platforms other than Windows, Linux X11, iOS and Android require a custom adapter and fail
 explicitly otherwise.
 `OpenBytesAsync` remains browser-only. StateChanged reports command results and
 UI-dispatched adapter callbacks; the Windows pointer gestures pan the page locally.
@@ -82,6 +84,14 @@ automates native build, packaging and the shared PDF verifier.
 The same PDF verifier passed on the API 36 x64 emulator; physical-device input
 and visual acceptance remain unverified.
 
-macOS remains blocked by Uno's public embedding API; Linux and
-browser adapters are still pending. The separate managed protocol fixture is
+For Linux x64, pack with `NativeChannelsLinuxOnly=true`. This builds and includes
+both existing native PDF libraries; install the Qt6 PDF/Widgets or GTK3/Poppler
+system dependencies for the backend you select. `PdfLinux.Backend` defaults to
+`LinuxPdfBackend.Qt`; set it to `LinuxPdfBackend.Gtk` before creating viewers to
+use GTK. This is the same choice exposed by the Avalonia adapter. Both passed
+the unchanged shared PDF verifier on Ubuntu 24.04 x64 X11/Xvfb; this does not
+establish visual rendering or physical-input acceptance.
+
+macOS remains blocked by Uno's public embedding API; the
+browser adapter is still pending. The separate managed protocol fixture is
 not counted as native rendering evidence.

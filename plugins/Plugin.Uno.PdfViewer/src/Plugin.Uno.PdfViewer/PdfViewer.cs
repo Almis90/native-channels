@@ -13,7 +13,13 @@ public sealed partial class PdfViewer : ContentControl, IAsyncDisposable
 
     public static IUnoNativeView CreateNativeView(string instanceId)
     {
-#if IOS || ANDROID
+#if UNO_LINUX_PDF
+        return new UnoLinuxNativeView(
+            PdfLinux.Backend == LinuxPdfBackend.Qt ? "nc_pdf_qt" : "nc_pdf_gtk",
+            typeof(PdfViewer).Assembly,
+            instanceId
+        );
+#elif IOS || ANDROID
         return new MobilePdfView(instanceId);
 #else
         if (!OperatingSystem.IsWindowsVersionAtLeast(10, 0, 17763))
@@ -24,7 +30,7 @@ public sealed partial class PdfViewer : ContentControl, IAsyncDisposable
 #endif
     }
 
-#if !IOS && !ANDROID
+#if !IOS && !ANDROID && !UNO_LINUX_PDF
     // Keep Windows projection types out of the JIT path on other Uno backends.
     [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.NoInlining)]
     [System.Runtime.Versioning.SupportedOSPlatform("windows10.0.17763")]

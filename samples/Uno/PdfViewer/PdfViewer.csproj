@@ -28,15 +28,21 @@
     <PropertyGroup Condition="'$(TargetFramework)' == 'net10.0-desktop'">
         <DefineConstants>$(DefineConstants);SAMPLE_DESKTOP</DefineConstants>
     </PropertyGroup>
-    <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios' Or $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
+    <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios' Or $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android' Or '$(NativeChannelsLinuxOnly)' == 'true'">
         <Compile Include="../../Maui/PdfViewer/PdfVerification.cs" Link="PdfVerification.cs" />
         <EmbeddedResource
             Include="../../Maui/PdfViewer/Resources/Raw/nativechannels-guide.pdf"
             LogicalName="Verification.pdf"
         />
     </ItemGroup>
-    <ItemGroup Condition="'$(TargetFramework)' != 'net10.0-desktop'">
+    <ItemGroup Condition="'$(TargetFramework)' != 'net10.0-desktop' Or '$(NativeChannelsLinuxOnly)' == 'true'">
         <Compile Remove="NativePdfProbe.cs" />
         <Compile Remove="PdfAccessibilityProbe.cs" />
     </ItemGroup>
+    <PropertyGroup Condition="'$(NativeChannelsLinuxOnly)' == 'true'">
+        <DefineConstants>$(DefineConstants);UNO_LINUX_SAMPLE</DefineConstants>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(UnoPdfBackend)' == 'Gtk'">
+        <DefineConstants>$(DefineConstants);PDF_GTK</DefineConstants>
+    </PropertyGroup>
 </Project>

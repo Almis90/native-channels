@@ -28,7 +28,17 @@ internal sealed class ViewVerification
 
     private static AvaloniaChannelView Create(string title) =>
 #if UNO_SAMPLE
-#if IOS || ANDROID
+#if UNO_LINUX_SAMPLE
+        new(id => new NativeChannels.UnoLinuxNativeView(
+            "nc_sample",
+            typeof(SamplePlatform).Assembly,
+            id,
+            new Dictionary<string, object?> { ["title"] = title }
+        ))
+        {
+            Height = 72,
+        };
+#elif IOS || ANDROID
         new(id => new MobileButtonView(id, title)) { Height = 72 };
 #else
         new(id => new WindowsButtonView(id, title)) { Height = 72 };

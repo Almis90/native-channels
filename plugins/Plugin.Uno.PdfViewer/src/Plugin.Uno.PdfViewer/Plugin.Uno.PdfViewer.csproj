@@ -8,10 +8,10 @@
         <Version>0.1.0-alpha.1</Version>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <DefineConstants
-            Condition="'$(NativeChannelsAppleTarget)' != 'ios' And '$(NativeChannelsAndroidOnly)' != 'true'"
+            Condition="'$(NativeChannelsAppleTarget)' != 'ios' And '$(NativeChannelsAndroidOnly)' != 'true' And '$(NativeChannelsLinuxOnly)' != 'true'"
             >$(DefineConstants);UNO_WINDOWS_PDF</DefineConstants>
         <WindowsPdfSdkVersion>10.0.19041.57</WindowsPdfSdkVersion>
-        <Description>Uno Skia PDF control with Windows.Data.Pdf, iOS PDFKit and Android PdfRenderer native backends and custom adapter lifecycle.</Description>
+        <Description>Uno Skia PDF control with Windows.Data.Pdf, iOS PDFKit, Android PdfRenderer and Linux X11 Qt/GTK native backends and custom adapter lifecycle.</Description>
     </PropertyGroup>
     <PropertyGroup Condition="'$(NativeChannelsAppleTarget)' == 'ios'">
         <!-- Match the optional Uno host's Skia UI with the iOS native transport. -->
@@ -22,7 +22,7 @@
         <PackageReference Include="NativeChannels.Uno" />
         <PackageReference Include="NativeChannels" />
     </ItemGroup>
-    <ItemGroup Condition="'$(NativeChannelsAppleTarget)' != 'ios' And '$(NativeChannelsAndroidOnly)' != 'true'">
+    <ItemGroup Condition="'$(NativeChannelsAppleTarget)' != 'ios' And '$(NativeChannelsAndroidOnly)' != 'true' And '$(NativeChannelsLinuxOnly)' != 'true'">
         <PackageReference Include="System.Drawing.Common" />
         <!-- Private projection: Uno defines its own Windows.* types. Compile with
              an alias and ship SDK runtime assemblies only for Windows consumers. -->
@@ -103,5 +103,27 @@
             Condition="!Exists('../../../Plugin.Maui.PdfViewer/native/android/build/outputs/aar/pdf-release.aar')"
             Text="Build the Android PDF adapter before packing."
         />
+    </Target>
+    <PropertyGroup Condition="'$(NativeChannelsLinuxOnly)' == 'true'">
+        <DefineConstants>$(DefineConstants);UNO_LINUX_PDF</DefineConstants>
+    </PropertyGroup>
+    <ItemGroup Condition="'$(NativeChannelsLinuxOnly)' == 'true'">
+        <Compile Remove="WindowsPdfImports.cs" />
+        <Compile
+            Include="../../../../src/Shared.NativeViews/UnoLinuxNativeView.cs"
+            Link="UnoLinuxNativeView.cs"
+        />
+        <None
+            Include="../../../../artifacts/native/linux-x64/libnc_pdf_qt.so;../../../../artifacts/native/linux-x64/libnc_pdf_gtk.so"
+            Pack="true"
+            PackagePath="runtimes/linux-x64/native/"
+        />
+    </ItemGroup>
+    <Target
+        Name="BuildLinuxPdf"
+        BeforeTargets="BeforeBuild;GenerateNuspec"
+        Condition="'$(NativeChannelsLinuxOnly)' == 'true'"
+    >
+        <Exec Command="bash &quot;$(MSBuildThisFileDirectory)../../../../eng/build-linux-native.sh&quot; pdf" />
     </Target>
 </Project>

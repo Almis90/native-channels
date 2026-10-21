@@ -774,3 +774,53 @@ background transitions and combined release packaging remain outstanding.
 
 Keep full native-view/PDF and release acceptance gated on these findings.
 No runtime support is inferred from template generation or source inspection.
+
+
+#### Linux validation: October 22, 2026
+
+The Linux x64 integration uses the existing native modules and unchanged shared
+MAUI/Avalonia assertions. Interop and PDF use a small shared Uno adapter that
+wraps each native X11 window in Uno's public `X11NativeWindow`, dispatches channel
+callbacks to the UI thread and polls the existing GTK/Qt event loop. The host
+package stays independent of the transport. No Uno source patch or consumer
+workaround is needed for this X11 integration.
+
+All five samples, including PDF with both Qt and GTK, passed their shared checks
+and normal shutdown on Ubuntu 24.04 x64 with Xvfb. Interop completed both shared
+verifiers, including 32 reconnects. Both PDF backends completed the same document,
+navigation, zoom, callback, isolation, error and detach/reconnect checks. Audio
+used ALSA through PulseAudio's `auto_null` sink. VolumeMonitor passed initial
+levels, independent subscriptions, cancellation and restart.
+
+Early Currency restore attempts exhausted the VM's 11 GiB root filesystem;
+those were build-environment failures, not plugin runtime failures. Removing old
+external NuGet caches resolved the space issue. The runner avoids duplicate HTTP
+caching and disables optional Uno Hot Design tooling. It builds fresh local
+packages and verifies restored package hashes/source before execution.
+
+The isolated VM checkout is a snapshot of repository commit `770e642`, with local
+snapshot commit `ce6ee0e6501b3209dc0e0229f528c6a59015fb29` plus the recorded Linux
+working-tree changes. Evidence retains that distinction; it is not a clean-source
+release-candidate run. Existing dirty VM checkouts were preserved.
+
+Evidence under `artifacts/uno-linux/`:
+
+| Sample | Run |
+| --- | --- |
+| Currency | `768118f469b64f85a5f8b1584e121e40` |
+| Interop | `d1b03ec06ca14fe8a94954aa635b8b9f` |
+| PdfViewer Qt | `903ce1ccbd8a48edb1ba9d05efa35b92` |
+| PdfViewer GTK | `bc71b352c1674a898f91b4f629e15ae9` |
+| AudioStreamer | `6b675525f7274d19b73aeb7300ecebd6` |
+| VolumeMonitor | `f4ad2e07ddf247ee9e252c8cf6c52009` |
+
+Each run retains `summary.json`, package hashes, restored assets and build/runtime
+logs. All six app builds completed with zero warnings/errors. The PDF package
+contains both Linux native libraries and no Windows projection DLLs or
+MAUI/Avalonia package dependencies. Windows PDF and Interop regression builds
+also passed with zero warnings/errors.
+
+These are Debug Linux x64 X11/Xvfb checks with a null audio sink. They do not
+establish visible rendering, physical input, audible playback, hardware volume
+changes, Wayland, other architectures or combined release packaging. Browser
+integration/execution and the separate macOS native-embedding blocker remain.
