@@ -7,7 +7,7 @@ internal sealed partial class SamplePage
 {
     private const string Title = "VolumeMonitor";
     private const string Limitation =
-        "Windows desktop subscriptions verified; hardware volume changes and other platforms pending.";
+        "Windows and macOS ARM64 desktop subscriptions verified; hardware volume changes and other platforms pending.";
     private readonly List<(CancellationTokenSource Stop, Task Run)> _listeners = [];
     private int _next;
     private IVolumeMonitor Volume =>

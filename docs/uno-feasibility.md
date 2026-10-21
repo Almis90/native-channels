@@ -136,6 +136,25 @@ Evidence is in `artifacts/uno-feasibility/audio-macos-*` on the Mac and copied t
 local `artifacts/uno-feasibility/mac-20261021/`. Next is VolumeMonitor on macOS
 with the existing shared subscription verifier.
 
+#### VolumeMonitor sample execution on macOS
+
+The ARM64 Uno VolumeMonitor app built with zero warnings/errors against the same
+native package feed and cache. The unchanged MAUI/Avalonia subscription verifier
+passed initial levels for two listeners, independent cancellation, and restart.
+The actual sample wrote `checks=passed` and exited normally with code 0 within
+the 45-second bound, including page/session disposal and window close.
+
+The limitation text now includes macOS ARM64 subscriptions. Hardware volume
+changes remain unverified, as stated by the shared verifier; no extra scenarios
+were added. Build/runtime logs and the result are retained as
+`artifacts/uno-feasibility/volume-macos-*` on the Mac and copied to local
+`artifacts/uno-feasibility/mac-20261021/`.
+
+Currency, AudioStreamer and VolumeMonitor have now executed their shared checks
+on macOS ARM64. Interop's native views and native PDF remain blocked by the
+missing public Uno macOS hosting API described above. The next macOS step is
+resolving that integration path before claiming all five samples pass.
+
 ### Windows native-view probe
 
 Update on October 20: the attachment failure was traced to the probe adapter's
