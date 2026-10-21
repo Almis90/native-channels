@@ -29,14 +29,8 @@ internal sealed partial class SamplePage
 
     private async Task VerifyAsync()
     {
-        Require(await Currency.GetSymbolAsync("EUR") == "€", "EUR symbol");
-        Require(!string.IsNullOrEmpty(await Currency.GetSymbolAsync("USD")), "USD symbol");
-        try
-        {
-            await Currency.GetSymbolAsync("ZZZ");
-            throw new InvalidOperationException("Expected unknown currency rejection");
-        }
-        catch (NativeChannels.ChannelException e) when (e.Code == "invalid_currency_code") { }
+        var result = await global::Currency.Verification.PluginVerification.RunAsync(Currency, _stopping.Token);
+        Console.WriteLine(result);
     }
 
     public Task StopAsync() => Task.CompletedTask;

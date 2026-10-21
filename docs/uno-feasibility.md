@@ -355,7 +355,18 @@ work disposal, reconnect, detach, unload/reload, stale channels, off-thread
 rejection, and 32 reconnect cycles. Existing Uno host and HWND regressions remain.
 These are existing sample scenarios, not new Uno acceptance requirements.
 Other Uno platforms are still unverified; this comparison establishes Windows
-coverage only. Currency is the next sample to compare.
+coverage only.
+
+### Currency parity: Windows
+
+Uno now links `samples/Currency.Shared/PluginVerification.cs`, the same verifier
+used by MAUI and Avalonia. It checks concurrent USD/EUR/GBP/JPY lookups, nonempty
+symbols, exact EUR, whitespace/case normalization, the unknown-code error's code,
+platform and details, invalid-length rejection, pre-cancellation and a successful
+lookup after cancellation. Uno selects the expected platform at runtime because
+its desktop target framework is shared across operating systems; assertions are
+unchanged. Windows execution is verified separately from the other pending Uno
+platforms. AudioStreamer is the next sample to compare.
 
 ### Windows keyboard and accessibility review (October 21, 2026)
 

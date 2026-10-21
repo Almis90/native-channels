@@ -7,7 +7,15 @@ internal static class PluginVerification
 {
     public static async Task<string> RunAsync(ICurrencyService currency, CancellationToken cancellationToken = default)
     {
-#if ANDROID
+#if UNO_SAMPLE
+        // Uno desktop uses one target framework for all three desktop hosts.
+        var platform =
+            OperatingSystem.IsWindows() ? "windows"
+            : OperatingSystem.IsLinux() ? "linux"
+            : OperatingSystem.IsAndroid() ? "android"
+            : OperatingSystem.IsBrowser() ? "browser"
+            : "apple";
+#elif ANDROID
         const string platform = "android";
 #elif WINDOWS
         const string platform = "windows";
