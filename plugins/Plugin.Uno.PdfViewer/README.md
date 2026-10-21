@@ -15,6 +15,8 @@ await pdf.SetZoomAsync(2);
 ```
 
 The viewer fits the page and supports 1x–4x zoom with dragging/wheel panning.
+The Windows adapter handles hit testing, drag focus and pointer capture internally;
+consumers do not need input-routing workarounds. Shift+wheel pans horizontally.
 Rendering uses the shared maximum page dimension of 1600 pixels; this is not a
 high-resolution print renderer. Invalid opens/pages preserve the previous
 state. Concurrent operations return `pdf_busy`. Await `DisposeAsync` before
@@ -43,7 +45,8 @@ retains its MIT license.
 ## Verification limits
 
 The Windows sample captures real HWND painting through WM_PRINTCLIENT and checks
-page/zoom pixel changes, invalid documents/pages, reconnect, stale channels and
+page/zoom and drag/wheel pixel changes, native hit testing, focus/capture,
+cancelled drags, invalid documents/pages, reconnect, stale channels and
 shutdown with a pending request. Capturing the native paint surface does not prove
 compositor visibility, physical input or every document's visual fidelity.
 macOS remains blocked by Uno's public embedding API; Linux, Android, iOS and

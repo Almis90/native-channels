@@ -37,6 +37,9 @@ internal static class NativePdfProbe
                 "parent excludes PDF child from software painting"
             );
             Require(GetWindowRgnBox(handle, out _) != 1, "PDF HWND must not be clipped to an empty region");
+            Require(GetWindowRect(handle, out var bounds), "PDF screen bounds");
+            var hitPoint = Point(bounds.Left + 20, bounds.Top + 20);
+            Require(SendMessageW(handle, 0x0084, 0, hitPoint) == 1, "PDF accepts mouse hit testing (HTCLIENT)");
             using var first = Capture(handle);
             Require(HasInk(first), "native renderer produced page pixels");
             var result = Environment.GetEnvironmentVariable("NATIVECHANNELS_UNO_SAMPLE_RESULT");
@@ -50,6 +53,30 @@ internal static class NativePdfProbe
             await pdf.SetZoomAsync(2, timeout.Token);
             using var zoomed = Capture(handle);
             Require(Hash(zoomed) != Hash(second), "native zoom changes painting");
+            // Hit testing above exercises the routing prerequisite; these messages
+            // separately verify the native gesture handlers and rendered result.
+            SendMessageW(handle, 0x0200, 1, Point(120, 140));
+            using var noDrag = Capture(handle);
+            Require(Hash(noDrag) == Hash(zoomed), "mouse move without owned drag does not pan");
+            SendMessageW(handle, 0x0201, 1, Point(120, 100));
+            Require(GetCapture() == handle && GetFocus() == handle, "PDF drag owns capture and focus");
+            SendMessageW(handle, 0x0200, 1, Point(120, 140));
+            SendMessageW(handle, 0x0202, 0, Point(120, 140));
+            Require(GetCapture() != handle, "PDF releases drag capture");
+            using var dragged = Capture(handle);
+            Require(Hash(dragged) != Hash(zoomed), "drag changes native PDF pixels");
+            SendMessageW(handle, 0x020A, (nint)(120 << 16), hitPoint);
+            using var wheeled = Capture(handle);
+            Require(Hash(wheeled) != Hash(dragged), "wheel changes native PDF pixels");
+            SendMessageW(handle, 0x020A, (nint)((120 << 16) | 4), hitPoint);
+            using var shifted = Capture(handle);
+            Require(Hash(shifted) != Hash(wheeled), "shift-wheel pans horizontally");
+            SendMessageW(handle, 0x0201, 1, Point(120, 100));
+            SendMessageW(handle, 0x001F, 0, 0);
+            Require(GetCapture() != handle, "cancel mode releases drag capture");
+            SendMessageW(handle, 0x0200, 1, Point(120, 160));
+            using var cancelled = Capture(handle);
+            Require(Hash(cancelled) == Hash(shifted), "cancelled drag does not move page");
             try
             {
                 await pdf.GoToPageAsync(state.PageCount + 1, timeout.Token);
@@ -103,6 +130,17 @@ internal static class NativePdfProbe
             surface.Content = null;
         }
     }
+
+    [DllImport("user32.dll")]
+    private static extern nint GetCapture();
+
+    [DllImport("user32.dll")]
+    private static extern nint GetFocus();
+
+    private static nint Point(int x, int y) => (nint)((uint)(ushort)x | ((uint)(ushort)y << 16));
+
+    [DllImport("user32.dll")]
+    private static extern bool GetWindowRect(nint window, out Rect rect);
 
     private static Bitmap Capture(nint window)
     {

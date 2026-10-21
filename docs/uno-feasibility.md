@@ -254,8 +254,23 @@ Inputs were injected through the desktop computer-use tools, not by a person
 operating a physical mouse/keyboard.
 
 The blank-content blocker is resolved in the tested Windows software path.
-PDF drag/wheel attempts did not visibly pan the zoomed page in this review;
-input routing for those gestures still needs investigation. The interactive PDF
+PDF drag/wheel attempts initially did not visibly pan the zoomed page. The
+follow-up isolated this to our PDF adapter's `STATIC` HWND missing `SS_NOTIFY`:
+its default hit test returned `HTTRANSPARENT`, routing mouse input to the parent.
+The adapter now enables `SS_NOTIFY`, takes focus and capture on drag, and clears
+drag state on release, capture loss or cancellation. Consumers need no workaround.
+The new hit-test regression failed before the fix. Fresh-package run
+`artifacts/local-samples/uno/windows/20261021-122502-d57bb59f` passed PDF checks for
+hit testing, focus, drag, vertical/Shift-horizontal wheel pixel changes, capture
+release and cancelled drags. Desktop-tool input also visibly moved the zoomed
+page by dragging and scrolling; document removal still worked.
+
+That run passed all five builds and four smoke tests, but Interop failed its
+existing empty-clipping-region assertion. An isolated retry of the same binary
+passed (`artifacts/uno-feasibility/interop-input-followup.json`); the intermittent
+clipping failure remains unresolved and the full run is not recorded as passing.
+
+The interactive PDF
 window also remained open with disabled controls after Alt+F4 and was terminated
 for test cleanup; normal window-close handling still needs a separate fix. The
 bounded automated exit path passed and is not evidence for this interactive path.

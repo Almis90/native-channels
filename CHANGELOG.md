@@ -15,6 +15,8 @@
   shutdown hang in the pinned Uno runtime, reproduced by the VolumeMonitor sample.
 - Fixed Windows Uno software presentation overwriting native child controls by
   preparing parent clipping on native attachment and repainting the child.
+- Fixed Windows Uno PDF drag/wheel routing with native hit testing, drag focus
+  and capture handling; consumers need no gesture workaround.
 - All five Windows apps passed local checks. Interop now verifies real HWND
   attachment/layout/focus and direct input messages; PDF verifies native page
   painting, navigation/zoom, invalid input and reconnect/shutdown cleanup.

@@ -26,7 +26,8 @@ internal sealed class WindowsPdfView : IUnoNativeView
     private int _mouseX,
         _mouseY;
     private bool _closed,
-        _busy;
+        _busy,
+        _dragging;
     private TaskCompletionSource? _operation;
     private nint Handle { get; }
     public object NativeElement { get; }
@@ -61,7 +62,9 @@ internal sealed class WindowsPdfView : IUnoNativeView
             throw new System.ComponentModel.Win32Exception();
         }
         Handle = window;
-        if (SetWindowLongW(window, -16, 0x40010000) == 0) // WS_CHILD | WS_TABSTOP before Uno reparents.
+        // SS_NOTIFY makes the STATIC window return HTCLIENT instead of
+        // HTTRANSPARENT, allowing real pointer input to reach this subclass.
+        if (SetWindowLongW(window, -16, 0x40010100) == 0) // WS_CHILD | WS_TABSTOP | SS_NOTIFY
         {
             var error = Marshal.GetLastWin32Error();
             DestroyWindow(window);
@@ -180,11 +183,27 @@ internal sealed class WindowsPdfView : IUnoNativeView
         {
             _mouseX = (short)(long)lparam;
             _mouseY = (short)((long)lparam >> 16);
+            SetFocus(hwnd);
             SetCapture(hwnd);
+            _dragging = GetCapture() == hwnd;
+            return 0;
         }
-        if (message == 0x0202)
-            ReleaseCapture();
-        if (message == 0x0200 && (wparam & 1) != 0)
+        if (message == 0x0202 && _dragging)
+        {
+            _dragging = false;
+            if (GetCapture() == hwnd)
+                ReleaseCapture();
+            return 0;
+        }
+        if (message == 0x0215) // WM_CAPTURECHANGED: another window took the drag.
+            _dragging = false;
+        if (message == 0x001F) // WM_CANCELMODE
+        {
+            _dragging = false;
+            if (GetCapture() == hwnd)
+                ReleaseCapture();
+        }
+        if (message == 0x0200 && _dragging && (wparam & 1) != 0)
         {
             var x = (short)(long)lparam;
             var y = (short)((long)lparam >> 16);
@@ -193,6 +212,7 @@ internal sealed class WindowsPdfView : IUnoNativeView
             _mouseX = x;
             _mouseY = y;
             InvalidateRect(hwnd, 0, false);
+            return 0;
         }
         if (message == 0x020A)
         {
@@ -264,6 +284,9 @@ internal sealed class WindowsPdfView : IUnoNativeView
         if (_closed)
             return;
         _closed = true;
+        _dragging = false;
+        if (GetCapture() == Handle)
+            ReleaseCapture();
         _stopping.Cancel();
         SetWindowLongPtrW(Handle, -4, _original);
         DestroyWindow(Handle);
@@ -334,6 +357,12 @@ internal sealed class WindowsPdfView : IUnoNativeView
 
     [DllImport("user32")]
     private static extern bool DestroyWindow(nint window);
+
+    [DllImport("user32")]
+    private static extern nint SetFocus(nint window);
+
+    [DllImport("user32")]
+    private static extern nint GetCapture();
 
     [DllImport("user32")]
     private static extern nint SetCapture(nint window);
