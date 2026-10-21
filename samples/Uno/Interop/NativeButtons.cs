@@ -51,6 +51,10 @@ internal sealed class NativeButtons : IAsyncDisposable
             "native controls must not be clipped to empty regions"
         );
         Check(_adapters.Count == 2, "two adapters created");
+        Check(
+            _adapters.All(a => (GetWindowLongW(GetParent(a.Handle), -16) & 0x02000000) != 0),
+            "parent excludes child windows from software painting"
+        );
         var first = _adapters[0];
         var second = _adapters[1];
         Check(first.Handle != second.Handle, "independent native handles");
@@ -154,6 +158,9 @@ internal sealed class NativeButtons : IAsyncDisposable
             Right,
             Bottom;
     }
+
+    [DllImport("user32.dll")]
+    private static extern nint GetParent(nint window);
 
     [DllImport("user32.dll")]
     private static extern int GetWindowRgnBox(nint window, out Rect rect);

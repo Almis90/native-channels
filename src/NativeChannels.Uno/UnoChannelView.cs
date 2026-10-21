@@ -23,6 +23,7 @@ public sealed class UnoChannelView : ContentControl, IAsyncDisposable
     private Task _cleanup = Task.CompletedTask;
     private bool _disabled;
     private bool _disposed;
+    private nint _preparedWindow;
     public MethodChannel? Channel => _current?.Channel;
     public string? InstanceId => _current?.InstanceId;
     public event EventHandler? Connected;
@@ -34,6 +35,7 @@ public sealed class UnoChannelView : ContentControl, IAsyncDisposable
         Content = _presenter;
         Loaded += (_, _) => Attach();
         Unloaded += (_, _) => Release();
+        LayoutUpdated += (_, _) => PrepareWindowsParent();
     }
 
     private void VerifyAccess() => new UnoChannelDispatcher(DispatcherQueue).VerifyAccess();
@@ -52,6 +54,7 @@ public sealed class UnoChannelView : ContentControl, IAsyncDisposable
         try
         {
             _presenter.Content = view.NativeElement;
+            PrepareWindowsParent();
         }
         catch
         {
@@ -60,6 +63,18 @@ public sealed class UnoChannelView : ContentControl, IAsyncDisposable
         }
         // Connected means the adapter is assigned; it does not certify native parenting/input.
         Connected?.Invoke(this, EventArgs.Empty);
+    }
+
+    private void PrepareWindowsParent()
+    {
+        if (
+            !OperatingSystem.IsWindows()
+            || _current?.NativeElement is not global::Uno.UI.NativeElementHosting.Win32NativeWindow window
+            || _preparedWindow == window.Hwnd
+        )
+            return;
+        if (WindowsNativeViewClipping.Prepare(window.Hwnd))
+            _preparedWindow = window.Hwnd;
     }
 
     public void Reconnect()
@@ -84,6 +99,7 @@ public sealed class UnoChannelView : ContentControl, IAsyncDisposable
         VerifyAccess();
         var view = _current;
         _current = null;
+        _preparedWindow = 0;
         if (view is null)
             return;
         var errors = new List<Exception>();

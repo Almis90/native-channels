@@ -229,9 +229,38 @@ Application events 1000/1026). Relaunching with the repository `DOTNET_ROOT` ope
 the document without that crash during this review. Keep the runtime distinction
 explicit; the system-runtime crash has not been fixed or fully isolated.
 
-Next: isolate the blank native-content observation with an independent visible
-review, then verify clicks, keyboard focus, resize, PDF navigation/zoom and cleanup.
-No visual/input acceptance is claimed by this review.
+### Investigation and correction
+
+The follow-up isolated a parent-painting problem: child HWNDs had nonempty bounds
+and clipping regions, but the actual parent lacked `WS_CLIPCHILDREN`. Uno's
+software renderer blits into that parent DC and could erase the native pixels.
+Setting the flag on `GetParent(child)` and invalidating the child restored both
+controls in the same capture/input tool. This rules out capture alone as the cause.
+
+`UnoChannelView` now prepares the actual native parent after attachment (retrying
+on layout if Uno has not parented it yet), preserves existing style flags, and
+invalidates the child once. Reconnect resets the preparation state. The parent
+flag remains for the window lifetime because multiple native views share it.
+This uses public Uno wrappers and Win32 APIs, without changing the renderer or
+putting Windows behavior into the portable transport.
+
+Fresh package run `artifacts/local-samples/uno/windows/20261021-121359-c49811ee`
+passed all five builds and smoke tests, including new parent-style assertions in
+Interop and PDF. Visible review of those packaged binaries confirmed stable
+buttons, mouse toggling, second-control independence, reconnect and maximized
+layout. Space-key toggling was also confirmed in the diagnostic build. PDF
+showed the guide, page 2, zoom 1.5, reconnect/reopen and document removal correctly.
+Inputs were injected through the desktop computer-use tools, not by a person
+operating a physical mouse/keyboard.
+
+The blank-content blocker is resolved in the tested Windows software path.
+PDF drag/wheel attempts did not visibly pan the zoomed page in this review;
+input routing for those gestures still needs investigation. The interactive PDF
+window also remained open with disabled controls after Alt+F4 and was terminated
+for test cleanup; normal window-close handling still needs a separate fix. The
+bounded automated exit path passed and is not evidence for this interactive path.
+Broader physical
+input/accessibility, GPU rendering and other-platform acceptance remain open.
 
 ## Remaining gates
 

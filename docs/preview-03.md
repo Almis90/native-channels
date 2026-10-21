@@ -81,11 +81,12 @@ smoke checks record full acceptance as `blocked`. Add `--require-acceptance` to
 make incomplete acceptance fail the command. A zero smoke/build exit code must
 not be used as a release approval.
 
-The October 21 visible review did not pass: native controls and PDF content became
-blank in the captured windows despite attachment/state and hidden painting checks
-passing. See [visible review findings](uno-feasibility.md#windows-visible-review-october-21-2026).
-The capture/composition cause remains unresolved; native-region checks alone do
-not prove visible rendering or input usability.
+The October 21 blank-content failure was isolated to parent painting over native
+child HWNDs. The Uno host now enables child clipping on the actual parent and
+requests a repaint. All five fresh-package smoke checks pass; desktop-tool review
+confirms stable buttons and PDF pages, navigation, zoom and reconnect. PDF
+panning/input routing and broader acceptance remain open. See
+[visible review findings](uno-feasibility.md#windows-visible-review-october-21-2026).
 
 ## Remaining release gates
 

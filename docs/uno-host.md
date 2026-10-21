@@ -49,8 +49,12 @@ until `Reconnect` is called. Dispose views before their session.
 `Connected` reports assignment to Uno's presenter, not verified native parenting,
 visibility, input, or focus. The Windows adapter must supply child-window styles
 before Uno reparents its HWND; see the [corrected Windows probe](uno-feasibility.md#windows-native-view-probe).
-Native parenting, layout, focus and direct input-message checks now pass on Windows,
-but visual review and physical input remain unverified. macOS throws an explicit
+The host enables `WS_CLIPCHILDREN` on the attached HWND's actual parent and
+invalidates the child once so software presentation cannot erase it. This flag
+remains for the parent window lifetime and is shared by sibling native views.
+Native parenting, layout, focus and direct input-message checks pass on Windows.
+Desktop-tool visual review confirms buttons and PDF content remain visible;
+broader physical input and accessibility coverage remain outstanding. macOS throws an explicit
 `PlatformNotSupportedException` because the pinned release has no public arbitrary
 AppKit embedding API. Other platforms need runtime verification. No reflection into
 Uno internals, rendered-image substitute, or separate-window fallback is used.
