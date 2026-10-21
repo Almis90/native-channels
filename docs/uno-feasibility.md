@@ -191,9 +191,12 @@ The unified runner repacks into an isolated feed, audits package metadata and
 restored archive origin/bytes, and runs all five Windows smoke checks. The local
 step-6 run passed with managed protocol/lifecycle fixtures for Interop and PDF.
 The subsequent native PDF run passes its runtime projection audit and rendering
-checks, but the full regression run exposes an intermittent VolumeMonitor process
-shutdown timeout after its passing result is written. This remains unresolved;
-the current full Windows smoke suite must not be reported as passing.
+checks. An intermittent VolumeMonitor shutdown timeout was traced with a process
+dump to Uno's UI thread joining its render thread while that thread was blocked
+in a Skia GPU flush. The five Windows sample hosts now explicitly select Uno's
+public software rendering backend. This avoids the affected GPU shutdown path
+without changing volume observation or forcing process termination. GPU rendering
+acceptance remains outstanding on the pinned Uno runtime.
 Desktop CI definitions cover Windows, Linux and macOS
 builds; no execution of those CI jobs is claimed here.
 

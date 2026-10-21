@@ -11,6 +11,8 @@
   other platform adapters remain pending.
 - Added five package-only Uno samples, a unified local runner with package-origin
   audits, and desktop build CI definitions for Windows, Linux and macOS.
+- Windows Uno sample hosts use software rendering to avoid a render-thread
+  shutdown hang in the pinned Uno runtime, reproduced by the VolumeMonitor sample.
 - All five Windows apps passed local checks. Interop now verifies real HWND
   attachment/layout/focus and direct input messages; PDF verifies native page
   painting, navigation/zoom, invalid input and reconnect/shutdown cleanup.

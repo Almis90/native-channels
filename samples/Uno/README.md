@@ -76,6 +76,12 @@ It uses the same `MusicGenerator.cs` as the MAUI sample. Closing a window awaits
 cleanup; suspension/background entry stops playback and volume observation.
 Foreground re-entry requires explicitly starting them again.
 
+The Windows desktop heads use Uno's software renderer. On Uno 6.7.135, an early
+exit can block joining the OpenGL render thread while it is flushing a frame.
+Software rendering avoids that shutdown path and applies to interactive samples
+as well as automated runs; these checks do not validate GPU rendering performance.
+The PDF child HWND still uses its native Windows.Data.Pdf/GDI renderer.
+
 ## Acceptance still pending
 
 The projects include Android, iOS, browser and desktop heads (desktop covers
