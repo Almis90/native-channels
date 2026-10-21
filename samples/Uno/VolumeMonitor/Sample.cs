@@ -6,9 +6,10 @@ namespace UnoSamples;
 internal sealed partial class SamplePage
 {
     private const string Title = "VolumeMonitor";
-    private const string Limitation = "Windows desktop verified; other platforms pending.";
-    private CancellationTokenSource? _watch;
-    private Task _watchTask = Task.CompletedTask;
+    private const string Limitation =
+        "Windows desktop subscriptions verified; hardware volume changes and other platforms pending.";
+    private readonly List<(CancellationTokenSource Stop, Task Run)> _listeners = [];
+    private int _next;
     private IVolumeMonitor Volume =>
         Session(services =>
         {
@@ -19,26 +20,30 @@ internal sealed partial class SamplePage
 
     private void Build()
     {
-        _status.Text = "Observe the system output volume. This sample does not change it.";
-        Button(
-            "Start",
-            async () =>
-            {
-                await StopAsync();
-                var volume = Volume;
-                _watch = CancellationTokenSource.CreateLinkedTokenSource(_stopping.Token);
-                _watchTask = WatchAsync(volume, _watch.Token);
-            }
-        );
-        Button("Stop", StopAsync);
+        _status.Text =
+            "Listen for the initial output volume and changes. Use your device's volume controls. Each listener has its own lifetime.";
+        Button("Add system-volume listener", AddAsync);
+        Button("Cancel last listener", CancelLastAsync);
+        Button("Stop all listeners", StopAsync);
     }
 
-    private async Task WatchAsync(IVolumeMonitor volume, CancellationToken token)
+    private Task AddAsync()
+    {
+        if (_stopping.IsCancellationRequested)
+            return Task.CompletedTask;
+        var volume = Volume;
+        var stop = CancellationTokenSource.CreateLinkedTokenSource(_stopping.Token);
+        var run = WatchAsync(volume, ++_next, stop.Token);
+        _listeners.Add((stop, run));
+        return Task.CompletedTask;
+    }
+
+    private async Task WatchAsync(IVolumeMonitor volume, int id, CancellationToken token)
     {
         try
         {
             await foreach (var value in volume.ListenAsync(token))
-                _status.Text = $"Output volume: {value:P0}";
+                _status.Text = $"Output volume: {value:P0} · listener {id} · {DateTime.Now:T}";
         }
         catch (OperationCanceledException) when (token.IsCancellationRequested) { }
         catch (Exception error)
@@ -49,20 +54,32 @@ internal sealed partial class SamplePage
 
     private async Task VerifyAsync()
     {
-        using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(10));
-        await using var stream = Volume.ListenAsync(timeout.Token).GetAsyncEnumerator();
-        Require(await stream.MoveNextAsync() && stream.Current is >= 0 and <= 1, "Initial native volume");
+        var result = await global::VolumeMonitor.Sample.VolumeVerification.RunAsync(Volume, _stopping.Token);
+        Console.WriteLine(result);
+    }
+
+    private async Task CancelLastAsync()
+    {
+        if (_listeners.Count == 0)
+            return;
+        var last = _listeners[^1];
+        _listeners.RemoveAt(_listeners.Count - 1);
+        last.Stop.Cancel();
+        try
+        {
+            await last.Run;
+        }
+        finally
+        {
+            last.Stop.Dispose();
+        }
+        _status.Text = $"{_listeners.Count} listener(s) remain";
     }
 
     public async Task StopAsync()
     {
-        var watch = _watch;
-        _watch = null;
-        if (watch is null)
-            return;
-        watch.Cancel();
-        await _watchTask;
-        watch.Dispose();
+        while (_listeners.Count != 0)
+            await CancelLastAsync();
         _status.Text = "Stopped.";
     }
 }

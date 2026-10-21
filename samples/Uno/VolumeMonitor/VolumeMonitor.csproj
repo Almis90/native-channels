@@ -17,5 +17,9 @@
         <PackageReference Include="Plugin.VolumeMonitor" />
         <Compile Include="../Shared/App.cs" Link="App.xaml.cs" />
         <Compile Include="../Shared/SamplePage.cs" Link="SamplePage.cs" />
+        <Compile
+            Include="../../Maui/VolumeMonitor/VolumeVerification.cs"
+            Link="VolumeVerification.cs"
+        />
     </ItemGroup>
 </Project>

@@ -383,7 +383,22 @@ suspension cleanup path. The check minimizes/restores the actual sample window,
 verifies stopped playback, restarts and stops, then leaves paused playback for
 the shared runner's page disposal and window close. These are existing Avalonia
 scenarios, not additional certification requirements. Listening and non-Windows
-execution remain unverified. VolumeMonitor is the next sample to compare.
+execution remain unverified.
+
+### VolumeMonitor parity: Windows
+
+Uno links MAUI's `VolumeVerification.cs`, already reused by Avalonia, without
+changing its assertions: two listeners receive initial levels, cancelling one
+does not end the other, subscriptions cancel, and a restarted listener receives
+an initial level. The Uno controls match Avalonia's system-volume example: add
+independent listeners, cancel the last listener, and stop all listeners. Existing
+page suspension and disposal stop all listeners.
+
+Hardware volume changes remain a separate manual check, as in the shared
+verifier. Non-Windows execution and Avalonia's browser-only page-owned audio
+example are not verified by the Windows run. All five Uno Windows samples now
+have a documented comparison with the existing MAUI/Avalonia scenarios; the
+remaining work is platform validation within that same scope.
 
 ### Windows keyboard and accessibility review (October 21, 2026)
 
