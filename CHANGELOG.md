@@ -17,6 +17,8 @@
   preparing parent clipping on native attachment and repainting the child.
 - Fixed Windows Uno PDF drag/wheel routing with native hit testing, drag focus
   and capture handling; consumers need no gesture workaround.
+- Fixed reentrant window close in the shared Uno samples by queuing cleanup
+  before the final close request. Smoke tests now verify normal window shutdown.
 - All five Windows apps passed local checks. Interop now verifies real HWND
   attachment/layout/focus and direct input messages; PDF verifies native page
   painting, navigation/zoom, invalid input and reconnect/shutdown cleanup.

@@ -59,7 +59,9 @@ internal sealed partial class SamplePage : Page, IAsyncDisposable
                 );
             }
             await File.WriteAllTextAsync(result, outcome);
-            Application.Current.Exit();
+            // Exercise the same close/cleanup path as the window's close button.
+            // The runner also requires the process to exit, not just a result file.
+            _window.Close();
         };
     }
 

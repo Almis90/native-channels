@@ -289,10 +289,19 @@ builds/smoke tests, but the runner rejected acceptance because these documentati
 edits changed the source snapshot during execution. A new run must use a stable
 source snapshot; this run is diagnostic evidence only.
 
-The interactive PDF
-window also remained open with disabled controls after Alt+F4 and was terminated
-for test cleanup; normal window-close handling still needs a separate fix. The
-bounded automated exit path passed and is not evidence for this interactive path.
+The interactive PDF window initially remained open with disabled controls after
+Alt+F4. This was isolated to the shared sample close handler: disposal could
+complete synchronously, so its final `Window.Close()` reentered the original
+`Closed` callback before Uno had finished processing the handled close request.
+Cleanup and the final close are now queued on the window dispatcher, with repeated
+close requests coalesced while disposal is pending. The PDF baseline wrote a
+passing result but remained alive for 15 seconds when the smoke test used normal
+window close; with the fix it exited with code 0. Desktop-tool Alt+F4 also closed
+the visible window and process with a rendered document still open. Evidence:
+`artifacts/uno-feasibility/pdf-close-{baseline,fixed}.json`; the baseline JSON alone
+does not record its process timeout. All shared sample smoke tests now call
+`Window.Close()` instead of bypassing the handler with `Application.Exit()`;
+the runner requires process exit as well as a successful result file.
 Broader physical
 input/accessibility, GPU rendering and other-platform acceptance remain open.
 

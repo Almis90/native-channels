@@ -85,8 +85,10 @@ The October 21 blank-content failure was isolated to parent painting over native
 child HWNDs. The Uno host now enables child clipping on the actual parent and
 requests a repaint. All five fresh-package smoke checks pass; desktop-tool review
 confirms stable buttons and PDF pages, navigation, zoom and reconnect. PDF
-panning now passes native input tests and desktop-tool review. Interactive window
-close and broader acceptance remain open. An intermittent Interop clipping
+panning now passes native input tests and desktop-tool review. The shared sample
+close handler now queues cleanup before its final close request, fixing the PDF
+window-close hang; smoke tests exercise normal window close. Broader acceptance
+remains open. An intermittent Interop clipping
 assertion led to a bounded stable-readiness check with timeout diagnostics;
 the original failure's cause has not been conclusively reproduced. See
 [visible review findings](uno-feasibility.md#windows-visible-review-october-21-2026).
