@@ -70,6 +70,33 @@ change must be investigated before promising AppKit/PDFKit embedding. Reflection
 into internal types is not an accepted production design. A rendered PDF image
 or a separate native window would not satisfy the planned embedded-view contract.
 
+#### MacBook revalidation: October 21, 2026
+
+Ran the existing `eng/verify-uno-apple-desktop.py` against committed source
+`e6b24e8` in an isolated checkout on the ARM64 MacBook, using SDK 10.0.401,
+Xcode 26.6 and macOS 26.2. The probe restored into a fresh package cache and
+built with zero warnings/errors. Native assets compiled for ARM64 and x64;
+only ARM64 executed. Native Currency returned EUR's symbol, and all three
+existing desktop-contract sessions passed callbacks, messages, events,
+cancellation/reuse and disposal.
+
+The restored macOS runtime still reports `MacOSNativeElement` and
+`MacOSNativeElementHostingExtension` as `NotPublic`. The matching source also
+declares [`ContentPresenter.INativeElementHostingExtension` as internal](https://github.com/unoplatform/uno/blob/da217df2312e9e39676880f9cb4b8d519cc297e0/src/Uno.UI/UI/Xaml/Controls/ContentPresenter/INativeElementHostingExtension.cs),
+so registering our own implementation is not a public extension route either.
+This confirms a missing integration API in the pinned Uno release. A supported
+upstream wrapper/extension is still needed before the AppKit and PDFKit sample
+scenarios can run; the transport pass does not establish native-view support or
+full five-app coverage. No reflection workaround or dependency upgrade was added.
+
+Evidence on the Mac is under
+`/Users/almis/Projects/plugins/native-channels-uno-03/artifacts/uno-feasibility/runs/cbb575147f9846a18c2c042c0c11fa7f/`.
+The dependency report, contract log and package hashes were also copied to local
+`artifacts/uno-feasibility/mac-20261021/`. Next, validate the Currency sample on
+macOS using its existing shared verifier while the native-view API remains
+blocked. The Mac had about 1.9 GiB free after this fresh-cache run; recover build
+cache space before further broad restores.
+
 ### Windows native-view probe
 
 Update on October 20: the attachment failure was traced to the probe adapter's
