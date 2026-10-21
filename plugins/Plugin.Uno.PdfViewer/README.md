@@ -14,7 +14,7 @@ await pdf.GoToPageAsync(2);
 await pdf.SetZoomAsync(2);
 ```
 
-The viewer fits the page and supports 1x–4x zoom with dragging/wheel panning.
+The viewer fits the page and supports 1xâ€“4x zoom with dragging/wheel panning.
 The Windows adapter handles hit testing, drag focus and pointer capture internally;
 consumers do not need input-routing workarounds. Shift+wheel pans horizontally.
 Rendering uses the shared maximum page dimension of 1600 pixels; this is not a
@@ -28,6 +28,20 @@ The custom `PdfViewer(Func<string, IUnoNativeView>)` constructor remains availab
 testing. Other platforms require a custom adapter and fail explicitly otherwise.
 `OpenBytesAsync` remains browser-only. StateChanged reports command results and
 UI-dispatched adapter callbacks; the Windows pointer gestures pan the page locally.
+
+## Windows accessibility
+
+The native surface exposes a UI Automation pane with its current page count and
+zoom, keyboard-focus properties, bounds and focus lookup. It raises focus and
+name-change events and disconnects its provider on disposal. No consumer setup
+is required. A real COM UIA client checks page identity, role and focus states in
+the Windows sample. Screen-reader acceptance and the inspection tool's stale
+global-focus report remain unresolved.
+
+This is a raster viewer: Windows.Data.Pdf does not supply page text. The provider
+does not advertise a document TextPattern or claim readable document content.
+Text extraction and OCR are outside the current sample scope, matching the
+MAUI and Avalonia plugin surfaces.
 
 ## Private Windows runtime dependencies
 

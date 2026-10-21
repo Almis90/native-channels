@@ -1,6 +1,11 @@
+using MainThread = ChannelExplorer.SampleThread;
+#if UNO_SAMPLE
+using Microsoft.UI.Xaml.Controls;
+using AvaloniaChannelView = NativeChannels.UnoChannelView;
+#else
 using Avalonia;
 using Avalonia.Controls;
-using MainThread = ChannelExplorer.SampleThread;
+#endif
 
 namespace ChannelExplorer;
 
@@ -22,7 +27,11 @@ internal sealed class ViewVerification
     }
 
     private static AvaloniaChannelView Create(string title) =>
+#if UNO_SAMPLE
+        new(id => new WindowsButtonView(id, title)) { Height = 72 };
+#else
         new((parent, id) => SampleButtonFactory.Create(parent, id, title)) { Height = 72 };
+#endif
 
     private static async Task Reconnect(AvaloniaChannelView view)
     {
@@ -171,7 +180,11 @@ internal sealed class ViewVerification
 
     private static void CheckLayout(AvaloniaChannelView view) =>
         Check(
+#if UNO_SAMPLE
+            view.ActualWidth > 0 && view.ActualHeight > 0 && view.Channel is not null,
+#else
             view.Bounds.Width > 0 && view.Bounds.Height > 0 && view.Channel is not null,
+#endif
             "attached native view has nonzero bounds"
         );
 

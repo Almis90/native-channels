@@ -17,6 +17,7 @@ internal sealed class WindowsPdfView : IUnoNativeView
     private readonly CancellationTokenSource _stopping = new();
     private readonly WndProc _procedure;
     private readonly nint _original;
+    private readonly WindowsPdfAccessibility _accessibility;
     private WindowsPdfDocument? _document;
     private Bitmap? _bitmap;
     private int _page;
@@ -62,6 +63,7 @@ internal sealed class WindowsPdfView : IUnoNativeView
             throw new System.ComponentModel.Win32Exception();
         }
         Handle = window;
+        _accessibility = new(window);
         // SS_NOTIFY makes the STATIC window return HTCLIENT instead of
         // HTTRANSPARENT, allowing real pointer input to reach this subclass.
         if (SetWindowLongW(window, -16, 0x40010100) == 0) // WS_CHILD | WS_TABSTOP | SS_NOTIFY
@@ -159,6 +161,7 @@ internal sealed class WindowsPdfView : IUnoNativeView
                     throw new MethodNotImplementedException(call.Method);
             }
             InvalidateRect(Handle, 0, false);
+            _accessibility.Update(_page, _document?.PageCount ?? 0, _zoom);
             return State();
         }
         finally
@@ -179,6 +182,20 @@ internal sealed class WindowsPdfView : IUnoNativeView
 
     private nint Procedure(nint hwnd, uint message, nuint wparam, nint lparam)
     {
+        try
+        {
+            if (message == 0x003D && (int)lparam == -25) // WM_GETOBJECT / UiaRootObjectId
+                return _accessibility.GetObject(wparam, lparam);
+            if (message == 0x0007) // WM_SETFOCUS
+                _accessibility.FocusChanged();
+        }
+        catch (Exception error)
+        {
+            // Provider failures must not unwind through a native window procedure.
+            System.Diagnostics.Trace.TraceError(error.ToString());
+            if (message == 0x003D)
+                return 0;
+        }
         if (message == 0x0201) // Drag the magnified page with the left mouse button.
         {
             _mouseX = (short)(long)lparam;
@@ -284,6 +301,7 @@ internal sealed class WindowsPdfView : IUnoNativeView
         if (_closed)
             return;
         _closed = true;
+        _accessibility.Dispose();
         _dragging = false;
         if (GetCapture() == Handle)
             ReleaseCapture();

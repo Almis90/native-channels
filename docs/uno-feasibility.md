@@ -1,7 +1,7 @@
 # Uno 0.3 feasibility
 
 Status: **experimental implementation; six-platform feasibility is not established**.
-Steps 2–6 added the portable desktop transport, optional host, shared plugin
+Steps 2â€“6 added the portable desktop transport, optional host, shared plugin
 integration, five sample apps and build/audit automation. Native-view and PDF
 acceptance remain open. The results below retain their original scope; see
 [0.3 preparation](preview-03.md) for the current matrix and release gates.
@@ -125,7 +125,7 @@ Executed checks:
   the portable transport. Nine desktop transport tests pass, including factory
   selection, callbacks, messages, streams, cancellation, and session cleanup.
 - macOS ARM64: the package-only Uno consumer loads the Swift Currency adapter and
-  returns `€`. Three successive native sample sessions pass method callbacks,
+  returns `â‚¬`. Three successive native sample sessions pass method callbacks,
   Int64 envelopes, native errors, missing methods, binary callbacks, finite events,
   request cancellation, reuse after cancellation, and disposal with pending work.
 - macOS x64: native libraries cross-compile; execution has not been verified.
@@ -178,7 +178,7 @@ Step 4 remains partial: native PDF integration and the other platforms' plugin
 acceptance are outstanding. See [Uno plugin integration](uno-plugins.md) for exact
 test scope and lifecycle responsibilities.
 
-## Steps 5–7: samples, automation and release documentation
+## Steps 5â€“7: samples, automation and release documentation
 
 Subsequent Windows PDF integration adds a default Windows.Data.Pdf adapter inside
 an Uno-hosted child HWND. It reuses the existing Windows document source without
@@ -307,6 +307,56 @@ input/accessibility, GPU rendering and other-platform acceptance remain open.
 
 ## Remaining gates
 
+### Acceptance scope: existing MAUI and Avalonia scenarios
+
+For 0.3, Uno acceptance must follow the existing MAUI and Avalonia sample
+scenarios. Do not add Uno-only features or certification requirements. Existing
+bug regression checks may remain, but do not expand the acceptance checklist.
+This scope supersedes the broader review requirements in the historical notes.
+
+The PDF comparison is based on `samples/Maui/PdfViewer/PdfVerification.cs`,
+`samples/Avalonia/PdfViewer/Shared/PdfPage.cs`, and
+`samples/Uno/PdfViewer/NativePdfProbe.cs`:
+
+| Scenario | MAUI | Avalonia | Uno native Windows |
+| --- | --- | --- | --- |
+| Open bundled three-page document, initial page/state | Yes | Yes | Yes |
+| Page navigation and zoom | Yes | Yes | Yes |
+| Two independent native viewers and state isolation | Yes | Yes | Yes |
+| Disconnect, reconnect, reopen with fresh identity | Yes | Yes | Yes |
+| Invalid page/open preserves document | Yes | Not in sample verifier | Yes |
+| Native callback on UI thread | Explicit check | Not explicitly checked | Not explicitly checked in native PDF probe |
+| Disconnect with work pending | Yes | Not in sample verifier | Yes |
+
+MAUI and Avalonia themselves do not have identical verifiers. Use scenarios
+already present in either as the scope boundary, and report differences instead
+of claiming exact coverage. For the other plugins, compare their corresponding
+sample checks before adding any Uno requirement.
+
+Screen-reader certification, global UIA focus-report certification, OCR/text
+extraction, expanded PDF document corpora, and DPI/GPU/physical-device campaigns
+are not additional Uno 0.3 acceptance gates. Keep unverified behavior documented;
+do not infer validation from excluding it from this scope.
+
+### Interop parity: Windows
+
+Uno now links the same `NativeVerification.cs` used by MAUI and Avalonia and
+runs it against the shared Windows sample module through NativeChannelTransport.
+It replaces the two in-memory echo checks with the existing native suite: typed
+values/DTOs/bytes/null/Int64, callback/UI dispatch, structured errors, 16 concurrent
+calls, cancellation/timeouts, handle/session disposal, bidirectional message
+codecs, and event completion/errors/independent subscription cleanup.
+
+Uno also links Avalonia's `ViewVerification.cs` and Windows native button adapter.
+Framework-specific branches only supply the dispatcher, HWND wrapper, initial
+parenting and layout properties. The assertions remain shared: two instances,
+creation arguments, acknowledged UI-thread callbacks, state isolation, pending
+work disposal, reconnect, detach, unload/reload, stale channels, off-thread
+rejection, and 32 reconnect cycles. Existing Uno host and HWND regressions remain.
+These are existing sample scenarios, not new Uno acceptance requirements.
+Other Uno platforms are still unverified; this comparison establishes Windows
+coverage only. Currency is the next sample to compare.
+
 ### Windows keyboard and accessibility review (October 21, 2026)
 
 Reviewed the packaged Windows software-rendered Interop and PDF binaries from
@@ -321,7 +371,7 @@ Automation inspection are not physical-device or screen-reader acceptance.
 | Native keyboard traversal | With the first checkbox focused, Tab and Shift+Tab both leave focus on that checkbox. | Blocked: focus trap |
 | Native accessible names | Both controls are named `Native Win32 button`. | Needs distinct sample labels |
 | PDF controls/status | Path field, command buttons and `Page 1/3` through `Page 3/3` status appear in the accessibility tree. | Passed discovery only |
-| PDF page content | Native surface appears as `text PDF`; no rendered document text is exposed in the inspected tree. | Blocked: document accessibility |
+| PDF page content | Native surface appears as `text PDF`; no rendered document text is exposed in the inspected tree. | Unverified; outside parity scope |
 | PDF focus reporting/traversal | After clicking the native page, UI Automation still reports the path field as focused; Tab does not advance to the next surrounding control. | Blocked: focus integration |
 | PDF visible navigation | All three guide pages render at 1x; maximizing preserves the page. | Passed for bundled guide |
 
@@ -349,24 +399,41 @@ the visible focus border was on Open PDF, so accessibility focus reporting is no
 certified. Compound native controls with child HWNDs are outside this root-HWND
 bridge's verified scope.
 
-Next address the PDF accessibility
-contract: a raster surface and page status do not establish readable document
-content. A screen reader must verify names, roles, states, reading and focus after
-these changes; a UI Automation tree alone is insufficient.
+The accessibility and broader document/device observations above are recorded
+limitations, not additional Uno-only acceptance gates. Continue with the existing
+MAUI/Avalonia scenarios listed in the scope table.
 
-Broader PDF acceptance still needs landscape/rotated and mixed-size pages,
-image-heavy/scanned documents, Unicode/embedded fonts, long documents and large
-pages, plus zoom limits, resize while zoomed, failure recovery and shutdown during
-rendering. Existing automated invalid-file/page and lifecycle checks remain useful
-but do not certify visual fidelity for that corpus. After the known keyboard
-blockers are fixed, a person must repeat mouse, wheel, Tab/Shift+Tab and Space
-checks with physical devices, and record DPI/monitor and screen-reader results.
+### PDF accessibility provider follow-up
 
-### Cross-platform and release gates
+The Windows raster surface now supplies a native UI Automation provider rather
+than relying on the default STATIC text proxy. It exposes a Pane role, current
+page/count/zoom name, focusability, actual HWND focus, bounds and fragment focus
+lookup, with focus/name-change notifications and provider disconnection during
+disposal. No application-specific workaround is needed for these properties.
 
-1. Complete visible Windows review and physical input/focus checks. Native
-   parenting, layout/resize and direct input-message checks now pass, as do
-   packaged Windows method/plugin calls.
+The new sample regression uses a real COM UIA client on an MTA worker to query
+the owned native HWND while the UI thread services requests. The baseline fails
+with the old generic name `PDF`; the diagnostic provider build passes name/role,
+unfocused and focused properties, and page navigation checks. Local evidence:
+`artifacts/uno-feasibility/pdf-uia-{baseline,provider}.json`. Desktop inspection
+also shows the updated page/zoom name, but its global focused-element report
+continues to name the path field. Managed-peer/focus-event experiments did not
+resolve that observation and were removed. Correct element properties do not
+establish correct global focus events or screen-reader behavior.
+
+Microsoft describes [Windows.Data.Pdf](https://learn.microsoft.com/en-us/uwp/api/windows.data.pdf)
+as an image-rendering API. The provider deliberately does not advertise
+TextPattern. Text extraction and OCR are outside the current sample scope,
+matching MAUI and Avalonia. Screen-reader behavior and global focus reporting
+remain documented limitations, not Uno-only release checks. Native provider integration
+follows the documented
+[server-side UIA provider contract](https://learn.microsoft.com/en-us/windows/win32/winauto/uiauto-serversideprovider).
+
+### Outstanding platform work
+
+1. Continue comparison against existing MAUI/Avalonia sample scenarios. The
+   native PDF probe now checks two independent viewers. Keep completed native parenting, layout/resize
+   and direct input-message regressions; do not add Uno-only certification gates.
 2. Extend desktop package acceptance into production plugin packaging and release
    CI, retaining the plain-.NET macOS bridge outside the UI host package.
 3. Establish a supported macOS native-element extension path against this pinned

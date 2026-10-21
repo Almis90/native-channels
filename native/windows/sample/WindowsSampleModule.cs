@@ -1,6 +1,6 @@
 using System.Runtime.CompilerServices;
 using NativeChannels;
-#if AVALONIA
+#if AVALONIA || UNO_SAMPLE
 using MainThread = ChannelExplorer.SampleThread;
 #else
 using Microsoft.Maui.ApplicationModel;
@@ -67,7 +67,9 @@ internal sealed class WindowsSampleModule : IWindowsChannelModule
                 new()
                 {
                     HandlerDispatcher =
-#if AVALONIA
+#if UNO_SAMPLE
+                    SampleThread.Dispatcher.DispatchAsync
+#elif AVALONIA
                     AvaloniaChannelDispatchers.UIThread
 #else
                     MauiChannelDispatchers.MainThread

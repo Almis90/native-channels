@@ -20,14 +20,23 @@ internal static class NativePdfProbe
             return view;
         }
         await using var pdf = new PdfControl(Create) { Width = 480, Height = 360 };
-        surface.Content = pdf;
+        await using var other = new PdfControl { Width = 480, Height = 360 };
+        var viewers = new StackPanel();
+        viewers.Children.Add(pdf);
+        viewers.Children.Add(other);
+        surface.Content = viewers;
         try
         {
             using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(15));
-            while (!pdf.IsConnected)
+            while (!pdf.IsConnected || !other.IsConnected)
                 await Task.Delay(25, timeout.Token);
             var state = await pdf.OpenAsync(path, timeout.Token);
-            Require(state.Page == 1 && state.PageCount >= 2, "native document opened");
+            Require(state.Page == 1 && state.PageCount == 3, "three-page native document opened");
+            var otherInitial = await other.OpenAsync(path, timeout.Token);
+            Require(
+                otherInitial.Page == 1 && otherInitial.PageCount == 3 && otherInitial.InstanceId != state.InstanceId,
+                "two independent native PDF instances"
+            );
             var handle = ((global::Uno.UI.NativeElementHosting.Win32NativeWindow)views[0].NativeElement).Hwnd;
             surface.UpdateLayout();
             await Task.Delay(200, timeout.Token);
@@ -38,6 +47,10 @@ internal static class NativePdfProbe
             );
             Require(GetWindowRgnBox(handle, out _) != 1, "PDF HWND must not be clipped to an empty region");
             Require(GetWindowRect(handle, out var bounds), "PDF screen bounds");
+            SetFocus(GetParent(handle));
+            await PdfAccessibilityProbe.VerifyAsync(handle, 1, state.PageCount, focused: false);
+            SetFocus(handle);
+            await PdfAccessibilityProbe.VerifyAsync(handle, 1, state.PageCount, focused: true);
             var hitPoint = Point(bounds.Left + 20, bounds.Top + 20);
             Require(SendMessageW(handle, 0x0084, 0, hitPoint) == 1, "PDF accepts mouse hit testing (HTCLIENT)");
             using var first = Capture(handle);
@@ -48,9 +61,15 @@ internal static class NativePdfProbe
             var firstHash = Hash(first);
             state = await pdf.GoToPageAsync(2, timeout.Token);
             Require(state.Page == 2, "native page navigation");
+            await PdfAccessibilityProbe.VerifyAsync(handle, 2, state.PageCount, focused: GetFocus() == handle);
             using var second = Capture(handle);
             Require(HasInk(second) && Hash(second) != firstHash, "second PDF page pixels differ");
-            await pdf.SetZoomAsync(2, timeout.Token);
+            var zoomState = await pdf.SetZoomAsync(2, timeout.Token);
+            Require(Math.Abs(zoomState.Zoom - 2) < 0.02, "native zoom state");
+            Require(
+                await other.GetStateAsync(timeout.Token) == otherInitial,
+                "second viewer retains its page and zoom"
+            );
             using var zoomed = Capture(handle);
             Require(Hash(zoomed) != Hash(second), "native zoom changes painting");
             // Hit testing above exercises the routing prerequisite; these messages
@@ -106,6 +125,7 @@ internal static class NativePdfProbe
             Require(!IsWindow(handle), "old PDF HWND destroyed");
             state = await pdf.OpenAsync(path, timeout.Token);
             Require(state.InstanceId != identity && state.Page == 1, "reconnect and reopen");
+            Require(await other.GetStateAsync(timeout.Token) == otherInitial, "second document survives reconnect");
             try
             {
                 await old.InvokeAsync("getState");
@@ -123,13 +143,21 @@ internal static class NativePdfProbe
             catch (ObjectDisposedException) { }
             catch (OperationCanceledException) { }
             Require(!IsWindow(next) && pdf.State is null, "PDF shutdown releases HWND and state");
+            Require(
+                await other.GetStateAsync(timeout.Token) == otherInitial,
+                "second document survives first viewer detach"
+            );
         }
         finally
         {
             await pdf.DisconnectAsync();
+            await other.DisconnectAsync();
             surface.Content = null;
         }
     }
+
+    [DllImport("user32.dll")]
+    private static extern nint SetFocus(nint window);
 
     [DllImport("user32.dll")]
     private static extern nint GetCapture();

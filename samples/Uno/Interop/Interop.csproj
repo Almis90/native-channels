@@ -21,9 +21,19 @@
         <Compile Include="../Feasibility/UnoFeasibility/Win32Probe.cs" Link="Win32Probe.cs" />
     </ItemGroup>
     <PropertyGroup Condition="'$(TargetFramework)' == 'net10.0-desktop'">
-        <DefineConstants>$(DefineConstants);SAMPLE_DESKTOP</DefineConstants>
+        <DefineConstants>$(DefineConstants);SAMPLE_DESKTOP;UNO_SAMPLE</DefineConstants>
     </PropertyGroup>
+    <ItemGroup Condition="'$(TargetFramework)' == 'net10.0-desktop'">
+        <Compile Include="../../Maui/ChannelExplorer/GlobalUsings.cs" Link="ChannelUsings.cs" />
+        <Compile Include="../../Maui/ChannelExplorer/NativeVerification.cs" Link="NativeVerification.cs" />
+        <Compile Include="../../Maui/ChannelExplorer/SampleModels.cs" Link="SampleModels.cs" />
+        <Compile Include="../../Maui/ChannelExplorer/SampleJsonContext.cs" Link="SampleJsonContext.cs" />
+        <Compile Include="../../../native/windows/sample/WindowsSampleModule.cs" Link="WindowsSampleModule.cs" />
+        <Compile Include="../../Avalonia/Interop/Shared/ViewVerification.cs" Link="ViewVerification.cs" />
+        <Compile Include="../../Avalonia/Interop/Shared/WindowsButtonView.cs" Link="WindowsButtonView.cs" />
+    </ItemGroup>
     <ItemGroup Condition="'$(TargetFramework)' != 'net10.0-desktop'">
         <Compile Remove="NativeButtons.cs" />
+        <Compile Remove="SamplePlatform.cs" />
     </ItemGroup>
 </Project>

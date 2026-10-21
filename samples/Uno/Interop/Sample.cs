@@ -14,12 +14,12 @@ internal sealed partial class SamplePage
     {
         _status.Text = Limitation;
         Button(
-            "Run host lifecycle checks",
+            "Run interoperability checks",
             async () =>
             {
                 await VerifyAsync();
                 _status.Text =
-                    "Host and Windows native-control checks passed: dispatch, lifecycle, parenting, layout, focus and direct input messages. "
+                    "Shared native method, message, stream and view checks passed, including 32 reconnects. Host and Windows input regressions passed. "
                     + Limitation;
             }
         );
@@ -58,19 +58,30 @@ internal sealed partial class SamplePage
         _ran = true;
         await StopAsync();
         await UnoFeasibility.HostProbe.RunAsync(_window, _surface);
-        var pair = NativeChannels.InMemoryTransport.CreatePair();
-        await using var client = new NativeChannels.ChannelService(new NativeChannels.BinaryMessenger(pair.Managed));
-        await using var server = new NativeChannels.ChannelService(new NativeChannels.BinaryMessenger(pair.Native));
-        server.GetMethodChannel("echo").SetMethodCallHandler((call, _) => ValueTask.FromResult(call.Arguments));
-        Require(await client.GetMethodChannel("echo").InvokeAsync<string>("echo", "hello") == "hello", "Method echo");
-        server.GetBasicMessageChannel("messages/echo").SetMessageHandler((message, _) => ValueTask.FromResult(message));
-        Require(
-            await client.GetBasicMessageChannel("messages/echo").SendAsync<string>("hello") == "hello",
-            "Message echo"
-        );
 #if SAMPLE_DESKTOP
         if (OperatingSystem.IsWindows())
         {
+            ChannelExplorer.SampleThread.Dispatcher = new NativeChannels.UnoChannelDispatcher(DispatcherQueue);
+            var session = Session(services =>
+                services.AddNativeChannels(options =>
+                {
+                    options.Modules.Add(ChannelExplorer.SamplePlatform.CreateModule());
+                    options.Json.TypeInfoResolver = ChannelExplorer.SampleJsonContext.Default;
+                })
+            );
+            await new ChannelExplorer.NativeVerification(session.Channels).RunAsync();
+            var parityViews = new ChannelExplorer.ViewVerification();
+            _surface.Content = parityViews.Panel;
+            try
+            {
+                _surface.UpdateLayout();
+                await parityViews.RunAsync();
+            }
+            finally
+            {
+                await parityViews.DisconnectAsync();
+                _surface.Content = null;
+            }
             _buttons = new NativeButtons();
             _surface.Content = _buttons.Panel;
             try

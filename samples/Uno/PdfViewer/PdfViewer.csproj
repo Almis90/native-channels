@@ -29,5 +29,6 @@
     </PropertyGroup>
     <ItemGroup Condition="'$(TargetFramework)' != 'net10.0-desktop'">
         <Compile Remove="NativePdfProbe.cs" />
+        <Compile Remove="PdfAccessibilityProbe.cs" />
     </ItemGroup>
 </Project>
