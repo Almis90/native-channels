@@ -80,17 +80,21 @@ internal sealed partial class SamplePage
         _status.Text = "Checking native methods, messages, streams and views…";
         await InitializeViewsAsync();
 #if SAMPLE_DESKTOP && !UNO_LINUX_SAMPLE && !UNO_MACOS_SAMPLE
-        // Preserve the existing Windows host diagnostics, then restore the interactive views.
-        try
+        // Windows host diagnostics replace the surface with probe controls. Keep
+        // those in the automated runner; manual checks use the shared sample only.
+        if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("NATIVECHANNELS_UNO_SAMPLE_RESULT")))
         {
-            await UnoFeasibility.HostProbe.RunAsync(_window, _surface);
-            await using var buttons = new NativeButtons();
-            _surface.Content = buttons.Panel;
-            await buttons.VerifyAsync();
-        }
-        finally
-        {
-            _surface.Content = _views!.Panel;
+            try
+            {
+                await UnoFeasibility.HostProbe.RunAsync(_window, _surface);
+                await using var buttons = new NativeButtons();
+                _surface.Content = buttons.Panel;
+                await buttons.VerifyAsync();
+            }
+            finally
+            {
+                _surface.Content = _views!.Panel;
+            }
         }
 #endif
         var session = Session(services =>
