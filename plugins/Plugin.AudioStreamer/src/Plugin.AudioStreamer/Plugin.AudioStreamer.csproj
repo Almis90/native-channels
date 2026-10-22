@@ -107,4 +107,5 @@
         />
     </ItemGroup>
     <Import Project="../../../../eng/BrowserWasm.props" />
+    <Import Project="../../../../eng/AndroidNativeAssets.props" />
 </Project>

@@ -165,4 +165,5 @@
             PackagePath="runtimes/osx-x64/native/"
         />
     </ItemGroup>
+    <Import Project="../../../../eng/AndroidNativeAssets.props" />
 </Project>
