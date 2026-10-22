@@ -1,12 +1,55 @@
 package dev.nativechannels
 
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 import org.junit.Assert.*
 import org.junit.Test
 
 class NativeBridgeTest {
+    @Test
+    fun closeToleratesLastReplyCompletingDuringSnapshot() {
+        val bridge = NativeBridge()
+        val entered = CompletableFuture<Reply>()
+        val replies = AtomicInteger()
+        bridge.register("deferred", MessageHandler { _, _, reply -> entered.complete(reply) })
+        bridge.send("deferred", byteArrayOf(), Reply { _, _ -> replies.incrementAndGet() })
+        val reply = entered.get(5, TimeUnit.SECONDS)
+        val field = NativeBridge::class.java.getDeclaredField("pending")
+        field.isAccessible = true
+        @Suppress("UNCHECKED_CAST")
+        val pending = field.get(bridge) as ConcurrentHashMap<String, Any>
+        // Force the exact interleaving seen on Android: size reports one, then
+        // the last callback removes itself before snapshot iteration starts.
+        val shrinking = object : ConcurrentHashMap<String, Any>() {
+            override val values: MutableCollection<Any>
+                get() {
+                    val live = super.values
+                    return object : AbstractMutableCollection<Any>() {
+                        override val size: Int
+                            get() {
+                                val count = live.size
+                                reply.complete(0, byteArrayOf())
+                                return count
+                            }
+                        override fun iterator(): MutableIterator<Any> = live.iterator()
+                        override fun add(element: Any): Boolean = error("Read-only test view")
+                    }
+                }
+        }
+        shrinking.putAll(pending)
+        field.set(bridge, shrinking)
+        try {
+            val drained = CompletableFuture<Boolean>()
+            bridge.closeAsync { _, _ -> drained.complete(true) }
+            assertTrue(drained.get(5, TimeUnit.SECONDS))
+            assertEquals(1, replies.get())
+        } finally {
+            bridge.close()
+        }
+    }
+
     @Test
     fun cancellationAndDrainReleaseOnce() {
         val bridge = NativeBridge()
