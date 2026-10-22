@@ -170,3 +170,22 @@ archive: regenerate and test the final combined packages before acceptance. Andr
 runtime confirmation of this correction is still pending. Existing MAUI/Avalonia
 package target frameworks must also be retained before treating the feed as a full
 0.3 release candidate.
+
+### Reconnect failures found by combined-package checks
+
+The existing Android PDF verifier exposed a bridge shutdown race: Kotlin's
+`Collection.toList()` can read a size of one and then call `next()` after the last
+reply has concurrently removed itself. The bridge now uses the concurrent map's
+array snapshot. A deterministic regression test reproduces the original
+`NoSuchElementException`; all 15 Android bridge unit tests pass with the correction.
+The combined-package Android PDF runtime check also passed with this fix.
+
+Repeated runs of the existing iOS PDF verifier exposed a separate reconnect timing
+failure. A newly created PDFKit view can open a document before it has nonzero
+bounds, leaving its native scale at zero. The shared Apple adapter now initializes
+a valid native scale while waiting for its resize callback to calculate the actual
+size-to-fit scale. The previous build failed twice in four runs; a diagnostic build
+with the correction passed five consecutive runs of the same shared verifier.
+Evidence is under `artifacts/uno-candidate-shutdown/`. These corrections do not add
+sample scenarios or require Uno source changes. Final archive validation remains
+separate from these diagnostic runs.
