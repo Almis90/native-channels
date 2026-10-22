@@ -189,3 +189,34 @@ with the correction passed five consecutive runs of the same shared verifier.
 Evidence is under `artifacts/uno-candidate-shutdown/`. These corrections do not add
 sample scenarios or require Uno source changes. Final archive validation remains
 separate from these diagnostic runs.
+
+### Combined candidate validation: October 22, 2026
+
+The nine-package Uno feed in `artifacts/uno-candidate-apple-fit/packages/` was
+assembled from source commit `3c76090ba651d5554bdd28ffb8ff3d6fe7fc31b6`. The existing
+Interop, Currency, AudioStreamer, VolumeMonitor and PDF checks all passed on:
+
+- Windows desktop.
+- macOS ARM64 desktop, using the temporary hosting bridge.
+- iOS ARM64 simulator.
+- Android x64 emulator.
+- Browser/WebAssembly.
+
+The mobile/browser runners verified restored package hashes against the same
+archives. The iOS PDF check additionally verified the deployed assembly hash.
+Windows used clean, unchanged source and checked the packaged Windows projections;
+macOS checked the restored package hashes before execution. No Uno source patch or
+additional sample scenario was used. These are automated sample results, not
+physical-device, listening or manual acceptance.
+
+The consolidated evidence is `artifacts/uno-candidate-apple-fit/acceptance-status.json`.
+The Linux VM stopped answering SSH, including after a cold restart. Linux native
+binaries were reused from the previously verified feed because their source had
+not changed; their provenance is recorded beside the candidate. This candidate's
+Linux runtime checks remain pending; earlier Qt and GTK checks are not a substitute.
+
+The feed is not ready for publication. Shared packages still need their existing
+MAUI/Avalonia target frameworks retained, and Android currently includes unused
+Linux native libraries, producing XA0141 page-size warnings. Resolve those package
+compatibility issues, complete Linux candidate verification, and follow the existing
+manual acceptance and release steps before publishing.

@@ -8,9 +8,11 @@ from xml.sax.saxutils import escape
 
 ROOT = Path(__file__).resolve().parents[2]
 TARGETS = ROOT / 'plugins/Plugin.Uno.PdfViewer/src/Plugin.Uno.PdfViewer/buildTransitive/Plugin.Uno.PdfViewer.targets'
-DOTNET = Path(os.environ.get('DOTNET_HOST_PATH', ROOT / '.tools/dotnet/dotnet.exe'))
+DOTNET = Path(os.environ.get('DOTNET_HOST_PATH',
+                            ROOT / '.tools/dotnet' / ('dotnet.exe' if os.name == 'nt' else 'dotnet')))
 
 
+@unittest.skipUnless(DOTNET.is_file(), 'Requires the pinned SDK or DOTNET_HOST_PATH')
 class MobilePdfAssetsTests(unittest.TestCase):
     def check_assets(self, platform, runtime, expected):
         with tempfile.TemporaryDirectory() as directory:
