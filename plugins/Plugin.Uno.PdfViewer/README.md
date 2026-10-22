@@ -115,3 +115,7 @@ For macOS, build `eng/build-apple-desktop.py --arch arm64 --sample --views`
 against two real PDFKit views. ARM64 passes document/navigation/zoom, callbacks,
 independence, errors, reconnect and pending-work cleanup on released Uno 6.7.135.
 x64 libraries cross-compile; x64 execution, trimming/AOT and physical input remain unverified.
+
+Desktop builds now share one managed DLL that selects Windows, Linux or macOS at
+runtime. The platform packaging flags select the native payloads to include; they
+no longer produce competing managed implementations at `lib/net10.0`.

@@ -15,21 +15,21 @@ public sealed partial class PdfViewer : ContentControl, IAsyncDisposable
     {
 #if BROWSER
         return new BrowserPdfView(instanceId);
-#elif UNO_MACOS_PDF
-        return new UnoMacOSNativeView(
-            new("", "MCPdfViewFactory", "MauiPdfViewerNative"),
-            instanceId,
-            StandardMessageCodec.Instance.Encode(null).ToArray()
-        );
-#elif UNO_LINUX_PDF
-        return new UnoLinuxNativeView(
-            PdfLinux.Backend == LinuxPdfBackend.Qt ? "nc_pdf_qt" : "nc_pdf_gtk",
-            typeof(PdfViewer).Assembly,
-            instanceId
-        );
 #elif IOS || ANDROID
         return new MobilePdfView(instanceId);
 #else
+        if (OperatingSystem.IsMacOS())
+            return new UnoMacOSNativeView(
+                new("", "MCPdfViewFactory", "MauiPdfViewerNative"),
+                instanceId,
+                StandardMessageCodec.Instance.Encode(null).ToArray()
+            );
+        if (OperatingSystem.IsLinux())
+            return new UnoLinuxNativeView(
+                PdfLinux.Backend == LinuxPdfBackend.Qt ? "nc_pdf_qt" : "nc_pdf_gtk",
+                typeof(PdfViewer).Assembly,
+                instanceId
+            );
         if (!OperatingSystem.IsWindowsVersionAtLeast(10, 0, 17763))
             throw new PlatformNotSupportedException(
                 "The bundled PDF adapter requires Windows 10 1809 or later. Supply a custom native factory on other platforms."
@@ -38,7 +38,7 @@ public sealed partial class PdfViewer : ContentControl, IAsyncDisposable
 #endif
     }
 
-#if !IOS && !ANDROID && !UNO_LINUX_PDF && !BROWSER && !UNO_MACOS_PDF
+#if !IOS && !ANDROID && !BROWSER
     // Keep Windows projection types out of the JIT path on other Uno backends.
     [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.NoInlining)]
     [System.Runtime.Versioning.SupportedOSPlatform("windows10.0.17763")]

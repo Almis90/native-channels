@@ -2,8 +2,8 @@
 
 Status on October 22, 2026: **experimental development; not release-ready**.
 The optional Uno host, shared messaging plugins, five sample apps and desktop
-build automation exist. Full six-platform runtime and native-view acceptance
-remain blocked. No 0.3 release, tag or publication has been performed by this work.
+build automation exist. Shared sample checks have run on all six platforms;
+combined release packaging and manual acceptance remain incomplete. No 0.3 release, tag or publication has been performed by this work.
 
 ## Package and version boundaries
 
@@ -122,3 +122,28 @@ the original failure's cause has not been conclusively reproduced. See
 
 Documentation and release notes are prepared here; they do not close the earlier
 milestone gates. The full 0.3 milestone remains incomplete.
+
+
+### Combined desktop PDF preparation
+
+The desktop PDF package now compiles Windows, Linux and macOS adapters into one
+`lib/net10.0/Plugin.Uno.PdfViewer.dll` and selects the backend at runtime. Platform
+packaging flags select native assets, not different managed implementations at the
+same NuGet path. Mobile/browser builds continue to exclude desktop backends.
+
+Validation on October 22, 2026:
+
+- Windows fresh-package PDF build and existing native checks passed in
+  `artifacts/local-samples/uno/windows/20261022-110457-da8a2c20/`.
+- Mac ARM64 fresh-package Interop and PDF shared verifiers passed in
+  `artifacts/uno-macos-views/136b1fa2c03b4bc3aab40b01c1d4c9a4/`.
+- The exact Windows-built PDF DLL also passed the shared PDF verifier on the Mac.
+  SHA-256: `4834ff12f5b6918b32ec775927fb3421de0690a4e4f63d6ddad4f3e749cb5db4`.
+- Package-scope tests verify identical desktop managed inputs and keep desktop
+  backends/dependencies out of mobile/browser builds.
+
+Linux execution of this unified assembly is pending: the previous local SSH VM
+endpoint on port 22223 was unavailable. This is preparation for combined packaging,
+not a completed six-platform candidate. Rebuild platform inputs from the same source
+commit, assemble and audit the final feed, then test those final packages before
+manual acceptance. No package has been published.

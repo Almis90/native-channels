@@ -8,7 +8,7 @@
         <Version>0.1.0-alpha.1</Version>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <DefineConstants
-            Condition="'$(NativeChannelsAppleTarget)' != 'ios' And '$(NativeChannelsAndroidOnly)' != 'true' And '$(NativeChannelsLinuxOnly)' != 'true' And '$(NativeChannelsBrowserOnly)' != 'true' And '$(NativeChannelsMacOSOnly)' != 'true'"
+            Condition="'$(NativeChannelsAppleTarget)' != 'ios' And '$(NativeChannelsAndroidOnly)' != 'true' And '$(NativeChannelsBrowserOnly)' != 'true'"
             >$(DefineConstants);UNO_WINDOWS_PDF</DefineConstants>
         <WindowsPdfSdkVersion>10.0.19041.57</WindowsPdfSdkVersion>
         <Description>Uno Skia PDF control with Windows.Data.Pdf, iOS PDFKit, Android PdfRenderer and Linux X11 Qt/GTK native backends and custom adapter lifecycle.</Description>
@@ -22,7 +22,16 @@
         <PackageReference Include="NativeChannels.Uno" />
         <PackageReference Include="NativeChannels" />
     </ItemGroup>
-    <ItemGroup Condition="'$(NativeChannelsAppleTarget)' != 'ios' And '$(NativeChannelsAndroidOnly)' != 'true' And '$(NativeChannelsLinuxOnly)' != 'true' And '$(NativeChannelsBrowserOnly)' != 'true' And '$(NativeChannelsMacOSOnly)' != 'true'">
+    <ItemGroup Condition="'$(NativeChannelsAppleTarget)' != 'ios' And '$(NativeChannelsAndroidOnly)' != 'true' And '$(NativeChannelsBrowserOnly)' != 'true'">
+        <!-- One desktop assembly selects its native backend at runtime. -->
+        <Compile
+            Include="../../../../src/Shared.NativeViews/UnoLinuxNativeView.cs"
+            Link="UnoLinuxNativeView.cs"
+        />
+        <Compile
+            Include="../../../../src/Shared.NativeViews/UnoMacOSNativeView.cs"
+            Link="UnoMacOSNativeView.cs"
+        />
         <PackageReference Include="System.Drawing.Common" />
         <!-- Private projection: Uno defines its own Windows.* types. Compile with
              an alias and ship SDK runtime assemblies only for Windows consumers. -->
@@ -104,15 +113,7 @@
             Text="Build the Android PDF adapter before packing."
         />
     </Target>
-    <PropertyGroup Condition="'$(NativeChannelsLinuxOnly)' == 'true'">
-        <DefineConstants>$(DefineConstants);UNO_LINUX_PDF</DefineConstants>
-    </PropertyGroup>
     <ItemGroup Condition="'$(NativeChannelsLinuxOnly)' == 'true'">
-        <Compile Remove="WindowsPdfImports.cs" />
-        <Compile
-            Include="../../../../src/Shared.NativeViews/UnoLinuxNativeView.cs"
-            Link="UnoLinuxNativeView.cs"
-        />
         <None
             Include="../../../../artifacts/native/linux-x64/libnc_pdf_qt.so;../../../../artifacts/native/linux-x64/libnc_pdf_gtk.so"
             Pack="true"
@@ -152,15 +153,7 @@
         </ItemGroup>
     </Target>
     <Import Project="../../../../eng/BrowserWasm.props" />
-    <PropertyGroup Condition="'$(NativeChannelsMacOSOnly)' == 'true'">
-        <DefineConstants>$(DefineConstants);UNO_MACOS_PDF</DefineConstants>
-    </PropertyGroup>
     <ItemGroup Condition="'$(NativeChannelsMacOSOnly)' == 'true'">
-        <Compile Remove="WindowsPdfImports.cs" />
-        <Compile
-            Include="../../../../src/Shared.NativeViews/UnoMacOSNativeView.cs"
-            Link="UnoMacOSNativeView.cs"
-        />
         <None
             Include="../../../../artifacts/native/apple-desktop/osx-arm64/libMauiPdfViewerNative.dylib"
             Pack="true"
