@@ -11,9 +11,11 @@ import shutil
 import subprocess
 import time
 import uuid
+import zipfile
 import xml.etree.ElementTree as ET
 
 from consumer_projects import verify_project_references
+from uno_candidate import validate_candidate
 
 ROOT = Path(__file__).resolve().parents[1]
 VERSION = '0.3.0-preview.6'
@@ -25,6 +27,7 @@ def main():
     parser.add_argument('--device', required=True)
     parser.add_argument('--sample', choices=('Interop', 'Currency', 'AudioStreamer', 'VolumeMonitor', 'PdfViewer'), default='Currency')
     parser.add_argument('--reuse-external-cache', type=Path)
+    parser.add_argument('--framework-packages', type=Path)
     args = parser.parse_args()
     if platform.system() != 'Darwin' or platform.machine() != 'arm64':
         parser.error('Run on an ARM64 Mac with Xcode and the iOS workload.')
@@ -32,7 +35,12 @@ def main():
     sample = args.sample
     folder = ROOT / 'artifacts/uno-ios' / uuid.uuid4().hex
     feed, cache = folder / 'packages', folder / 'cache'
-    feed.mkdir(parents=True)
+    folder.mkdir(parents=True)
+    if args.framework_packages:
+        feed = args.framework_packages.resolve()
+        validate_candidate(feed, subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip())
+    else:
+        feed.mkdir()
     cache.mkdir()
     report = {'sample': sample, 'platform': 'ios', 'rid': 'iossimulator-arm64',
               'device': args.device, 'build': 'pending', 'runtime': 'pending',
@@ -73,16 +81,17 @@ def main():
         ET.ElementTree(xml).write(config, encoding='utf-8', xml_declaration=True)
         bootstrap = folder / 'Bootstrap.Config'
         bootstrap.write_text('<configuration><packageSources><clear/><add key="nuget" value="https://api.nuget.org/v3/index.json"/></packageSources><packageSourceMapping><clear/></packageSourceMapping></configuration>')
-        command(['python3', 'eng/build-apple.py'], 'native-bridge')
-        if sample != 'Interop':
-            native_plugin = 'Maui.PdfViewer' if sample == 'PdfViewer' else sample
-            command(['python3', f'plugins/Plugin.{native_plugin}/eng/build-apple.py'], 'native-plugin')
+        if not args.framework_packages:
+            command(['python3', 'eng/build-apple.py'], 'native-bridge')
+            if sample != 'Interop':
+                native_plugin = 'Maui.PdfViewer' if sample == 'PdfViewer' else sample
+                command(['python3', f'plugins/Plugin.{native_plugin}/eng/build-apple.py'], 'native-plugin')
         common = [f'-p:Version={VERSION}', f'-p:NativeChannelsPackageVersion={VERSION}',
                   '-p:NativeChannelsAppleTarget=ios', f'-p:RestorePackagesPath={cache}']
         packages = ['NativeChannels.Core', 'NativeChannels.Native.Apple', 'NativeChannels', 'NativeChannels.Uno']
         if sample != 'Interop':
             packages.append('Plugin.Uno.PdfViewer' if sample == 'PdfViewer' else f'Plugin.{sample}')
-        for name in packages:
+        for name in ([] if args.framework_packages else packages):
             project = ROOT / (f'plugins/{name}/src/{name}' if name.startswith('Plugin.') else f'src/{name}')
             settings = [f'-p:RestoreConfigFile={bootstrap if name == "NativeChannels.Core" else config}']
             if name in ('NativeChannels', 'NativeChannels.Uno'):
@@ -90,7 +99,7 @@ def main():
             command([dotnet, 'pack', project, '-c', 'Release', '-o', feed, *common, *settings], 'pack-' + name)
         report['packages'] = {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in feed.glob('*.nupkg')}
         project = ROOT / f'samples/Uno/{sample}/{sample}.csproj'
-        command([dotnet, 'build', project, '-c', 'Debug', '-p:TargetFrameworks=net10.0-ios',
+        command([dotnet, 'build', project, '-t:Rebuild', '-c', 'Debug', '-p:TargetFrameworks=net10.0-ios',
                  '-p:RuntimeIdentifier=iossimulator-arm64',
                  f'-p:RestorePackagesPath={cache}', f'-p:RestoreConfigFile={config}'],
                 'sample-build', ROOT / 'samples/Uno')
@@ -110,6 +119,22 @@ def main():
         report['build'] = 'passed'
         assembly = 'NativeChannels.Interop.Uno' if sample == 'Interop' else sample
         app = project.parent / f'bin/Debug/net10.0-ios/iossimulator-arm64/{assembly}.app'
+        if sample == 'PdfViewer':
+            # NuGet's asset selection alone is insufficient: Uno can replace the
+            # selected mobile DLL later in the build. Check the deployed binary.
+            archive = feed / f'Plugin.Uno.PdfViewer.{VERSION}.nupkg'
+            with zipfile.ZipFile(archive) as package:
+                mobile_assets = [name for name in package.namelist()
+                                 if name.startswith('lib/net') and '-ios' in name
+                                 and name.endswith('/Plugin.Uno.PdfViewer.dll')]
+                if len(mobile_assets) != 1:
+                    raise RuntimeError('Expected one packaged iOS PDF assembly')
+                expected = hashlib.sha256(package.read(mobile_assets[0])).hexdigest()
+            actual = hashlib.sha256((app / 'Plugin.Uno.PdfViewer.dll').read_bytes()).hexdigest()
+            report['pdfAssembly'] = {'packageAsset': mobile_assets[0],
+                                     'expectedSha256': expected, 'deployedSha256': actual}
+            if actual != expected:
+                raise RuntimeError('Deployed PDF assembly does not match the packaged iOS assembly')
         bundle = plistlib.loads((app / 'Info.plist').read_bytes())['CFBundleIdentifier']
         command(['xcrun', 'simctl', 'bootstatus', args.device, '-b', '-d'], 'simulator-boot')
         command(['xcrun', 'simctl', 'install', args.device, app], 'simulator-install')

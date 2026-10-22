@@ -11,6 +11,7 @@ import uuid
 import xml.etree.ElementTree as ET
 
 from consumer_projects import verify_project_references
+from uno_candidate import validate_candidate
 
 ROOT = Path(__file__).resolve().parents[1]
 VERSION = '0.3.0-preview.6'
@@ -21,12 +22,18 @@ def main():
     parser.add_argument('--dotnet', required=True, type=Path)
     parser.add_argument('--sample', choices=('Interop', 'Currency', 'AudioStreamer', 'VolumeMonitor', 'PdfViewer'), default='Currency')
     parser.add_argument('--reuse-external-cache', type=Path)
+    parser.add_argument('--framework-packages', type=Path)
     args = parser.parse_args()
     dotnet = args.dotnet.resolve()
     sample = args.sample
     folder = ROOT / 'artifacts/uno-browser' / uuid.uuid4().hex
     feed, cache = folder / 'packages', folder / 'cache'
-    feed.mkdir(parents=True)
+    folder.mkdir(parents=True)
+    if args.framework_packages:
+        feed = args.framework_packages.resolve()
+        validate_candidate(feed, subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip())
+    else:
+        feed.mkdir()
     cache.mkdir()
     report = {'sample': sample, 'platform': 'browser', 'build': 'pending', 'runtime': 'pending',
               'commit': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip(),
@@ -75,7 +82,7 @@ def main():
         packages = ['NativeChannels.Core', 'NativeChannels', 'NativeChannels.Uno']
         if sample != 'Interop':
             packages.append('Plugin.Uno.PdfViewer' if sample == 'PdfViewer' else f'Plugin.{sample}')
-        for name in packages:
+        for name in ([] if args.framework_packages else packages):
             project = ROOT / (f'plugins/{name}/src/{name}' if name.startswith('Plugin.') else f'src/{name}')
             settings = [f'-p:RestoreConfigFile={bootstrap if name == "NativeChannels.Core" else config}']
             if name in ('NativeChannels', 'NativeChannels.Uno'):

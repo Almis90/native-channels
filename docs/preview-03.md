@@ -142,8 +142,31 @@ Validation on October 22, 2026:
 - Package-scope tests verify identical desktop managed inputs and keep desktop
   backends/dependencies out of mobile/browser builds.
 
-Linux execution of this unified assembly is pending: the previous local SSH VM
-endpoint on port 22223 was unavailable. This is preparation for combined packaging,
-not a completed six-platform candidate. Rebuild platform inputs from the same source
-commit, assemble and audit the final feed, then test those final packages before
-manual acceptance. No package has been published.
+Linux execution subsequently passed on the recovered VM, including the existing Qt
+and GTK PDF checks. The first combined Uno candidate also passed all five Windows,
+macOS ARM64 and Linux samples, plus browser Interop and PDF. Browser Currency,
+AudioStreamer and VolumeMonitor, and the combined Android/iOS runs remain open.
+This is not a completed six-platform candidate. No package has been published.
+
+### Combined iOS PDF asset selection
+
+The first combined candidate exposed an Uno 6.7.135 build behavior: NuGet selected
+the iOS PDF assembly, but `ReplaceUnoRuntime` replaced it with the portable desktop
+assembly. The simulator then timed out waiting for its native PDF view. The package
+targets now retain NuGet's compile/runtime selection for this package on Skia iOS
+and Android, preserving metadata and leaving Uno's own runtime selection intact.
+
+Four MSBuild regression tests cover iOS, Android, desktop and the native mobile
+runtime. On October 22, a diagnostic run using the corrected targets and a clean
+rebuild on the Mac passed the existing shared PDF verifier: document, navigation,
+zoom, callback, isolation, errors and detach/reconnect. The deployed assembly matched
+the candidate's iOS DLL (`fb9f50016f4c49bb40e77941127d938657f5c688bc4cced63c01d9cdd4abac62`).
+Evidence was copied to `artifacts/ios-mobile-pdf-fix/`. No Uno source patch was used.
+
+The iOS runner now rebuilds and verifies the deployed PDF assembly against the
+package, because checking restored archives alone cannot detect Uno's later asset
+replacement. The diagnostic modified an extracted package target, not the candidate
+archive: regenerate and test the final combined packages before acceptance. Android
+runtime confirmation of this correction is still pending. Existing MAUI/Avalonia
+package target frameworks must also be retained before treating the feed as a full
+0.3 release candidate.

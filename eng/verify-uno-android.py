@@ -12,6 +12,7 @@ import uuid
 import xml.etree.ElementTree as ET
 
 from consumer_projects import verify_project_references
+from uno_candidate import validate_candidate
 
 ROOT = Path(__file__).resolve().parents[1]
 VERSION = '0.3.0-preview.6'
@@ -25,6 +26,7 @@ def main():
     parser.add_argument('--java-sdk', required=True, type=Path)
     parser.add_argument('--sample', choices=('Interop', 'Currency', 'AudioStreamer', 'VolumeMonitor', 'PdfViewer'), default='Currency')
     parser.add_argument('--reuse-external-cache', type=Path)
+    parser.add_argument('--framework-packages', type=Path)
     args = parser.parse_args()
     dotnet = args.dotnet.resolve()
     sdk, java = args.android_sdk.resolve(), args.java_sdk.resolve()
@@ -36,7 +38,12 @@ def main():
     sample = args.sample
     folder = ROOT / 'artifacts/uno-android' / uuid.uuid4().hex
     feed, cache = folder / 'packages', folder / 'cache'
-    feed.mkdir(parents=True)
+    folder.mkdir(parents=True)
+    if args.framework_packages:
+        feed = args.framework_packages.resolve()
+        validate_candidate(feed, subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip())
+    else:
+        feed.mkdir()
     cache.mkdir()
     report = {'sample': sample, 'platform': 'android', 'rid': rid, 'api': query('shell', 'getprop', 'ro.build.version.sdk'),
               'target': 'emulator' if query('shell', 'getprop', 'ro.kernel.qemu') == '1' else 'device',
@@ -79,15 +86,16 @@ def main():
         bootstrap = folder / 'Bootstrap.Config'
         bootstrap.write_text('<configuration><packageSources><clear/><add key="nuget" value="https://api.nuget.org/v3/index.json"/></packageSources><packageSourceMapping><clear/></packageSourceMapping></configuration>')
         gradle = ROOT / 'native/android' / ('gradlew.bat' if os.name == 'nt' else 'gradlew')
-        command([gradle, '--no-daemon', ':library:assembleRelease', ':sample:assembleRelease',
-                 ':currency:assembleRelease', ':audio:assembleRelease', ':volume:assembleRelease', ':pdf:assembleRelease'],
-                'native-build', ROOT / 'native/android')
+        if not args.framework_packages:
+            command([gradle, '--no-daemon', ':library:assembleRelease', ':sample:assembleRelease',
+                     ':currency:assembleRelease', ':audio:assembleRelease', ':volume:assembleRelease', ':pdf:assembleRelease'],
+                    'native-build', ROOT / 'native/android')
         common = [f'-p:Version={VERSION}', f'-p:NativeChannelsPackageVersion={VERSION}',
                   '-p:NativeChannelsAndroidOnly=true', f'-p:RestorePackagesPath={cache}', f'-p:AndroidSdkDirectory={sdk}', f'-p:JavaSdkDirectory={java}']
         packages = ['NativeChannels.Core', 'NativeChannels.Native.Android', 'NativeChannels', 'NativeChannels.Uno']
         if sample != 'Interop':
             packages.append('Plugin.Uno.PdfViewer' if sample == 'PdfViewer' else f'Plugin.{sample}')
-        for name in packages:
+        for name in ([] if args.framework_packages else packages):
             project = ROOT / (f'plugins/{name}/src/{name}' if name.startswith('Plugin.') else f'src/{name}')
             settings = [f'-p:RestoreConfigFile={bootstrap if name == "NativeChannels.Core" else config}']
             if name in ('NativeChannels', 'NativeChannels.Uno'):

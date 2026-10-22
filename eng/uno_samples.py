@@ -13,6 +13,7 @@ import zipfile
 
 from consumer_projects import verify_project_references
 from package_audit import audit_package
+from uno_candidate import validate_candidate
 
 ROOT = Path(__file__).resolve().parents[1]
 SAMPLES = ('Interop', 'Currency', 'AudioStreamer', 'VolumeMonitor', 'PdfViewer')
@@ -120,8 +121,8 @@ def run(args, source_identity):
     selected = args.sample or SAMPLES
     summary['results'] = [dict(sample=sample, build='not-run', smoke='not-run', acceptance='blocked') for sample in selected]
     try:
-        if args.manifest or args.framework_packages or args.packages_only or args.device or args.virtual_audio or args.arch:
-            raise ValueError('Uno does not yet support manifest/candidate reuse, packages-only, devices, virtual audio or architecture overrides')
+        if args.manifest or args.packages_only or args.device or args.virtual_audio or args.arch:
+            raise ValueError('Uno does not yet support manifest reuse, packages-only, devices, virtual audio or architecture overrides')
         if args.require_clean and summary['source']['status']:
             raise ValueError('A clean source tree is required')
         host = {'Windows': 'windows', 'Linux': 'linux', 'Darwin': 'macos'}.get(platform.system())
@@ -144,7 +145,12 @@ def run(args, source_identity):
 
         command([dotnet, '--info'], 'dotnet.log', ROOT / 'samples/Uno')
         feed, cache = folder / 'packages', folder / 'cache'
-        feed.mkdir()
+        if args.framework_packages:
+            feed = Path(args.framework_packages).resolve()
+            summary['candidate'] = str(feed)
+            validate_candidate(feed, summary['source']['commit'])
+        else:
+            feed.mkdir()
         cache.mkdir()
         if args.reuse_external_cache:
             def link_or_copy(source, destination):
@@ -174,13 +180,14 @@ def run(args, source_identity):
         bootstrap.write_text('<configuration><packageSources><clear/><add key="nuget" value="https://api.nuget.org/v3/index.json"/></packageSources><packageSourceMapping><clear/></packageSourceMapping></configuration>', encoding='utf-8')
         common = [f'-p:RestorePackagesPath={cache}', f'-p:Version={VERSION}',
                   f'-p:NativeChannelsPackageVersion={VERSION}', '-p:NativeChannelsDesktopOnly=true']
-        for name in PACKAGES:
+        for name in (() if args.framework_packages else PACKAGES):
             path = ROOT / ('plugins/' + name + '/src/' + name if name.startswith('Plugin.') else 'src/' + name)
             settings = [*common, f'-p:RestoreConfigFile={bootstrap if name == "NativeChannels.Core" else config}']
             if name != 'NativeChannels.Core':
                 settings.append('-p:NativeChannelsUseCorePackage=true')
             command([dotnet, 'pack', path, '-c', 'Release', '-o', feed, *settings], f'pack-{name}.log')
-        summary['packages'] = audit_feed(feed, summary['source']['commit'])
+        summary['packages'] = (validate_candidate(feed, summary['source']['commit']) if args.framework_packages
+                               else audit_feed(feed, summary['source']['commit']))
         write_json(folder / 'packages.json', summary['packages'])
         for record in summary['results']:
             sample = record['sample']
