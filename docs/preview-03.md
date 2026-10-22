@@ -3,7 +3,8 @@
 Status on October 22, 2026: **experimental development; not release-ready**.
 The optional Uno host, shared messaging plugins, five sample apps and desktop
 build automation exist. Shared sample checks have run on all six platforms;
-combined release packaging and manual acceptance remain incomplete. No 0.3 release, tag or publication has been performed by this work.
+the complete local combined feed now passes those automated checks. Manual acceptance
+and the 0.3 distribution/publication workflow remain incomplete. No 0.3 release, tag or publication has been performed by this work.
 
 ## Package and version boundaries
 
@@ -34,13 +35,13 @@ and the [sample instructions](../samples/Uno/README.md).
 | Platform | Executed evidence | Still required |
 | --- | --- | --- |
 | Windows | Five package-only apps pass bounded smoke checks; real Currency, silent audio and volume plugins execute. Corrected button adapters pass native checks; Windows PDF painting, page/zoom, invalid-input and cleanup checks also pass | Visible review and physical input, broader PDF/document/lifecycle coverage and audible playback checks |
-| macOS | ARM64 shared messaging checks plus Interop and PDF parity pass; native hosting uses the temporary adapter bridge on released Uno 6.7.135; x64 native libraries cross-compile | Public hosting API tracked in [Uno #25639](https://github.com/unoplatform/uno/issues/25639), x64 execution, physical input and combined release packaging |
-| Linux | All five fresh-package apps pass shared verifiers on Ubuntu 24.04 x64 X11/Xvfb, including native Interop views and both Qt/GTK PDF backends; audio uses a PulseAudio null sink | Visual/physical-input acceptance, audible playback, hardware volume changes, other architectures/backends and release packaging |
-| Android | All five package-only apps pass existing MAUI/Avalonia shared verifiers on an API 36 x64 emulator, including native Interop views and PdfRenderer | ARM64/physical-device behavior, visual/input acceptance and release packaging remain unverified |
-| iOS | All five apps pass shared verifiers on an ARM64 iPhone simulator, including Interop native methods/UIKit views and PDFKit document/navigation/zoom/lifecycle checks | Physical-device behavior and release packaging remain unverified |
-| Browser | All five fresh-package apps pass existing shared browser verifiers in headless Chromium on Windows x64, including DOM button hosting and PDF.js; volume checks cover a page-owned audio element | Cross-browser and manual acceptance, audible playback and combined release packaging |
+| macOS | ARM64 shared messaging checks plus Interop and PDF parity pass; native hosting uses the temporary adapter bridge on released Uno 6.7.135; x64 native libraries cross-compile | Public hosting API tracked in [Uno #25639](https://github.com/unoplatform/uno/issues/25639), x64 execution, physical input and manual acceptance |
+| Linux | All five fresh-package apps pass shared verifiers on Ubuntu 24.04 x64 X11/Xvfb, including native Interop views and both Qt/GTK PDF backends; audio uses a PulseAudio null sink | Visual/physical-input acceptance, audible playback, hardware volume changes, other architectures/backends |
+| Android | All five package-only apps pass existing MAUI/Avalonia shared verifiers on an API 36 x64 emulator, including native Interop views and PdfRenderer | ARM64/physical-device behavior and visual/input acceptance remain unverified |
+| iOS | All five apps pass shared verifiers on an ARM64 iPhone simulator, including Interop native methods/UIKit views and PDFKit document/navigation/zoom/lifecycle checks | Physical-device behavior remains unverified |
+| Browser | All five fresh-package apps pass existing shared browser verifiers in headless Chromium on Windows x64, including DOM button hosting and PDF.js; volume checks cover a page-owned audio element | Cross-browser and manual acceptance, audible playback |
 
-The latest local step-6 Windows run rebuilt all seven diagnostic packages,
+The earlier local step-6 Windows run rebuilt all seven diagnostic packages,
 audited their metadata and source commit, and verified that every local package
 restored by each app matched that run's feed byte-for-byte. Local package caches
 were fresh; third-party dependencies were reused. All five builds and smoke
@@ -102,19 +103,17 @@ the original failure's cause has not been conclusively reproduced. See
   The follow-up fixes root-HWND Tab/Shift+Tab focus trapping; PDF document text
   and reliable accessibility focus reporting remain outstanding. See the
   [keyboard and accessibility review](uno-feasibility.md#windows-keyboard-and-accessibility-review-october-21-2026).
-- Establish a public supported macOS native embedding path. The pinned Uno
-  release exposes its arbitrary native-element wrapper internally; reflection,
-  separate windows and rendered-image substitutes do not meet the planned contract.
-- Supply and verify the Uno PDF adapter for macOS. Windows,
-  Linux X11, iOS, Android and browser automated checks now pass; physical input and broader visual/document
-  review remain outstanding. Protocol fixtures alone are insufficient.
-- Finish combined browser/mobile packaging, and validate
-  combined desktop native assets for Linux and both macOS architectures.
-- Execute all five apps across all six platforms against one intended package
-  candidate, recording backend, architecture, package hashes and lifecycle results.
-  Keep physical devices, additional architectures and manual observations explicit.
-- Extend the distribution/API compatibility and publication manifests for Uno,
-  then validate the exact combined archives from clean, unchanged source. The
+- The accepted temporary macOS hosting bridge works with released Uno 6.7.135;
+  replace it when the public embedding API tracked in
+  [Uno #25639](https://github.com/unoplatform/uno/issues/25639) is available.
+  The source retains a TODO pointing to that issue. No Uno source patch is required.
+- The complete local 13-package candidate now passes all five existing sample
+  verifiers across all six platforms, including both Linux PDF backends. This
+  closes the local combined-packaging and automated-candidate gates; it does not
+  establish physical-device, additional-architecture or manual acceptance.
+- Extend the hosted distribution/publication workflow for Uno. Local packaging
+  now preserves MAUI/Avalonia targets and passes the existing API compatibility
+  gate; the exact combined archives were tested from clean, unchanged source. The
   existing 0.1/0.2 publication path has not been extended or approved for 0.3.
 - After acceptance, update release versions and dependency pins together, finalize
   release notes, and follow the [release checklist](release-checklist.md). Publication
@@ -210,16 +209,14 @@ additional sample scenario was used. These are automated sample results, not
 physical-device, listening or manual acceptance.
 
 The consolidated evidence is `artifacts/uno-candidate-apple-fit/acceptance-status.json`.
-The Linux VM stopped answering SSH, including after a cold restart. Linux native
-binaries were reused from the previously verified feed because their source had
-not changed; their provenance is recorded beside the candidate. This candidate's
-Linux runtime checks remain pending; earlier Qt and GTK checks are not a substitute.
+The Linux VM initially stopped answering SSH. After it recovered, all five
+samples and both Qt/GTK PDF backends passed against these exact archives. Evidence
+is in `artifacts/uno-candidate-apple-fit/linux-evidence/`. The subsequent full
+candidate below rebuilds the Linux inputs on the VM instead of reusing old binaries.
 
-The feed is not ready for publication. Shared packages still need their existing
-MAUI/Avalonia target frameworks retained, and Android currently includes unused
-Linux native libraries, producing XA0141 page-size warnings. Resolve those package
-compatibility issues, complete Linux candidate verification, and follow the existing
-manual acceptance and release steps before publishing.
+This earlier nine-package feed omitted existing MAUI/Avalonia targets and pulled
+unused Linux libraries into Android APKs. Those issues are resolved in the full
+candidate below. Manual acceptance and release steps remain separate.
 
 ### Preserve MAUI and Avalonia targets in a release candidate
 
@@ -241,3 +238,43 @@ and PDF controls, and rejects missing existing consumer targets. Omitting this
 flag still produces the nine-package Uno development feed; it is not the complete
 framework release. Run the existing consumer checks against the resulting feed
 before publication. The audit continues to mark runtime acceptance as pending.
+
+
+### Full compatible candidate: October 22, 2026
+
+`artifacts/uno-candidate-compatible/packages/` contains 13 packages assembled from
+nine platform inputs at clean source commit
+`a17d661575c43f6f8d12ee8513b63203c7b1b5b3`. It retains the optional MAUI/Avalonia
+hosts and PDF controls, along with the existing Android, iOS, Mac Catalyst,
+native macOS, Windows-specific, portable desktop and browser targets.
+
+All five existing Interop, Currency, AudioStreamer, VolumeMonitor and PDF sample
+verifiers pass against these same archives on Windows, macOS ARM64, Linux x64 X11,
+Android x64 emulator, iOS ARM64 simulator and browser Chromium. Both Linux Qt and
+GTK PDF backends pass. No sample scenarios were added. Evidence, package hashes
+and source identities are consolidated in
+`artifacts/uno-candidate-compatible/acceptance-status.json`.
+
+Android packages now provide an explicit empty native asset group, preventing
+NuGet's Android-to-Linux fallback from selecting glibc libraries. Restore regression
+checks cover all four Android RIDs and confirm Linux still receives its libraries.
+All five built Android APKs were inspected and exclude the Linux plugin libraries;
+see `android-apk-audit.json` beside the candidate.
+
+The full package API check exposed a portable contract mismatch: `WindowsFactory`
+and `IWindowsChannelModule` existed in `net10.0` but were missing from its mobile
+specializations. They are now available on every target, like `LinuxFactory`, and
+are still used only by the Windows transport. The existing API compatibility gate
+passes for all five hash-pinned framework baselines at `0.1.0-preview.1`. Run it for
+this local version with:
+
+```powershell
+python eng/verify-api-compatibility.py --packages artifacts/uno-candidate-compatible/packages --version 0.3.0-preview.6 --dotnet .tools/dotnet/dotnet.exe
+```
+
+The API tool still emits unresolved external platform-reference warnings; its
+baseline coverage is the five packages in `eng/api-baseline.json`. These local
+results do not claim physical-device, listening, accessibility or manual input
+acceptance. The hosted 0.3 distribution/publication workflow, release version
+approval and existing manual release checklist remain open. No push, release tag
+or publication was performed.
