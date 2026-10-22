@@ -8,43 +8,84 @@ namespace ReferenceSamples;
 
 internal sealed class VolumePage : SamplePage
 {
-    public override async Task<string> VerifyAsync()
-    {
-        if (!OperatingSystem.IsBrowser())
-            return await VolumeMonitor.Sample.VolumeVerification.RunAsync(_volume, Owner.Stopping);
-        return await BrowserVolumeVerification.RunAsync(Owner.Channels, Owner.Stopping);
-    }
-
-    private readonly IVolumeMonitor _volume;
-    private readonly TextBlock _level = new() { Text = "No subscription", FontSize = 32 };
-    private readonly ProgressBar _bar = new() { Maximum = 1 };
-    private readonly List<(CancellationTokenSource Stop, Task Run)> _listeners = [];
-    private int _next;
+    private readonly VolumeDemo _demo;
+    private VolumeDemo Demo => _demo;
+    private readonly TextBlock _level = new() { Text = "—", FontSize = 64 };
+    private readonly ProgressBar _bar = new() { Maximum = 1, Height = 12 };
+    private readonly TextBlock _count = new() { Text = "No events received" };
+    private readonly TextBlock _verification = new() { FontSize = 12, TextWrapping = Avalonia.Media.TextWrapping.Wrap };
+    private readonly StackPanel _history = new() { Spacing = 8 };
+    private readonly Button _start = new() { Content = "Start listening", IsEnabled = false };
+    private readonly Button _stop = new() { Content = "Stop", IsEnabled = false };
+    private int _eventCount;
+    private bool _initialized;
 
     public VolumePage(AvaloniaChannelSession owner)
         : base(owner)
     {
-        _volume = owner.Services.GetRequiredService<IVolumeMonitor>();
+        _demo = new VolumeDemo(owner.Services.GetRequiredService<IVolumeMonitor>(), owner.Stopping);
         var controls = new StackPanel
         {
             Margin = new Thickness(24),
             Spacing = 16,
             Children =
             {
-                new TextBlock { Text = "Output volume events", FontSize = 28 },
                 new TextBlock
                 {
-                    Text =
-                        "Listen for the initial value and changes. Use your device's volume controls. Each listener has its own lifetime.",
+                    Text = "Your volume. Live from native code.",
+                    FontSize = 28,
                     TextWrapping = Avalonia.Media.TextWrapping.Wrap,
                 },
+                new TextBlock { Text = VolumeDemo.Instructions, TextWrapping = Avalonia.Media.TextWrapping.Wrap },
                 _level,
                 _bar,
                 Status,
-                Button("Add system-volume listener", () => AddAsync(false)),
-                Button("Cancel last listener", CancelLastAsync),
-                Button("Stop all listeners", SuspendAsync),
+                new StackPanel
+                {
+                    Orientation = Avalonia.Layout.Orientation.Horizontal,
+                    Spacing = 12,
+                    Children = { _start, _stop },
+                },
+                _count,
+                new TextBlock { Text = "Recent events", FontSize = 20 },
+                _history,
+                _verification,
+                new TextBlock
+                {
+                    Text = "Stop removes the native observer; backgrounding this app also stops listening.",
+                    TextWrapping = Avalonia.Media.TextWrapping.Wrap,
+                },
             },
+        };
+        Content = new ScrollViewer { Content = controls };
+        _start.Click += async (_, _) => await Attempt(() => Demo.StartAsync());
+        _stop.Click += async (_, _) => await Attempt(Demo.StopAsync);
+        Demo.ValueChanged += value =>
+        {
+            _level.Text = $"{value:P0}";
+            _bar.Value = value;
+            _count.Text = $"{++_eventCount} events received · last update {DateTime.Now:T}";
+            _history.Children.Insert(
+                0,
+                new TextBlock { Text = $"{DateTime.Now:HH:mm:ss}   {value:P0}", FontSize = 14 }
+            );
+            if (_history.Children.Count > 12)
+                _history.Children.RemoveAt(12);
+        };
+        Demo.StateChanged += text =>
+        {
+            if (text.Length != 0)
+                Status.Text = text;
+            _start.IsEnabled = Demo.Ready && !Demo.Listening;
+            _stop.IsEnabled = Demo.Listening;
+        };
+        Demo.Verified += report => _verification.Text = report;
+        Loaded += async (_, _) =>
+        {
+            if (_initialized || SampleApplication.VerifyOnLoad)
+                return;
+            _initialized = true;
+            await Attempt(Demo.InitializeAsync);
         };
         if (OperatingSystem.IsBrowser())
         {
@@ -52,7 +93,7 @@ internal sealed class VolumePage : SamplePage
                 new TextBlock
                 {
                     Text =
-                        "Browsers cannot observe OS output volume. The separate example below observes a page-owned HTML audio element.",
+                        "Browsers cannot observe OS output volume. This separate example observes a page-owned HTML audio element.",
                     TextWrapping = Avalonia.Media.TextWrapping.Wrap,
                 }
             );
@@ -72,63 +113,31 @@ internal sealed class VolumePage : SamplePage
                     });
             };
             controls.Children.Add(slider);
-            controls.Children.Add(Button("Add page-volume listener", () => AddAsync(true)));
+            var pageStart = new Button { Content = "Start page-volume listening" };
+            pageStart.Click += async (_, _) => await Attempt(() => Demo.StartAsync(PageValues));
+            controls.Children.Add(pageStart);
         }
-        Content = new ScrollViewer { Content = controls };
     }
 
-    private Task AddAsync(bool page)
+    private async IAsyncEnumerable<double> PageValues(
+        [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken token
+    )
     {
-        if (IsClosed)
-            return Task.CompletedTask;
-        var stop = CancellationTokenSource.CreateLinkedTokenSource(Owner.Stopping);
-        var id = ++_next;
-        var run = Attempt(() => ListenAsync(id, page, stop.Token));
-        _listeners.Add((stop, run));
-        return Task.CompletedTask;
+        using var channel = Owner.Channels.GetEventChannel("example.browser.volume");
+        await foreach (var value in channel.ListenAsync<double>(cancellationToken: token))
+            yield return value;
     }
 
-    private async Task ListenAsync(int id, bool page, CancellationToken token)
-    {
-        if (page)
-        {
-            await using var events = Owner.Channels.GetEventChannel("example.browser.volume");
-            await foreach (var value in events.ListenAsync<double>(cancellationToken: token))
-                Update(id, value, "Page");
-        }
-        else
-            await foreach (var value in _volume.ListenAsync(token))
-                Update(id, value, "System");
-    }
-
-    private void Update(int id, double value, string source)
-    {
-        _level.Text = $"{source}: {value:P0}";
-        _bar.Value = value;
-        Status.Text = $"Listener {id} received an event at {DateTime.Now:T}";
-    }
-
-    private async Task CancelLastAsync()
-    {
-        if (_listeners.Count == 0)
-            return;
-        var last = _listeners[^1];
-        _listeners.RemoveAt(_listeners.Count - 1);
-        last.Stop.Cancel();
-        try
-        {
-            await last.Run;
-        }
-        finally
-        {
-            last.Stop.Dispose();
-        }
-        Status.Text = $"{_listeners.Count} listener(s) remain";
-    }
+    public override Task<string> VerifyAsync() =>
+        OperatingSystem.IsBrowser()
+            ? BrowserVolumeVerification.RunAsync(Owner.Channels, Owner.Stopping)
+            : Demo.VerifyAsync();
 
     public override async Task SuspendAsync()
     {
-        while (_listeners.Count != 0)
-            await CancelLastAsync();
+        if (IsClosed)
+            await Demo.DisposeAsync();
+        else
+            await Demo.SuspendAsync();
     }
 }

@@ -46,118 +46,177 @@ internal sealed partial class SamplePage
             input.CopyTo(output);
         }
 #endif
-        _status.Text = Limitation;
-#if !UNO_BROWSER_SAMPLE
-        _panel.Children.Add(_path);
-#endif
-        Button(
-            "Open PDF",
-            async () =>
+        _status.Text = "Checking packaged native viewer…";
+        _panel.Children.Remove(_surface);
+        _panel.Children.Remove(_status);
+        var layout = new Grid { Margin = new Thickness(16, 12, 16, 12), RowSpacing = 10 };
+        foreach (
+            var height in new[]
             {
-                if (
-                    !OperatingSystem.IsIOS()
-                    && !OperatingSystem.IsAndroid()
-                    && !OperatingSystem.IsMacOS()
-                    && !OperatingSystem.IsLinux()
-                    && !OperatingSystem.IsBrowser()
-                    && !OperatingSystem.IsWindowsVersionAtLeast(10, 0, 17763)
-                )
-                    throw new PlatformNotSupportedException(
-                        "The bundled renderer requires browser, Linux, Android, iOS or Windows 10 1809 or later."
-                    );
-#if UNO_BROWSER_SAMPLE
-                var picker = new Windows.Storage.Pickers.FileOpenPicker();
-                picker.FileTypeFilter.Add(".pdf");
-                var file = await picker.PickSingleFileAsync();
-                if (file is null)
-                    return;
-                using var stream = await file.OpenReadAsync();
-                if (stream.Size > 8 * 1024 * 1024)
-                    throw new InvalidOperationException("Select a PDF up to 8 MiB.");
-                using var reader = new Windows.Storage.Streams.DataReader(stream);
-                await reader.LoadAsync((uint)stream.Size);
-                var bytes = new byte[(int)stream.Size];
-                reader.ReadBytes(bytes);
-                _browserPdfBytes = bytes;
-                await Plugin.Uno.PdfViewer.PdfBrowser.InitializeAsync();
-#endif
-                if (_pdf is null)
+                GridLength.Auto,
+                new GridLength(1, GridUnitType.Star),
+                GridLength.Auto,
+                GridLength.Auto,
+                GridLength.Auto,
+            }
+        )
+            layout.RowDefinitions.Add(new RowDefinition { Height = height });
+        _position.Text = "Opening document…";
+        _position.HorizontalAlignment = HorizontalAlignment.Center;
+        layout.Children.Add(_position);
+        Grid.SetRow(_surface, 1);
+        layout.Children.Add(_surface);
+        _navigation.Children.Add(
+            PdfAction("Previous", async () => await _pdf!.GoToPageAsync(Math.Max(1, (_pdf.State?.Page ?? 1) - 1)))
+        );
+        _navigation.Children.Add(
+            PdfAction(
+                "Next",
+                async () => await _pdf!.GoToPageAsync(Math.Min(_pdf.State?.PageCount ?? 1, (_pdf.State?.Page ?? 0) + 1))
+            )
+        );
+        _zoom.Children.Add(
+            PdfAction("−", async () => await _pdf!.SetZoomAsync(Math.Max(1, (_pdf.State?.Zoom ?? 1) - 0.5)))
+        );
+        _zoom.Children.Add(PdfAction("Fit page", async () => await _pdf!.SetZoomAsync(1)));
+        _zoom.Children.Add(
+            PdfAction("+", async () => await _pdf!.SetZoomAsync(Math.Min(4, (_pdf.State?.Zoom ?? 1) + 0.5)))
+        );
+        _zoom.Children.Add(
+            PdfAction(
+                "Reopen",
+                async () =>
                 {
-                    _pdf = new PdfControl
-                    {
-                        Height = 420,
-                        HorizontalContentAlignment = HorizontalAlignment.Stretch,
-                        VerticalContentAlignment = VerticalAlignment.Stretch,
-                    };
-                    _pdf.StateChanged += (_, state) =>
-                        _status.Text = $"Page {state.Page}/{state.PageCount}, zoom {state.Zoom:0.0}×";
-                    _surface.Content = _pdf;
+                    _pdf!.Reconnect();
                     await WaitForPdfAsync(_pdf);
+                    await OpenGuideAsync();
                 }
-#if UNO_BROWSER_SAMPLE
-                await _pdf.OpenBytesAsync(_browserPdfBytes!);
-#else
-                await _pdf.OpenAsync(_path.Text);
-#endif
+            )
+        );
+        Grid.SetRow(_navigation, 2);
+        Grid.SetRow(_zoom, 3);
+        layout.Children.Add(_navigation);
+        layout.Children.Add(_zoom);
+        var details = new StackPanel { Spacing = 6 };
+        details.Children.Add(
+            new TextBlock
+            {
+                Text = OperatingSystem.IsWindows()
+                    ? "Use Previous and Next to turn pages. Zoom with +/− or pinch, then scroll to pan. Reopen creates a fresh native view."
+                    : "Pinch to zoom, drag to pan. At fit, swipe to turn pages. Reopen releases the document and creates a fresh native view.",
+                TextWrapping = TextWrapping.Wrap,
+                FontSize = 12,
             }
         );
-        Button(
-            "Previous page",
-            async () =>
+        _status.FontSize = 12;
+        details.Children.Add(_status);
+        Grid.SetRow(details, 4);
+        layout.Children.Add(details);
+        Content = layout;
+        SetPdfWorking(true);
+        Loaded += async (_, _) =>
+        {
+            if (
+                _pdfStarted
+                || !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("NATIVECHANNELS_UNO_SAMPLE_RESULT"))
+            )
+                return;
+            _pdfStarted = true;
+            _pdfStartup = InitializePdfAsync();
+            await _pdfStartup;
+        };
+    }
+
+    private readonly TextBlock _position = new();
+    private readonly StackPanel _navigation = new()
+    {
+        Orientation = Orientation.Horizontal,
+        HorizontalAlignment = HorizontalAlignment.Center,
+        Spacing = 8,
+    };
+    private readonly StackPanel _zoom = new()
+    {
+        Orientation = Orientation.Horizontal,
+        HorizontalAlignment = HorizontalAlignment.Center,
+        Spacing = 8,
+    };
+    private bool _pdfStarted;
+    private Task _pdfStartup = Task.CompletedTask;
+
+    private Button PdfAction(string title, Func<Task> action)
+    {
+        var button = new Button { Content = title };
+        button.Click += async (_, _) =>
+        {
+            SetPdfWorking(true);
+            await _actions.WaitAsync();
+            try
             {
-                if (_pdf?.State is { } state)
-                    await _pdf.GoToPageAsync(Math.Max(1, state.Page - 1));
-            }
-        );
-        Button(
-            "Next page",
-            async () =>
-            {
-                if (_pdf?.State is { } state)
-                    await _pdf.GoToPageAsync(Math.Min(state.PageCount, state.Page + 1));
-            }
-        );
-        Button(
-            "Zoom in",
-            async () =>
-            {
-                if (_pdf?.State is { } state)
-                    await _pdf.SetZoomAsync(Math.Min(4, state.Zoom + 0.5));
-            }
-        );
-        Button(
-            "Zoom out",
-            async () =>
-            {
-                if (_pdf?.State is { } state)
-                    await _pdf.SetZoomAsync(Math.Max(1, state.Zoom - 0.5));
-            }
-        );
-        Button(
-            "Reconnect and reopen",
-            async () =>
-            {
-                if (_pdf is null)
+                if (_stopping.IsCancellationRequested)
                     return;
-                _pdf.Reconnect();
-                await WaitForPdfAsync(_pdf);
-#if UNO_BROWSER_SAMPLE
-                await _pdf.OpenBytesAsync(_browserPdfBytes!);
-#else
-                await _pdf.OpenAsync(_path.Text);
-#endif
+                await action();
+                _status.Text = "Page and zoom state received from native code.";
             }
-        );
-        Button("Close document", StopAsync);
-        Button(
-            "Check PDF control protocol",
-            async () =>
+            catch (Exception error)
             {
-                await StopAsync();
-                await UnoFeasibility.PdfProtocolProbe.RunAsync(_surface);
-                _status.Text = "Protocol passed: page, zoom, callbacks, identity, reconnect and cleanup. " + Limitation;
+                _status.Text = error.Message;
             }
-        );
+            finally
+            {
+                _actions.Release();
+                SetPdfWorking(_stopping.IsCancellationRequested);
+            }
+        };
+        return button;
+    }
+
+    private void SetPdfWorking(bool working)
+    {
+        foreach (var button in _navigation.Children.Concat(_zoom.Children).OfType<Button>())
+            button.IsEnabled = !working;
+    }
+
+    private async Task InitializePdfAsync()
+    {
+        try
+        {
+            await VerifyAsync();
+            _stopping.Token.ThrowIfCancellationRequested();
+            _pdf = new PdfControl
+            {
+                HorizontalContentAlignment = HorizontalAlignment.Stretch,
+                VerticalContentAlignment = VerticalAlignment.Stretch,
+            };
+            _pdf.StateChanged += (_, state) =>
+                _position.Text = $"Page {state.Page} of {state.PageCount}  ·  {state.Zoom:P0}";
+            _surface.Content = _pdf;
+            await WaitForPdfAsync(_pdf);
+            await OpenGuideAsync();
+            _status.Text = "Native document, navigation, callbacks and cleanup verified.";
+            SetPdfWorking(false);
+        }
+        catch (Exception error)
+        {
+            _status.Text = "FAIL " + error.Message;
+        }
+    }
+
+    private async Task OpenGuideAsync()
+    {
+#if UNO_BROWSER_SAMPLE
+        if (_browserPdfBytes is null)
+        {
+            using var input =
+                typeof(SamplePage).Assembly.GetManifestResourceStream("Verification.pdf")
+                ?? throw new InvalidOperationException("Missing verification PDF.");
+            using var buffer = new MemoryStream();
+            await input.CopyToAsync(buffer, _stopping.Token);
+            _browserPdfBytes = buffer.ToArray();
+        }
+        await _pdf!.OpenBytesAsync(_browserPdfBytes, _stopping.Token);
+#else
+        await _pdf!.OpenAsync(_path.Text, _stopping.Token);
+#endif
     }
 
     private static async Task WaitForPdfAsync(PdfControl pdf)
@@ -219,6 +278,10 @@ internal sealed partial class SamplePage
 
     public async Task StopAsync()
     {
+        // Preserve the open document when merely switching apps, as MAUI does.
+        if (!_stopping.IsCancellationRequested)
+            return;
+        await _pdfStartup;
         if (_pdf is not null)
             await _pdf.DisposeAsync();
         _pdf = null;

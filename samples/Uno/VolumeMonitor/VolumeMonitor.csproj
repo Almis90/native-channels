@@ -28,4 +28,11 @@
             Link="BrowserVolumeVerification.cs"
         />
     </ItemGroup>
+    <ItemGroup>
+        <Compile
+            Include="../../Maui/VolumeMonitor/AudioSessionScope.cs"
+            Link="AudioSessionScope.cs"
+        />
+        <Compile Include="../../Avalonia/VolumeMonitor/Shared/VolumeDemo.cs" Link="VolumeDemo.cs" />
+    </ItemGroup>
 </Project>

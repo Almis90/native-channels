@@ -1,6 +1,6 @@
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Platform.Storage;
+using Avalonia.Layout;
 using NativeChannels;
 using Plugin.Avalonia.PdfViewer;
 
@@ -8,11 +8,37 @@ namespace ReferenceSamples;
 
 internal sealed class PdfPage : SamplePage
 {
-    public override Task<string> VerifyAsync() => SharedPdfVerification.RunAsync(_views, _temporary, _operations.Token);
-
-    private readonly List<PdfViewer> _views = [];
+    private readonly PdfViewer _viewer = new();
+    private readonly PdfViewer _probe = new()
+    {
+        Height = 1,
+        Opacity = 0,
+        IsHitTestVisible = false,
+    };
     private readonly List<string> _temporary = [];
     private readonly CancellationTokenSource _operations = new();
+    private readonly TextBlock _position = new()
+    {
+        Text = "Opening document…",
+        HorizontalAlignment = HorizontalAlignment.Center,
+    };
+    private readonly StackPanel _navigation = new()
+    {
+        Orientation = Orientation.Horizontal,
+        HorizontalAlignment = HorizontalAlignment.Center,
+        Spacing = 8,
+    };
+    private readonly StackPanel _zoom = new()
+    {
+        Orientation = Orientation.Horizontal,
+        HorizontalAlignment = HorizontalAlignment.Center,
+        Spacing = 8,
+    };
+    private readonly Grid _layout;
+    private bool _started;
+    private bool _working = true;
+    private Task _startup = Task.CompletedTask;
+    private Task _action = Task.CompletedTask;
 
     public PdfPage(AvaloniaChannelSession owner)
         : base(owner)
@@ -24,118 +50,180 @@ internal sealed class PdfPage : SamplePage
         PdfLinux.Backend = LinuxPdfBackend.Qt;
 #endif
 #endif
-        var panel = new Grid { Margin = new Thickness(12), RowDefinitions = new RowDefinitions("Auto,Auto,*,*") };
-        panel.Children.Add(new TextBlock { Text = "Two independent native PDF views", FontSize = 24 });
-        Grid.SetRow(Status, 1);
-        panel.Children.Add(Status);
-        for (var i = 0; i < 2; i++)
+        Status.Text = "Checking packaged native viewer…";
+        Status.FontSize = 12;
+        _viewer.StateChanged += (_, state) =>
+            _position.Text = $"Page {state.Page} of {state.PageCount}  ·  {state.Zoom:P0}";
+        _navigation.Children.Add(
+            PdfAction(
+                "Previous",
+                async () => await _viewer.GoToPageAsync(Math.Max(1, (_viewer.State?.Page ?? 1) - 1), _operations.Token)
+            )
+        );
+        _navigation.Children.Add(
+            PdfAction(
+                "Next",
+                async () =>
+                    await _viewer.GoToPageAsync(
+                        Math.Min(_viewer.State?.PageCount ?? 1, (_viewer.State?.Page ?? 0) + 1),
+                        _operations.Token
+                    )
+            )
+        );
+        _zoom.Children.Add(
+            PdfAction(
+                "−",
+                async () => await _viewer.SetZoomAsync(Math.Max(1, (_viewer.State?.Zoom ?? 1) - 0.5), _operations.Token)
+            )
+        );
+        _zoom.Children.Add(PdfAction("Fit page", async () => await _viewer.SetZoomAsync(1, _operations.Token)));
+        _zoom.Children.Add(
+            PdfAction(
+                "+",
+                async () => await _viewer.SetZoomAsync(Math.Min(4, (_viewer.State?.Zoom ?? 1) + 0.5), _operations.Token)
+            )
+        );
+        _zoom.Children.Add(
+            PdfAction(
+                "Reopen",
+                async () =>
+                {
+                    _viewer.Reconnect();
+                    await OpenGuideAsync();
+                }
+            )
+        );
+        _layout = new Grid
         {
-            var view = new PdfViewer();
-            _views.Add(view);
-            var state = new TextBlock { Text = "Connecting…" };
-            view.Connected += (_, _) => state.Text = "Ready — open a local PDF";
-            view.Disconnected += (_, _) => state.Text = "Detached";
-            view.StateChanged += (_, value) =>
-                state.Text = $"Page {value.Page}/{value.PageCount} · {value.Zoom:F1}× · {value.InstanceId[..8]}";
-            var buttons = new WrapPanel
+            Margin = new Thickness(16, 12),
+            RowSpacing = 10,
+            RowDefinitions = new RowDefinitions("Auto,*,Auto,Auto,Auto,Auto"),
+        };
+        _layout.Children.Add(_position);
+        AddRow(_viewer, 1);
+        AddRow(_navigation, 2);
+        AddRow(_zoom, 3);
+        AddRow(
+            new StackPanel
             {
+                Spacing = 6,
                 Children =
                 {
-                    Button("Open", () => Open(view)),
-                    Button(
-                        "Previous",
-                        async () =>
-                            await view.GoToPageAsync(Math.Max(1, (view.State?.Page ?? 1) - 1), _operations.Token)
-                    ),
-                    Button(
-                        "Next",
-                        async () =>
-                            await view.GoToPageAsync(
-                                Math.Min(view.State?.PageCount ?? 1, (view.State?.Page ?? 0) + 1),
-                                _operations.Token
-                            )
-                    ),
-                    Button(
-                        "Zoom +",
-                        async () =>
-                            await view.SetZoomAsync(Math.Min(4, (view.State?.Zoom ?? 1) + 0.5), _operations.Token)
-                    ),
-                    Button("Fit", async () => await view.SetZoomAsync(1, _operations.Token)),
-                    Button("Detach", view.DisconnectAsync),
-                    Button(
-                        "Reconnect",
-                        () =>
-                        {
-                            view.Reconnect();
-                            return Task.CompletedTask;
-                        }
-                    ),
+                    new TextBlock
+                    {
+                        Text = OperatingSystem.IsWindows()
+                            ? "Use Previous and Next to turn pages. Zoom with +/− or pinch, then scroll to pan. Reopen creates a fresh native view."
+                            : "Pinch to zoom, drag to pan. At fit, swipe to turn pages. Reopen releases the document and creates a fresh native view.",
+                        TextWrapping = Avalonia.Media.TextWrapping.Wrap,
+                        FontSize = 12,
+                    },
+                    Status,
                 },
-            };
-            var section = new Grid { RowDefinitions = new RowDefinitions("Auto,Auto,*"), Margin = new Thickness(0, 8) };
-            section.Children.Add(buttons);
-            Grid.SetRow(state, 1);
-            section.Children.Add(state);
-            Grid.SetRow(view, 2);
-            section.Children.Add(view);
-            Grid.SetRow(section, i + 2);
-            panel.Children.Add(section);
-        }
-        Content = panel;
+            },
+            4
+        );
+        AddRow(_probe, 5);
+        Content = _layout;
+        SetWorking(true);
+        Loaded += async (_, _) =>
+        {
+            if (_started || SampleApplication.VerifyOnLoad)
+                return;
+            _started = true;
+            _startup = InitializeAsync();
+            await _startup;
+        };
     }
 
-    private async Task Open(PdfViewer view)
+    private void AddRow(Control control, int row)
     {
-        var files = await TopLevel
-            .GetTopLevel(this)!
-            .StorageProvider.OpenFilePickerAsync(
-                new()
-                {
-                    Title = "Open PDF",
-                    AllowMultiple = false,
-                    FileTypeFilter = [new("PDF") { Patterns = ["*.pdf"], MimeTypes = ["application/pdf"] }],
-                }
-            );
-        if (files.Count == 0 || IsClosed)
-            return;
-        using var file = files[0];
+        Grid.SetRow(control, row);
+        _layout.Children.Add(control);
+    }
+
+    private Button PdfAction(string title, Func<Task> action)
+    {
+        var button = new Button { Content = title };
+        button.Click += async (_, _) =>
+        {
+            if (_working || IsClosed)
+                return;
+            SetWorking(true);
+            _action = Attempt(async () =>
+            {
+                await action();
+                Status.Text = "Page and zoom state received from native code.";
+            });
+            try
+            {
+                await _action;
+            }
+            finally
+            {
+                SetWorking(IsClosed);
+            }
+        };
+        return button;
+    }
+
+    private void SetWorking(bool value)
+    {
+        _working = value;
+        _navigation.IsEnabled = _zoom.IsEnabled = !value;
+    }
+
+    public override Task<string> VerifyAsync() =>
+        SharedPdfVerification.RunAsync([_viewer, _probe], _temporary, _operations.Token);
+
+    private async Task InitializeAsync()
+    {
+        try
+        {
+            Console.WriteLine(await VerifyAsync());
+            _operations.Token.ThrowIfCancellationRequested();
+            await OpenGuideAsync();
+            Status.Text = "Native document, navigation, callbacks and cleanup verified.";
+            SetWorking(false);
+        }
+        catch (Exception error)
+        {
+            Status.Text = "FAIL " + error.Message;
+        }
+        finally
+        {
+            await _probe.DisconnectAsync();
+            _layout.Children.Remove(_probe);
+        }
+    }
+
+    private async Task OpenGuideAsync()
+    {
+        using var deadline = CancellationTokenSource.CreateLinkedTokenSource(_operations.Token);
+        deadline.CancelAfter(TimeSpan.FromSeconds(10));
+        while (!_viewer.IsConnected)
+            await Task.Delay(25, deadline.Token);
         if (OperatingSystem.IsBrowser())
         {
-            await using var input = await file.OpenReadAsync();
-            using var bytes = new MemoryStream();
-            var buffer = new byte[65536];
-            int read;
-            while ((read = await input.ReadAsync(buffer, _operations.Token)) != 0)
-            {
-                if (bytes.Length + read > 8 * 1024 * 1024)
-                    throw new InvalidDataException("Select a PDF up to 8 MiB.");
-                bytes.Write(buffer, 0, read);
-            }
-            await view.OpenBytesAsync(bytes.ToArray(), _operations.Token);
+            using var input =
+                typeof(PdfPage).Assembly.GetManifestResourceStream("Verification.pdf")
+                ?? throw new InvalidOperationException("Missing verification PDF.");
+            using var buffer = new MemoryStream();
+            await input.CopyToAsync(buffer, deadline.Token);
+            await _viewer.OpenBytesAsync(buffer.ToArray(), deadline.Token);
         }
         else
-        {
-            var path = file.TryGetLocalPath();
-            if (path is null)
-            {
-                path = Path.Combine(Path.GetTempPath(), $"nativechannels-{Guid.NewGuid():N}.pdf");
-                _temporary.Add(path);
-                await using var input = await file.OpenReadAsync();
-                await using (var output = File.Create(path))
-                    await input.CopyToAsync(output, _operations.Token);
-            }
-            await view.OpenAsync(path, _operations.Token);
-        }
+            await _viewer.OpenAsync(_temporary[0], deadline.Token);
     }
 
     public override async Task SuspendAsync()
     {
-        // Hidden views retain their document; final disposal disconnects before deleting owned files.
         if (!IsClosed)
             return;
         _operations.Cancel();
-        foreach (var view in _views)
-            await view.DisconnectAsync();
+        await _startup;
+        await _action;
+        await _viewer.DisconnectAsync();
+        await _probe.DisconnectAsync();
         foreach (var path in _temporary)
         {
             try
@@ -145,5 +233,6 @@ internal sealed class PdfPage : SamplePage
             catch (IOException) { }
         }
         _temporary.Clear();
+        _operations.Dispose();
     }
 }

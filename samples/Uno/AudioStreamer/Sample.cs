@@ -1,3 +1,5 @@
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
 using NativeChannels;
 using Plugin.AudioStreamer;
 
@@ -13,6 +15,15 @@ internal sealed partial class SamplePage
     private Task _producer = Task.CompletedTask;
     private Task _suspension = Task.CompletedTask;
     private Exception? _playbackError;
+    private bool _paused;
+    private readonly Slider _level = new()
+    {
+        Minimum = 0,
+        Maximum = 0.25,
+        StepFrequency = 0.01,
+        Value = 0.16,
+    };
+    private readonly TextBlock _buffer = new();
     private IAudioStreamer Audio =>
         Session(services =>
         {
@@ -27,11 +38,18 @@ internal sealed partial class SamplePage
         // Match Avalonia's eager session setup so the adapter can capture Play's user gesture.
         _ = Audio;
 #endif
-        _status.Text =
-            "Play the shared original 16-second music loop at a low level. Playback starts only when requested.";
+        ((TextBlock)_panel.Children[0]).Text = "Sunny Steps";
+        _panel.Children.Insert(
+            1,
+            new TextBlock { Text = "Original 16-second music · 48 kHz mono PCM16", TextWrapping = TextWrapping.Wrap }
+        );
+        _panel.Children.Remove(_surface);
+        _status.Text = "Ready. Select Play to enable audio.";
+        _panel.Children.Add(new TextBlock { Text = "Signal level (0–25%)" });
+        _panel.Children.Add(_level);
         Button("Play", () => StartAsync());
-        Button("Pause", PauseAsync);
-        Button("Resume", ResumeAsync);
+        Button("Loop", () => StartAsync(loop: true));
+        Button("Pause / resume", () => _paused ? ResumeAsync() : PauseAsync());
         if (OperatingSystem.IsWindows())
             _window.AppWindow.Changed += (_, _) =>
             {
@@ -44,15 +62,27 @@ internal sealed partial class SamplePage
                     _suspension = SuspendAsync();
             };
         Button("Stop", StopAsync);
+        _panel.Children.Add(_buffer);
+        _panel.Children.Add(
+            new TextBlock
+            {
+                Text =
+                    "Playback stops when the app is hidden, minimized or closed. Browser playback requires a click and uses Web Audio.",
+                TextWrapping = TextWrapping.Wrap,
+            }
+        );
     }
 
-    private async Task StartAsync(bool silent = false)
+    private async Task StartAsync(bool silent = false, bool loop = false)
     {
+        if (!_producer.IsCompleted)
+            return;
         await StopAsync();
+        _paused = false;
         _playbackError = null;
         _playback = await Audio.OpenAsync(_stopping.Token);
         _playing = CancellationTokenSource.CreateLinkedTokenSource(_stopping.Token);
-        _producer = ProduceAsync(_playback, silent, _playing.Token);
+        _producer = ProduceAsync(_playback, silent, loop, _playing.Token);
     }
 
     private async Task PauseAsync()
@@ -60,7 +90,8 @@ internal sealed partial class SamplePage
         if (_playback is not null)
         {
             await _playback.PauseAsync(_stopping.Token);
-            _status.Text = "Paused.";
+            _paused = true;
+            _status.Text = "Paused";
         }
     }
 
@@ -69,20 +100,32 @@ internal sealed partial class SamplePage
         if (_playback is not null)
         {
             await _playback.ResumeAsync(_stopping.Token);
-            _status.Text = "Playing.";
+            _paused = false;
+            _status.Text = "Playing";
         }
     }
 
-    private async Task ProduceAsync(AudioStreamSession playback, bool silent, CancellationToken token)
+    private async Task ProduceAsync(AudioStreamSession playback, bool silent, bool loop, CancellationToken token)
     {
+        using var monitorStop = CancellationTokenSource.CreateLinkedTokenSource(token);
+        var monitor = MonitorAsync(playback, monitorStop.Token);
         try
         {
             var music = new global::AudioStreamer.Sample.MusicGenerator();
-            _status.Text = "Playing.";
-            for (var frames = 0; frames < global::AudioStreamer.Sample.MusicGenerator.LoopFrames; frames += 2400)
-                await playback.WriteAsync(music.Next(2400, silent ? 0 : 0.12), token);
+            _paused = false;
+            _status.Text = "Playing";
+            const int frames = 2400;
+            var chunks = global::AudioStreamer.Sample.MusicGenerator.LoopFrames / frames;
+            for (int i = 0; loop || i < chunks; i++)
+            {
+                token.ThrowIfCancellationRequested();
+                await playback.WriteAsync(
+                    music.Next(frames, silent ? 0 : _level.Value, !loop && i == chunks - 1),
+                    token
+                );
+            }
             await playback.DrainAsync(token);
-            _status.Text = "Finished.";
+            _status.Text = "Completed";
         }
         catch (OperationCanceledException) when (token.IsCancellationRequested) { }
         catch (Exception error)
@@ -92,7 +135,33 @@ internal sealed partial class SamplePage
         }
         finally
         {
+            monitorStop.Cancel();
+            await monitor;
             await playback.DisposeAsync();
+            if (ReferenceEquals(_playback, playback))
+                _playback = null;
+            _buffer.Text = "Buffer: 0 / 500 ms";
+        }
+    }
+
+    private async Task MonitorAsync(AudioStreamSession playback, CancellationToken token)
+    {
+        try
+        {
+            while (true)
+            {
+                var state = await playback.GetStatusAsync(token);
+                _buffer.Text =
+                    $"Buffer: {state.BufferedDuration.TotalMilliseconds:F0} / 500 ms · played {state.PlayedFrames / 48000.0:F1}s";
+                await Task.Delay(100, token);
+            }
+        }
+        catch (OperationCanceledException) when (token.IsCancellationRequested) { }
+        catch (Exception error)
+        {
+            _playbackError = error;
+            _status.Text = error.Message;
+            _playing?.Cancel();
         }
     }
 
@@ -154,5 +223,7 @@ internal sealed partial class SamplePage
             await _playback.DisposeAsync();
         _playback = null;
         playing?.Dispose();
+        _paused = false;
+        _status.Text = "Stopped";
     }
 }

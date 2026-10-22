@@ -20,6 +20,11 @@ internal sealed partial class SamplePage : Page, IAsyncDisposable
     public SamplePage(Window window)
     {
         _window = window;
+#if IOS
+        // Skia content fills the native window, including the notch and home indicator.
+        Loaded += (_, _) => DispatcherQueue.TryEnqueue(UpdateSafeArea);
+        SizeChanged += (_, _) => UpdateSafeArea();
+#endif
         Content = new ScrollViewer { Content = _panel };
         _panel.Children.Add(new TextBlock { Text = Title, FontSize = 28 });
         _panel.Children.Add(_status);
@@ -78,6 +83,38 @@ internal sealed partial class SamplePage : Page, IAsyncDisposable
             _window.Close();
         };
     }
+
+#if IOS
+    private FrameworkElement? _safeAreaContent;
+    private Thickness _safeAreaMargin;
+
+    private void UpdateSafeArea()
+    {
+        var nativeWindow =
+            UIKit
+                .UIApplication.SharedApplication.ConnectedScenes.OfType<UIKit.UIWindowScene>()
+                .SelectMany(scene => scene.Windows)
+                .FirstOrDefault(window => window.IsKeyWindow)
+            ?? UIKit.UIApplication.SharedApplication.KeyWindow;
+        if (nativeWindow is null)
+            return;
+        var insets = nativeWindow.SafeAreaInsets;
+        if (Content is FrameworkElement content)
+        {
+            if (!ReferenceEquals(_safeAreaContent, content))
+            {
+                _safeAreaContent = content;
+                _safeAreaMargin = content.Margin;
+            }
+            content.Margin = new Thickness(
+                _safeAreaMargin.Left + insets.Left,
+                _safeAreaMargin.Top + insets.Top,
+                _safeAreaMargin.Right + insets.Right,
+                _safeAreaMargin.Bottom + insets.Bottom
+            );
+        }
+    }
+#endif
 
     private UnoChannelSession Session(Action<IServiceCollection> configure)
     {

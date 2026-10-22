@@ -26,4 +26,10 @@
             Link="VolumeVerification.cs"
         />
     </ItemGroup>
+    <ItemGroup>
+        <Compile
+            Include="../../../Maui/VolumeMonitor/AudioSessionScope.cs"
+            Link="AudioSessionScope.cs"
+        />
+    </ItemGroup>
 </Project>
