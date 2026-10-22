@@ -1,8 +1,6 @@
-using System.Diagnostics;
 using AudioStreamer.Sample;
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Layout;
 using Avalonia.Media;
 using Microsoft.Extensions.DependencyInjection;
 using NativeChannels;
@@ -15,24 +13,17 @@ public sealed class MainWindow : Window
     private readonly AvaloniaChannelSession _owner;
     private readonly IAudioStreamer _audio;
     private readonly CancellationTokenSource _lifetime;
-    private readonly TextBlock _state = new() { Text = "Checking native playback…", FontSize = 24 };
-    private readonly TextBlock _bufferText = new() { Text = "Native buffer: 0 / 500 ms" };
-    private readonly ProgressBar _buffer = new() { Maximum = 1 };
-    private readonly TextBlock _metrics = new()
-    {
-        Text = "48,000 Hz · mono · PCM16 little-endian",
-        TextWrapping = TextWrapping.Wrap,
-    };
-    private readonly TextBlock _verification = new() { FontSize = 12, TextWrapping = TextWrapping.Wrap };
+    private readonly TextBlock _state = new() { Text = "Checking native playback…", TextWrapping = TextWrapping.Wrap };
+    private readonly TextBlock _bufferText = new();
     private readonly Slider _volume = new()
     {
         Minimum = 0,
         Maximum = 0.25,
         Value = 0.16,
     };
-    private readonly Button _short = new() { Content = "Play 16-second music", IsEnabled = false };
-    private readonly Button _continuous = new() { Content = "Loop music", IsEnabled = false };
-    private readonly Button _pause = new() { Content = "Pause", IsEnabled = false };
+    private readonly Button _short = new() { Content = "Play", IsEnabled = false };
+    private readonly Button _continuous = new() { Content = "Loop", IsEnabled = false };
+    private readonly Button _pause = new() { Content = "Pause / resume", IsEnabled = false };
     private readonly Button _stop = new() { Content = "Stop", IsEnabled = false };
     private CancellationTokenSource? _playback;
     private AudioStreamSession? _session;
@@ -61,13 +52,11 @@ public sealed class MainWindow : Window
         _continuous.Click += async (_, _) => await StartAsync(true);
         _pause.Click += async (_, _) => await TogglePauseAsync();
         _stop.Click += async (_, _) => await StopAsync();
-        var level = new TextBlock { Text = "Signal level: 16%" };
         _volume.PropertyChanged += (_, args) =>
         {
             if (args.Property != Slider.ValueProperty)
                 return;
             _level = _volume.Value;
-            level.Text = $"Signal level: {_level:P0}";
         };
         PropertyChanged += async (_, args) =>
         {
@@ -78,43 +67,33 @@ public sealed class MainWindow : Window
         {
             Content = new StackPanel
             {
-                Margin = new Thickness(28),
+                Margin = new Thickness(24),
                 Spacing = 16,
                 Children =
                 {
                     new TextBlock
                     {
-                        Text = "A little music. Native playback.",
-                        FontSize = 28,
-                        FontWeight = FontWeight.Bold,
+                        Text = "Sunny Steps",
+                        FontSize = 30,
                         TextWrapping = TextWrapping.Wrap,
                     },
                     new TextBlock
                     {
-                        Text = "An original piano-style melody with bass and a soft beat, streamed to your speakers.",
+                        Text = "Original 16-second music · 48 kHz mono PCM16",
                         TextWrapping = TextWrapping.Wrap,
                     },
                     _state,
-                    new TextBlock { Text = "Sunny Steps · 120 BPM · original instrumental" },
-                    level,
+                    new TextBlock { Text = "Signal level (0–25%)" },
                     _volume,
                     _short,
                     _continuous,
-                    new StackPanel
-                    {
-                        Orientation = Orientation.Horizontal,
-                        Spacing = 12,
-                        Children = { _pause, _stop },
-                    },
+                    _pause,
+                    _stop,
                     _bufferText,
-                    _buffer,
-                    _metrics,
-                    _verification,
                     new TextBlock
                     {
                         Text =
-                            "Pause keeps buffered audio; Stop clears it. Playback stops when the window is minimized or closed. Adjust the device’s media volume if playback is quiet.",
-                        FontSize = 13,
+                            "Playback stops when the app is hidden, minimized or closed. Browser playback requires a click and uses Web Audio.",
                         TextWrapping = TextWrapping.Wrap,
                     },
                 },
@@ -132,8 +111,7 @@ public sealed class MainWindow : Window
     private async Task<string> InitializeCoreAsync(AvaloniaChannelHost host, bool verifyControls)
     {
         var result = await AudioVerification.RunAsync(_audio, _lifetime.Token);
-        _verification.Text = result;
-        _state.Text = "Ready";
+        _state.Text = "Ready. Select Play to enable audio.";
         if (verifyControls)
             await AvaloniaAudioVerification.RunAsync(host, _lifetime.Token);
         _ready = true;
@@ -167,25 +145,19 @@ public sealed class MainWindow : Window
             _state.Text = "Opening native audio…";
             _session = await _audio.OpenAsync(cancellation);
             _paused = false;
-            _pause.Content = "Pause";
             _pause.IsEnabled = true;
             _state.Text = "Playing";
             monitor = MonitorAsync(_session, monitoring.Token);
             var generator = new MusicGenerator();
             var count = 0;
-            var totalWait = TimeSpan.Zero;
             const int frames = 2400;
             const int chunks = MusicGenerator.LoopFrames / frames;
             while (continuous || count < chunks)
             {
                 cancellation.ThrowIfCancellationRequested();
                 var pcm = generator.Next(frames, _level, !continuous && count == chunks - 1);
-                var clock = Stopwatch.StartNew();
                 await _session.WriteAsync(pcm, cancellation);
-                totalWait += clock.Elapsed;
                 count++;
-                _metrics.Text =
-                    $"{count * frames * 2:N0} PCM bytes sent · mean enqueue wait {totalWait.TotalMilliseconds / count:F1} ms";
             }
             await _session.DrainAsync(cancellation);
             _state.Text = "Completed";
@@ -220,8 +192,7 @@ public sealed class MainWindow : Window
                     ShowError(error);
                 }
             }
-            _buffer.Value = 0;
-            _bufferText.Text = "Native buffer: 0 / 500 ms";
+            _bufferText.Text = "Buffer: 0 / 500 ms";
             // This method's task completes after its finally block; enable Start explicitly.
             _pause.IsEnabled = _stop.IsEnabled = false;
             _short.IsEnabled = _continuous.IsEnabled = _ready && !_closing && _stopping == 0;
@@ -235,9 +206,8 @@ public sealed class MainWindow : Window
             while (true)
             {
                 var status = await session.GetStatusAsync(cancellation);
-                _buffer.Value = status.BufferUtilization;
                 _bufferText.Text =
-                    $"Native buffer: {status.BufferedDuration.TotalMilliseconds:F0} / 500 ms · played {status.PlayedFrames / 48000.0:F1} s";
+                    $"Buffer: {status.BufferedDuration.TotalMilliseconds:F0} / 500 ms · played {status.PlayedFrames / 48000.0:F1}s";
                 await Task.Delay(100, cancellation);
             }
         }
@@ -267,7 +237,6 @@ public sealed class MainWindow : Window
             else
                 await session.PauseAsync(_playback!.Token);
             _paused = !_paused;
-            _pause.Content = _paused ? "Resume" : "Pause";
             _state.Text = _paused ? "Paused" : "Playing";
         }
         catch (OperationCanceledException) when (_playback!.IsCancellationRequested) { }
