@@ -20,13 +20,28 @@ internal sealed partial class SamplePage : Page, IAsyncDisposable
     public SamplePage(Window window)
     {
         _window = window;
-#if IOS
-        // Skia content fills the native window, including the notch and home indicator.
+#if IOS || ANDROID
+        // Skia content fills the native window, including system bars and cutouts.
         Loaded += (_, _) => DispatcherQueue.TryEnqueue(UpdateSafeArea);
         SizeChanged += (_, _) => UpdateSafeArea();
 #endif
+#if ANDROID
+        Loaded += (_, _) =>
+            Windows.UI.ViewManagement.ApplicationView.GetForCurrentView().VisibleBoundsChanged +=
+                OnVisibleBoundsChanged;
+        Unloaded += (_, _) =>
+            Windows.UI.ViewManagement.ApplicationView.GetForCurrentView().VisibleBoundsChanged -=
+                OnVisibleBoundsChanged;
+#endif
         Content = new ScrollViewer { Content = _panel };
-        _panel.Children.Add(new TextBlock { Text = Title, FontSize = 28 });
+        _panel.Children.Add(
+            new TextBlock
+            {
+                Text = Title,
+                FontSize = 28,
+                TextWrapping = TextWrapping.Wrap,
+            }
+        );
         _panel.Children.Add(_status);
         _panel.Children.Add(_surface);
         Build();
@@ -84,12 +99,18 @@ internal sealed partial class SamplePage : Page, IAsyncDisposable
         };
     }
 
-#if IOS
+#if ANDROID
+    private void OnVisibleBoundsChanged(Windows.UI.ViewManagement.ApplicationView sender, object args) =>
+        UpdateSafeArea();
+#endif
+
+#if IOS || ANDROID
     private FrameworkElement? _safeAreaContent;
     private Thickness _safeAreaMargin;
 
     private void UpdateSafeArea()
     {
+#if IOS
         var nativeWindow =
             UIKit
                 .UIApplication.SharedApplication.ConnectedScenes.OfType<UIKit.UIWindowScene>()
@@ -99,6 +120,18 @@ internal sealed partial class SamplePage : Page, IAsyncDisposable
         if (nativeWindow is null)
             return;
         var insets = nativeWindow.SafeAreaInsets;
+#else
+        var visible = Windows.UI.ViewManagement.ApplicationView.GetForCurrentView().VisibleBounds;
+        var bounds = _window.Bounds;
+        if (visible.Width <= 0 || visible.Height <= 0)
+            return;
+        var insets = new Thickness(
+            Math.Max(0, visible.Left - bounds.Left),
+            Math.Max(0, visible.Top - bounds.Top),
+            Math.Max(0, bounds.Right - visible.Right),
+            Math.Max(0, bounds.Bottom - visible.Bottom)
+        );
+#endif
         if (Content is FrameworkElement content)
         {
             if (!ReferenceEquals(_safeAreaContent, content))
