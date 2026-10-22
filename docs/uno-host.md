@@ -60,10 +60,17 @@ controls must manage traversal within their own child HWND trees; that case is
 not covered by this bridge. This does not provide PDF document accessibility.
 Native parenting, layout, focus and direct input-message checks pass on Windows.
 Desktop-tool visual review confirms buttons and PDF content remain visible;
-broader physical input and accessibility coverage remain outstanding. macOS throws an explicit
-`PlatformNotSupportedException` because the pinned release has no public arbitrary
-AppKit embedding API. Other platforms need runtime verification. No reflection into
-Uno internals, rendered-image substitute, or separate-window fallback is used.
+broader physical input and accessibility coverage remain outstanding.
+
+macOS uses `MacOSNativeView`, an adapter-owned AppKit container around Uno 6.7.135's
+internal native element. Reflection and native lifetime compatibility are isolated
+in the optional Uno package. The shared Swift view factories remain unchanged.
+TODO: replace this bridge when [Uno #25639](https://github.com/unoplatform/uno/issues/25639)
+provides public NSView hosting. Consumers do not need a patched Uno build or their
+own reflection code. This compatibility path is verified against the pinned release
+in untrimmed desktop builds; trimming/AOT and other Uno versions are not validated.
+Dispose on the UI thread after detaching the presenter, before releasing the borrowed
+NSView. The wrapper retains the view while hosted and does not own its plugin callbacks.
 
 This package does not establish six-platform Uno support. See
 [the feasibility matrix](uno-feasibility.md) for the remaining acceptance work.
@@ -78,3 +85,10 @@ subscription. The view fixture uses a managed element; it does not test native
 parenting. `-ReuseCache artifacts/uno-feasibility/cache` is available for diagnostic
 reruns and is recorded as reused-cache evidence. No UI host runtime result on other
 platforms is implied by this Windows test.
+
+For macOS Interop and PDF parity, run `python3 eng/verify-uno-macos-views.py` on the Mac
+with `DOTNET_HOST_PATH` set to the pinned SDK. It builds ARM64/x64 native libraries,
+packs the adapters, and runs the existing MAUI/Avalonia verifiers on the host architecture.
+`--reuse-cache <directory>` hard-links external packages only; local packages are restored
+fresh. Evidence, package hashes and released-Uno runtime checks are retained under
+`artifacts/uno-macos-views/<run>/`. Physical input and visual acceptance remain separate.

@@ -8,6 +8,9 @@ on Android it reuses the existing Android PdfRenderer backend.
 On Linux X11 it reuses the existing Qt/GTK native backends through Uno's public
 `X11NativeWindow` wrapper. In the browser it reuses Avalonia's PDF.js modules
 inside a public Uno `BrowserHtmlElement` container.
+On macOS it reuses the existing AppKit PDFKit backend through the optional Uno
+adapter's temporary native hosting bridge. No patched Uno build is required.
+The bridge uses reflection pending [Uno #25639](https://github.com/unoplatform/uno/issues/25639).
 No MAUI or Avalonia package is required.
 
 ```csharp
@@ -104,3 +107,11 @@ required.
 
 macOS remains blocked by Uno's public embedding API. The separate managed protocol fixture is
 not counted as native rendering evidence.
+
+For macOS, build `eng/build-apple-desktop.py --arch arm64 --sample --views`
+(and `--arch x86_64` for x64 assets), then pack with `NativeChannelsDesktopOnly=true`,
+`NativeChannelsMacOSOnly=true` and `NativeChannelsIncludeAppleDesktopAssets=true`.
+`eng/verify-uno-macos-views.py` automates packaging and the same MAUI PDF verifier
+against two real PDFKit views. ARM64 passes document/navigation/zoom, callbacks,
+independence, errors, reconnect and pending-work cleanup on released Uno 6.7.135.
+x64 libraries cross-compile; x64 execution, trimming/AOT and physical input remain unverified.

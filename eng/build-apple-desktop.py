@@ -12,6 +12,7 @@ def main():
     parser.add_argument('--arch', choices=('arm64', 'x86_64'), required=True)
     parser.add_argument('--currency', action='store_true')
     parser.add_argument('--sample', action='store_true')
+    parser.add_argument('--views', action='store_true', help='Build Uno AppKit hosting and PDF assets')
     parser.add_argument('--plugins', action='store_true', help='Build all three shared messaging plugin adapters')
     args = parser.parse_args()
     rid = 'osx-arm64' if args.arch == 'arm64' else 'osx-x64'
@@ -38,9 +39,17 @@ def main():
             build(f'Maui{name}Native', (ROOT / f'plugins/Plugin.{name}/native/apple/Sources').glob('*.swift'),
                   ['NativeChannelsNative'])
     if args.sample:
-        build('NativeChannelsSample', [ROOT / 'native/apple/Samples/SampleModule.swift'],
+        build('NativeChannelsSample', [ROOT / 'native/apple/Samples/SampleModule.swift', ROOT / 'native/apple/Samples/MacButtonViewFactory.swift'],
               ['NativeChannelsNative'])
 
+    if args.views:
+        build('MauiPdfViewerNative', (ROOT / 'plugins/Plugin.Maui.PdfViewer/native/apple/Sources').glob('*.swift'),
+              ['NativeChannelsNative'])
+        subprocess.run(['xcrun', '--sdk', 'macosx', 'clang', '-dynamiclib', '-fobjc-arc',
+                        '-arch', args.arch, '-mmacosx-version-min=14.0', '-framework', 'AppKit',
+                        '-Wl,-install_name,@rpath/libNativeChannelsUno.dylib',
+                        str(ROOT / 'src/NativeChannels.Uno/native/MacOSNativeView.m'),
+                        '-o', str(output / 'libNativeChannelsUno.dylib')], check=True)
 
 if __name__ == '__main__':
     main()

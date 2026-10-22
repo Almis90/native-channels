@@ -31,7 +31,7 @@ def main():
         subprocess.run(args, cwd=ROOT, check=True)
 
     for arch in ('arm64', 'x86_64'):
-        execute(sys.executable, 'eng/build-apple-desktop.py', '--arch', arch, '--plugins', '--sample')
+        execute(sys.executable, 'eng/build-apple-desktop.py', '--arch', arch, '--plugins', '--sample', '--views')
     packages_to_build = ['src/NativeChannels.Core', 'src/NativeChannels', 'src/NativeChannels.Uno', 'tests/NativeChannels.Desktop.ProbeAssets']
     packages_to_build += [f'plugins/Plugin.{name}/src/Plugin.{name}' for name in ('Currency', 'AudioStreamer', 'VolumeMonitor', 'Uno.PdfViewer')]
     for package in packages_to_build:

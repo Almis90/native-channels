@@ -30,6 +30,15 @@ internal sealed class ViewVerification
 #if UNO_SAMPLE
 #if UNO_BROWSER_SAMPLE
         new(id => new UnoBrowserButtonView(id, title)) { Height = 72 };
+#elif UNO_MACOS_SAMPLE
+        new(id => new NativeChannels.UnoMacOSNativeView(
+            new("", "MCButtonViewFactory", "NativeChannelsSample"),
+            id,
+            new JsonMessageCodec().Encode(new Dictionary<string, object?> { ["title"] = title }).ToArray()
+        ))
+        {
+            Height = 72,
+        };
 #elif UNO_LINUX_SAMPLE
         new(id => new NativeChannels.UnoLinuxNativeView(
             "nc_sample",

@@ -144,4 +144,25 @@
   public func desktopDestroy(_ pointer: UnsafeMutableRawPointer) {
     Unmanaged<DesktopBridge>.fromOpaque(pointer).release()
   }
+  @_cdecl("nc_apple_view_create")
+  public func desktopViewCreate(_ pointer: UnsafeMutableRawPointer, _ name: UnsafePointer<CChar>,
+    _ identity: UnsafePointer<CChar>, _ channel: UnsafePointer<CChar>, _ bytes: UnsafeRawPointer?, _ count: Int32) -> UnsafeMutableRawPointer? {
+    guard Thread.isMainThread, count >= 0, count <= 16 * 1024 * 1024 else { return nil }
+    do {
+      let host = try NativeViewHost.create(String(cString: name), bridge: desktop(pointer).bridge,
+        instanceId: String(cString: identity), channelName: String(cString: channel),
+        arguments: count == 0 ? Data() : Data(bytes: bytes!, count: Int(count)))
+      return Unmanaged.passRetained(host).toOpaque()
+    } catch { return nil }
+  }
+  @_cdecl("nc_apple_view_handle")
+  public func desktopViewHandle(_ pointer: UnsafeMutableRawPointer) -> UnsafeMutableRawPointer? {
+    guard let view = Unmanaged<NativeViewHost>.fromOpaque(pointer).takeUnretainedValue().view else { return nil }
+    return Unmanaged.passUnretained(view).toOpaque()
+  }
+  @_cdecl("nc_apple_view_destroy")
+  public func desktopViewDestroy(_ pointer: UnsafeMutableRawPointer) {
+    let host = Unmanaged<NativeViewHost>.fromOpaque(pointer).takeRetainedValue()
+    host.close()
+  }
 #endif

@@ -110,4 +110,18 @@
             CopyToOutputDirectory="PreserveNewest"
         />
     </ItemGroup>
+    <PropertyGroup Condition="'$(NativeChannelsMacOSOnly)' == 'true'">
+        <AssemblyName>NativeChannels.Interop.Uno</AssemblyName>
+    </PropertyGroup>
+    <ItemGroup Condition="'$(NativeChannelsMacOSOnly)' == 'true'">
+        <Compile
+            Include="../../../src/Shared.NativeViews/UnoMacOSNativeView.cs"
+            Link="UnoMacOSNativeView.cs"
+        />
+        <None
+            Include="../../../artifacts/native/apple-desktop/$(RuntimeIdentifier)/libNativeChannelsSample.dylib"
+            Link="libNativeChannelsSample.dylib"
+            CopyToOutputDirectory="PreserveNewest"
+        />
+    </ItemGroup>
 </Project>

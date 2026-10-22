@@ -33,7 +33,7 @@ internal static class SamplePlatform
                     ]
                 ),
         };
-#elif IOS || ANDROID
+#elif IOS || ANDROID || UNO_MACOS_SAMPLE
         return new("dev.nativechannels.sample.SampleModule", "MCSampleModule", "NativeChannelsSample");
 #else
         if (!OperatingSystem.IsWindows())

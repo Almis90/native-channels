@@ -14,7 +14,7 @@ public interface IUnoNativeView : IAsyncDisposable
     void Destroy();
 }
 
-/// <summary>Experimental native-view lifecycle surface. Requires a backend with public Uno embedding support.</summary>
+/// <summary>Experimental native-view lifecycle surface with an adapter-owned macOS compatibility bridge.</summary>
 public sealed class UnoChannelView : ContentControl, IAsyncDisposable
 {
     private readonly Func<string, IUnoNativeView> _create;
@@ -46,14 +46,12 @@ public sealed class UnoChannelView : ContentControl, IAsyncDisposable
         VerifyAccess();
         if (_disabled || _disposed || _current is not null || !IsLoaded)
             return;
-        if (OperatingSystem.IsMacOS())
-            throw new PlatformNotSupportedException(
-                "Uno 6.7.135 has no public macOS native-element hosting API. AppKit embedding is not supported by UnoChannelView."
-            );
         var view = _create(Guid.NewGuid().ToString("N"));
         _current = view;
         try
         {
+            if (OperatingSystem.IsMacOS())
+                MacOSNativeView.Prepare(view.NativeElement, XamlRoot!);
             // Recreate the presenter so Uno arranges the replacement HWND even
             // when the host retains its previous size and focus state.
             _presenter = new ContentPresenter { Content = view.NativeElement };

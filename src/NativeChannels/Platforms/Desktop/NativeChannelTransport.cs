@@ -5,6 +5,19 @@ public sealed partial class NativeChannelTransport
 {
     private AppleDesktopTransport? _appleDesktop;
 
+    internal nint CreateAppleDesktopView(
+        NativeModuleRegistration factory,
+        string identity,
+        string channel,
+        byte[] arguments
+    )
+    {
+        ObjectDisposedException.ThrowIf(_disposed, this);
+        return (
+            _appleDesktop ?? throw new PlatformNotSupportedException("Requires macOS desktop transport.")
+        ).CreateView(factory, identity, channel, arguments);
+    }
+
     private partial void Initialize(IEnumerable<NativeModuleRegistration> modules)
     {
         if (OperatingSystem.IsWindows())

@@ -8,7 +8,7 @@ internal sealed partial class SamplePage
 #if UNO_BROWSER_SAMPLE
     private const string Limitation =
         "Browser PDF.js views use the existing Avalonia verifier; physical input and visual acceptance remain unverified.";
-#elif IOS || ANDROID || UNO_LINUX_SAMPLE
+#elif IOS || ANDROID || UNO_LINUX_SAMPLE || UNO_MACOS_SAMPLE
     private const string Limitation =
         "Native PDF views; automated checks use the existing MAUI PDF verifier. Physical-device input remains unverified.";
 #else
@@ -30,7 +30,7 @@ internal sealed partial class SamplePage
 #if UNO_LINUX_SAMPLE && PDF_GTK
         Plugin.Uno.PdfViewer.PdfLinux.Backend = Plugin.Uno.PdfViewer.LinuxPdfBackend.Gtk;
 #endif
-#if IOS || ANDROID || UNO_LINUX_SAMPLE
+#if IOS || ANDROID || UNO_LINUX_SAMPLE || UNO_MACOS_SAMPLE
         PdfVerificationThread.Dispatcher = DispatcherQueue;
         using (
             var input =
@@ -57,6 +57,7 @@ internal sealed partial class SamplePage
                 if (
                     !OperatingSystem.IsIOS()
                     && !OperatingSystem.IsAndroid()
+                    && !OperatingSystem.IsMacOS()
                     && !OperatingSystem.IsLinux()
                     && !OperatingSystem.IsBrowser()
                     && !OperatingSystem.IsWindowsVersionAtLeast(10, 0, 17763)
@@ -186,7 +187,7 @@ internal sealed partial class SamplePage
             _surface.Content = null;
         }
 #else
-#if IOS || ANDROID || UNO_LINUX_SAMPLE
+#if IOS || ANDROID || UNO_LINUX_SAMPLE || UNO_MACOS_SAMPLE
         await using var first = new PdfControl { Height = 240 };
         await using var second = new PdfControl { Height = 240 };
         _surface.Content = new StackPanel { Children = { first, second } };
@@ -225,7 +226,7 @@ internal sealed partial class SamplePage
     }
 }
 
-#if IOS || ANDROID || UNO_LINUX_SAMPLE
+#if IOS || ANDROID || UNO_LINUX_SAMPLE || UNO_MACOS_SAMPLE
 internal static class PdfVerificationThread
 {
     public static Microsoft.UI.Dispatching.DispatcherQueue Dispatcher { get; set; } = null!;

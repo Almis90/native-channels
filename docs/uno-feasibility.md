@@ -878,3 +878,29 @@ resolved by this integration. Runtime success does not close release readiness.
 Coverage is Debug interpreter execution in one headless Chromium version, with
 silent audio checks. Cross-browser behavior, physical input, visual fidelity,
 audible playback and combined release packaging remain unverified.
+
+
+### macOS native-view compatibility bridge: October 22, 2026
+
+The previous native-view/PDF blocker is now bypassed inside the optional Uno adapter.
+`MacOSNativeView` wraps an AppKit view in an adapter-owned native container and sets
+Uno 6.7.135's internal wrapper through reflection. The container accommodates Uno's
+unload and attached/transient ownership rules. Both temporary pieces carry a TODO
+pointing to [Uno #25639](https://github.com/unoplatform/uno/issues/25639); replace them
+when a public hosting API becomes available. The separate upstream patch is not used.
+
+On macOS ARM64, the actual Interop and PDF sample apps pass their existing shared
+MAUI/Avalonia verifiers, including per-view isolation, callbacks, 32 Interop reconnects,
+PDF navigation/zoom/errors, disconnect and pending-work cleanup. Both processes exit
+normally. The native button and PDF factories are reused without new sample scenarios.
+ARM64 and x64 native libraries build; only ARM64 runtime execution is covered.
+
+`eng/verify-uno-macos-views.py` rebuilds fresh local packages and compares the deployed
+Uno runtime DLL and dylib with the pinned NuGet package bytes. Results and build logs
+are retained under `artifacts/uno-macos-views/`. The bridge is verified for untrimmed
+builds on released Uno 6.7.135; other Uno versions, trimming/AOT, visual acceptance and
+physical input remain unverified. Combined release packaging remains outstanding.
+
+Verified run: `fff5819f00e94e67980f86c5190517b1` on macOS ARM64. Both sample builds
+reported zero warnings/errors. Local packages were restored fresh; external NuGet
+packages were reused through hard links to avoid duplicating the Mac's cache.

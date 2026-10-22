@@ -55,8 +55,9 @@ contains the Uno control, PDF state validation, UI-dispatched state callbacks,
 and reconnect/disposal behavior. Its default constructor now uses a bundled
 Windows.Data.Pdf renderer inside an Uno-hosted Win32 child window. The Windows
 sample tests real page pixels, page/zoom changes, errors and lifecycle. Custom
-`IUnoNativeView` factories remain supported. macOS lacks the required public
-embedding API.
+`IUnoNativeView` factories remain supported. macOS reuses AppKit PDFKit through the optional Uno adapter's temporary reflection
+bridge, pending [Uno #25639](https://github.com/unoplatform/uno/issues/25639).
+No patched Uno source is needed; use `NativeChannelsMacOSOnly=true` for this package build.
 On iOS with Skia, the default factory uses the existing PDFKit UIKit backend.
 The simulator sample runs MAUI's unchanged PDF assertions against two viewers;
 no MAUI package, Uno patch or consumer workaround is required.

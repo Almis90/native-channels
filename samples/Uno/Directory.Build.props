@@ -30,4 +30,7 @@
             CopyToOutputDirectory="PreserveNewest"
         />
     </ItemGroup>
+    <PropertyGroup Condition="'$(NativeChannelsMacOSOnly)' == 'true'">
+        <DefineConstants>$(DefineConstants);UNO_MACOS_SAMPLE</DefineConstants>
+    </PropertyGroup>
 </Project>

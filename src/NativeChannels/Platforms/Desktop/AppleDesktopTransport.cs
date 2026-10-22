@@ -30,24 +30,7 @@ internal sealed class AppleDesktopTransport : IAsyncDisposable
         {
             foreach (var module in modules)
             {
-                if (module.AppleFramework is { } name)
-                {
-                    if (string.IsNullOrWhiteSpace(name) || name != Path.GetFileName(name) || name.Contains('.'))
-                        throw new ArgumentException("Use a simple Apple framework name without an extension.");
-                    // Objective-C registers classes globally. These adapter libraries stay loaded for process lifetime.
-                    _ = Libraries
-                        .GetOrAdd(
-                            name,
-                            static library => new Lazy<nint>(() =>
-                                NativeLibrary.Load(
-                                    "lib" + library + ".dylib",
-                                    typeof(AppleDesktopTransport).Assembly,
-                                    null
-                                )
-                            )
-                        )
-                        .Value;
-                }
+                LoadLibrary(module.AppleFramework);
                 if (LoadModule(_bridge, module.AppleClass) != 0)
                     throw new ChannelTransportException(
                         $"Apple desktop module could not be loaded: {module.AppleClass}"
@@ -60,6 +43,44 @@ internal sealed class AppleDesktopTransport : IAsyncDisposable
             throw;
         }
     }
+
+    private static void LoadLibrary(string? name)
+    {
+        if (name is null)
+            return;
+        if (string.IsNullOrWhiteSpace(name) || name != Path.GetFileName(name) || name.Contains('.'))
+            throw new ArgumentException("Use a simple Apple framework name without an extension.");
+        // Objective-C registers classes globally. Libraries stay loaded for process lifetime.
+        _ = Libraries
+            .GetOrAdd(
+                name,
+                static library => new Lazy<nint>(() =>
+                    NativeLibrary.Load("lib" + library + ".dylib", typeof(AppleDesktopTransport).Assembly, null)
+                )
+            )
+            .Value;
+    }
+
+    internal nint CreateView(NativeModuleRegistration factory, string identity, string channel, byte[] arguments)
+    {
+        lock (_gate)
+        {
+            ObjectDisposedException.ThrowIf(_stopping, this);
+            LoadLibrary(factory.AppleFramework);
+            var host = CreateNativeView(_bridge, factory.AppleClass, identity, channel, arguments, arguments.Length);
+            return host != 0 ? host : throw new ChannelTransportException("Apple desktop native view creation failed.");
+        }
+    }
+
+    [DllImport(Library, EntryPoint = "nc_apple_view_create")]
+    private static extern nint CreateNativeView(
+        nint bridge,
+        [MarshalAs(UnmanagedType.LPUTF8Str)] string factory,
+        [MarshalAs(UnmanagedType.LPUTF8Str)] string identity,
+        [MarshalAs(UnmanagedType.LPUTF8Str)] string channel,
+        byte[] arguments,
+        int count
+    );
 
     internal void SetMessageHandler(Func<TransportRequest, CancellationToken, ValueTask<TransportResponse>> handler) =>
         _handler = handler;

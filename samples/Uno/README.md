@@ -174,8 +174,12 @@ The projects include Android, iOS, browser and desktop heads (desktop covers
 Windows, Linux and macOS). Those heads are not a six-platform support claim.
 The local preview feed built above contains desktop assets; use the dedicated
 platform runners for mobile/browser assets. Combined release packaging remains open.
-macOS needs the native dylibs and has no public arbitrary native-view embedding
-API in the pinned Uno version. Linux builds require its native plugin assets
+macOS uses an adapter-owned reflection bridge pending
+[Uno #25639](https://github.com/unoplatform/uno/issues/25639). Run
+`python3 eng/verify-uno-macos-views.py` on the Mac to build the native dylibs,
+pack fresh adapters and execute the existing Interop/PDF verifiers on released Uno.
+Set `DOTNET_HOST_PATH` to the pinned SDK; `--reuse-cache <path>` can reuse external
+dependencies without reusing local package versions. Linux builds require its native plugin assets
 and system libraries.
 
 Step 5 remains partial until native PDF adapters and native views work on all targets,
