@@ -220,3 +220,24 @@ MAUI/Avalonia target frameworks retained, and Android currently includes unused
 Linux native libraries, producing XA0141 page-size warnings. Resolve those package
 compatibility issues, complete Linux candidate verification, and follow the existing
 manual acceptance and release steps before publishing.
+
+### Preserve MAUI and Avalonia targets in a release candidate
+
+`eng/pack-uno-candidate.py` packs one input into a new directory using already-built
+native assets. Use `--include-existing-hosts` for a full framework candidate. Build
+all six Uno inputs (`windows`, `linux`, `macos`, `android`, `ios`, `browser`) and the
+three compatibility inputs (`windows-native`, `maccatalyst`, `macos-native`) at the
+same clean commit and package version. The native Windows input uses the existing
+Windows-specific TFM; `macos` remains Uno's portable Skia desktop input.
+
+On the Mac, build the generic bridge and each plugin's Apple adapter with
+`--include-macos` before packing any Apple inputs. This creates a single
+XCFramework containing iOS, Mac Catalyst and macOS slices, avoiding conflicting
+platform-specific XCFramework manifests when packages are merged.
+
+Pass the nine input feeds to `eng/combine-uno-packages.py --include-existing-hosts`.
+The assembler requires all 13 packages, including the optional MAUI/Avalonia hosts
+and PDF controls, and rejects missing existing consumer targets. Omitting this
+flag still produces the nine-package Uno development feed; it is not the complete
+framework release. Run the existing consumer checks against the resulting feed
+before publication. The audit continues to mark runtime acceptance as pending.

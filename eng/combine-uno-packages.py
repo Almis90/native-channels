@@ -17,10 +17,7 @@ read_archive = _shared.read_archive
 serialize = _shared.serialize
 xml = _shared.xml
 from package_audit import audit_package
-
-PLATFORMS = ('windows', 'linux', 'macos', 'android', 'ios', 'browser')
-PACKAGES = {'NativeChannels.Core', 'NativeChannels', 'NativeChannels.Uno',
-            'Plugin.Currency', 'Plugin.AudioStreamer', 'Plugin.VolumeMonitor', 'Plugin.Uno.PdfViewer'}
+from uno_package_matrix import PLATFORMS, COMPATIBILITY_PLATFORMS, PACKAGES, expected_packages, validate_release_targets
 
 
 def merge_payload(left, right, package_id):
@@ -79,17 +76,17 @@ def write_archive(path, entries):
             archive.writestr(info, entries[name])
 
 
-def assemble(inputs, output, commit):
-    if set(inputs) != set(PLATFORMS):
-        raise ValueError('Provide all six named platform feeds')
+def assemble(inputs, output, commit, include_existing_hosts=False):
+    platforms = PLATFORMS + (COMPATIBILITY_PLATFORMS if include_existing_hosts else ())
+    if set(inputs) != set(platforms):
+        raise ValueError(f'Provide all named platform feeds: {platforms}')
     if output.exists():
         raise ValueError('Output must be a new directory')
     records = {}
     for platform, folder in inputs.items():
         audited = [audit_package(p, commit) for p in sorted(folder.glob('*.nupkg'))]
         records[platform] = {p['id']: p for p in audited}
-        expected = PACKAGES | ({'NativeChannels.Native.Android'} if platform == 'android'
-                               else {'NativeChannels.Native.Apple'} if platform == 'ios' else set())
+        expected = expected_packages(platform, include_existing_hosts)
         if set(records[platform]) != expected or len(audited) != len(expected):
             raise ValueError(f'{platform}: missing, duplicate or unexpected packages')
     versions = {p['version'] for feed in records.values() for p in feed.values()}
@@ -101,7 +98,7 @@ def assemble(inputs, output, commit):
         stage.mkdir()
         for package_id in sorted(set().union(*(set(feed) for feed in records.values()))):
             sources = [(inputs[platform] / records[platform][package_id]['file'])
-                       for platform in PLATFORMS if package_id in records[platform]]
+                       for platform in platforms if package_id in records[platform]]
             for symbols in (False, True):
                 archives = [p.with_suffix('.snupkg') if symbols else p for p in sources]
                 merged = read_archive(archives[0])
@@ -117,8 +114,11 @@ def assemble(inputs, output, commit):
                     merged = merge_payload(merged, read_archive(archive), package_id)
                 write_archive(stage / archives[0].name, merged)
         audited = [audit_package(p, commit) for p in sorted(stage.glob('*.nupkg'))]
+        if include_existing_hosts:
+            validate_release_targets(audited)
         report = {'sourceCommit': commit, 'canonicalDesktop': 'windows', 'inputs': records,
-                  'packages': audited, 'runtimeAcceptance': 'pending'}
+                  'packages': audited, 'runtimeAcceptance': 'pending',
+                  'includesExistingHosts': include_existing_hosts}
         (stage / 'package-audit.json').write_text(json.dumps(report, indent=2) + '\n')
         stage.rename(output)
     return report
@@ -128,11 +128,17 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     for platform in PLATFORMS:
         parser.add_argument('--' + platform, required=True, type=Path)
+    for platform in COMPATIBILITY_PLATFORMS:
+        parser.add_argument('--' + platform, type=Path)
+    parser.add_argument('--include-existing-hosts', action='store_true',
+                        help='Require MAUI/Avalonia packages and their existing target frameworks')
     parser.add_argument('--output', required=True, type=Path)
     parser.add_argument('--source-commit', required=True)
     args = parser.parse_args()
-    report = assemble({name: getattr(args, name).resolve() for name in PLATFORMS},
-                      args.output.resolve(), args.source_commit)
+    platforms = PLATFORMS + COMPATIBILITY_PLATFORMS
+    report = assemble({name: getattr(args, name.replace('-', '_')).resolve() for name in platforms
+                       if getattr(args, name.replace('-', '_')) is not None},
+                      args.output.resolve(), args.source_commit, args.include_existing_hosts)
     print(f"Assembled {len(report['packages'])} packages; runtime acceptance remains pending.")
 
 

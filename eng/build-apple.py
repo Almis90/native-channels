@@ -48,11 +48,16 @@ def framework(name, source, sdk, arch, suffix, dependencies=()):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--macos-only", action="store_true", help="Build native macOS arm64/x64 development slices")
+    parser.add_argument("--include-macos", action="store_true", help="Include macOS alongside iOS and Mac Catalyst in distribution assets")
     args = parser.parse_args()
+    if args.macos_only and args.include_macos:
+        parser.error("Choose --macos-only or --include-macos")
     slices = {"NativeChannelsNative": [], "NativeChannelsSample": []}
     platforms = [("macosx", "", ["arm64", "x86_64"])] if args.macos_only else [("iphoneos", "", ["arm64"]),
                                  ("iphonesimulator", "-simulator", ["arm64", "x86_64"]),
                                  ("macosx", "-macabi", ["arm64", "x86_64"])]
+    if args.include_macos:
+        platforms.append(("macosx", "", ["arm64", "x86_64"]))
     for sdk, suffix, arches in platforms:
         built = {name: [] for name in slices}
         for arch in arches:

@@ -15,8 +15,9 @@ COMMIT = 'a' * 40
 
 def package(folder, name, role, symbols=False, commit=COMMIT):
     tfm = {'android': 'net10.0-android36.0', 'ios': 'net10.0-ios26.0',
-           'browser': 'net10.0-browserwasm1.0'}.get(role, 'net10.0')
-    if name in ('NativeChannels.Core', 'NativeChannels.Uno'):
+           'browser': 'net10.0-browser1.0', 'windows-native': 'net10.0-windows10.0.19041.0',
+           'maccatalyst': 'net10.0-maccatalyst26.0', 'macos-native': 'net10.0-macos26.0'}.get(role, 'net10.0')
+    if name in ('NativeChannels.Core', 'NativeChannels.Uno', 'NativeChannels.Avalonia'):
         tfm = 'net10.0'
     manifest = f'''<package><metadata><id>{name}</id><version>0.3.0-test</version>
 <license type="expression">MIT</license><readme>README.md</readme>
@@ -58,6 +59,36 @@ class CombineUnoTests(unittest.TestCase):
                 for role in combine.PLATFORMS:
                     self.assertEqual(role.encode(), archive.read(f'runtimes/{role}/native/example.bin'))
                 self.assertIn(f'lib/net10.0-ios26.0/Plugin.Uno.PdfViewer.{payload}', archive.namelist())
+
+    def release_inputs(self):
+        for role in combine.PLATFORMS + combine.COMPATIBILITY_PLATFORMS:
+            folder = self.root / role
+            folder.mkdir(exist_ok=True)
+            self.inputs[role] = folder
+            for name in combine.expected_packages(role, True):
+                for symbols in (False, True):
+                    package(folder, name, role, symbols)
+
+    def test_release_preserves_existing_hosts_and_targets(self):
+        self.release_inputs()
+        report = combine.assemble(self.inputs, self.root / 'combined', COMMIT, True)
+        self.assertEqual(13, len(report['packages']))
+        self.assertTrue(report['includesExistingHosts'])
+        combine.validate_release_targets(report['packages'])
+
+    def test_release_rejects_missing_compatibility_feed(self):
+        self.release_inputs()
+        del self.inputs['maccatalyst']
+        with self.assertRaises(ValueError):
+            combine.assemble(self.inputs, self.root / 'combined', COMMIT, True)
+
+    def test_release_rejects_missing_existing_target(self):
+        self.release_inputs()
+        report = combine.assemble(self.inputs, self.root / 'combined', COMMIT, True)
+        currency = next(p for p in report['packages'] if p['id'] == 'Plugin.Currency')
+        currency['assemblies'] = [p for p in currency['assemblies'] if 'maccatalyst' not in p]
+        with self.assertRaisesRegex(ValueError, 'missing existing consumer target net10.0-maccatalyst'):
+            combine.validate_release_targets(report['packages'])
 
     def test_rejects_different_source_commit_before_writing_output(self):
         package(self.inputs['ios'], 'Plugin.Currency', 'ios', commit='b' * 40)
