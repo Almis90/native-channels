@@ -1,6 +1,6 @@
 # Uno 0.3 preview
 
-Status on October 23, 2026: **0.3 preview source release; NuGet publication pending**.
+Status on October 23, 2026: **0.3.0-preview.1 framework packages published on NuGet.org**.
 The optional Uno host and five samples are implemented. Shared automated sample
 checks passed on all six platforms against a previous combined diagnostic feed.
 Manual review covered macOS, iOS, Android, Windows and Linux; browser manual review
@@ -16,8 +16,9 @@ The release uses a separate seven-framework acceptance gate described in
 archives with the existing Interop channel and native-view suites on all 16
 supported framework/platform combinations, plus API compatibility against the
 six published 0.2 frameworks. This scope excludes the reference plugin samples;
-their earlier diagnostic-feed results are recorded below. NuGet publication is
-still pending. The exact-archive gate passed on October 23, 2026; see the
+their earlier diagnostic-feed results are recorded below. All seven framework
+packages are available on NuGet.org. The exact-archive gate passed on October 23,
+2026; see the
 [acceptance record](verification.md#accepted-03-preview).
 
 | Package | Responsibility |

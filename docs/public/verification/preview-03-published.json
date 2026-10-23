@@ -1,0 +1,209 @@
+{
+  "date": "2026-10-23",
+  "verifiedUtc": "2026-10-23T15:30:44.547943+00:00",
+  "version": "0.3.0-preview.1",
+  "sourceCommit": "034cff1e0e717b2c76d12ddcf75dae982bd76035",
+  "workflowUrl": "https://github.com/Almis90/native-channels/actions/runs/39977532011",
+  "workflowCommit": "f571841",
+  "candidateBundleSha256": "dfc66183131434b6cd184e46346db475adeb929837250f19b3118fffd597f464",
+  "submission": {
+    "sourceCommit": "034cff1e0e717b2c76d12ddcf75dae982bd76035",
+    "version": "0.3.0-preview.1",
+    "releaseManifestSha256": "e5a362c9dce9b5fa5074dda08f330f2e3bd87ee4f2d2eb736afc9d5a67d8bd2c",
+    "workflowRun": "39977532011",
+    "uploadsCompleted": true,
+    "submissions": [
+      {
+        "file": "NativeChannels.Uno.0.3.0-preview.1.nupkg",
+        "sha256": "41efb6bd5a4b6ba95bca3fe9a71adac6dbb4dbe33bc367a8831344e0d0300351",
+        "status": "submitted; indexing not verified"
+      },
+      {
+        "file": "NativeChannels.Core.0.3.0-preview.1.snupkg",
+        "sha256": "788ff8231711de0769d8b8e248bab2eda005e7a1e7a6ce4e31eb54d65ecdf431",
+        "status": "submitted; indexing not verified"
+      },
+      {
+        "file": "NativeChannels.Native.Android.0.3.0-preview.1.snupkg",
+        "sha256": "65006a8912611d1495f57ebd05f8397010b8d52679862685f3db0fcf4ee530a9",
+        "status": "submitted; indexing not verified"
+      },
+      {
+        "file": "NativeChannels.Native.Apple.0.3.0-preview.1.snupkg",
+        "sha256": "e9e5307a5002452a2637e7bff477967930d2b31792b2a21270ced249c41e9167",
+        "status": "submitted; indexing not verified"
+      },
+      {
+        "file": "NativeChannels.0.3.0-preview.1.snupkg",
+        "sha256": "d599eba533b9d96b6ef2b7a3119accc1edd6b91fb20f6a013e64fdf3774cdc05",
+        "status": "submitted; indexing not verified"
+      },
+      {
+        "file": "NativeChannels.Maui.0.3.0-preview.1.snupkg",
+        "sha256": "7a92b51c793c1487f109c1af587b1c6c45d2e062ea153d06143ba6e2448cd3e0",
+        "status": "submitted; indexing not verified"
+      },
+      {
+        "file": "NativeChannels.Avalonia.0.3.0-preview.1.snupkg",
+        "sha256": "211f38e408e21f117d4c3b8a9992c827316ad763f43d4c32998980679499b77d",
+        "status": "submitted; indexing not verified"
+      },
+      {
+        "file": "NativeChannels.Uno.0.3.0-preview.1.snupkg",
+        "sha256": "08bc3e93b6e9954a8e07726acc89bfa753205ef57c84b685091d1727ff952c2c",
+        "status": "submitted; indexing not verified"
+      }
+    ]
+  },
+  "publicArchives": [
+    {
+      "file": "NativeChannels.Core.0.3.0-preview.1.nupkg",
+      "url": "https://api.nuget.org/v3-flatcontainer/nativechannels.core/0.3.0-preview.1/nativechannels.core.0.3.0-preview.1.nupkg",
+      "success": true,
+      "sha256": "8fe6ff0c736ec8dcde41d75b4b94b5817a68c120bbbababa029963343ac16869"
+    },
+    {
+      "file": "NativeChannels.Core.0.3.0-preview.1.snupkg",
+      "url": "https://www.nuget.org/api/v2/symbolpackage/NativeChannels.Core/0.3.0-preview.1",
+      "success": true,
+      "sha256": "788ff8231711de0769d8b8e248bab2eda005e7a1e7a6ce4e31eb54d65ecdf431"
+    },
+    {
+      "file": "NativeChannels.Native.Android.0.3.0-preview.1.nupkg",
+      "url": "https://api.nuget.org/v3-flatcontainer/nativechannels.native.android/0.3.0-preview.1/nativechannels.native.android.0.3.0-preview.1.nupkg",
+      "success": true,
+      "sha256": "b0bd809e1d6b3321eb6880034405f9835acb37330bf86b9432dd5d9889ef84e5"
+    },
+    {
+      "file": "NativeChannels.Native.Android.0.3.0-preview.1.snupkg",
+      "url": "https://www.nuget.org/api/v2/symbolpackage/NativeChannels.Native.Android/0.3.0-preview.1",
+      "success": true,
+      "sha256": "65006a8912611d1495f57ebd05f8397010b8d52679862685f3db0fcf4ee530a9"
+    },
+    {
+      "file": "NativeChannels.Native.Apple.0.3.0-preview.1.nupkg",
+      "url": "https://api.nuget.org/v3-flatcontainer/nativechannels.native.apple/0.3.0-preview.1/nativechannels.native.apple.0.3.0-preview.1.nupkg",
+      "success": true,
+      "sha256": "377048de5ad15197876a43dfcc3d5569c4f38a01fcc995c88e32632837fbece1"
+    },
+    {
+      "file": "NativeChannels.Native.Apple.0.3.0-preview.1.snupkg",
+      "url": "https://www.nuget.org/api/v2/symbolpackage/NativeChannels.Native.Apple/0.3.0-preview.1",
+      "success": true,
+      "sha256": "e9e5307a5002452a2637e7bff477967930d2b31792b2a21270ced249c41e9167"
+    },
+    {
+      "file": "NativeChannels.0.3.0-preview.1.nupkg",
+      "url": "https://api.nuget.org/v3-flatcontainer/nativechannels/0.3.0-preview.1/nativechannels.0.3.0-preview.1.nupkg",
+      "success": true,
+      "sha256": "65c07dc9a858b1ce4483e71391e84566fd0a1bd1a75327166a5741cf93f69408"
+    },
+    {
+      "file": "NativeChannels.0.3.0-preview.1.snupkg",
+      "url": "https://www.nuget.org/api/v2/symbolpackage/NativeChannels/0.3.0-preview.1",
+      "success": true,
+      "sha256": "d599eba533b9d96b6ef2b7a3119accc1edd6b91fb20f6a013e64fdf3774cdc05"
+    },
+    {
+      "file": "NativeChannels.Maui.0.3.0-preview.1.nupkg",
+      "url": "https://api.nuget.org/v3-flatcontainer/nativechannels.maui/0.3.0-preview.1/nativechannels.maui.0.3.0-preview.1.nupkg",
+      "success": true,
+      "sha256": "228c914f5a01efe32be75e8d6728df2caaed2d951865a8fccc762a934c2c8f1b"
+    },
+    {
+      "file": "NativeChannels.Maui.0.3.0-preview.1.snupkg",
+      "url": "https://www.nuget.org/api/v2/symbolpackage/NativeChannels.Maui/0.3.0-preview.1",
+      "success": true,
+      "sha256": "7a92b51c793c1487f109c1af587b1c6c45d2e062ea153d06143ba6e2448cd3e0"
+    },
+    {
+      "file": "NativeChannels.Avalonia.0.3.0-preview.1.nupkg",
+      "url": "https://api.nuget.org/v3-flatcontainer/nativechannels.avalonia/0.3.0-preview.1/nativechannels.avalonia.0.3.0-preview.1.nupkg",
+      "success": true,
+      "sha256": "8835f3302a6342b1f358cac502e96078db7d6b6c552b8dfae51b554d63e36b8d"
+    },
+    {
+      "file": "NativeChannels.Avalonia.0.3.0-preview.1.snupkg",
+      "url": "https://www.nuget.org/api/v2/symbolpackage/NativeChannels.Avalonia/0.3.0-preview.1",
+      "success": true,
+      "sha256": "211f38e408e21f117d4c3b8a9992c827316ad763f43d4c32998980679499b77d"
+    },
+    {
+      "file": "NativeChannels.Uno.0.3.0-preview.1.nupkg",
+      "url": "https://api.nuget.org/v3-flatcontainer/nativechannels.uno/0.3.0-preview.1/nativechannels.uno.0.3.0-preview.1.nupkg",
+      "success": true,
+      "sha256": "fe4aa96629ea674d8e2588185475126772041a975c98a5766646edd1392e0e29"
+    },
+    {
+      "file": "NativeChannels.Uno.0.3.0-preview.1.snupkg",
+      "url": "https://www.nuget.org/api/v2/symbolpackage/NativeChannels.Uno/0.3.0-preview.1",
+      "success": true,
+      "sha256": "08bc3e93b6e9954a8e07726acc89bfa753205ef57c84b685091d1727ff952c2c"
+    }
+  ],
+  "consumers": [
+    {
+      "framework": "maui",
+      "platform": "windows",
+      "sourceCommit": "034cff1e0e717b2c76d12ddcf75dae982bd76035",
+      "packages": {
+        "NativeChannels.0.3.0-preview.1.nupkg": "d6d76660eb50aeae9e422a8e9c6fccc423b9393c299becc6ff3b9e991dc69011",
+        "NativeChannels.Avalonia.0.3.0-preview.1.nupkg": "0f9fd5aad91e24166b64bf0bb9aa7c740965cffb1257719839b92e8a5399a445",
+        "NativeChannels.Core.0.3.0-preview.1.nupkg": "f35ab40a9617869b78ed7b54c16065e4e088cb69661604f137481ff142407dc9",
+        "NativeChannels.Maui.0.3.0-preview.1.nupkg": "d2c106fcf9c9420690f921a3a0e3499b10a81aeee791ad76f97d40dcc06cd115",
+        "NativeChannels.Native.Android.0.3.0-preview.1.nupkg": "cd8548e51cfd3ab3fcf5fa85d7b57f70494110dc6853a6dac40c2052393b130d",
+        "NativeChannels.Native.Apple.0.3.0-preview.1.nupkg": "36b36dc41467fd6f1b44995d6346359542ab0118c99aba0771f3160ab790fbc5",
+        "NativeChannels.Uno.0.3.0-preview.1.nupkg": "41efb6bd5a4b6ba95bca3fe9a71adac6dbb4dbe33bc367a8831344e0d0300351"
+      },
+      "scenario": "Interop",
+      "success": true,
+      "packageSource": "nuget.org",
+      "assetsSha256": "fe3b780bda72240404eb7d13317b340c8fa54b2a6615e56434bf52c0e9bd9cf2",
+      "result": "PASS Windows: typed calls, DTOs, bytes, null, errors, callbacks, UI dispatch, 16 concurrent calls, cancellation, timeouts, handle and session disposal, bidirectional JSON/string/binary/standard messages, null events, stream errors and independent subscription cleanup; native views: instances, creation arguments, callbacks, reconnect, unload/reload, stale channels, cancellation and UI dispatch; view stress: 32 reconnects"
+    },
+    {
+      "framework": "avalonia",
+      "platform": "windows",
+      "sourceCommit": "034cff1e0e717b2c76d12ddcf75dae982bd76035",
+      "packages": {
+        "NativeChannels.0.3.0-preview.1.nupkg": "d6d76660eb50aeae9e422a8e9c6fccc423b9393c299becc6ff3b9e991dc69011",
+        "NativeChannels.Avalonia.0.3.0-preview.1.nupkg": "0f9fd5aad91e24166b64bf0bb9aa7c740965cffb1257719839b92e8a5399a445",
+        "NativeChannels.Core.0.3.0-preview.1.nupkg": "f35ab40a9617869b78ed7b54c16065e4e088cb69661604f137481ff142407dc9",
+        "NativeChannels.Maui.0.3.0-preview.1.nupkg": "d2c106fcf9c9420690f921a3a0e3499b10a81aeee791ad76f97d40dcc06cd115",
+        "NativeChannels.Native.Android.0.3.0-preview.1.nupkg": "cd8548e51cfd3ab3fcf5fa85d7b57f70494110dc6853a6dac40c2052393b130d",
+        "NativeChannels.Native.Apple.0.3.0-preview.1.nupkg": "36b36dc41467fd6f1b44995d6346359542ab0118c99aba0771f3160ab790fbc5",
+        "NativeChannels.Uno.0.3.0-preview.1.nupkg": "41efb6bd5a4b6ba95bca3fe9a71adac6dbb4dbe33bc367a8831344e0d0300351"
+      },
+      "scenario": "Interop",
+      "success": true,
+      "packageSource": "nuget.org",
+      "assetsSha256": "a98b8a236edf609d4a5d1687184206251a4b648749f2ab2e8f20854fd0e3d7a4",
+      "result": "PASS Windows: typed calls, DTOs, bytes, null, errors, callbacks, UI dispatch, 16 concurrent calls, cancellation, timeouts, handle and session disposal, bidirectional JSON/string/binary/standard messages, null events, stream errors and independent subscription cleanup; native views: instances, creation arguments, callbacks, reconnect, unload/reload, stale channels, cancellation and UI dispatch; view stress: 32 reconnects"
+    },
+    {
+      "framework": "uno",
+      "platform": "windows",
+      "sourceCommit": "034cff1e0e717b2c76d12ddcf75dae982bd76035",
+      "packages": {
+        "NativeChannels.0.3.0-preview.1.nupkg": "d6d76660eb50aeae9e422a8e9c6fccc423b9393c299becc6ff3b9e991dc69011",
+        "NativeChannels.Avalonia.0.3.0-preview.1.nupkg": "0f9fd5aad91e24166b64bf0bb9aa7c740965cffb1257719839b92e8a5399a445",
+        "NativeChannels.Core.0.3.0-preview.1.nupkg": "f35ab40a9617869b78ed7b54c16065e4e088cb69661604f137481ff142407dc9",
+        "NativeChannels.Maui.0.3.0-preview.1.nupkg": "d2c106fcf9c9420690f921a3a0e3499b10a81aeee791ad76f97d40dcc06cd115",
+        "NativeChannels.Native.Android.0.3.0-preview.1.nupkg": "cd8548e51cfd3ab3fcf5fa85d7b57f70494110dc6853a6dac40c2052393b130d",
+        "NativeChannels.Native.Apple.0.3.0-preview.1.nupkg": "36b36dc41467fd6f1b44995d6346359542ab0118c99aba0771f3160ab790fbc5",
+        "NativeChannels.Uno.0.3.0-preview.1.nupkg": "41efb6bd5a4b6ba95bca3fe9a71adac6dbb4dbe33bc367a8831344e0d0300351"
+      },
+      "scenario": "Interop",
+      "success": true,
+      "packageSource": "nuget.org",
+      "assetsSha256": "ffbdd8be209dfe3821ee8d9f23eb8149e281ed46f6a7ed169d5b615bcbfb3383",
+      "unoResult": {
+        "sample": "Interop",
+        "checks": "passed",
+        "limitation": "Native methods and views use the shared MAUI/Avalonia checks; physical-device input remains unverified."
+      },
+      "result": "PASS NATIVECHANNELS_PROGRESS standard value 1/15: null\nNATIVECHANNELS_PROGRESS standard value 1 passed in 12 ms\nNATIVECHANNELS_PROGRESS standard value 2/15: Boolean\nNATIVECHANNELS_PROGRESS standard value 2 passed in 0 ms\nNATIVECHANNELS_PROGRESS standard value 3/15: Boolean\nNATIVECHANNELS_PROGRESS standard value 3 passed in 0 ms\nNATIVECHANNELS_PROGRESS standard value 4/15: Int32\nNATIVECHANNELS_PROGRESS standard value 4 passed in 0 ms\nNATIVECHANNELS_PROGRESS standard value 5/15: Int64\nNATIVECHANNELS_PROGRESS standard value 5 passed in 0 ms\nNATIVECHANNELS_PROGRESS standard value 6/15: Double\nNATIVECHANNELS_PROGRESS standard value 6 passed in 0 ms\nNATIVECHANNELS_PROGRESS standard value 7/15: String\nNATIVECHANNELS_PROGRESS standard value 7 passed in 0 ms\nNATIVECHANNELS_PROGRESS standard value 8/15: Byte[]\nNATIVECHANNELS_PROGRESS standard value 8 passed in 0 ms\nNATIVECHANNELS_PROGRESS standard value 9/15: Int32[]\nNATIVECHANNELS_PROGRESS standard value 9 passed in 1 ms\nNATIVECHANNELS_PROGRESS standard value 10/15: Int64[]\nNATIVECHANNELS_PROGRESS standard value 10 passed in 1 ms\nNATIVECHANNELS_PROGRESS standard value 11/15: Single[]\nNATIVECHANNELS_PROGRESS standard value 11 passed in 1 ms\nNATIVECHANNELS_PROGRESS standard value 12/15: Double[]\nNATIVECHANNELS_PROGRESS standard value 12 passed in 0 ms\nNATIVECHANNELS_PROGRESS standard value 13/15: List`1\nNATIVECHANNELS_PROGRESS standard value 13 passed in 0 ms\nNATIVECHANNELS_PROGRESS standard value 14/15: Dictionary`2\nNATIVECHANNELS_PROGRESS standard value 14 passed in 0 ms\nNATIVECHANNELS_PROGRESS standard value 15/15: StandardMessageMap\nNATIVECHANNELS_PROGRESS standard value 15 passed in 1 ms\nNATIVECHANNELS_UNO_INTEROP PASS Windows: typed calls, DTOs, bytes, null, errors, callbacks, UI dispatch, 16 concurrent calls, cancellation, timeouts, handle and session disposal, bidirectional JSON/string/binary/standard messages, null events, stream errors and independent subscription cleanup; native views: instances, creation arguments, callbacks, reconnect, unload/reload, stale channels, cancellation and UI dispatch; view stress: 32 reconnects\n"
+    }
+  ],
+  "publicSymbolsVerified": true
+}

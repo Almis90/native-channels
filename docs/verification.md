@@ -1,6 +1,9 @@
 # Platform verification
 
-The current 0.2 [Avalonia reference sample matrix](../samples/Avalonia/README.md)
+The published [0.3 framework preview](#accepted-03-preview) adds Uno and passes
+the existing Interop suites across 16 framework/platform combinations.
+
+The 0.2 [Avalonia reference sample matrix](../samples/Avalonia/README.md)
 adds AudioStreamer, VolumeMonitor and PdfViewer implementation heads for all six
 targets, including separate C++ Qt/GTK Linux PDF apps. Local execution of all five
 samples on Windows, Android, Linux, browser and Apple targets is recorded below,
@@ -21,7 +24,7 @@ Package acceptance requires verification of the exact source revision and genera
 
 The published 0.1 support record covers MAUI. Published preview `0.2.0-preview.1` adds
 Avalonia on six targets and has passed local combined-package verification. Uno
-is implemented for the upcoming [0.3 preview](preview-03.md). Historical Currency proofs below establish
+is published in the [0.3 preview](preview-03.md). Historical Currency proofs below establish
 only their recorded scope; the newer complete suites alone do not establish publication,
 physical-device support, or capabilities unavailable on an OS/browser.
 
@@ -55,7 +58,19 @@ This acceptance covers the seven framework packages only. It does not claim
 five-reference-sample acceptance against the final archives, physical-device
 coverage or macOS x64 execution. The earlier diagnostic sample checks and remaining
 preview limitations are described in [0.3 preview](preview-03.md).
-NuGet publication and public-feed verification are pending.
+All seven packages are now available on NuGet.org as `0.3.0-preview.1`. The
+[publication workflow](https://github.com/Almis90/native-channels/actions/runs/39977532011)
+completed after adding `NativeChannels.Uno` to the existing Trusted Publishing
+policy. The first attempt uploaded six packages before Uno was rejected; the
+retry verified and skipped those identical versions, then uploaded Uno and all
+seven symbol archives.
+
+Fresh Windows MAUI, Avalonia and Uno Interop consumers restored only from
+NuGet.org and passed the existing channel/native-view suites. All seven public
+package payloads match the accepted archives after excluding NuGet's added
+repository signature. The [public-feed record](/verification/preview-03-published.json)
+includes the submission receipt, download hashes and runtime results. All seven
+public symbol archives also match the original accepted bytes exactly.
 
 ## Published 0.2 preview — 2026-10-19 {#published-02-preview}
 
