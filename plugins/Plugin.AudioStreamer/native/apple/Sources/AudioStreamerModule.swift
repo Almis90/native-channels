@@ -99,9 +99,9 @@ private final class PcmPlayer {
         }
         do {
             #if !os(macOS)
-            let session = AVAudioSession.sharedInstance()
-            try session.setCategory(.playback, mode: .default)
-            try session.setActive(true)
+                let session = AVAudioSession.sharedInstance()
+                try session.setCategory(.playback, mode: .default)
+                try session.setActive(true)
             #endif
             let audio = AVAudioEngine()
             let node = AVAudioPlayerNode()
@@ -118,28 +118,30 @@ private final class PcmPlayer {
             state = "playing"
             let notifications = NotificationCenter.default
             #if !os(macOS)
-            observers.append(
-                notifications.addObserver(forName: AVAudioSession.interruptionNotification, object: session, queue: nil)
-                {
-                    [weak self] notification in
-                    guard let type = notification.userInfo?[AVAudioSessionInterruptionTypeKey] as? UInt,
-                        type == AVAudioSession.InterruptionType.began.rawValue
-                    else {
-                        return
-                    }
-                    self?.interrupt(token)
-                })
-            observers.append(
-                notifications.addObserver(forName: AVAudioSession.routeChangeNotification, object: session, queue: nil)
-                {
-                    [weak self] notification in
-                    guard let reason = notification.userInfo?[AVAudioSessionRouteChangeReasonKey] as? UInt,
-                        reason == AVAudioSession.RouteChangeReason.oldDeviceUnavailable.rawValue
-                    else {
-                        return
-                    }
-                    self?.interrupt(token)
-                })
+                observers.append(
+                    notifications.addObserver(
+                        forName: AVAudioSession.interruptionNotification, object: session, queue: nil
+                    ) {
+                        [weak self] notification in
+                        guard let type = notification.userInfo?[AVAudioSessionInterruptionTypeKey] as? UInt,
+                            type == AVAudioSession.InterruptionType.began.rawValue
+                        else {
+                            return
+                        }
+                        self?.interrupt(token)
+                    })
+                observers.append(
+                    notifications.addObserver(
+                        forName: AVAudioSession.routeChangeNotification, object: session, queue: nil
+                    ) {
+                        [weak self] notification in
+                        guard let reason = notification.userInfo?[AVAudioSessionRouteChangeReasonKey] as? UInt,
+                            reason == AVAudioSession.RouteChangeReason.oldDeviceUnavailable.rawValue
+                        else {
+                            return
+                        }
+                        self?.interrupt(token)
+                    })
             #endif
             observers.append(
                 notifications.addObserver(forName: .AVAudioEngineConfigurationChange, object: audio, queue: nil) {
@@ -234,7 +236,7 @@ private final class PcmPlayer {
         buffered = 0
         played = 0
         #if !os(macOS)
-        try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+            try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
         #endif
         if let completion, !completion.isCancelled {
             if let error {

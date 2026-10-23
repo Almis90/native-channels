@@ -2,25 +2,35 @@
     <!-- Uno 6.7 replaces platform-specific assemblies that reference Uno.UI with
        their portable counterparts on Skia mobile. Our portable assembly hosts
        desktop views, so retain NuGet's mobile selection for this package only. -->
-    <Target Name="_NativeChannelsCaptureMobilePdfAssets"
-            BeforeTargets="ReplaceUnoRuntime"
-            Condition="'$(UnoUIRuntimeIdentifier)' == 'skia' And ($([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios' Or $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android')">
+    <Target
+        Name="_NativeChannelsCaptureMobilePdfAssets"
+        BeforeTargets="ReplaceUnoRuntime"
+        Condition="'$(UnoUIRuntimeIdentifier)' == 'skia' And ($([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios' Or $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android')"
+    >
         <ItemGroup>
-            <_NativeChannelsMobilePdfCompile Include="@(ResolvedCompileFileDefinitions)"
-                Condition="'%(ResolvedCompileFileDefinitions.NuGetPackageId)' == 'Plugin.Uno.PdfViewer'" />
-            <_NativeChannelsMobilePdfRuntime Include="@(RuntimeCopyLocalItems)"
-                Condition="'%(RuntimeCopyLocalItems.NuGetPackageId)' == 'Plugin.Uno.PdfViewer'" />
+            <_NativeChannelsMobilePdfCompile
+                Include="@(ResolvedCompileFileDefinitions)"
+                Condition="'%(ResolvedCompileFileDefinitions.NuGetPackageId)' == 'Plugin.Uno.PdfViewer'"
+            />
+            <_NativeChannelsMobilePdfRuntime
+                Include="@(RuntimeCopyLocalItems)"
+                Condition="'%(RuntimeCopyLocalItems.NuGetPackageId)' == 'Plugin.Uno.PdfViewer'"
+            />
         </ItemGroup>
     </Target>
     <Target Name="_NativeChannelsRestoreMobilePdfAssets" AfterTargets="ReplaceUnoRuntime">
         <ItemGroup Condition="'@(_NativeChannelsMobilePdfCompile)' != ''">
-            <ResolvedCompileFileDefinitions Remove="@(ResolvedCompileFileDefinitions)"
-                Condition="'%(ResolvedCompileFileDefinitions.NuGetPackageId)' == 'Plugin.Uno.PdfViewer'" />
+            <ResolvedCompileFileDefinitions
+                Remove="@(ResolvedCompileFileDefinitions)"
+                Condition="'%(ResolvedCompileFileDefinitions.NuGetPackageId)' == 'Plugin.Uno.PdfViewer'"
+            />
             <ResolvedCompileFileDefinitions Include="@(_NativeChannelsMobilePdfCompile)" />
         </ItemGroup>
         <ItemGroup Condition="'@(_NativeChannelsMobilePdfRuntime)' != ''">
-            <RuntimeCopyLocalItems Remove="@(RuntimeCopyLocalItems)"
-                Condition="'%(RuntimeCopyLocalItems.NuGetPackageId)' == 'Plugin.Uno.PdfViewer'" />
+            <RuntimeCopyLocalItems
+                Remove="@(RuntimeCopyLocalItems)"
+                Condition="'%(RuntimeCopyLocalItems.NuGetPackageId)' == 'Plugin.Uno.PdfViewer'"
+            />
             <RuntimeCopyLocalItems Include="@(_NativeChannelsMobilePdfRuntime)" />
         </ItemGroup>
     </Target>

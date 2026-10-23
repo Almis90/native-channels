@@ -1,8 +1,8 @@
 import Foundation
 #if os(macOS)
-import AppKit
+    import AppKit
 #else
-import UIKit
+    import UIKit
 #endif
 import PDFKit
 import NativeChannelsNative
@@ -21,9 +21,9 @@ private final class DocumentView: PDFView {
     var resized: (() -> Void)?
     private var previousSize = CGSize.zero
     #if os(macOS)
-    override func layout() { super.layout(); didLayout() }
+        override func layout() { super.layout(); didLayout() }
     #else
-    override func layoutSubviews() { super.layoutSubviews(); didLayout() }
+        override func layoutSubviews() { super.layoutSubviews(); didLayout() }
     #endif
     private func didLayout() {
         if bounds.size != previousSize && bounds.width > 0 && bounds.height > 0 {
@@ -44,9 +44,9 @@ private final class PdfInstance: NSObject, NativeViewInstance {
     private var notificationQueued = false
     private var fitScale: CGFloat = 1
     #if os(macOS)
-    var view: NSView { pdf }
+        var view: NSView { pdf }
     #else
-    var view: UIView { pdf }
+        var view: UIView { pdf }
     #endif
 
     init(_ bridge: NativeBridge, _ instanceId: String, _ channelName: String) {
@@ -54,14 +54,14 @@ private final class PdfInstance: NSObject, NativeViewInstance {
         self.instanceId = instanceId
         super.init()
         #if os(macOS)
-        pdf.backgroundColor = NSColor(red: 0.886, green: 0.91, blue: 0.94, alpha: 1)
+            pdf.backgroundColor = NSColor(red: 0.886, green: 0.91, blue: 0.94, alpha: 1)
         #else
-        pdf.backgroundColor = UIColor(red: 0.886, green: 0.91, blue: 0.94, alpha: 1)
+            pdf.backgroundColor = UIColor(red: 0.886, green: 0.91, blue: 0.94, alpha: 1)
         #endif
         pdf.displayMode = .singlePage
         pdf.displayDirection = .horizontal
         #if !os(macOS)
-        pdf.usePageViewController(true)
+            pdf.usePageViewController(true)
         #endif
         pdf.resized = { [weak self] in self?.fit() }
         for name in [Notification.Name.PDFViewPageChanged, Notification.Name.PDFViewScaleChanged] {

@@ -20,5 +20,4 @@ public class MainActivity : Microsoft.UI.Xaml.ApplicationActivity
 
         base.OnCreate(savedInstanceState);
     }
-
 }

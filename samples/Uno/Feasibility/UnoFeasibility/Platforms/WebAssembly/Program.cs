@@ -8,10 +8,7 @@ public class Program
     {
         App.InitializeLogging();
 
-        var host = UnoPlatformHostBuilder.Create()
-            .App(() => new App())
-            .UseWebAssembly()
-            .Build();
+        var host = UnoPlatformHostBuilder.Create().App(() => new App()).UseWebAssembly().Build();
 
         await host.RunAsync();
     }

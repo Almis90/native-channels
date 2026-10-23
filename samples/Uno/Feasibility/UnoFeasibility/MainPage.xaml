@@ -1,14 +1,21 @@
-﻿<Page x:Class="UnoFeasibility.MainPage"
-      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      xmlns:local="using:UnoFeasibility"
-      Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-  <StackPanel Padding="24" Spacing="12">
-    <TextBlock Text="NativeChannels — Uno feasibility" FontSize="24" />
-    <TextBlock Text="This probe does not establish Uno support." />
-    <ContentPresenter x:Name="NativeSurface" Width="320" Height="80"
-                    HorizontalAlignment="Left" HorizontalContentAlignment="Stretch"
-                    VerticalContentAlignment="Stretch" />
-    <TextBlock x:Name="Status" TextWrapping="Wrap" />
-  </StackPanel>
+﻿<Page
+    x:Class="UnoFeasibility.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:UnoFeasibility"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+>
+    <StackPanel Padding="24" Spacing="12">
+        <TextBlock Text="NativeChannels — Uno feasibility" FontSize="24" />
+        <TextBlock Text="This probe does not establish Uno support." />
+        <ContentPresenter
+            x:Name="NativeSurface"
+            Width="320"
+            Height="80"
+            HorizontalAlignment="Left"
+            HorizontalContentAlignment="Stretch"
+            VerticalContentAlignment="Stretch"
+        />
+        <TextBlock x:Name="Status" TextWrapping="Wrap" />
+    </StackPanel>
 </Page>

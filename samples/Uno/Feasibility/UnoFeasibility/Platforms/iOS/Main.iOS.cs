@@ -10,10 +10,7 @@ public class EntryPoint
     {
         App.InitializeLogging();
 
-        var host = UnoPlatformHostBuilder.Create()
-            .App(() => new App())
-            .UseAppleUIKit()
-            .Build();
+        var host = UnoPlatformHostBuilder.Create().App(() => new App()).UseAppleUIKit().Build();
 
         host.Run();
     }
