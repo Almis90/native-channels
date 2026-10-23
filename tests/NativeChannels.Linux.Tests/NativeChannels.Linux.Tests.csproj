@@ -16,6 +16,7 @@
         />
     </ItemGroup>
     <ItemGroup>
+        <Compile Include="../../src/NativeChannels/Platforms/Windows/IWindowsChannelModule.cs" />
         <Compile
             Include="../../src/NativeChannels/NativeChannelTransport.cs"
             Link="Transport/NativeChannelTransport.cs"

@@ -116,6 +116,11 @@ def audit_platform_scope(path, record, platform):
         frameworks = {name.split("/")[1] for name in files if name.startswith("lib/") and name.endswith(".dll")}
         if package_id in {"NativeChannels.Core", "NativeChannels.Avalonia"} or platform == "linux":
             valid = frameworks == {"net10.0"}
+        elif platform == "browser":
+            # Keep Avalonia's browser target; Uno additionally consumes browserwasm.
+            browser = {tfm for tfm in frameworks if re.fullmatch(r"net10\.0-browser(?:[0-9]+(?:\.[0-9]+)*)?", tfm)}
+            wasm = {tfm for tfm in frameworks if re.fullmatch(r"net10\.0-browserwasm(?:[0-9]+(?:\.[0-9]+)*)?", tfm)}
+            valid = len(browser) == 1 and len(wasm) <= 1 and frameworks == browser | wasm
         else:
             pattern = rf"net10\.0-{platform}(?:[0-9]+(?:\.[0-9]+)*)?"
             valid = len(frameworks) == 1 and all(re.fullmatch(pattern, tfm) for tfm in frameworks)

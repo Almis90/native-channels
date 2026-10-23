@@ -69,3 +69,24 @@ class PackageAuditTests(unittest.TestCase):
             self.write_package(extra="README.md")
         with self.assertRaisesRegex(ValueError, "duplicate"):
             audit.audit_package(self.path)
+
+    def test_browser_scope_accepts_dual_targets_but_rejects_unrelated_targets(self):
+        for targets, valid in [
+            (['net10.0-browser1.0'], True),
+            (['net10.0-browser1.0', 'net10.0-browserwasm1.0'], True),
+            (['net10.0-browserwasm1.0'], False),
+            (['net10.0-browser1.0', 'net10.0-android36.0'], False),
+        ]:
+            with self.subTest(targets=targets):
+                groups = ''.join(f'<group targetFramework="{tfm}"/>' for tfm in targets)
+                with zipfile.ZipFile(self.path, 'w') as archive:
+                    archive.writestr('Plugin.Currency.nuspec',
+                        f'<package><metadata><dependencies>{groups}</dependencies></metadata></package>')
+                    archive.writestr('browser/currency.mjs', 'export {}')
+                    for tfm in targets:
+                        archive.writestr(f'lib/{tfm}/Plugin.Currency.dll', b'fixture')
+                if valid:
+                    audit.audit_platform_scope(self.path, {'id': 'Plugin.Currency'}, 'browser')
+                else:
+                    with self.assertRaisesRegex(ValueError, 'unexpected browser frameworks'):
+                        audit.audit_platform_scope(self.path, {'id': 'Plugin.Currency'}, 'browser')

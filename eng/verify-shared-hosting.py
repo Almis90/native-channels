@@ -142,7 +142,7 @@ def main():
     if args.stage == 'packages':
         for name in ('verification.json', 'packages.json', 'maui-result.txt', 'avalonia-result.txt'):
             (output / name).unlink(missing_ok=True)
-        projects = {'maui': 'Currency.Sample', 'avalonia': target['project']}
+        projects = {'maui': 'Maui/Currency', 'avalonia': target['project']}
         assets = {host: json.loads((root / 'samples' / project / 'obj/project.assets.json').read_text(encoding='utf-8-sig'))
                   for host, project in projects.items()}
         record = {'sourceCommit': sha, 'platform': args.platform, 'runtime': runtime,
