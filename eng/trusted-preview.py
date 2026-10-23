@@ -65,11 +65,13 @@ def unpack(path, expected_hash, output):
 
 def verify(directory, version):
     manifest = publisher.verify(directory)
-    record = publisher.read(RECORD)
+    framework_release = manifest.get('kind') == 'framework-preview-release'
+    record = publisher.read(ROOT / 'docs/public/verification/preview-03-local.json' if framework_release else RECORD)
+    audit = 'package-audit.json' if framework_release else 'preview-manifest.json'
     if (manifest['version'] != version or record.get('version') != version
             or record.get('sourceCommit') != manifest['sourceCommit']
             or record.get('acceptance') != publisher.read(directory / 'evidence/acceptance.json')
-            or record.get('candidate') != publisher.read(directory / 'candidate/preview-manifest.json')):
+            or record.get('candidate') != publisher.read(directory / 'candidate' / audit)):
         raise ValueError('Release differs from the accepted package evidence committed in this repository')
     publisher.require_merged(manifest['sourceCommit'])
     return manifest
@@ -121,7 +123,7 @@ def publish(directory, version, report_path):
                       workflowRun=os.environ.get('GITHUB_RUN_ID'), uploadsCompleted=False, submissions=[])
         report_path.parent.mkdir(parents=True, exist_ok=True)
         publisher.write(report_path, report)
-        for path in pending + [directory / 'candidate' / f'{p}.{version}.snupkg' for p in publisher.PACKAGE_IDS]:
+        for path in pending + [directory / 'candidate' / f'{p}.{version}.snupkg' for p in manifest['packageIds']]:
             row = dict(file=path.name, sha256=publisher.candidate.digest(path), status='attempting')
             report['submissions'].append(row)
             publisher.write(report_path, report)
@@ -167,7 +169,8 @@ def main():
     if summary := os.environ.get('GITHUB_STEP_SUMMARY'):
         with open(summary, 'a', encoding='utf-8') as stream:
             stream.write(f"## {args.mode}: {manifest['version']}\n\n"
-                         f"Tested package source: `{manifest['sourceCommit']}`. Six packages and six symbol archives.\n\n"
+                         f"Tested package source: `{manifest['sourceCommit']}`. "
+                         f"{len(manifest['packageIds'])} packages and symbol archives.\n\n"
                          'Tests were performed locally; this workflow only verifies the recorded evidence and publishes.\n')
     print(f"PASS {args.mode}: {manifest['version']} from {manifest['sourceCommit']}")
 

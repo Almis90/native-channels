@@ -92,6 +92,9 @@ def prepare(packages, acceptance, api, summaries, output):
 
 def verify(directory):
     manifest = read(directory / 'release-manifest.json')
+    if manifest.get('kind') == 'framework-preview-release':
+        from framework_release import verify as verify_frameworks
+        return verify_frameworks(directory)
     expected = {'evidence/acceptance.json', 'evidence/api.json', 'candidate/preview-manifest.json'}
     expected.update(f'evidence/{framework}-{platform}.json' for framework, platform in candidate.MATRIX)
     expected.update(f"candidate/{package_id}.{manifest['version']}.{suffix}"
@@ -111,7 +114,7 @@ def verify(directory):
 def preflight(directory, manifest, require_indexed=False):
     """Check every ID before the first upload; repository signatures may be added by NuGet."""
     pending = []
-    for package_id in PACKAGE_IDS:
+    for package_id in manifest['packageIds']:
         path = directory / 'candidate' / f"{package_id}.{manifest['version']}.nupkg"
         published = remote.fetch_package(package_id, manifest['version'])
         if published is None:
@@ -146,7 +149,7 @@ def read_api_key(gui=False):
         window.attributes('-topmost', True)
         try:
             key = simpledialog.askstring('Publish NativeChannels preview to NuGet.org',
-                'Enter a NuGet API key scoped to the six NativeChannels package IDs.\n'
+                'Enter a NuGet API key scoped to the accepted NativeChannels package IDs.\n'
                 'The key stays in memory and will not be printed or saved.\n'
                 'Cancel to leave the release unpublished.', show='*', parent=window)
         finally:
@@ -212,7 +215,7 @@ def publish(directory, version, report_path, gui=False):
                       releaseManifestSha256=candidate.digest(directory / 'release-manifest.json'),
                       startedUtc=datetime.now(timezone.utc).isoformat(), uploadsCompleted=False, submissions=[])
         write(report_path, report)
-        paths = pending + [directory / 'candidate' / f'{p}.{version}.snupkg' for p in PACKAGE_IDS]
+        paths = pending + [directory / 'candidate' / f'{p}.{version}.snupkg' for p in manifest['packageIds']]
         for path in paths:
             row = dict(file=path.name, sha256=candidate.digest(path), status='attempting')
             report['submissions'].append(row)
@@ -254,8 +257,9 @@ def main():
         result = verify(args.directory)
         if args.mode in ('preflight', 'verify-public'):
             pending = preflight(args.directory, result, require_indexed=args.mode == 'verify-public')
-            print(f'NuGet package preflight: {len(pending)} new package versions; {6 - len(pending)} identical indexed versions')
-    print(f"PASS {args.mode}: six packages and symbols for {result['version']} from {result['sourceCommit']}")
+            print(f'NuGet package preflight: {len(pending)} new package versions; '
+                  f"{len(result['packageIds']) - len(pending)} identical indexed versions")
+    print(f"PASS {args.mode}: {len(result['packageIds'])} packages and symbols for {result['version']} from {result['sourceCommit']}")
 
 
 if __name__ == '__main__':

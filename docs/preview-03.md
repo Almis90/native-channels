@@ -1,4 +1,4 @@
-# Uno 0.3 preparation
+# Uno 0.3 preview
 
 Status on October 23, 2026: **0.3 preview source release; NuGet publication pending**.
 The optional Uno host and five samples are implemented. Shared automated sample
@@ -11,7 +11,14 @@ is partial. Physical-device coverage remains separate.
 The repository version is `0.3.0-preview.1`. Publication includes the six existing
 framework packages plus `NativeChannels.Uno`; reference plugin packages are excluded.
 The earlier `0.3.0-preview.6` feed was local diagnostic output, not a public release.
-Final release archive validation and NuGet publication are still pending.
+The release uses a separate seven-framework acceptance gate described in
+[publishing](publishing.md#seven-package-03-preview). It verifies the exact final
+archives with the existing Interop channel and native-view suites on all 16
+supported framework/platform combinations, plus API compatibility against the
+six published 0.2 frameworks. This scope excludes the reference plugin samples;
+their earlier diagnostic-feed results are recorded below. NuGet publication is
+still pending. The exact-archive gate passed on October 23, 2026; see the
+[acceptance record](verification.md#accepted-03-preview).
 
 | Package | Responsibility |
 | --- | --- |
@@ -94,7 +101,7 @@ assertion led to a bounded stable-readiness check with timeout diagnostics;
 the original failure's cause has not been conclusively reproduced. See
 [visible review findings](uno-feasibility.md#windows-visible-review-october-21-2026).
 
-## Remaining release gates
+## Preview limitations and earlier release preparation
 
 - Complete visible Windows review and physical input verification. The corrected
   adapter passes automated two-view parenting, layout, focus, direct input messages,
@@ -114,7 +121,8 @@ the original failure's cause has not been conclusively reproduced. See
 - Extend the hosted distribution/publication workflow for Uno. Local packaging
   now preserves MAUI/Avalonia targets and passes the existing API compatibility
   gate; the exact combined archives were tested from clean, unchanged source. The
-  existing 0.1/0.2 publication path has not been extended or approved for 0.3.
+  earlier 0.1/0.2 publication path is now supplemented by the separate seven-package
+  0.3 acceptance path above. The original 0.2 gate remains unchanged.
 - After acceptance, update release versions and dependency pins together, finalize
   release notes, and follow the [release checklist](release-checklist.md). Publication
   and public-feed consumer checks are separate steps.

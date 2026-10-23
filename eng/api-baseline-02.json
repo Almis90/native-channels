@@ -1,0 +1,11 @@
+{
+  "version": "0.2.0-preview.1",
+  "packages": {
+    "NativeChannels.Core": "0f68b02399e07e7c3789b659916837c14400a3a6f3c3d7fa1f2faf441f81ed67",
+    "NativeChannels.Native.Android": "717f15f6d895306ea8ffc72aa4e6424c08e1da6100dde9d616f07407f702e257",
+    "NativeChannels.Native.Apple": "356a6b53304478bee90f31d4024262b315dbd5c89c36920b025facfecb611d22",
+    "NativeChannels": "e95786d5f7bf3a078e14e0142486c387130a96948d360e6204451b65decf7523",
+    "NativeChannels.Maui": "76d025bc1b79344d5e91a0efbb2643ac6df768b2b792ec53f9c540fd7302b45c",
+    "NativeChannels.Avalonia": "b233a715643e9fd8502e11004b2c8a8e70a7a9e57f19a80b30c8d7e7e279750a"
+  }
+}

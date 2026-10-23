@@ -25,6 +25,38 @@ is implemented for the upcoming [0.3 preview](preview-03.md). Historical Currenc
 only their recorded scope; the newer complete suites alone do not establish publication,
 physical-device support, or capabilities unavailable on an OS/browser.
 
+## Accepted 0.3 framework preview — 2026-10-23 {#accepted-03-preview}
+
+All seven framework packages and seven symbol archives for **0.3.0-preview.1**
+passed archive validation. The existing Interop channel and native-view suites
+passed against these exact combined packages on all 16 supported combinations:
+
+| Framework | Executed targets |
+| --- | --- |
+| MAUI | Windows x64, Android x64 emulator, iOS ARM64 simulator, Mac Catalyst ARM64 |
+| Avalonia | Windows x64, Android x64 emulator, iOS ARM64 simulator, macOS ARM64, Linux x64/X11, browser |
+| Uno | Windows x64, Android x64 emulator, iOS ARM64 simulator, macOS ARM64, Linux x64/X11, browser |
+
+Every consumer restored fresh framework packages and verified their hashes against
+the combined feed. Third-party dependency caches were reused. Browser checks used
+headless Microsoft Edge on Windows; Linux used Ubuntu 24.04 with Xvfb. Native
+methods and views ran the existing shared verifiers, including 32 reconnects.
+API compatibility passed against the six hash-pinned `0.2.0-preview.1` packages;
+Uno has no published baseline. The API tool emits unresolved external
+platform-reference warnings, so this does not establish exhaustive compatibility.
+
+The [machine-readable record](/verification/preview-03-local.json) binds the
+package audit, API report and all consumer result hashes to source commit
+`034cff1e0e717b2c76d12ddcf75dae982bd76035`. Later commits update release tooling
+and evidence; they do not rebuild these archives. The accepted bundle SHA-256 is
+`dfc66183131434b6cd184e46346db475adeb929837250f19b3118fffd597f464`.
+
+This acceptance covers the seven framework packages only. It does not claim
+five-reference-sample acceptance against the final archives, physical-device
+coverage or macOS x64 execution. The earlier diagnostic sample checks and remaining
+preview limitations are described in [0.3 preview](preview-03.md).
+NuGet publication and public-feed verification are pending.
+
 ## Published 0.2 preview — 2026-10-19 {#published-02-preview}
 
 All six framework packages and their six symbol archives are available on NuGet.org

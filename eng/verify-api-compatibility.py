@@ -101,8 +101,10 @@ def main():
     parser.add_argument('--output', type=Path, default=ROOT / 'artifacts/api-compatibility/result.json')
     parser.add_argument('--dotnet', type=Path, help='Pinned SDK executable (including dotnet.exe on Windows)')
     parser.add_argument('--version', help='Candidate package version (defaults to Directory.Build.props)')
+    parser.add_argument('--baseline', type=Path, default=ROOT / 'eng/api-baseline.json',
+                        help='Hash-pinned published baseline manifest')
     args = parser.parse_args()
-    manifest = json.loads((ROOT / 'eng/api-baseline.json').read_text())
+    manifest = json.loads(args.baseline.read_text())
     version = args.version or ET.parse(ROOT / 'Directory.Build.props').findtext('.//Version')
     result = {'candidateVersion': version, 'baselineVersion': manifest['version'], 'scope': args.scope,
               'success': False, 'packages': []}

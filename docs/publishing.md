@@ -5,6 +5,55 @@ Publishing. Only `publish-nuget.yml` runs for publication; it does not build
 packages or execute tests. Direct local publication with an API key remains an
 alternative. The five-package 0.1 process below is historical.
 
+## Seven-package 0.3 preview {#seven-package-03-preview}
+
+The 0.3 release adds `NativeChannels.Uno` to the six framework packages. Reference
+plugin packages are excluded. Its separate `framework-preview-release` manifest
+requires the existing Interop channel and native-view suites on all 16 supported
+combinations: MAUI on Windows, Android, iOS and Mac Catalyst; Avalonia and Uno on
+Windows, Android, iOS, macOS, Linux and browser. This is framework acceptance,
+not a claim that all five reference samples ran against these exact archives.
+The older 0.2 five-sample acceptance gate remains unchanged.
+
+Build the combined archives from one clean commit with `eng/pack-uno-candidate.py`
+and `eng/combine-uno-packages.py`, using `--frameworks-only --include-existing-hosts`.
+Run `eng/release-consumer.py` on each target, pointing `--root` at that clean source,
+`--packages` at the combined feed, and `--output` at a new evidence directory.
+It verifies restored package hashes, runs the existing Interop suites and retains
+build/runtime logs and the assets hash. For example:
+
+```powershell
+python eng/release-consumer.py --root .tools/release-source `
+  --packages artifacts/combined --output artifacts/acceptance/uno-windows `
+  --dotnet .tools/dotnet/dotnet.exe --framework uno --platform windows
+python eng/verify-api-compatibility.py --packages artifacts/combined `
+  --baseline eng/api-baseline-02.json --output artifacts/api-02.json
+```
+
+The hash-pinned 0.2 baseline covers all six previously published frameworks;
+Uno has no previous public API baseline. Collect the 16 `result.json` files,
+then prepare and bundle the immutable release:
+
+```powershell
+$releaseArgs = @('eng/framework_release.py', '--packages', 'artifacts/combined',
+  '--api', 'artifacts/api-02.json', '--output', 'artifacts/nuget-0.3.0-preview.1')
+Get-ChildItem artifacts/acceptance -Recurse -Filter result.json |
+  ForEach-Object { $releaseArgs += @('--report', $_.FullName) }
+python @releaseArgs
+python eng/trusted-preview.py bundle --directory artifacts/nuget-0.3.0-preview.1 `
+  --output artifacts/NativeChannels.0.3.0-preview.1.accepted.zip
+```
+
+Commit the candidate audit and acceptance receipt in
+`docs/public/verification/preview-03-local.json` before dispatch. The record must
+contain `version`, `sourceCommit`, `candidate` and `acceptance`; the latter two
+are the unchanged JSON audit and receipt. The publishing workflow compares them
+with the bundle, checks all 14 archives, and requires the source commit to be
+merged into `main`. Use the same Trusted Publishing flow below, with version
+`0.3.0-preview.1` and policy scope covering all seven IDs, including Uno.
+Run `publish=false` first, then `publish=true` after validation. Publication
+uploads the accepted bytes without rebuilding; verify public indexing afterwards.
+
 ## Trusted Publishing of locally accepted packages {#trusted-preview}
 
 Complete [local candidate acceptance](preview-02.md), then prepare the immutable

@@ -86,7 +86,7 @@ jobs:
         id: login
         with:
           user: ${{ vars.NUGET_USER }}
-      - name: Publish the six verified packages and symbols
+      - name: Publish the verified framework packages and symbols
         env:
           NUGET_API_KEY: ${{ steps.login.outputs.NUGET_API_KEY }}
           PUBLISH_NUGET: 'true'

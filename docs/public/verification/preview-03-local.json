@@ -1,0 +1,708 @@
+{
+  "date": "2026-10-23",
+  "version": "0.3.0-preview.1",
+  "sourceCommit": "034cff1e0e717b2c76d12ddcf75dae982bd76035",
+  "scope": "Seven framework packages; existing Interop channel and native-view suites on 16 targets. Reference plugin samples are excluded.",
+  "acceptance": {
+    "sourceCommit": "034cff1e0e717b2c76d12ddcf75dae982bd76035",
+    "version": "0.3.0-preview.1",
+    "success": true,
+    "archives": {
+      "NativeChannels.Core.0.3.0-preview.1.nupkg": "f35ab40a9617869b78ed7b54c16065e4e088cb69661604f137481ff142407dc9",
+      "NativeChannels.Core.0.3.0-preview.1.snupkg": "788ff8231711de0769d8b8e248bab2eda005e7a1e7a6ce4e31eb54d65ecdf431",
+      "NativeChannels.Native.Android.0.3.0-preview.1.nupkg": "cd8548e51cfd3ab3fcf5fa85d7b57f70494110dc6853a6dac40c2052393b130d",
+      "NativeChannels.Native.Android.0.3.0-preview.1.snupkg": "65006a8912611d1495f57ebd05f8397010b8d52679862685f3db0fcf4ee530a9",
+      "NativeChannels.Native.Apple.0.3.0-preview.1.nupkg": "36b36dc41467fd6f1b44995d6346359542ab0118c99aba0771f3160ab790fbc5",
+      "NativeChannels.Native.Apple.0.3.0-preview.1.snupkg": "e9e5307a5002452a2637e7bff477967930d2b31792b2a21270ced249c41e9167",
+      "NativeChannels.0.3.0-preview.1.nupkg": "d6d76660eb50aeae9e422a8e9c6fccc423b9393c299becc6ff3b9e991dc69011",
+      "NativeChannels.0.3.0-preview.1.snupkg": "d599eba533b9d96b6ef2b7a3119accc1edd6b91fb20f6a013e64fdf3774cdc05",
+      "NativeChannels.Maui.0.3.0-preview.1.nupkg": "d2c106fcf9c9420690f921a3a0e3499b10a81aeee791ad76f97d40dcc06cd115",
+      "NativeChannels.Maui.0.3.0-preview.1.snupkg": "7a92b51c793c1487f109c1af587b1c6c45d2e062ea153d06143ba6e2448cd3e0",
+      "NativeChannels.Avalonia.0.3.0-preview.1.nupkg": "0f9fd5aad91e24166b64bf0bb9aa7c740965cffb1257719839b92e8a5399a445",
+      "NativeChannels.Avalonia.0.3.0-preview.1.snupkg": "211f38e408e21f117d4c3b8a9992c827316ad763f43d4c32998980679499b77d",
+      "NativeChannels.Uno.0.3.0-preview.1.nupkg": "41efb6bd5a4b6ba95bca3fe9a71adac6dbb4dbe33bc367a8831344e0d0300351",
+      "NativeChannels.Uno.0.3.0-preview.1.snupkg": "08bc3e93b6e9954a8e07726acc89bfa753205ef57c84b685091d1727ff952c2c"
+    },
+    "candidateManifestSha256": "469f9ffe039d89c1779ede185d5488ef0c066c1e3ccf18c74e795129a200ad97",
+    "apiReportSha256": "2e294c1ce25b5c7f2ba451b232c125e7b17666b902fa64be41aaaac43507319e",
+    "consumers": [
+      {
+        "framework": "avalonia",
+        "platform": "android",
+        "reportSha256": "10b85f10e9a020baba18de52eabb32c013de15bc49d1bc91e894bd8320ad3bf9"
+      },
+      {
+        "framework": "avalonia",
+        "platform": "browser",
+        "reportSha256": "b0389ce098c1685b0daf7d79f608e3adba72af5785d4bf217f7e7759ee26af2d"
+      },
+      {
+        "framework": "avalonia",
+        "platform": "ios",
+        "reportSha256": "27c8c7b490b403f498650dbd2ebe1d893d6bb124e2782fe30eda0a73c20eb154"
+      },
+      {
+        "framework": "avalonia",
+        "platform": "linux",
+        "reportSha256": "f26b46d3bd14c71f77dd38ed01dc003e1857025bb228e654a429b41d923d8ad6"
+      },
+      {
+        "framework": "avalonia",
+        "platform": "macos",
+        "reportSha256": "99fcdf05acedd09a7610f2e9f099d82564b4ddbe778fd618fc24d82645087340"
+      },
+      {
+        "framework": "avalonia",
+        "platform": "windows",
+        "reportSha256": "c338073eb608848b0462666aa547b4f92aeece0c3e3b8c93ac556dbc5dcee5ba"
+      },
+      {
+        "framework": "maui",
+        "platform": "android",
+        "reportSha256": "722ceb4457a07c72cf03a0d1f7aba88110f5e5a7d80791b3de26226a1f957bdf"
+      },
+      {
+        "framework": "maui",
+        "platform": "ios",
+        "reportSha256": "89e90b2f7634fd75cf08dae0d633dcabc6a58e56a46d682dac651fb93561bf65"
+      },
+      {
+        "framework": "maui",
+        "platform": "maccatalyst",
+        "reportSha256": "f2f1a371d3077e0f947f8b2e2aca22dbd1547d8d6a0180e8f6a1a0115bd58a79"
+      },
+      {
+        "framework": "maui",
+        "platform": "windows",
+        "reportSha256": "fa5dc2272c20e593948710f468efd34181fc68659b67d3f9b69b0deb902efb5b"
+      },
+      {
+        "framework": "uno",
+        "platform": "android",
+        "reportSha256": "cc32c825279a828011e1a2d493ae737cef7223df463716ec9b61b4638eb2ef2b"
+      },
+      {
+        "framework": "uno",
+        "platform": "browser",
+        "reportSha256": "5e9baea869509d5a27d3e1c1e1aa8b722f8b0eeac81cf701edd4fd2b055654ce"
+      },
+      {
+        "framework": "uno",
+        "platform": "ios",
+        "reportSha256": "066195b51e31bb7cd7d53a3c8e0daaac3268c4a609513271247ddb1a6c24ea59"
+      },
+      {
+        "framework": "uno",
+        "platform": "linux",
+        "reportSha256": "74a076ae5b525ea3f34d6bad1b3ac4163353f03b1cadff2c8c67ec909f13f61a"
+      },
+      {
+        "framework": "uno",
+        "platform": "macos",
+        "reportSha256": "05cad2e1e97d14d620fbb881d80de3a5fec8793f81d354f355498d86e9d2d856"
+      },
+      {
+        "framework": "uno",
+        "platform": "windows",
+        "reportSha256": "8f5755101d93ac2e78554cd36c73f9f3341c842a461859cc16676257eb572bda"
+      }
+    ],
+    "scope": "Seven framework packages; existing Interop channel and native-view suites on 16 targets. Reference plugin samples are excluded."
+  },
+  "candidate": {
+    "sourceCommit": "034cff1e0e717b2c76d12ddcf75dae982bd76035",
+    "canonicalDesktop": "windows",
+    "inputs": {
+      "windows": {
+        "NativeChannels": {
+          "file": "NativeChannels.0.3.0-preview.1.nupkg",
+          "id": "NativeChannels",
+          "version": "0.3.0-preview.1",
+          "sourceCommit": "034cff1e0e717b2c76d12ddcf75dae982bd76035",
+          "sha256": "3859e18d76329b6ec9990785a8538982ed7183013d155fb39ce8dc5da6590766",
+          "sizeBytes": 34734,
+          "assemblies": [
+            "lib/net10.0/NativeChannels.dll"
+          ]
+        },
+        "NativeChannels.Core": {
+          "file": "NativeChannels.Core.0.3.0-preview.1.nupkg",
+          "id": "NativeChannels.Core",
+          "version": "0.3.0-preview.1",
+          "sourceCommit": "034cff1e0e717b2c76d12ddcf75dae982bd76035",
+          "sha256": "f7ff188ac5b18e95e38ded95744426da6a572053a98d38b8c7f8c00d31200959",
+          "sizeBytes": 55442,
+          "assemblies": [
+            "lib/net10.0/NativeChannels.Core.dll"
+          ]
+        },
+        "NativeChannels.Uno": {
+          "file": "NativeChannels.Uno.0.3.0-preview.1.nupkg",
+          "id": "NativeChannels.Uno",
+          "version": "0.3.0-preview.1",
+          "sourceCommit": "034cff1e0e717b2c76d12ddcf75dae982bd76035",
+          "sha256": "bebdff8872f116f89ae8da307a96d991ed05febeeabbabfb5703a157ead7c4cb",
+          "sizeBytes": 26491,
+          "assemblies": [
+            "lib/net10.0/NativeChannels.Uno.dll"
+          ]
+        }
+      },
+      "linux": {
+        "NativeChannels": {
+          "file": "NativeChannels.0.3.0-preview.1.nupkg",
+          "id": "NativeChannels",
+          "version": "0.3.0-preview.1",
+          "sourceCommit": "034cff1e0e717b2c76d12ddcf75dae982bd76035",
+          "sha256": "b8b655c7f5d9ca6c5a099419a4cf5d0f22edb16a8511c07ab0daab815e8801cd",
+          "sizeBytes": 34693,
+          "assemblies": [
+            "lib/net10.0/NativeChannels.dll"
+          ]
+        },
+        "NativeChannels.Avalonia": {
+          "file": "NativeChannels.Avalonia.0.3.0-preview.1.nupkg",
+          "id": "NativeChannels.Avalonia",
+          "version": "0.3.0-preview.1",
+          "sourceCommit": "034cff1e0e717b2c76d12ddcf75dae982bd76035",
+          "sha256": "168918c1f32f9716195e6456c5c36afdc53bfdb1c8b2da66092fe3cd51f87c0f",
+          "sizeBytes": 22234,
+          "assemblies": [
+            "lib/net10.0/NativeChannels.Avalonia.dll"
+          ]
+        },
+        "NativeChannels.Core": {
+          "file": "NativeChannels.Core.0.3.0-preview.1.nupkg",
+          "id": "NativeChannels.Core",
+          "version": "0.3.0-preview.1",
+          "sourceCommit": "034cff1e0e717b2c76d12ddcf75dae982bd76035",
+          "sha256": "62b945e7bb167507375cae6726e0ca5cc3983ea6f518501b3fcab0f104d4ec00",
+          "sizeBytes": 55421,
+          "assemblies": [
+            "lib/net10.0/NativeChannels.Core.dll"
+          ]
+        },
+        "NativeChannels.Uno": {
+          "file": "NativeChannels.Uno.0.3.0-preview.1.nupkg",
+          "id": "NativeChannels.Uno",
+          "version": "0.3.0-preview.1",
+          "sourceCommit": "034cff1e0e717b2c76d12ddcf75dae982bd76035",
+          "sha256": "9ca22c634ba73ab4f6fef9e956319f486999b551b5da64994df60cec33af7d0b",
+          "sizeBytes": 26427,
+          "assemblies": [
+            "lib/net10.0/NativeChannels.Uno.dll"
+          ]
+        }
+      },
+      "macos": {
+        "NativeChannels": {
+          "file": "NativeChannels.0.3.0-preview.1.nupkg",
+          "id": "NativeChannels",
+          "version": "0.3.0-preview.1",
+          "sourceCommit": "034cff1e0e717b2c76d12ddcf75dae982bd76035",
+          "sha256": "e7cb23ed50f5d13b338a9b49fc5b4912b05839a0e9670207c5b244814fb89fa5",
+          "sizeBytes": 276545,
+          "assemblies": [
+            "lib/net10.0/NativeChannels.dll"
+          ]
+        },
+        "NativeChannels.Core": {
+          "file": "NativeChannels.Core.0.3.0-preview.1.nupkg",
+          "id": "NativeChannels.Core",
+          "version": "0.3.0-preview.1",
+          "sourceCommit": "034cff1e0e717b2c76d12ddcf75dae982bd76035",
+          "sha256": "ed5c30c4a26ce22db372084b0e7bd648e54010c43f15e7eb11ca6758f715c7a5",
+          "sizeBytes": 55416,
+          "assemblies": [
+            "lib/net10.0/NativeChannels.Core.dll"
+          ]
+        },
+        "NativeChannels.Uno": {
+          "file": "NativeChannels.Uno.0.3.0-preview.1.nupkg",
+          "id": "NativeChannels.Uno",
+          "version": "0.3.0-preview.1",
+          "sourceCommit": "034cff1e0e717b2c76d12ddcf75dae982bd76035",
+          "sha256": "7b7956844e8e415595e078828be8c7e9a36c5a20d3ed3aa334f5966654ce28e3",
+          "sizeBytes": 33909,
+          "assemblies": [
+            "lib/net10.0/NativeChannels.Uno.dll"
+          ]
+        }
+      },
+      "android": {
+        "NativeChannels": {
+          "file": "NativeChannels.0.3.0-preview.1.nupkg",
+          "id": "NativeChannels",
+          "version": "0.3.0-preview.1",
+          "sourceCommit": "034cff1e0e717b2c76d12ddcf75dae982bd76035",
+          "sha256": "027a8aa3031da9130258687c13ff6b5789fa96f20bb1fa3eb797c847630d948f",
+          "sizeBytes": 31091,
+          "assemblies": [
+            "lib/net10.0-android36.0/NativeChannels.dll"
+          ]
+        },
+        "NativeChannels.Avalonia": {
+          "file": "NativeChannels.Avalonia.0.3.0-preview.1.nupkg",
+          "id": "NativeChannels.Avalonia",
+          "version": "0.3.0-preview.1",
+          "sourceCommit": "034cff1e0e717b2c76d12ddcf75dae982bd76035",
+          "sha256": "daa3eee80a8380106edbcb1ebafea3664d2889f810c7b14f023bcaad85400b92",
+          "sizeBytes": 22286,
+          "assemblies": [
+            "lib/net10.0/NativeChannels.Avalonia.dll"
+          ]
+        },
+        "NativeChannels.Core": {
+          "file": "NativeChannels.Core.0.3.0-preview.1.nupkg",
+          "id": "NativeChannels.Core",
+          "version": "0.3.0-preview.1",
+          "sourceCommit": "034cff1e0e717b2c76d12ddcf75dae982bd76035",
+          "sha256": "2e7a4d9a6117ced513b9adab1039a9fa3f9f63a8441e7db5df8eced129b39346",
+          "sizeBytes": 55442,
+          "assemblies": [
+            "lib/net10.0/NativeChannels.Core.dll"
+          ]
+        },
+        "NativeChannels.Maui": {
+          "file": "NativeChannels.Maui.0.3.0-preview.1.nupkg",
+          "id": "NativeChannels.Maui",
+          "version": "0.3.0-preview.1",
+          "sourceCommit": "034cff1e0e717b2c76d12ddcf75dae982bd76035",
+          "sha256": "a566dbc92a94469c3cf6f8041ef2e810bfb92d00feb418b6a2a1e65e2028b108",
+          "sizeBytes": 22669,
+          "assemblies": [
+            "lib/net10.0-android36.0/NativeChannels.Maui.dll"
+          ]
+        },
+        "NativeChannels.Native.Android": {
+          "file": "NativeChannels.Native.Android.0.3.0-preview.1.nupkg",
+          "id": "NativeChannels.Native.Android",
+          "version": "0.3.0-preview.1",
+          "sourceCommit": "034cff1e0e717b2c76d12ddcf75dae982bd76035",
+          "sha256": "e890c790ce4167a40c1b610eae4dc33d9ca214b3bd143aeab1e7946b4330ca08",
+          "sizeBytes": 77007,
+          "assemblies": [
+            "lib/net10.0-android36.0/NativeChannels.Native.Android.dll"
+          ]
+        },
+        "NativeChannels.Uno": {
+          "file": "NativeChannels.Uno.0.3.0-preview.1.nupkg",
+          "id": "NativeChannels.Uno",
+          "version": "0.3.0-preview.1",
+          "sourceCommit": "034cff1e0e717b2c76d12ddcf75dae982bd76035",
+          "sha256": "7d047aed7cf992ce0f2701941e0d9f2cfc942233e611f36a8afb974050b8ffcf",
+          "sizeBytes": 26491,
+          "assemblies": [
+            "lib/net10.0/NativeChannels.Uno.dll"
+          ]
+        }
+      },
+      "ios": {
+        "NativeChannels": {
+          "file": "NativeChannels.0.3.0-preview.1.nupkg",
+          "id": "NativeChannels",
+          "version": "0.3.0-preview.1",
+          "sourceCommit": "034cff1e0e717b2c76d12ddcf75dae982bd76035",
+          "sha256": "b06068494de4f77c1c5633f94a5905cde926d8f93afadc9a1e24f0885d1de236",
+          "sizeBytes": 31163,
+          "assemblies": [
+            "lib/net10.0-ios26.0/NativeChannels.dll"
+          ]
+        },
+        "NativeChannels.Avalonia": {
+          "file": "NativeChannels.Avalonia.0.3.0-preview.1.nupkg",
+          "id": "NativeChannels.Avalonia",
+          "version": "0.3.0-preview.1",
+          "sourceCommit": "034cff1e0e717b2c76d12ddcf75dae982bd76035",
+          "sha256": "f21426b99d6a57640e05cd29cba743a96c345873d61dd85e7680867825b93d2c",
+          "sizeBytes": 22230,
+          "assemblies": [
+            "lib/net10.0/NativeChannels.Avalonia.dll"
+          ]
+        },
+        "NativeChannels.Core": {
+          "file": "NativeChannels.Core.0.3.0-preview.1.nupkg",
+          "id": "NativeChannels.Core",
+          "version": "0.3.0-preview.1",
+          "sourceCommit": "034cff1e0e717b2c76d12ddcf75dae982bd76035",
+          "sha256": "cb80a599de79c3149b6411e49bcd4497efd7fdcd3fc5e8639dd1d86a5ea104d3",
+          "sizeBytes": 55416,
+          "assemblies": [
+            "lib/net10.0/NativeChannels.Core.dll"
+          ]
+        },
+        "NativeChannels.Maui": {
+          "file": "NativeChannels.Maui.0.3.0-preview.1.nupkg",
+          "id": "NativeChannels.Maui",
+          "version": "0.3.0-preview.1",
+          "sourceCommit": "034cff1e0e717b2c76d12ddcf75dae982bd76035",
+          "sha256": "6cc2c975e4aa4d509a878c4a496607a8524fd54119507913cc3d31b1b48f0fe3",
+          "sizeBytes": 22356,
+          "assemblies": [
+            "lib/net10.0-ios26.0/NativeChannels.Maui.dll"
+          ]
+        },
+        "NativeChannels.Native.Apple": {
+          "file": "NativeChannels.Native.Apple.0.3.0-preview.1.nupkg",
+          "id": "NativeChannels.Native.Apple",
+          "version": "0.3.0-preview.1",
+          "sourceCommit": "034cff1e0e717b2c76d12ddcf75dae982bd76035",
+          "sha256": "c5e37f24e0cff1e8e4fe701eeda978845e7ef1050f837aa2dec538325ff4c887",
+          "sizeBytes": 943487,
+          "assemblies": [
+            "lib/net10.0-ios26.0/NativeChannels.Native.Apple.dll"
+          ]
+        },
+        "NativeChannels.Uno": {
+          "file": "NativeChannels.Uno.0.3.0-preview.1.nupkg",
+          "id": "NativeChannels.Uno",
+          "version": "0.3.0-preview.1",
+          "sourceCommit": "034cff1e0e717b2c76d12ddcf75dae982bd76035",
+          "sha256": "8e9b61280475930461f554f4ba17f088710ee6b2d6c07cfa81d4b9e02e1d8b36",
+          "sizeBytes": 26429,
+          "assemblies": [
+            "lib/net10.0/NativeChannels.Uno.dll"
+          ]
+        }
+      },
+      "browser": {
+        "NativeChannels": {
+          "file": "NativeChannels.0.3.0-preview.1.nupkg",
+          "id": "NativeChannels",
+          "version": "0.3.0-preview.1",
+          "sourceCommit": "034cff1e0e717b2c76d12ddcf75dae982bd76035",
+          "sha256": "649e895d61bff371b08e610536448309b8ee18ff52a90a9410a02160da78ec8c",
+          "sizeBytes": 64957,
+          "assemblies": [
+            "lib/net10.0-browser1.0/NativeChannels.dll",
+            "lib/net10.0-browserwasm1.0/NativeChannels.dll"
+          ]
+        },
+        "NativeChannels.Avalonia": {
+          "file": "NativeChannels.Avalonia.0.3.0-preview.1.nupkg",
+          "id": "NativeChannels.Avalonia",
+          "version": "0.3.0-preview.1",
+          "sourceCommit": "034cff1e0e717b2c76d12ddcf75dae982bd76035",
+          "sha256": "0473dd643b485a76cf27f79a99f443545080879b82fb80967cbe752321efdc65",
+          "sizeBytes": 22286,
+          "assemblies": [
+            "lib/net10.0/NativeChannels.Avalonia.dll"
+          ]
+        },
+        "NativeChannels.Core": {
+          "file": "NativeChannels.Core.0.3.0-preview.1.nupkg",
+          "id": "NativeChannels.Core",
+          "version": "0.3.0-preview.1",
+          "sourceCommit": "034cff1e0e717b2c76d12ddcf75dae982bd76035",
+          "sha256": "a64dfd13c87c1a4bdcca5217e5dd91c8ba2b3aeb6c6fc6347e1216d45c7da451",
+          "sizeBytes": 55442,
+          "assemblies": [
+            "lib/net10.0/NativeChannels.Core.dll"
+          ]
+        },
+        "NativeChannels.Uno": {
+          "file": "NativeChannels.Uno.0.3.0-preview.1.nupkg",
+          "id": "NativeChannels.Uno",
+          "version": "0.3.0-preview.1",
+          "sourceCommit": "034cff1e0e717b2c76d12ddcf75dae982bd76035",
+          "sha256": "fb4e3cb9809ef532dcb708a1ae11a440c192094f17e3e6f3a2013c892f66bcd9",
+          "sizeBytes": 26491,
+          "assemblies": [
+            "lib/net10.0/NativeChannels.Uno.dll"
+          ]
+        }
+      },
+      "windows-native": {
+        "NativeChannels": {
+          "file": "NativeChannels.0.3.0-preview.1.nupkg",
+          "id": "NativeChannels",
+          "version": "0.3.0-preview.1",
+          "sourceCommit": "034cff1e0e717b2c76d12ddcf75dae982bd76035",
+          "sha256": "34d3ce667b3b985c065999eefc2670bee8c47e2cd0f8236063c7fade20a18854",
+          "sizeBytes": 30571,
+          "assemblies": [
+            "lib/net10.0-windows10.0.19041/NativeChannels.dll"
+          ]
+        },
+        "NativeChannels.Avalonia": {
+          "file": "NativeChannels.Avalonia.0.3.0-preview.1.nupkg",
+          "id": "NativeChannels.Avalonia",
+          "version": "0.3.0-preview.1",
+          "sourceCommit": "034cff1e0e717b2c76d12ddcf75dae982bd76035",
+          "sha256": "30eb94ec80976256ea3dbc904ae5e56683832f130500efdb210e76ab9f1718c8",
+          "sizeBytes": 22286,
+          "assemblies": [
+            "lib/net10.0/NativeChannels.Avalonia.dll"
+          ]
+        },
+        "NativeChannels.Core": {
+          "file": "NativeChannels.Core.0.3.0-preview.1.nupkg",
+          "id": "NativeChannels.Core",
+          "version": "0.3.0-preview.1",
+          "sourceCommit": "034cff1e0e717b2c76d12ddcf75dae982bd76035",
+          "sha256": "b11193ae54a27e45ae4c257efdef2c73729e5aa396c552a1ac6976fd77ed89d7",
+          "sizeBytes": 55442,
+          "assemblies": [
+            "lib/net10.0/NativeChannels.Core.dll"
+          ]
+        },
+        "NativeChannels.Maui": {
+          "file": "NativeChannels.Maui.0.3.0-preview.1.nupkg",
+          "id": "NativeChannels.Maui",
+          "version": "0.3.0-preview.1",
+          "sourceCommit": "034cff1e0e717b2c76d12ddcf75dae982bd76035",
+          "sha256": "3dfb4487b992a0e663970792f3d1edb21d6c5df7fc606fd8ffd4dcdece833f2c",
+          "sizeBytes": 24055,
+          "assemblies": [
+            "lib/net10.0-windows10.0.19041/NativeChannels.Maui.dll"
+          ]
+        }
+      },
+      "maccatalyst": {
+        "NativeChannels": {
+          "file": "NativeChannels.0.3.0-preview.1.nupkg",
+          "id": "NativeChannels",
+          "version": "0.3.0-preview.1",
+          "sourceCommit": "034cff1e0e717b2c76d12ddcf75dae982bd76035",
+          "sha256": "b1ac65e0b11507925542924d18629484670e8d5e0d546293ee92b7829c961756",
+          "sizeBytes": 31200,
+          "assemblies": [
+            "lib/net10.0-maccatalyst26.0/NativeChannels.dll"
+          ]
+        },
+        "NativeChannels.Core": {
+          "file": "NativeChannels.Core.0.3.0-preview.1.nupkg",
+          "id": "NativeChannels.Core",
+          "version": "0.3.0-preview.1",
+          "sourceCommit": "034cff1e0e717b2c76d12ddcf75dae982bd76035",
+          "sha256": "dff6aef76eca1de10066059b049df14c8819116c59759cc9ff7d840a0c75b80c",
+          "sizeBytes": 55416,
+          "assemblies": [
+            "lib/net10.0/NativeChannels.Core.dll"
+          ]
+        },
+        "NativeChannels.Maui": {
+          "file": "NativeChannels.Maui.0.3.0-preview.1.nupkg",
+          "id": "NativeChannels.Maui",
+          "version": "0.3.0-preview.1",
+          "sourceCommit": "034cff1e0e717b2c76d12ddcf75dae982bd76035",
+          "sha256": "516974ad8e30bdab2f7c0f9ac50a4b7cfcfc85426b3f0dbef4b2fa14478591dc",
+          "sizeBytes": 22394,
+          "assemblies": [
+            "lib/net10.0-maccatalyst26.0/NativeChannels.Maui.dll"
+          ]
+        },
+        "NativeChannels.Native.Apple": {
+          "file": "NativeChannels.Native.Apple.0.3.0-preview.1.nupkg",
+          "id": "NativeChannels.Native.Apple",
+          "version": "0.3.0-preview.1",
+          "sourceCommit": "034cff1e0e717b2c76d12ddcf75dae982bd76035",
+          "sha256": "6c4d14779b77edf0d13b6141f0bbcf500287dff2181df4ea9b3b63608ab42e12",
+          "sizeBytes": 943543,
+          "assemblies": [
+            "lib/net10.0-maccatalyst26.0/NativeChannels.Native.Apple.dll"
+          ]
+        }
+      },
+      "macos-native": {
+        "NativeChannels": {
+          "file": "NativeChannels.0.3.0-preview.1.nupkg",
+          "id": "NativeChannels",
+          "version": "0.3.0-preview.1",
+          "sourceCommit": "034cff1e0e717b2c76d12ddcf75dae982bd76035",
+          "sha256": "21d24826017adb6a532fe8a99847876fcc9aba451e8faa66ef7520183bb69d83",
+          "sizeBytes": 31174,
+          "assemblies": [
+            "lib/net10.0-macos26.0/NativeChannels.dll"
+          ]
+        },
+        "NativeChannels.Avalonia": {
+          "file": "NativeChannels.Avalonia.0.3.0-preview.1.nupkg",
+          "id": "NativeChannels.Avalonia",
+          "version": "0.3.0-preview.1",
+          "sourceCommit": "034cff1e0e717b2c76d12ddcf75dae982bd76035",
+          "sha256": "00d15d03beb82ced6941b4a50c1c8a7c35d64b7134de9c0238cc65473674022d",
+          "sizeBytes": 22230,
+          "assemblies": [
+            "lib/net10.0/NativeChannels.Avalonia.dll"
+          ]
+        },
+        "NativeChannels.Core": {
+          "file": "NativeChannels.Core.0.3.0-preview.1.nupkg",
+          "id": "NativeChannels.Core",
+          "version": "0.3.0-preview.1",
+          "sourceCommit": "034cff1e0e717b2c76d12ddcf75dae982bd76035",
+          "sha256": "75809cd516fe72658f96512d5e31c7fd131f5c1ef7aea43090b6ed6c19912fc2",
+          "sizeBytes": 55416,
+          "assemblies": [
+            "lib/net10.0/NativeChannels.Core.dll"
+          ]
+        },
+        "NativeChannels.Native.Apple": {
+          "file": "NativeChannels.Native.Apple.0.3.0-preview.1.nupkg",
+          "id": "NativeChannels.Native.Apple",
+          "version": "0.3.0-preview.1",
+          "sourceCommit": "034cff1e0e717b2c76d12ddcf75dae982bd76035",
+          "sha256": "05029e43b7a672bf0b6248b3c0d2b20180b6b6a5adc7586f91ef0eeb174d90d2",
+          "sizeBytes": 943970,
+          "assemblies": [
+            "lib/net10.0-macos26.0/NativeChannels.Native.Apple.dll"
+          ]
+        }
+      }
+    },
+    "packages": [
+      {
+        "file": "NativeChannels.0.3.0-preview.1.nupkg",
+        "id": "NativeChannels",
+        "version": "0.3.0-preview.1",
+        "sourceCommit": "034cff1e0e717b2c76d12ddcf75dae982bd76035",
+        "sha256": "d6d76660eb50aeae9e422a8e9c6fccc423b9393c299becc6ff3b9e991dc69011",
+        "sizeBytes": 429359,
+        "assemblies": [
+          "lib/net10.0-android36.0/NativeChannels.dll",
+          "lib/net10.0-browser1.0/NativeChannels.dll",
+          "lib/net10.0-browserwasm1.0/NativeChannels.dll",
+          "lib/net10.0-ios26.0/NativeChannels.dll",
+          "lib/net10.0-maccatalyst26.0/NativeChannels.dll",
+          "lib/net10.0-macos26.0/NativeChannels.dll",
+          "lib/net10.0-windows10.0.19041/NativeChannels.dll",
+          "lib/net10.0/NativeChannels.dll"
+        ]
+      },
+      {
+        "file": "NativeChannels.Avalonia.0.3.0-preview.1.nupkg",
+        "id": "NativeChannels.Avalonia",
+        "version": "0.3.0-preview.1",
+        "sourceCommit": "034cff1e0e717b2c76d12ddcf75dae982bd76035",
+        "sha256": "0f9fd5aad91e24166b64bf0bb9aa7c740965cffb1257719839b92e8a5399a445",
+        "sizeBytes": 21966,
+        "assemblies": [
+          "lib/net10.0/NativeChannels.Avalonia.dll"
+        ]
+      },
+      {
+        "file": "NativeChannels.Core.0.3.0-preview.1.nupkg",
+        "id": "NativeChannels.Core",
+        "version": "0.3.0-preview.1",
+        "sourceCommit": "034cff1e0e717b2c76d12ddcf75dae982bd76035",
+        "sha256": "f35ab40a9617869b78ed7b54c16065e4e088cb69661604f137481ff142407dc9",
+        "sizeBytes": 54532,
+        "assemblies": [
+          "lib/net10.0/NativeChannels.Core.dll"
+        ]
+      },
+      {
+        "file": "NativeChannels.Maui.0.3.0-preview.1.nupkg",
+        "id": "NativeChannels.Maui",
+        "version": "0.3.0-preview.1",
+        "sourceCommit": "034cff1e0e717b2c76d12ddcf75dae982bd76035",
+        "sha256": "d2c106fcf9c9420690f921a3a0e3499b10a81aeee791ad76f97d40dcc06cd115",
+        "sizeBytes": 62142,
+        "assemblies": [
+          "lib/net10.0-android36.0/NativeChannels.Maui.dll",
+          "lib/net10.0-ios26.0/NativeChannels.Maui.dll",
+          "lib/net10.0-maccatalyst26.0/NativeChannels.Maui.dll",
+          "lib/net10.0-windows10.0.19041/NativeChannels.Maui.dll"
+        ]
+      },
+      {
+        "file": "NativeChannels.Native.Android.0.3.0-preview.1.nupkg",
+        "id": "NativeChannels.Native.Android",
+        "version": "0.3.0-preview.1",
+        "sourceCommit": "034cff1e0e717b2c76d12ddcf75dae982bd76035",
+        "sha256": "cd8548e51cfd3ab3fcf5fa85d7b57f70494110dc6853a6dac40c2052393b130d",
+        "sizeBytes": 76792,
+        "assemblies": [
+          "lib/net10.0-android36.0/NativeChannels.Native.Android.dll"
+        ]
+      },
+      {
+        "file": "NativeChannels.Native.Apple.0.3.0-preview.1.nupkg",
+        "id": "NativeChannels.Native.Apple",
+        "version": "0.3.0-preview.1",
+        "sourceCommit": "034cff1e0e717b2c76d12ddcf75dae982bd76035",
+        "sha256": "36b36dc41467fd6f1b44995d6346359542ab0118c99aba0771f3160ab790fbc5",
+        "sizeBytes": 2812124,
+        "assemblies": [
+          "lib/net10.0-ios26.0/NativeChannels.Native.Apple.dll",
+          "lib/net10.0-maccatalyst26.0/NativeChannels.Native.Apple.dll",
+          "lib/net10.0-macos26.0/NativeChannels.Native.Apple.dll"
+        ]
+      },
+      {
+        "file": "NativeChannels.Uno.0.3.0-preview.1.nupkg",
+        "id": "NativeChannels.Uno",
+        "version": "0.3.0-preview.1",
+        "sourceCommit": "034cff1e0e717b2c76d12ddcf75dae982bd76035",
+        "sha256": "41efb6bd5a4b6ba95bca3fe9a71adac6dbb4dbe33bc367a8831344e0d0300351",
+        "sizeBytes": 33342,
+        "assemblies": [
+          "lib/net10.0/NativeChannels.Uno.dll"
+        ]
+      }
+    ],
+    "runtimeAcceptance": "pending",
+    "includesExistingHosts": true,
+    "frameworksOnly": true
+  },
+  "api": {
+    "candidateVersion": "0.3.0-preview.1",
+    "baselineVersion": "0.2.0-preview.1",
+    "scope": "combined",
+    "success": true,
+    "packages": [
+      {
+        "id": "NativeChannels.Core",
+        "candidateSha256": "f35ab40a9617869b78ed7b54c16065e4e088cb69661604f137481ff142407dc9",
+        "baselineSha256": "0f68b02399e07e7c3789b659916837c14400a3a6f3c3d7fa1f2faf441f81ed67",
+        "compatible": true
+      },
+      {
+        "id": "NativeChannels.Native.Android",
+        "candidateSha256": "cd8548e51cfd3ab3fcf5fa85d7b57f70494110dc6853a6dac40c2052393b130d",
+        "baselineSha256": "717f15f6d895306ea8ffc72aa4e6424c08e1da6100dde9d616f07407f702e257",
+        "compatible": true
+      },
+      {
+        "id": "NativeChannels.Native.Apple",
+        "candidateSha256": "36b36dc41467fd6f1b44995d6346359542ab0118c99aba0771f3160ab790fbc5",
+        "baselineSha256": "356a6b53304478bee90f31d4024262b315dbd5c89c36920b025facfecb611d22",
+        "compatible": true
+      },
+      {
+        "id": "NativeChannels",
+        "candidateSha256": "d6d76660eb50aeae9e422a8e9c6fccc423b9393c299becc6ff3b9e991dc69011",
+        "baselineSha256": "e95786d5f7bf3a078e14e0142486c387130a96948d360e6204451b65decf7523",
+        "compatible": true
+      },
+      {
+        "id": "NativeChannels.Maui",
+        "candidateSha256": "d2c106fcf9c9420690f921a3a0e3499b10a81aeee791ad76f97d40dcc06cd115",
+        "baselineSha256": "76d025bc1b79344d5e91a0efbb2643ac6df768b2b792ec53f9c540fd7302b45c",
+        "compatible": true
+      },
+      {
+        "id": "NativeChannels.Avalonia",
+        "candidateSha256": "0f9fd5aad91e24166b64bf0bb9aa7c740965cffb1257719839b92e8a5399a445",
+        "baselineSha256": "b233a715643e9fd8502e11004b2c8a8e70a7a9e57f19a80b30c8d7e7e279750a",
+        "compatible": true
+      }
+    ]
+  },
+  "bundleSha256": "dfc66183131434b6cd184e46346db475adeb929837250f19b3118fffd597f464",
+  "environments": {
+    "windows": "Windows x64",
+    "android": "API 36 x64 emulator",
+    "ios": "iPhone 17 Pro iOS 26.5 ARM64 simulator",
+    "macos": "macOS ARM64; MAUI uses Mac Catalyst",
+    "linux": "Ubuntu 24.04 x64, X11/Xvfb",
+    "browser": "Headless Microsoft Edge on Windows x64"
+  },
+  "limitations": [
+    "No physical-device acceptance",
+    "macOS x64 libraries cross-compiled, not executed",
+    "Reference plugins excluded; earlier five-sample evidence used a diagnostic feed",
+    "API tool emits unresolved external platform-reference warnings"
+  ]
+}
