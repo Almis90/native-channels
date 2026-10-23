@@ -1,33 +1,20 @@
 # Changelog
 
-## 0.3 — In development (unreleased)
+## 0.3.0-preview.1 � 2026-10-23
 
-- Added an optional, thin `NativeChannels.Uno` host for Uno Skia with per-window
-  sessions, UI dispatch, asynchronous shutdown and experimental view lifecycle.
-- Portable desktop transport now selects Windows, Linux or macOS at runtime;
-  the macOS path uses a plain-.NET C ABI bridge over the existing native implementation.
-- Reused Currency, AudioStreamer and VolumeMonitor without Uno-specific copies.
-  Added `Plugin.Uno.PdfViewer` with a Windows.Data.Pdf renderer in a native HWND;
-  other platform adapters remain pending.
-- Added five package-only Uno samples, a unified local runner with package-origin
-  audits, and desktop build CI definitions for Windows, Linux and macOS.
-- Windows Uno sample hosts use software rendering to avoid a render-thread
-  shutdown hang in the pinned Uno runtime, reproduced by the VolumeMonitor sample.
-- Fixed Windows Uno software presentation overwriting native child controls by
-  preparing parent clipping on native attachment and repainting the child.
-- Fixed Windows Uno PDF drag/wheel routing with native hit testing, drag focus
-  and capture handling; consumers need no gesture workaround.
-- Fixed reentrant window close in the shared Uno samples by queuing cleanup
-  before the final close request. Smoke tests now verify normal window shutdown.
-- Added Windows root-HWND keyboard traversal to the Uno host, including focus
-  restoration on reconnect and focus transfer on removal. Interop checks cover
-  these transitions and use distinct native checkbox labels.
-- All five Windows apps passed local checks. Interop now verifies real HWND
-  attachment/layout/focus and direct input messages; PDF verifies native page
-  painting, navigation/zoom, invalid input and reconnect/shutdown cleanup.
-- Six-platform runtime, native-view/PDF and combined distribution acceptance
-  remain incomplete. Local `0.3.0-preview.6` packages are diagnostic builds;
-  the repository release version is unchanged. See [0.3 preparation](docs/preview-03.md).
+- Added optional, thin `NativeChannels.Uno` integration alongside MAUI and Avalonia,
+  with owned sessions, UI dispatch, asynchronous shutdown and native view hosting.
+- Added Uno samples for Android, iOS, Windows, macOS, Linux and browser/WebAssembly,
+  reusing the existing sample verification scenarios.
+- Added a macOS desktop transport and a temporary native view hosting bridge pending
+  [Uno #25639](https://github.com/unoplatform/uno/issues/25639).
+- Fixed Windows native view painting, focus and PDF pointer routing, reentrant
+  shutdown, and Avalonia native view cleanup ordering during reconnect.
+- Aligned sample interactions with MAUI, including safe areas and PDF controls.
+- Release scope is the six existing framework packages plus `NativeChannels.Uno`.
+  Reference plugin packages are excluded. NuGet publication is still pending;
+  prior diagnostic package checks do not validate the final release archives.
+- See [0.3 preparation](docs/preview-03.md) for platform evidence and limitations.
 
 ## 0.2.0-preview.1 — 2026-10-19
 

@@ -1,17 +1,17 @@
 # Uno 0.3 preparation
 
-Status on October 22, 2026: **experimental development; not release-ready**.
-The optional Uno host, shared messaging plugins, five sample apps and desktop
-build automation exist. Shared sample checks have run on all six platforms;
-the complete local combined feed now passes those automated checks. Manual acceptance
-and the 0.3 distribution/publication workflow remain incomplete. No 0.3 release, tag or publication has been performed by this work.
+Status on October 23, 2026: **0.3 preview source release; NuGet publication pending**.
+The optional Uno host and five samples are implemented. Shared automated sample
+checks passed on all six platforms against a previous combined diagnostic feed.
+Manual review covered macOS, iOS, Android, Windows and Linux; browser manual review
+is partial. Physical-device coverage remains separate.
 
 ## Package and version boundaries
 
-The repository release version remains `0.2.0-preview.1`. The Uno diagnostic
-feed uses `0.3.0-preview.6` to identify local experimental packages; that number
-is not a published version or an approved release candidate. Do not install
-these packages from a public feed expecting the behavior described here.
+The repository version is `0.3.0-preview.1`. Publication includes the six existing
+framework packages plus `NativeChannels.Uno`; reference plugin packages are excluded.
+The earlier `0.3.0-preview.6` feed was local diagnostic output, not a public release.
+Final release archive validation and NuGet publication are still pending.
 
 | Package | Responsibility |
 | --- | --- |
