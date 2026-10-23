@@ -81,9 +81,9 @@ try {
     & ./eng/verify-windows.ps1 -Currency -PackageFeed $feed -WindowsOnlyFeed -BuildOnly `
         -RuntimeIdentifier $RuntimeIdentifier -PackageCache $mauiCache -VerificationDirectory $mauiRoot
     $hostCache = Join-Path $runRoot 'host-package-cache'
-    Invoke-Dotnet restore src/NativeChannels.Avalonia -p:NativeChannelsUseCorePackage=true `
+    Invoke-Dotnet restore src/NativeChannels.Avalonia '-p:NativeChannelsUseCorePackage=true' `
         --packages $hostCache --configfile (Join-Path $mauiRoot 'NuGet.Config') --force --no-http-cache
-    Invoke-Dotnet pack src/NativeChannels.Avalonia -c Release -p:NativeChannelsUseCorePackage=true --no-restore -o $feed
+    Invoke-Dotnet pack src/NativeChannels.Avalonia -c Release '-p:NativeChannelsUseCorePackage=true' --no-restore -o $feed
 
     $project = 'samples/Avalonia/Currency/Currency.Desktop/Currency.Desktop.csproj'
     $app = Join-Path $runRoot 'avalonia/app'

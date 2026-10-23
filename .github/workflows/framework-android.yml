@@ -31,6 +31,11 @@ jobs:
       - name: Install Android SDK platform and build tools
         timeout-minutes: 5
         run: sdkmanager 'platforms;android-36' 'build-tools;36.0.0'
+      - name: Cache pinned Kotlin formatter
+        uses: actions/cache@v4
+        with:
+          path: .tools/formatters/ktfmt-0.54.jar
+          key: ktfmt-0.54-5e7eb28a0b2006d1cefbc9213bfc73a8191ec2f85d639ec4fc4ec0cd04212e82
       - name: Build framework native bridge and adapter
         timeout-minutes: 10
         run: |

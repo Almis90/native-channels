@@ -28,9 +28,10 @@ format_kotlin() {
     fi
     mkdir -p "$(dirname "$jar")"
     if [[ ! -f "$jar" ]]; then
-        curl --fail --location --silent --show-error \
+        curl --fail --location --silent --show-error --retry 5 --retry-max-time 180 --connect-timeout 20 \
             'https://repo.maven.apache.org/maven2/com/facebook/ktfmt/0.54/ktfmt-0.54-jar-with-dependencies.jar' \
-            --output "$jar"
+            --output "$jar.download"
+        mv "$jar.download" "$jar"
     fi
     python3 - "$jar" "$expected" <<'PY'
 import hashlib
