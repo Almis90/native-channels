@@ -142,12 +142,12 @@ class PlatformSelectionTests(unittest.TestCase):
 
     def test_docs_examples_and_benchmarks_do_not_build_framework(self):
         self.assertEqual((set(), False), selection.classify([
-            'docs/building.md', 'plugins/Plugin.Maui.AudioStreamer/native/Foo.kt',
+            'docs/building.md', 'plugins/Plugin.AudioStreamer/native/Foo.kt',
             'samples/Maui/AudioStreamer/MainPage.cs', 'benchmarks/Benchmarks.cs']))
 
     def test_shared_currency_proof_selects_android_without_other_platform_builds(self):
         for path in ('samples/Avalonia/Currency/Currency.Android/Currency.Android.csproj',
-                     'plugins/Plugin.Maui.Currency/native/android/CurrencyModule.kt',
+                     'plugins/Plugin.Currency/native/android/CurrencyModule.kt',
                      '.github/workflows/shared-hosting-android.yml', 'eng/pack-currency-android.sh',
                      'eng/verify-shared-hosting-android.sh'):
             with self.subTest(path=path):
@@ -159,8 +159,8 @@ class PlatformSelectionTests(unittest.TestCase):
         for path in ('samples/Avalonia/Currency/Directory.Packages.props', 'samples/Avalonia/Currency/Currency.slnx',
                      'samples/Currency.Shared/PluginVerification.cs', 'samples/Maui/Currency/MainPage.cs',
                      'samples/Avalonia/Currency/Currency/Views/MainView.axaml.cs',
-                     'plugins/Plugin.Maui.Currency/src/Plugin.Maui.Currency/CurrencyService.cs',
-                     'plugins/Plugin.Maui.Currency/eng/inspect-package.py',
+                     'plugins/Plugin.Currency/src/Plugin.Currency/CurrencyService.cs',
+                     'plugins/Plugin.Currency/eng/inspect-package.py',
                      'eng/verify-shared-hosting.py', 'eng/restore-currency-avalonia.sh'):
             with self.subTest(path=path):
                 self.assertEqual(({'android', 'ios', 'windows'}, True), selection.classify([path]))
@@ -168,8 +168,8 @@ class PlatformSelectionTests(unittest.TestCase):
     def test_ios_currency_changes_select_ios_without_android_or_catalyst(self):
         for path in ('samples/Avalonia/Currency/Currency.iOS/Currency.iOS.csproj',
                      'samples/Maui/Currency/Platforms/iOS/AppDelegate.cs',
-                     'plugins/Plugin.Maui.Currency/native/apple/Sources/CurrencyModule.swift',
-                     'plugins/Plugin.Maui.Currency/eng/build-apple.py',
+                     'plugins/Plugin.Currency/native/apple/Sources/CurrencyModule.swift',
+                     'plugins/Plugin.Currency/eng/build-apple.py',
                      '.github/workflows/shared-hosting-ios.yml',
                      'eng/pack-currency-ios.sh', 'eng/verify-shared-hosting-ios.sh'):
             with self.subTest(path=path):
@@ -179,7 +179,7 @@ class PlatformSelectionTests(unittest.TestCase):
         for path in ('samples/Avalonia/Currency/Currency.Desktop/Program.cs',
                      'samples/Avalonia/Currency/Currency.Desktop/Currency.Desktop.csproj',
                      'samples/Maui/Currency/Platforms/Windows/App.xaml.cs',
-                     'plugins/Plugin.Maui.Currency/native/windows/WindowsCurrencyModule.cs',
+                     'plugins/Plugin.Currency/native/windows/WindowsCurrencyModule.cs',
                      'eng/verify-windows.ps1', 'eng/verify-shared-hosting-windows.ps1',
                      '.github/workflows/shared-hosting-windows.yml'):
             with self.subTest(path=path):

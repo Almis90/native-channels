@@ -1,0 +1,11 @@
+{
+  "background_color": "#ffffff",
+  "description": "NativeChannels Currency",
+  "display": "standalone",
+  "name": "NativeChannels Currency",
+  "short_name": "NativeChannels Currency",
+  "start_url": "/index.html",
+  "theme_color": "#ffffff",
+  "scope": "/"
+}
+

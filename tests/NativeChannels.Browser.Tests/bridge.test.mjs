@@ -4,7 +4,7 @@ import { readFile } from 'node:fs/promises';
 import { setTimeout as delay } from 'node:timers/promises';
 import { createSession, send, cancel, reply, dispose, loadModules, toBase64, Status } from '../../src/NativeChannels/Platforms/Browser/nativechannels.mjs';
 import { encodeEnvelope, decodeEnvelope, encodeValue, decodeValue, ChannelError } from '../../src/NativeChannels/Platforms/Browser/json-codec.mjs';
-import { register as registerCurrency } from '../../plugins/Plugin.Maui.Currency/native/browser/currency.mjs';
+import { register as registerCurrency } from '../../plugins/Plugin.Currency/native/browser/currency.mjs';
 
 const bytes = value => new TextEncoder().encode(value);
 const call = (method, args) => encodeEnvelope({ method, arguments: encodeValue(args) });

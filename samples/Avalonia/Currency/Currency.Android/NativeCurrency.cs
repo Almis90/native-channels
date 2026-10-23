@@ -2,7 +2,7 @@ using Currency.Services;
 using Currency.Verification;
 using Microsoft.Extensions.DependencyInjection;
 using NativeChannels;
-using Plugin.Maui.Currency;
+using Plugin.Currency;
 
 namespace Currency.Android;
 

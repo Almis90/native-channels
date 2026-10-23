@@ -1,0 +1,10 @@
+{
+  "background_color": "#ffffff",
+  "description": "UnoFeasibility",
+  "display": "standalone",
+  "name": "UnoFeasibility",
+  "short_name": "UnoFeasibility",
+  "start_url": "/index.html",
+  "theme_color": "#ffffff",
+  "scope": "/"
+}

@@ -1,13 +1,22 @@
-#if WINDOWS
+#if WINDOWS || UNO_SAMPLE
 using System.ComponentModel;
 using System.Runtime.InteropServices;
+#if UNO_SAMPLE
+using NativeChannels;
+#else
 using Avalonia.Platform;
 using Avalonia.Threading;
+#endif
 
 namespace ChannelExplorer;
 
-// A real Win32 child button. Avalonia owns placement; the per-view channel owns its lifetime.
-internal sealed class WindowsButtonView : IAvaloniaNativeView
+// A real Win32 child button. The framework host owns placement; the per-view channel owns its lifetime.
+internal sealed class WindowsButtonView :
+#if UNO_SAMPLE
+    IUnoNativeView
+#else
+    IAvaloniaNativeView
+#endif
 {
     private readonly ChannelService _channels;
     private readonly MethodChannel _native;
@@ -19,38 +28,74 @@ internal sealed class WindowsButtonView : IAvaloniaNativeView
     private string _title;
     private int _count;
     private bool _destroyed;
+#if UNO_SAMPLE
+    public object NativeElement { get; }
+#else
     public IPlatformHandle Handle { get; }
+#endif
     public MethodChannel Channel { get; }
     public string InstanceId { get; }
 
+#if UNO_SAMPLE
+    public WindowsButtonView(string identity, string title)
+    {
+        SampleThread.Dispatcher.VerifyAccess();
+#else
     public WindowsButtonView(IPlatformHandle parent, string identity, string title)
     {
         Dispatcher.UIThread.VerifyAccess();
         if (parent.HandleDescriptor != "HWND")
             throw new PlatformNotSupportedException("Expected a Win32 parent.");
+#endif
         InstanceId = identity;
         _title = title;
         _procedure = ProcessMessage;
+        var name = "nativechannels.view." + identity;
+#if UNO_SAMPLE
+        ChannelHandlerDispatcher dispatch = SampleThread.Dispatcher.DispatchAsync;
+        MethodChannel? native = null;
+        var transport = new NativeChannelTransport([
+            new("", "")
+            {
+                WindowsFactory = () =>
+                    new ViewModule(channels =>
+                        native = channels.GetMethodChannel(name, new() { HandlerDispatcher = dispatch })
+                    ),
+            },
+        ]);
+        _channels = new(new BinaryMessenger(transport));
+        _native = native ?? throw new InvalidOperationException("Native view module was not registered.");
+#else
+        ChannelHandlerDispatcher dispatch = AvaloniaChannelDispatchers.UIThread;
         var transport = new NativeChannelTransport();
         _channels = new(new BinaryMessenger(transport));
-        var name = "nativechannels.view." + identity;
-        Channel = _channels.GetMethodChannel(name, new() { HandlerDispatcher = AvaloniaChannelDispatchers.UIThread });
-        _native = transport.WindowsChannels.GetMethodChannel(
-            name,
-            new() { HandlerDispatcher = AvaloniaChannelDispatchers.UIThread }
-        );
+        _native = transport.WindowsChannels.GetMethodChannel(name, new() { HandlerDispatcher = dispatch });
+#endif
+        Channel = _channels.GetMethodChannel(name, new() { HandlerDispatcher = dispatch });
         try
         {
+#if UNO_SAMPLE
+            _window = CreateWindowExW(0, "STATIC", "", 0x80000000, 0, 0, 100, 72, 0, 0, 0, 0);
+#else
             _window = CreateWindowExW(0, "STATIC", "", 0x50000000 | 0x02000000, 0, 0, 100, 72, parent.Handle, 0, 0, 0);
+#endif
             if (_window == 0)
                 throw new Win32Exception(Marshal.GetLastWin32Error());
+#if UNO_SAMPLE
+            if (SetWindowLongPtrW(_window, -16, 0x42000000) == 0)
+                throw new Win32Exception(Marshal.GetLastWin32Error());
+#endif
             _button = CreateWindowExW(0, "BUTTON", title, 0x50010000, 0, 0, 100, 72, _window, 1, 0, 0);
             if (_button == 0)
                 throw new Win32Exception(Marshal.GetLastWin32Error());
             _previous = SetWindowLongPtrW(_window, -4, Marshal.GetFunctionPointerForDelegate(_procedure));
             if (_previous == 0)
                 throw new Win32Exception(Marshal.GetLastWin32Error());
+#if UNO_SAMPLE
+            NativeElement = new Uno.UI.NativeElementHosting.Win32NativeWindow(_window);
+#else
             Handle = new PlatformHandle(_window, "HWND");
+#endif
             Update();
             _native.SetMethodCallHandler(
                 async (call, token) =>
@@ -90,6 +135,15 @@ internal sealed class WindowsButtonView : IAvaloniaNativeView
             throw;
         }
     }
+
+#if UNO_SAMPLE
+    private sealed class ViewModule(Action<IChannelService> register) : IWindowsChannelModule
+    {
+        public void Register(IChannelService channels) => register(channels);
+
+        public void Dispose() { }
+    }
+#endif
 
     private void Update() => SetWindowTextW(_button, $"{_title} · {_count} taps");
 
@@ -139,7 +193,11 @@ internal sealed class WindowsButtonView : IAvaloniaNativeView
 
     public void Destroy()
     {
+#if UNO_SAMPLE
+        SampleThread.Dispatcher.VerifyAccess();
+#else
         Dispatcher.UIThread.VerifyAccess();
+#endif
         if (_destroyed)
             return;
         _destroyed = true;

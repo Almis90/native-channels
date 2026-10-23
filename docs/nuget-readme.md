@@ -28,7 +28,7 @@ and Windows, plus an Avalonia host for Android, iOS, Windows, native macOS, Linu
 browser/WebAssembly. All five samples passed locally against the exact combined release
 packages on the six Avalonia and four MAUI targets. Fresh public-feed Windows consumers
 also passed. Broader device, architecture and lifecycle coverage remains incomplete.
-Uno remains planned for 0.3.
+Version `0.3.0-preview.1` is being prepared with the optional Uno host; see [0.3 preparation](preview-03.md).
 
 See the [verification record](https://almis90.github.io/native-channels/verification) for exact
 compiled targets, runtime evidence, physical-device observations, and remaining limitations.

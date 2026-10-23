@@ -1,0 +1,37 @@
+<Project Sdk="Uno.Sdk">
+    <PropertyGroup>
+        <TargetFrameworks>net10.0-android;net10.0-ios;net10.0-browserwasm;net10.0-desktop</TargetFrameworks>
+        <OutputType>Exe</OutputType>
+        <RootNamespace>UnoSamples</RootNamespace>
+        <DefineConstants>$(DefineConstants);UNO_SAMPLE</DefineConstants>
+        <UnoSingleProject>true</UnoSingleProject>
+        <UnoFeatures>SkiaRenderer</UnoFeatures>
+        <ApplicationTitle>NativeChannels Currency</ApplicationTitle>
+        <ApplicationId>dev.nativechannels.uno.currency</ApplicationId>
+        <ApplicationDisplayVersion>0.3.0</ApplicationDisplayVersion>
+        <ApplicationVersion>1</ApplicationVersion>
+        <ApplicationPublisher>NativeChannels</ApplicationPublisher>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="NativeChannels" />
+        <PackageReference Include="NativeChannels.Uno" />
+        <PackageReference Include="Plugin.Currency" />
+        <Compile Include="../Shared/App.cs" Link="App.xaml.cs" />
+        <Compile Include="../Shared/SamplePage.cs" Link="SamplePage.cs" />
+        <Compile
+            Include="../../Currency.Shared/PluginVerification.cs"
+            Link="PluginVerification.cs"
+        />
+    </ItemGroup>
+    <ItemGroup Condition="'$(TargetFramework)' == 'net10.0-browserwasm'">
+        <Compile
+            Include="../../Avalonia/Currency/Currency.Browser/TransportVerification.cs"
+            Link="TransportVerification.cs"
+        />
+        <Content
+            Include="../../Avalonia/Currency/Currency.Browser/wwwroot/*.mjs"
+            Link="wwwroot/%(Filename)%(Extension)"
+            CopyToOutputDirectory="PreserveNewest"
+        />
+    </ItemGroup>
+</Project>

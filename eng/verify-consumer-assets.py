@@ -12,7 +12,7 @@ count = 0
 for identity, library in assets['libraries'].items():
     if library['type'] == 'project':
         continue
-    if not identity.lower().startswith(('nativechannels', 'plugin.maui.currency/', 'plugin.maui.audiostreamer/', 'plugin.maui.volumemonitor/', 'plugin.maui.pdfviewer/', 'plugin.avalonia.pdfviewer/')):
+    if not identity.lower().startswith(('nativechannels', 'plugin.currency/', 'plugin.audiostreamer/', 'plugin.volumemonitor/', 'plugin.maui.pdfviewer/', 'plugin.avalonia.pdfviewer/', 'plugin.uno.pdfviewer/')):
         continue
     package_id, version = identity.split('/')
     package_dir = next(Path(folder) / library['path'] for folder in assets['packageFolders']

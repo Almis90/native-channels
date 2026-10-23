@@ -48,7 +48,7 @@ is also published. All five samples passed locally on Android, iOS, Windows, mac
 and browser/WebAssembly against the exact release packages. See
 [release verification](verification.md#published-02-preview), the
 [sample matrix](../samples/Avalonia/README.md) and [preview limitations](preview-02.md).
-Uno is planned for 0.3.
+The optional Uno host is included in the upcoming `0.3.0-preview.1`; see [0.3 preparation](preview-03.md).
 
 </div>
 

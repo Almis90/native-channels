@@ -16,7 +16,7 @@ class BrowserAssetTests(unittest.TestCase):
             root = Path(folder)
             feed, published = root / 'feed', root / 'wwwroot'
             feed.mkdir()
-            for name in ('NativeChannels', 'Plugin.Maui.Currency'):
+            for name in ('NativeChannels', 'Plugin.Currency'):
                 with ZipFile(feed / f'{name}.1.0.0.nupkg', 'w') as archive:
                     archive.writestr('browser/module.mjs', b'export const packaged = true;')
                 target = published / '_content' / name / 'module.mjs'

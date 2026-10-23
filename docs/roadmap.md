@@ -18,7 +18,7 @@ backends. The October 19 candidate also passed local validation of one exact
 combined feed. Version `0.2.0-preview.1` is now published with matching public package contents
 and fresh local Windows consumer checks; see [release verification](verification.md#published-02-preview).
 The [0.2 preview preparation](preview-02.md) describes the local candidate process
-and explicit limitations. Uno remains planned.
+and explicit limitations. Uno is implemented for the upcoming 0.3 preview; see [0.3 preparation](preview-03.md).
 
 ## Initial preview
 
@@ -138,6 +138,10 @@ Publish a capability matrix for each reference plugin and tested browser engine.
   OS view is available in the browser.
 
 ## Uno integration
+
+The [initial feasibility investigation](uno-feasibility.md) pins Uno 6.7.135 and
+records the desktop transport work and remaining native-view blockers. It does not establish
+six-target support or complete this milestone.
 
 Milestone **0.3** delivers complete Uno integration on **Android, iOS, Windows, macOS, Linux, and
 browser/WebAssembly**. Apply every [Avalonia completion criterion](#avalonia-integration) to Uno:

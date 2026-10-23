@@ -1,0 +1,9 @@
+<Project>
+    <!-- Android adapters are supplied by AARs. An explicit empty native group
+         prevents NuGet's Android -> Linux RID fallback from selecting glibc
+         libraries when platform feeds are combined. -->
+    <ItemGroup Condition="'$(NativeChannelsAndroidOnly)' == 'true' Or $([System.String]::Copy('$(TargetFrameworks)').Contains('-android'))">
+        <None Include="$(MSBuildThisFileDirectory)empty-native/_._"
+              Pack="true" PackagePath="runtimes/android/native/" />
+    </ItemGroup>
+</Project>

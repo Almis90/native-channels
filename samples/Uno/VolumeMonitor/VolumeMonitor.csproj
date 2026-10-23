@@ -1,0 +1,38 @@
+<Project Sdk="Uno.Sdk">
+    <PropertyGroup>
+        <TargetFrameworks>net10.0-android;net10.0-ios;net10.0-browserwasm;net10.0-desktop</TargetFrameworks>
+        <OutputType>Exe</OutputType>
+        <RootNamespace>UnoSamples</RootNamespace>
+        <UnoSingleProject>true</UnoSingleProject>
+        <UnoFeatures>SkiaRenderer</UnoFeatures>
+        <ApplicationTitle>NativeChannels VolumeMonitor</ApplicationTitle>
+        <ApplicationId>dev.nativechannels.uno.volumemonitor</ApplicationId>
+        <ApplicationDisplayVersion>0.3.0</ApplicationDisplayVersion>
+        <ApplicationVersion>1</ApplicationVersion>
+        <ApplicationPublisher>NativeChannels</ApplicationPublisher>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="NativeChannels" />
+        <PackageReference Include="NativeChannels.Uno" />
+        <PackageReference Include="Plugin.VolumeMonitor" />
+        <Compile Include="../Shared/App.cs" Link="App.xaml.cs" />
+        <Compile Include="../Shared/SamplePage.cs" Link="SamplePage.cs" />
+        <Compile
+            Include="../../Maui/VolumeMonitor/VolumeVerification.cs"
+            Link="VolumeVerification.cs"
+        />
+    </ItemGroup>
+    <ItemGroup Condition="'$(TargetFramework)' == 'net10.0-browserwasm'">
+        <Compile
+            Include="../../Avalonia/VolumeMonitor/Shared/BrowserVolumeVerification.cs"
+            Link="BrowserVolumeVerification.cs"
+        />
+    </ItemGroup>
+    <ItemGroup>
+        <Compile
+            Include="../../Maui/VolumeMonitor/AudioSessionScope.cs"
+            Link="AudioSessionScope.cs"
+        />
+        <Compile Include="../../Avalonia/VolumeMonitor/Shared/VolumeDemo.cs" Link="VolumeDemo.cs" />
+    </ItemGroup>
+</Project>

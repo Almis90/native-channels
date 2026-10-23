@@ -50,9 +50,9 @@ PY
 
 format_swift() {
     if [[ "$CHECK" == '--check' ]]; then
-        xcrun swift-format lint --strict --recursive native/apple plugins/Plugin.Maui.Currency/native/apple plugins/Plugin.Maui.AudioStreamer/native/apple plugins/Plugin.Maui.VolumeMonitor/native/apple plugins/Plugin.Maui.PdfViewer/native/apple
+        xcrun swift-format lint --strict --recursive native/apple plugins/Plugin.Currency/native/apple plugins/Plugin.AudioStreamer/native/apple plugins/Plugin.VolumeMonitor/native/apple plugins/Plugin.Maui.PdfViewer/native/apple
     else
-        xcrun swift-format format --in-place --recursive native/apple plugins/Plugin.Maui.Currency/native/apple plugins/Plugin.Maui.AudioStreamer/native/apple plugins/Plugin.Maui.VolumeMonitor/native/apple plugins/Plugin.Maui.PdfViewer/native/apple
+        xcrun swift-format format --in-place --recursive native/apple plugins/Plugin.Currency/native/apple plugins/Plugin.AudioStreamer/native/apple plugins/Plugin.VolumeMonitor/native/apple plugins/Plugin.Maui.PdfViewer/native/apple
     fi
 }
 

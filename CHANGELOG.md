@@ -1,7 +1,44 @@
 # Changelog
 
+## 0.3 — In development (unreleased)
+
+- Added an optional, thin `NativeChannels.Uno` host for Uno Skia with per-window
+  sessions, UI dispatch, asynchronous shutdown and experimental view lifecycle.
+- Portable desktop transport now selects Windows, Linux or macOS at runtime;
+  the macOS path uses a plain-.NET C ABI bridge over the existing native implementation.
+- Reused Currency, AudioStreamer and VolumeMonitor without Uno-specific copies.
+  Added `Plugin.Uno.PdfViewer` with a Windows.Data.Pdf renderer in a native HWND;
+  other platform adapters remain pending.
+- Added five package-only Uno samples, a unified local runner with package-origin
+  audits, and desktop build CI definitions for Windows, Linux and macOS.
+- Windows Uno sample hosts use software rendering to avoid a render-thread
+  shutdown hang in the pinned Uno runtime, reproduced by the VolumeMonitor sample.
+- Fixed Windows Uno software presentation overwriting native child controls by
+  preparing parent clipping on native attachment and repainting the child.
+- Fixed Windows Uno PDF drag/wheel routing with native hit testing, drag focus
+  and capture handling; consumers need no gesture workaround.
+- Fixed reentrant window close in the shared Uno samples by queuing cleanup
+  before the final close request. Smoke tests now verify normal window shutdown.
+- Added Windows root-HWND keyboard traversal to the Uno host, including focus
+  restoration on reconnect and focus transfer on removal. Interop checks cover
+  these transitions and use distinct native checkbox labels.
+- All five Windows apps passed local checks. Interop now verifies real HWND
+  attachment/layout/focus and direct input messages; PDF verifies native page
+  painting, navigation/zoom, invalid input and reconnect/shutdown cleanup.
+- Six-platform runtime, native-view/PDF and combined distribution acceptance
+  remain incomplete. Local `0.3.0-preview.6` packages are diagnostic builds;
+  the repository release version is unchanged. See [0.3 preparation](docs/preview-03.md).
+
 ## 0.2.0-preview.1 — 2026-10-19
 
+- Renamed the framework-independent reference packages and C# namespaces from
+  `Plugin.Maui.Currency`, `Plugin.Maui.AudioStreamer`, and `Plugin.Maui.VolumeMonitor`
+  to `Plugin.Currency`, `Plugin.AudioStreamer`, and `Plugin.VolumeMonitor`.
+  Update package references and `using` directives, then rebuild local plugin feeds.
+  Browser assets now use the new package IDs under `_content/`. Existing native channel
+  identifiers and Apple framework names are preserved for protocol compatibility.
+  The MAUI and Avalonia integration packages remain optional; PDF view plugins retain
+  their framework-specific names.
 - Framework-independent registration and diagnostics, with a reusable Avalonia host for
   owned sessions, UI dispatch, and native/DOM view lifetimes.
 - Avalonia implementations of ChannelExplorer/Interop, Currency, AudioStreamer, VolumeMonitor,

@@ -1,4 +1,4 @@
-using Plugin.Maui.VolumeMonitor;
+using Plugin.VolumeMonitor;
 
 namespace VolumeMonitor.Sample;
 

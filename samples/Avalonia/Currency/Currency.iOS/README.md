@@ -2,7 +2,7 @@
 
 Part of the [template-generated Avalonia solution](../README.md).
 
-This package-only .NET 10 iOS application consumes the same `Plugin.Maui.Currency` archive as the
+This package-only .NET 10 iOS application consumes the same `Plugin.Currency` archive as the
 [MAUI sample](../../../Maui/Currency/README.md). It pins Avalonia 12.1.4 and has no MAUI dependency or
 library project references. The shared `Currency` application project contains the view and session used by the
 [Avalonia Android sample](../Currency.Android/README.md).

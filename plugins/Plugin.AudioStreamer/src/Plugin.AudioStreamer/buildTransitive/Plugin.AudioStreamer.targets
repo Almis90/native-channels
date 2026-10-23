@@ -1,0 +1,22 @@
+<Project>
+    <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'browser' Or $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'browserwasm'">
+        <Content
+            Include="$(MSBuildThisFileDirectory)../browser/*.mjs"
+            Link="wwwroot/_content/Plugin.AudioStreamer/%(Filename)%(Extension)"
+            CopyToOutputDirectory="PreserveNewest"
+            CopyToPublishDirectory="PreserveNewest"
+        />
+    </ItemGroup>
+    <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
+        <AndroidLibrary
+            Include="$(MSBuildThisFileDirectory)../native/android/audio.aar"
+            Bind="false"
+        />
+    </ItemGroup>
+    <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios' Or $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst' Or $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'macos'">
+        <NativeReference Include="$(MSBuildThisFileDirectory)../native/apple/MauiAudioStreamerNative.xcframework">
+            <Kind>Framework</Kind>
+            <SmartLink>false</SmartLink>
+        </NativeReference>
+    </ItemGroup>
+</Project>

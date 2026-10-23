@@ -1,0 +1,5 @@
+﻿<Project>
+    <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android' And '$(NativeChannelsVerificationEnvironment)' != ''">
+        <AndroidEnvironment Include="$(NativeChannelsVerificationEnvironment)" />
+    </ItemGroup>
+</Project>

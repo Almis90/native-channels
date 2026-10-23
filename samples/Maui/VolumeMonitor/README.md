@@ -5,7 +5,7 @@ volume as a percentage and animated bar, keeps the last 12 events, and provides 
 The initial check exercises independent subscriptions, initial values, cancellation, and restart;
 then the app starts listening. It logs `VOLUME_SAMPLE PASS …` and writes `volume-result.txt`.
 
-See the [plugin guide](../../../plugins/Plugin.Maui.VolumeMonitor/README.md) for local build/run commands,
+See the [plugin guide](../../../plugins/Plugin.VolumeMonitor/README.md) for local build/run commands,
 platform behavior, audio session ownership, and limitations. Android hardware buttons control the
 music stream while this activity is visible. The Apple sample owns an ambient audio session for its
 foreground lifetime, including while listening is stopped, to keep iOS volume state current between

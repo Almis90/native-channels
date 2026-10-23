@@ -39,7 +39,7 @@ class CombinePackagesTests(unittest.TestCase):
                 for p in platforms:
                     tfm = f"net10.0-{p}1.0" if p else "net10.0"
                     archive.writestr(f"lib/{tfm}/{name}.{extension}", f"{p} {extension} payload")
-                if directory == self.mobile and name.startswith("Plugin.Maui.") and suffix == "nupkg":
+                if directory == self.mobile and name.startswith("Plugin.") and suffix == "nupkg":
                     archive.writestr(f"native/android/{name}.aar", b"native Android bytes")
                     archive.writestr(f"native/apple/{name}.xcframework/Info.plist", b"native Apple bytes")
 
@@ -62,13 +62,13 @@ class CombinePackagesTests(unittest.TestCase):
                 with zipfile.ZipFile(self.output / f"{name}.1.0.0.{suffix}") as z:
                     for p in combine.MOBILE | {"windows"}:
                         self.assertEqual(z.read(f"lib/net10.0-{p}1.0/{name}.{extension}"), f"{p} {extension} payload".encode())
-                    if name.startswith("Plugin.Maui.") and suffix == "nupkg":
+                    if name.startswith("Plugin.") and suffix == "nupkg":
                         self.assertEqual(z.read(f"native/android/{name}.aar"), b"native Android bytes")
                         self.assertEqual(z.read(f"native/apple/{name}.xcframework/Info.plist"), b"native Apple bytes")
 
     def keep_plugins(self, names):
         for directory in (self.mobile, self.windows):
-            for path in directory.glob("Plugin.Maui.*"):
+            for path in directory.glob("Plugin.*"):
                 if not any(path.name.startswith(name + ".") for name in names):
                     path.unlink()
 
@@ -79,22 +79,22 @@ class CombinePackagesTests(unittest.TestCase):
                          {"NativeChannels.Core", "NativeChannels", "NativeChannels.Maui"})
 
     def test_selected_example_does_not_require_other_examples(self):
-        self.keep_plugins(["Plugin.Maui.Currency"])
+        self.keep_plugins(["Plugin.Currency"])
         results = combine.assemble(self.mobile, self.windows, self.output, COMMIT,
-                                   plugins=["Plugin.Maui.Currency"])
+                                   plugins=["Plugin.Currency"])
         self.assertEqual(len(results), 4)
-        self.assertIn("Plugin.Maui.Currency", {record["id"] for record in results})
+        self.assertIn("Plugin.Currency", {record["id"] for record in results})
 
     def test_framework_scope_rejects_unrequested_examples(self):
         with self.assertRaisesRegex(ValueError, "Missing or unexpected"):
             combine.assemble(self.mobile, self.windows, self.output, COMMIT, plugins=[])
 
     def test_selected_example_must_exist_on_both_hosts(self):
-        self.keep_plugins(["Plugin.Maui.Currency"])
-        (self.windows / "Plugin.Maui.Currency.1.0.0.nupkg").unlink()
+        self.keep_plugins(["Plugin.Currency"])
+        (self.windows / "Plugin.Currency.1.0.0.nupkg").unlink()
         with self.assertRaisesRegex(ValueError, "Missing or unexpected"):
             combine.assemble(self.mobile, self.windows, self.output, COMMIT,
-                             plugins=["Plugin.Maui.Currency"])
+                             plugins=["Plugin.Currency"])
 
     def test_deterministic_output(self):
         self.assemble()

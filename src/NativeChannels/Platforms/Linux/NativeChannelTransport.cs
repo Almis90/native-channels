@@ -1,8 +1,19 @@
-#if LINUX
+#if LINUX || DESKTOP
 namespace NativeChannels;
 
 public sealed partial class NativeChannelTransport
 {
+#if LINUX && !DESKTOP
+    private partial void Initialize(IEnumerable<NativeModuleRegistration> modules) => InitializeLinux(modules);
+
+    private partial IDisposable SendNative(TransportRequest request, Action<TransportResponse> completed) =>
+        SendLinuxNative(request, completed);
+
+    private partial void CancelNative(Guid id) => CancelLinuxNative(id);
+
+    private partial Task ShutdownNativeAsync() => ShutdownLinuxNativeAsync();
+#endif
+
     private InMemoryTransport _linuxEndpoint = null!;
     private ChannelService _linuxChannels = null!;
     private readonly List<ILinuxChannelModule> _linuxModules = [];
@@ -10,7 +21,7 @@ public sealed partial class NativeChannelTransport
 
     internal IChannelService LinuxChannels => _linuxChannels;
 
-    private partial void Initialize(IEnumerable<NativeModuleRegistration> modules)
+    private void InitializeLinux(IEnumerable<NativeModuleRegistration> modules)
     {
         if (!OperatingSystem.IsLinux())
             throw new PlatformNotSupportedException("The Linux transport requires Linux.");
@@ -38,7 +49,7 @@ public sealed partial class NativeChannelTransport
         {
             try
             {
-                ShutdownNativeAsync().GetAwaiter().GetResult();
+                ShutdownLinuxNativeAsync().GetAwaiter().GetResult();
             }
             catch (Exception cleanupError)
             {
@@ -54,7 +65,7 @@ public sealed partial class NativeChannelTransport
         }
     }
 
-    private partial IDisposable SendNative(TransportRequest request, Action<TransportResponse> completed)
+    private IDisposable SendLinuxNative(TransportRequest request, Action<TransportResponse> completed)
     {
         var operation = new LinuxRequest();
         if (!_linuxRequests.TryAdd(request.Id, operation))
@@ -93,7 +104,7 @@ public sealed partial class NativeChannelTransport
         completed(response);
     }
 
-    private partial void CancelNative(Guid id)
+    private void CancelLinuxNative(Guid id)
     {
         if (_linuxRequests.TryGetValue(id, out var operation))
         {
@@ -101,7 +112,7 @@ public sealed partial class NativeChannelTransport
         }
     }
 
-    private async partial Task ShutdownNativeAsync()
+    private async Task ShutdownLinuxNativeAsync()
     {
         // Stop both directions before releasing adapter resources, including if a module throws.
         await _linuxEndpoint.DisposeAsync().ConfigureAwait(false);

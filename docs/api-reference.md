@@ -157,7 +157,7 @@ guard shared registration code with `#if WINDOWS`.
 This optional example demonstrates a typed facade over MethodChannel. Its API is not part of
 the NativeChannels API.
 
-<<< ../plugins/Plugin.Maui.Currency/src/Plugin.Maui.Currency/ICurrencyService.cs
+<<< ../plugins/Plugin.Currency/src/Plugin.Currency/ICurrencyService.cs
 
 Register the module with `options.AddCurrency()` inside the existing `UseNativeChannels` call,
 and the singleton service with `builder.Services.AddCurrency()`. The plugin package includes its

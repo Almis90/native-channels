@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build and exercise the five packaged Avalonia or MAUI consumers locally. Never invokes CI."""
+"""Build and exercise packaged Avalonia, MAUI or Uno consumers locally. Never invokes CI."""
 import argparse
 from contextlib import contextmanager
 import hashlib
@@ -85,7 +85,7 @@ def build(args, destination):
     cache.mkdir(parents=True)
     if args.reuse_external_cache:
         for package in args.reuse_external_cache.resolve().iterdir():
-            if package.is_dir() and not package.name.lower().startswith(('nativechannels', 'plugin.maui.', 'plugin.avalonia.')):
+            if package.is_dir() and not package.name.lower().startswith(('nativechannels', 'plugin.')):
                 def link_or_copy(source, destination):
                     try:
                         os.link(source, destination)
@@ -101,7 +101,7 @@ def build(args, destination):
     ET.SubElement(sources, 'add', key='nuget', value='https://api.nuget.org/v3/index.json')
     mapping = ET.SubElement(xml, 'packageSourceMapping')
     local = ET.SubElement(mapping, 'packageSource', key='local')
-    for pattern in ('NativeChannels*', 'Plugin.Maui.*', 'Plugin.Avalonia.*'):
+    for pattern in ('NativeChannels*', 'Plugin.*'):
         ET.SubElement(local, 'package', pattern=pattern)
     ET.SubElement(ET.SubElement(mapping, 'packageSource', key='nuget'), 'package', pattern='*')
     ET.ElementTree(xml).write(config, encoding='utf-8', xml_declaration=True)
@@ -121,7 +121,7 @@ def build(args, destination):
         # Rebuild for this target: an earlier run may have left other slices here.
         command([sys.executable, 'eng/build-apple.py', *apple])
         for name in SAMPLES[:4]:
-            command([sys.executable, f'plugins/Plugin.Maui.{name}/eng/build-apple.py', *apple])
+            command([sys.executable, f'plugins/Plugin.{"Maui." if name == "PdfViewer" else ""}{name}/eng/build-apple.py', *apple])
     elif target == 'browser':
         command(['npm.cmd' if os.name == 'nt' else 'npm', '--prefix', 'plugins/Plugin.Avalonia.PdfViewer',
                  'ci', '--ignore-scripts', '--no-audit', '--no-fund'])
@@ -150,7 +150,7 @@ def build(args, destination):
             pack('src/NativeChannels.Maui', '-p:' + flags[target], '-p:NativeChannelsUseCorePackage=true')
         else:
             pack('src/NativeChannels.Avalonia', '-p:NativeChannelsUseCorePackage=true')
-    for name in ('Plugin.Maui.Currency', 'Plugin.Maui.AudioStreamer', 'Plugin.Maui.VolumeMonitor',
+    for name in ('Plugin.Currency', 'Plugin.AudioStreamer', 'Plugin.VolumeMonitor',
                  'Plugin.Maui.PdfViewer' if maui else 'Plugin.Avalonia.PdfViewer'):
         extra = [f'-p:TargetFrameworks={tfm}'] if name == 'Plugin.Maui.PdfViewer' else []
         pack(f'plugins/{name}/src/{name}', '-p:' + flags[target], *extra)
@@ -364,7 +364,8 @@ def audio_environment(args):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--framework', choices=('avalonia', 'maui'), default='avalonia')
+    parser.add_argument('--framework', choices=('avalonia', 'maui', 'uno'), default='avalonia')
+    parser.add_argument('--require-acceptance', action='store_true', help='Uno: fail unless full runtime/native-view acceptance is established')
     parser.add_argument('--platform', choices=HEADS, required=True)
     parser.add_argument('--manifest', type=Path, help='Reuse a completed build instead of rebuilding')
     parser.add_argument('--build-only', action='store_true')
@@ -381,6 +382,13 @@ def main():
     parser.add_argument('--timeout', type=float, default=120)
     parser.add_argument('--sample', choices=SAMPLES, action='append', help='Run only selected samples (default: all five)')
     args = parser.parse_args()
+    if args.framework == 'uno':
+        if args.platform == 'maccatalyst':
+            parser.error('Uno uses macos, not maccatalyst')
+        from uno_samples import run
+        return run(args, source_identity)
+    if args.require_acceptance:
+        parser.error('--require-acceptance is currently Uno-only')
     if args.manifest and (args.framework_packages or args.require_clean):
         parser.error('--manifest cannot be combined with candidate build options')
     if args.packages_only and (args.manifest or args.framework_packages):

@@ -2,9 +2,12 @@
 using Windows.Data.Pdf;
 using Windows.Storage;
 using Windows.Storage.Streams;
+#endif
 
+#if WINDOWS || UNO_WINDOWS_PDF
 namespace Plugin.Maui.PdfViewer;
 
+[System.Runtime.Versioning.SupportedOSPlatform("windows10.0.17763")]
 internal sealed class WindowsPdfDocument : IDisposable
 {
     private readonly IRandomAccessStream _source;

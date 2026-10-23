@@ -10,9 +10,9 @@ mkdir -p artifacts/native/linux-x64
 EXTRA=()
 case "${1:-}" in
     sample) SOURCE=native/linux/sample.cpp; LIBRARY=nc_sample; DEPS='gtk+-3.0 x11' ;;
-    currency) SOURCE=plugins/Plugin.Maui.Currency/native/linux/currency.cpp; LIBRARY=nc_currency; DEPS=icu-uc ;;
-    audio) SOURCE=plugins/Plugin.Maui.AudioStreamer/native/linux/audio.cpp; LIBRARY=nc_audio; DEPS=alsa ;;
-    volume) SOURCE=plugins/Plugin.Maui.VolumeMonitor/native/linux/volume.cpp; LIBRARY=nc_volume; DEPS=libpulse ;;
+    currency) SOURCE=plugins/Plugin.Currency/native/linux/currency.cpp; LIBRARY=nc_currency; DEPS=icu-uc ;;
+    audio) SOURCE=plugins/Plugin.AudioStreamer/native/linux/audio.cpp; LIBRARY=nc_audio; DEPS=alsa ;;
+    volume) SOURCE=plugins/Plugin.VolumeMonitor/native/linux/volume.cpp; LIBRARY=nc_volume; DEPS=libpulse ;;
     pdf) bash "$0" pdf-qt; bash "$0" pdf-gtk; exit ;;
     pdf-qt) SOURCE=plugins/Plugin.Avalonia.PdfViewer/native/linux/pdf_qt.cpp; LIBRARY=nc_pdf_qt; DEPS=Qt6Widgets
         QT_INCLUDE="$(pkg-config --variable=includedir Qt6Core)"

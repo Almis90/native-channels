@@ -27,7 +27,7 @@ root=ET.Element('configuration'); sources=ET.SubElement(root,'packageSources'); 
 ET.SubElement(sources,'add',key='local',value=sys.argv[2]); ET.SubElement(sources,'add',key='nuget',value='https://api.nuget.org/v3/index.json')
 mapping=ET.SubElement(root,'packageSourceMapping')
 local=ET.SubElement(mapping,'packageSource',key='local')
-for pattern in ['NativeChannels*','Plugin.Maui.*','Plugin.Avalonia.*']: ET.SubElement(local,'package',pattern=pattern)
+for pattern in ['NativeChannels*','Plugin.*']: ET.SubElement(local,'package',pattern=pattern)
 ET.SubElement(ET.SubElement(mapping,'packageSource',key='nuget'),'package',pattern='*')
 ET.ElementTree(root).write(sys.argv[1],encoding='utf-8',xml_declaration=True)
 PY
@@ -37,7 +37,7 @@ if [[ "$TARGET" == android ]]; then
 elif [[ "$TARGET" == ios || "$TARGET" == macos ]]; then
     APPLE=(); if [[ "$TARGET" == macos ]]; then APPLE=(--macos-only); fi
     python3 eng/build-apple.py "${APPLE[@]}"
-    for plugin in Currency AudioStreamer VolumeMonitor PdfViewer; do python3 "plugins/Plugin.Maui.$plugin/eng/build-apple.py" "${APPLE[@]}"; done
+    for plugin in Plugin.Currency Plugin.AudioStreamer Plugin.VolumeMonitor Plugin.Maui.PdfViewer; do python3 "plugins/$plugin/eng/build-apple.py" "${APPLE[@]}"; done
 elif [[ "$TARGET" == browser ]]; then
     (cd plugins/Plugin.Avalonia.PdfViewer && npm ci --ignore-scripts --no-audit --no-fund)
 fi
@@ -47,7 +47,7 @@ if [[ "$TARGET" == android ]]; then pack src/NativeChannels.Native.Android; fi
 if [[ "$TARGET" == ios || "$TARGET" == macos ]]; then pack src/NativeChannels.Native.Apple "-p:$FLAG"; fi
 pack src/NativeChannels "-p:$FLAG" -p:NativeChannelsUseCorePackage=true
 pack src/NativeChannels.Avalonia -p:NativeChannelsUseCorePackage=true
-for plugin in Plugin.Maui.Currency Plugin.Maui.AudioStreamer Plugin.Maui.VolumeMonitor Plugin.Avalonia.PdfViewer; do
+for plugin in Plugin.Currency Plugin.AudioStreamer Plugin.VolumeMonitor Plugin.Avalonia.PdfViewer; do
     pack "plugins/$plugin/src/$plugin" "-p:$FLAG"
 done
 if [[ "$TARGET" == android ]]; then

@@ -2,10 +2,10 @@ name: Verify Avalonia Linux
 on:
   pull_request:
     branches: [main, milestone-0.2-shared-hosting]
-    paths: ['src/**', 'native/linux/**', 'plugins/Plugin.Maui.Currency/**', 'samples/Avalonia/Currency/**', 'samples/Currency.Shared/**', 'tests/**', 'eng/**', 'Directory.*.props', 'global.json', '.github/workflows/shared-hosting-linux.yml', '!**/*.md']
+    paths: ['src/**', 'native/linux/**', 'plugins/Plugin.Currency/**', 'samples/Avalonia/Currency/**', 'samples/Currency.Shared/**', 'tests/**', 'eng/**', 'Directory.*.props', 'global.json', '.github/workflows/shared-hosting-linux.yml', '!**/*.md']
   push:
     branches: [main, milestone-0.2-shared-hosting]
-    paths: ['src/**', 'native/linux/**', 'plugins/Plugin.Maui.Currency/**', 'samples/Avalonia/Currency/**', 'samples/Currency.Shared/**', 'tests/**', 'eng/**', 'Directory.*.props', 'global.json', '.github/workflows/shared-hosting-linux.yml', '!**/*.md']
+    paths: ['src/**', 'native/linux/**', 'plugins/Plugin.Currency/**', 'samples/Avalonia/Currency/**', 'samples/Currency.Shared/**', 'tests/**', 'eng/**', 'Directory.*.props', 'global.json', '.github/workflows/shared-hosting-linux.yml', '!**/*.md']
   workflow_dispatch:
 permissions:
   contents: read

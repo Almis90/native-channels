@@ -4,7 +4,7 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-export async function serveBrowser(directory, port = 0) {
+export async function serveBrowser(directory, port = 0, basePath = '/currency/') {
     const root = path.resolve(directory);
     const types = { '.html': 'text/html', '.js': 'text/javascript', '.mjs': 'text/javascript',
         '.wasm': 'application/wasm', '.json': 'application/json', '.css': 'text/css',
@@ -13,8 +13,8 @@ export async function serveBrowser(directory, port = 0) {
         try {
             const url = new URL(request.url, 'http://localhost');
             if (url.pathname === '/favicon.ico') { response.writeHead(204).end(); return; }
-            if (!url.pathname.startsWith('/currency/')) { response.writeHead(404).end(); return; }
-            const name = decodeURIComponent(url.pathname.slice('/currency/'.length)) || 'index.html';
+            if (!url.pathname.startsWith(basePath)) { response.writeHead(404).end(); return; }
+            const name = decodeURIComponent(url.pathname.slice(basePath.length)) || 'index.html';
             const file = path.resolve(root, name);
             if (!file.startsWith(root + path.sep)) { response.writeHead(403).end(); return; }
             const data = await readFile(file);
@@ -24,7 +24,7 @@ export async function serveBrowser(directory, port = 0) {
         } catch { response.writeHead(404).end(); }
     });
     await new Promise((resolve, reject) => { server.once('error', reject); server.listen(port, '127.0.0.1', resolve); });
-    return { server, url: `http://127.0.0.1:${server.address().port}/currency/` };
+    return { server, url: `http://127.0.0.1:${server.address().port}${basePath}` };
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {

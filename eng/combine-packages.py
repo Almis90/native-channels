@@ -13,8 +13,8 @@ import zipfile
 from package_audit import audit_package
 
 COMBINED = {
-    "NativeChannels", "NativeChannels.Maui", "Plugin.Maui.Currency",
-    "Plugin.Maui.AudioStreamer", "Plugin.Maui.VolumeMonitor", "Plugin.Maui.PdfViewer",
+    "NativeChannels", "NativeChannels.Maui", "Plugin.Currency",
+    "Plugin.AudioStreamer", "Plugin.VolumeMonitor", "Plugin.Maui.PdfViewer",
 }
 MOBILE = {"android", "ios", "maccatalyst"}
 GROUPED = {"dependencies", "frameworkReferences"}
@@ -148,7 +148,7 @@ def combine(mobile, windows, destination, package_id, symbols=False):
 
 
 def assemble(mobile, windows, output, source_commit, plugins=None):
-    known_plugins = {name for name in COMBINED if name.startswith("Plugin.Maui.")}
+    known_plugins = {name for name in COMBINED if name.startswith("Plugin.")}
     selected = known_plugins if plugins is None else set(plugins)
     if not selected.issubset(known_plugins):
         raise ValueError("Unknown example plugin")
@@ -213,7 +213,7 @@ def main():
     args = parser.parse_args()
     if (args.scope == "example") != bool(args.plugin):
         parser.error("--plugin is required only for --scope example")
-    plugins = None if args.scope == "all" else ([f"Plugin.Maui.{args.plugin}"] if args.plugin else [])
+    plugins = None if args.scope == "all" else ([("Plugin.Maui.PdfViewer" if args.plugin == "PdfViewer" else f"Plugin.{args.plugin}")] if args.plugin else [])
     try:
         results = assemble(args.mobile, args.windows, args.output, args.source_commit, plugins)
     except (ValueError, OSError, KeyError, ET.ParseError, zipfile.BadZipFile) as error:

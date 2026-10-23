@@ -45,12 +45,13 @@ try {
 <add key="local" value="$escapedFeed" />
 <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
 </packageSources><packageSourceMapping>
-<packageSource key="local"><package pattern="NativeChannels*" /><package pattern="Plugin.Maui.*" /></packageSource>
+<packageSource key="local"><package pattern="NativeChannels*" /><package pattern="Plugin.*" /></packageSource>
 <packageSource key="nuget.org"><package pattern="*" /></packageSource>
 </packageSourceMapping></configuration>
 "@ | Set-Content -LiteralPath $config -Encoding utf8
     foreach ($name in @($Plugin)) {
-        $project = "plugins/Plugin.Maui.$name/src/Plugin.Maui.$name/Plugin.Maui.$name.csproj"
+        $packageId = if ($name -eq 'PdfViewer') { 'Plugin.Maui.PdfViewer' } else { "Plugin.$name" }
+        $project = "plugins/$packageId/src/$packageId/$packageId.csproj"
         $cache = Join-Path $repoRoot ('.tools/wn/' + [Guid]::NewGuid().ToString('N').Substring(0, 12))
         $settings = @('-p:NativeChannelsWindowsOnly=true', "-p:RestorePackagesPath=$cache")
         Invoke-Dotnet restore $project @settings --configfile $config

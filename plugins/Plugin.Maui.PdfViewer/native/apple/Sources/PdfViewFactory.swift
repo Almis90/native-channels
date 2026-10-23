@@ -141,10 +141,16 @@ private final class PdfInstance: NSObject, NativeViewInstance {
     }
 
     private func fit() {
-        guard !closed, pdf.document != nil, pdf.bounds.width > 0, pdf.bounds.height > 0 else { return }
-        pdf.layoutDocumentView()
-        let value = pdf.scaleFactorForSizeToFit
-        guard value.isFinite, value > 0 else { return }
+        guard !closed, pdf.document != nil else { return }
+        // Opening immediately after reconnect can precede the first native layout.
+        // PDFKit then reports a zero fit scale. Keep a valid native scale until
+        // the resize callback can calculate the document's actual size-to-fit.
+        var value = fitScale
+        if pdf.bounds.width > 0, pdf.bounds.height > 0 {
+            pdf.layoutDocumentView()
+            let fitted = pdf.scaleFactorForSizeToFit
+            if fitted.isFinite, fitted > 0 { value = fitted }
+        }
         fitScale = value
         pdf.minScaleFactor = value
         pdf.maxScaleFactor = value * 4

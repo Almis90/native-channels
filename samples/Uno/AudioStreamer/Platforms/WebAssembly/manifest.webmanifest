@@ -1,0 +1,11 @@
+{
+  "background_color": "#ffffff",
+  "description": "NativeChannels AudioStreamer",
+  "display": "standalone",
+  "name": "NativeChannels AudioStreamer",
+  "short_name": "NativeChannels AudioStreamer",
+  "start_url": "/index.html",
+  "theme_color": "#ffffff",
+  "scope": "/"
+}
+

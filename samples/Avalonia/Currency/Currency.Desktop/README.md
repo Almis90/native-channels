@@ -6,7 +6,7 @@ also hosts [Windows](Windows.md), selected automatically on Windows or with
 On Linux it selects the [Linux/X11 head and ICU adapter](Linux.md).
 
 This package-only desktop application targets `net10.0-macos` with Avalonia 12.1.4 and AppKit.
-It uses the shared Apple transport and Swift Currency adapter through `Plugin.Maui.Currency`.
+It uses the shared Apple transport and Swift Currency adapter through `Plugin.Currency`.
 It has no MAUI dependency or library project references. Native macOS is a separate target from
 the existing UIKit/Mac Catalyst host.
 

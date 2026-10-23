@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <Description>Optional Uno Skia host integration, per-window channel sessions, dispatch and view lifecycle.</Description>
+    </PropertyGroup>
+    <ItemGroup>
+        <ProjectReference
+            Include="../NativeChannels.Core/NativeChannels.Core.csproj"
+            Condition="'$(NativeChannelsUseCorePackage)' != 'true'"
+        />
+        <PackageReference
+            Include="NativeChannels.Core"
+            Condition="'$(NativeChannelsUseCorePackage)' == 'true'"
+        />
+        <PackageReference Include="Uno.WinUI" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+        <Compile Include="../Shared.Hosting/*.cs" Link="Hosting/%(Filename)%(Extension)" />
+        <None Remove="$(MSBuildThisFileDirectory)../../README.md" />
+        <None Include="../../docs/uno-host.md" Pack="true" PackagePath="/README.md" />
+    </ItemGroup>
+    <ItemGroup Condition="'$(NativeChannelsIncludeAppleDesktopAssets)' == 'true'">
+        <None
+            Include="../../artifacts/native/apple-desktop/osx-arm64/libNativeChannelsUno.dylib"
+            Pack="true"
+            PackagePath="runtimes/osx-arm64/native/"
+        />
+        <None
+            Include="../../artifacts/native/apple-desktop/osx-x64/libNativeChannelsUno.dylib"
+            Pack="true"
+            PackagePath="runtimes/osx-x64/native/"
+        />
+    </ItemGroup>
+</Project>

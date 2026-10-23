@@ -33,7 +33,7 @@
             Link="Hosting/%(Filename)%(Extension)"
         />
         <Compile
-            Include="../../plugins/Plugin.Maui.Currency/src/Plugin.Maui.Currency/*.cs"
+            Include="../../plugins/Plugin.Currency/src/Plugin.Currency/*.cs"
             Link="Currency/%(Filename)%(Extension)"
         />
         <Compile

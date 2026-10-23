@@ -62,7 +62,10 @@ repeat applicable acceptance checks for the revision being released.
 
 These workflows currently verify the MAUI integration; the complete Avalonia
 0.2 matrix is recorded in [local acceptance](verification.md#local-02-candidate).
-Uno remains planned. The [roadmap milestones](roadmap.md) describe host requirements.
+Uno has experimental host, plugin and sample work plus desktop build CI definitions.
+It is not release-ready: follow the separate [0.3 preparation gates](preview-03.md)
+before changing release versions or publication manifests. The
+[roadmap milestones](roadmap.md) describe host requirements.
 
 The framework sample is the required consumer for the framework release. Example plugins are
 optional integration coverage and have a separate manual build workflow. When releasing or changing

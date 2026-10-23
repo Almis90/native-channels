@@ -9,7 +9,7 @@
         <PackageReference Include="Avalonia.Browser" />
         <PackageReference Include="Avalonia.Themes.Fluent" />
         <PackageReference Include="NativeChannels.Avalonia" />
-        <PackageReference Include="Plugin.Maui.VolumeMonitor" />
+        <PackageReference Include="Plugin.VolumeMonitor" />
         <Compile Include="../../Shared/SampleApplication.cs" Link="SampleApplication.cs" />
         <Compile Include="../Shared/*.cs" Link="%(Filename)%(Extension)" />
     </ItemGroup>
@@ -17,6 +17,12 @@
         <Compile
             Include="../../../Maui/VolumeMonitor/VolumeVerification.cs"
             Link="VolumeVerification.cs"
+        />
+    </ItemGroup>
+    <ItemGroup>
+        <Compile
+            Include="../../../Maui/VolumeMonitor/AudioSessionScope.cs"
+            Link="AudioSessionScope.cs"
         />
     </ItemGroup>
 </Project>

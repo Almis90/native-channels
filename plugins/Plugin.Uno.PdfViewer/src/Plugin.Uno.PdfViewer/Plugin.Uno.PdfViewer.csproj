@@ -1,0 +1,169 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <TargetFramework Condition="'$(NativeChannelsAppleTarget)' == 'ios'"
+            >net10.0-ios</TargetFramework>
+        <SupportedOSPlatformVersion Condition="'$(NativeChannelsAppleTarget)' == 'ios'"
+            >15.0</SupportedOSPlatformVersion>
+        <Version>0.1.0-alpha.1</Version>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <DefineConstants
+            Condition="'$(NativeChannelsAppleTarget)' != 'ios' And '$(NativeChannelsAndroidOnly)' != 'true' And '$(NativeChannelsBrowserOnly)' != 'true'"
+            >$(DefineConstants);UNO_WINDOWS_PDF</DefineConstants>
+        <WindowsPdfSdkVersion>10.0.19041.57</WindowsPdfSdkVersion>
+        <Description>Uno Skia PDF control with Windows.Data.Pdf, iOS PDFKit, Android PdfRenderer and Linux X11 Qt/GTK native backends and custom adapter lifecycle.</Description>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(NativeChannelsAppleTarget)' == 'ios'">
+        <!-- Match the optional Uno host's Skia UI with the iOS native transport. -->
+        <UnoUIRuntimeIdentifier>Skia</UnoUIRuntimeIdentifier>
+        <UnoWinRTRuntimeIdentifier>iOS</UnoWinRTRuntimeIdentifier>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="NativeChannels.Uno" />
+        <PackageReference Include="NativeChannels" />
+    </ItemGroup>
+    <ItemGroup Condition="'$(NativeChannelsAppleTarget)' != 'ios' And '$(NativeChannelsAndroidOnly)' != 'true' And '$(NativeChannelsBrowserOnly)' != 'true'">
+        <!-- One desktop assembly selects its native backend at runtime. -->
+        <Compile
+            Include="../../../../src/Shared.NativeViews/UnoLinuxNativeView.cs"
+            Link="UnoLinuxNativeView.cs"
+        />
+        <Compile
+            Include="../../../../src/Shared.NativeViews/UnoMacOSNativeView.cs"
+            Link="UnoMacOSNativeView.cs"
+        />
+        <PackageReference Include="System.Drawing.Common" />
+        <!-- Private projection: Uno defines its own Windows.* types. Compile with
+             an alias and ship SDK runtime assemblies only for Windows consumers. -->
+        <PackageDownload
+            Include="Microsoft.Windows.SDK.NET.Ref"
+            Version="[$(WindowsPdfSdkVersion)]"
+        />
+        <Reference Include="Microsoft.Windows.SDK.NET">
+            <HintPath>$(NuGetPackageRoot)/microsoft.windows.sdk.net.ref/$(WindowsPdfSdkVersion)/lib/net8.0/Microsoft.Windows.SDK.NET.dll</HintPath>
+            <Aliases>WindowsSdk</Aliases>
+        </Reference>
+        <Reference Include="WinRT.Runtime">
+            <HintPath>$(NuGetPackageRoot)/microsoft.windows.sdk.net.ref/$(WindowsPdfSdkVersion)/lib/net8.0/WinRT.Runtime.dll</HintPath>
+        </Reference>
+        <None
+            Include="$(NuGetPackageRoot)/microsoft.windows.sdk.net.ref/$(WindowsPdfSdkVersion)/lib/net8.0/Microsoft.Windows.SDK.NET.dll;$(NuGetPackageRoot)/microsoft.windows.sdk.net.ref/$(WindowsPdfSdkVersion)/lib/net8.0/WinRT.Runtime.dll"
+            Pack="true"
+            PackagePath="buildTransitive/windows/"
+        />
+        <Compile
+            Include="../../../Plugin.Maui.PdfViewer/native/windows/WindowsPdfDocument.cs"
+            Link="WindowsPdfDocument.cs"
+        />
+        <Compile Include="../../native/windows/WindowsPdfView.cs" Link="WindowsPdfView.cs" />
+        <Compile
+            Include="../../native/windows/WindowsPdfAccessibility.cs"
+            Link="WindowsPdfAccessibility.cs"
+        />
+    </ItemGroup>
+    <ItemGroup Condition="'$(NativeChannelsAppleTarget)' == 'ios'">
+        <Compile Remove="WindowsPdfImports.cs" />
+        <None
+            Include="../../../../artifacts/native/MauiPdfViewerNative.xcframework/**/*"
+            Exclude="../../../../artifacts/native/MauiPdfViewerNative.xcframework/**/Modules/MauiPdfViewerNative.swiftmodule/**/*"
+            Pack="true"
+            PackagePath="native/apple/MauiPdfViewerNative.xcframework/"
+        />
+    </ItemGroup>
+    <Target
+        Name="ValidateApplePdfAssets"
+        BeforeTargets="GenerateNuspec"
+        Condition="'$(NativeChannelsAppleTarget)' == 'ios'"
+    >
+        <Error
+            Condition="!Exists('../../../../artifacts/native/MauiPdfViewerNative.xcframework/Info.plist')"
+            Text="Build the Apple PDF adapter before packing."
+        />
+    </Target>
+    <ItemGroup>
+        <None
+            Include="buildTransitive/Plugin.Uno.PdfViewer.targets"
+            Pack="true"
+            PackagePath="buildTransitive/"
+        />
+        <None Remove="$(MSBuildThisFileDirectory)../../../../README.md" />
+        <None Include="../../README.md" Pack="true" PackagePath="/README.md" />
+    </ItemGroup>
+    <PropertyGroup Condition="'$(NativeChannelsAndroidOnly)' == 'true'">
+        <TargetFramework>net10.0-android</TargetFramework>
+        <SupportedOSPlatformVersion>24</SupportedOSPlatformVersion>
+        <UnoUIRuntimeIdentifier>Skia</UnoUIRuntimeIdentifier>
+        <UnoWinRTRuntimeIdentifier>Android</UnoWinRTRuntimeIdentifier>
+    </PropertyGroup>
+    <ItemGroup Condition="'$(NativeChannelsAndroidOnly)' == 'true'">
+        <Compile Remove="WindowsPdfImports.cs" />
+        <None
+            Include="../../../Plugin.Maui.PdfViewer/native/android/build/outputs/aar/pdf-release.aar"
+            Pack="true"
+            PackagePath="native/android/pdf.aar"
+        />
+    </ItemGroup>
+    <Target
+        Name="ValidateAndroidPdfAssets"
+        BeforeTargets="GenerateNuspec"
+        Condition="'$(NativeChannelsAndroidOnly)' == 'true'"
+    >
+        <Error
+            Condition="!Exists('../../../Plugin.Maui.PdfViewer/native/android/build/outputs/aar/pdf-release.aar')"
+            Text="Build the Android PDF adapter before packing."
+        />
+    </Target>
+    <ItemGroup Condition="'$(NativeChannelsLinuxOnly)' == 'true'">
+        <None
+            Include="../../../../artifacts/native/linux-x64/libnc_pdf_qt.so;../../../../artifacts/native/linux-x64/libnc_pdf_gtk.so"
+            Pack="true"
+            PackagePath="runtimes/linux-x64/native/"
+        />
+    </ItemGroup>
+    <Target
+        Name="BuildLinuxPdf"
+        BeforeTargets="BeforeBuild;GenerateNuspec"
+        Condition="'$(NativeChannelsLinuxOnly)' == 'true'"
+    >
+        <Exec Command="bash &quot;$(MSBuildThisFileDirectory)../../../../eng/build-linux-native.sh&quot; pdf" />
+    </Target>
+    <PropertyGroup Condition="'$(NativeChannelsBrowserOnly)' == 'true'">
+        <TargetFramework>net10.0-browserwasm</TargetFramework>
+    </PropertyGroup>
+    <ItemGroup Condition="'$(NativeChannelsBrowserOnly)' == 'true'">
+        <Compile Remove="WindowsPdfImports.cs" />
+        <None
+            Include="../../../Plugin.Avalonia.PdfViewer/native/browser/*.mjs;../../native/browser/*.mjs"
+            Pack="true"
+            PackagePath="browser/"
+        />
+    </ItemGroup>
+    <Target
+        Name="PreparePdfJs"
+        BeforeTargets="BeforeBuild;_GetPackageFiles"
+        Condition="'$(NativeChannelsBrowserOnly)' == 'true'"
+    >
+        <Exec Command="node &quot;$(MSBuildThisFileDirectory)../../../Plugin.Avalonia.PdfViewer/eng/prepare-browser.mjs&quot;" />
+        <ItemGroup>
+            <None
+                Include="../../../Plugin.Avalonia.PdfViewer/native/browser/vendor/**/*"
+                Pack="true"
+                PackagePath="browser/vendor/"
+            />
+        </ItemGroup>
+    </Target>
+    <Import Project="../../../../eng/BrowserWasm.props" />
+    <ItemGroup Condition="'$(NativeChannelsMacOSOnly)' == 'true'">
+        <None
+            Include="../../../../artifacts/native/apple-desktop/osx-arm64/libMauiPdfViewerNative.dylib"
+            Pack="true"
+            PackagePath="runtimes/osx-arm64/native/"
+        />
+        <None
+            Include="../../../../artifacts/native/apple-desktop/osx-x64/libMauiPdfViewerNative.dylib"
+            Pack="true"
+            PackagePath="runtimes/osx-x64/native/"
+        />
+    </ItemGroup>
+    <Import Project="../../../../eng/AndroidNativeAssets.props" />
+</Project>

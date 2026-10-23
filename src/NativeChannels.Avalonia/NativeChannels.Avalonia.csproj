@@ -4,6 +4,7 @@
         <Description>Avalonia application registration, owned channel sessions and asynchronous UI dispatch for NativeChannels.</Description>
     </PropertyGroup>
     <ItemGroup>
+        <Compile Include="../Shared.Hosting/*.cs" Link="Hosting/%(Filename)%(Extension)" />
         <ProjectReference
             Include="../NativeChannels.Core/NativeChannels.Core.csproj"
             Condition="'$(NativeChannelsUseCorePackage)' != 'true'"

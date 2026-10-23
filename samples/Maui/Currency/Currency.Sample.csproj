@@ -67,6 +67,6 @@
             Link="PluginVerification.cs"
         />
         <PackageReference Include="NativeChannels.Maui" />
-        <PackageReference Include="Plugin.Maui.Currency" />
+        <PackageReference Include="Plugin.Currency" />
     </ItemGroup>
 </Project>

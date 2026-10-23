@@ -1,6 +1,6 @@
 # Currency Symbols sample
 
-A separate MAUI app consuming the `Plugin.Maui.Currency` reference plugin and its explicit
+A separate MAUI app consuming the `Plugin.Currency` reference plugin and its explicit
 `NativeChannels.Maui` host through the local NuGet feed. This example verifies reusable plugin packaging; it is optional for applications
 using NativeChannels, and the plugin has not been published to NuGet.org. It has no project
 references, native source references, explicit AAR imports, or explicit XCFramework imports.
@@ -9,7 +9,7 @@ Enter a currency code or tap USD, EUR, GBP, or JPY. The displayed symbol comes f
 `java.util.Currency`, Apple `NSLocale`, or Windows `CurrencyFormatter`, using the device locale.
 Try `ZZZ` to see an unknown-code error.
 
-Follow the [plugin build instructions](../../../plugins/Plugin.Maui.Currency/README.md#build-and-run-from-source)
+Follow the [plugin build instructions](../../../plugins/Plugin.Currency/README.md#build-and-run-from-source)
 to produce the local NuGet and restore this sample into a fresh cache. `eng/restore-currency-sample.sh`
 cleans generated outputs and verifies that all NativeChannels/plugin archives match the local feed.
 
@@ -30,10 +30,10 @@ against identical Currency package bytes and checks that Avalonia has no MAUI de
 ```
 
 Run from the repository root with the pinned SDK and `maui-windows` workload. This builds the Windows
-`Plugin.Maui.Currency` 1.1.0-alpha.1 development package, runs its Windows tests, restores this app from
+`Plugin.Currency` 1.1.0-alpha.1 development package, runs its Windows tests, restores this app from
 the local feed, and executes the Release x64 app. The plugin and host are both package references.
 Use `-BuildOnly` for adapter tests and compilation without UI execution. See the
-[Windows plugin guide](../../../plugins/Plugin.Maui.Currency/README.md#windows-development-preview).
+[Windows plugin guide](../../../plugins/Plugin.Currency/README.md#windows-development-preview).
 
 ## Android and Apple
 
@@ -49,7 +49,7 @@ bash eng/dotnet.sh build samples/Maui/Currency -c Release -f net10.0-ios -r ioss
 bash eng/verify-ios-currency.sh SIMULATOR_UDID Release
 ```
 
-Use `android-x64` for an x86_64 emulator. See the [verification record](../../../plugins/Plugin.Maui.Currency/VERIFICATION.md)
+Use `android-x64` for an x86_64 emulator. See the [verification record](../../../plugins/Plugin.Currency/VERIFICATION.md)
 for executed versus compile-only targets. Packages remain local; these commands do not publish them.
 
 The framework-independent verification helper is linked from

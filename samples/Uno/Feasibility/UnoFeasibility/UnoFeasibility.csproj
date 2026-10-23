@@ -1,0 +1,46 @@
+<Project Sdk="Uno.Sdk">
+    <PropertyGroup>
+        <TargetFrameworks>net10.0-android;net10.0-ios;net10.0-browserwasm;net10.0-desktop</TargetFrameworks>
+
+        <OutputType>Exe</OutputType>
+        <UnoSingleProject>true</UnoSingleProject>
+
+        <!-- Display name -->
+        <ApplicationTitle>UnoFeasibility</ApplicationTitle>
+        <!-- App Identifier -->
+        <ApplicationId>dev.nativechannels.unofeasibility</ApplicationId>
+        <!-- Versions -->
+        <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
+        <ApplicationVersion>1</ApplicationVersion>
+        <!-- Package Publisher -->
+        <ApplicationPublisher>UnoFeasibility</ApplicationPublisher>
+        <!-- Package Description -->
+        <Description>UnoFeasibility powered by Uno Platform.</Description>
+
+        <!--
+      UnoFeatures are used to quickly add and manage features enabled for your app.
+      https://aka.platform.uno/singleproject-features
+    -->
+        <UnoFeatures>
+      SkiaRenderer;
+    </UnoFeatures>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="NativeChannels" />
+        <PackageReference Include="NativeChannels.Uno" />
+        <PackageReference Include="Plugin.Currency" />
+        <PackageReference Include="Plugin.AudioStreamer" />
+        <PackageReference Include="Plugin.VolumeMonitor" />
+        <PackageReference Include="Plugin.Uno.PdfViewer" />
+        <PackageReference
+            Include="NativeChannels.Desktop.ProbeAssets"
+            Condition="'$(NativeChannelsAppleDesktopProbe)' == 'true'"
+        />
+    </ItemGroup>
+    <ItemGroup Condition="'$(TargetFramework)' != 'net10.0-desktop'">
+        <Compile Remove="DependencyProbe.cs;DesktopContractProbe.cs" />
+    </ItemGroup>
+    <ItemGroup>
+        <Compile Include="../../Shared/PdfProtocolProbe.cs" Link="PdfProtocolProbe.cs" />
+    </ItemGroup>
+</Project>

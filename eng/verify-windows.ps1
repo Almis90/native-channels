@@ -111,7 +111,7 @@ try {
 <add key="local" value="$escapedPackages" />
 <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
 </packageSources><packageSourceMapping>
-<packageSource key="local"><package pattern="NativeChannels*" /><package pattern="Plugin.Maui.*" /></packageSource>
+<packageSource key="local"><package pattern="NativeChannels*" /><package pattern="Plugin.*" /></packageSource>
 <packageSource key="nuget.org"><package pattern="*" /></packageSource>
 </packageSourceMapping></configuration>
 "@ | Set-Content -LiteralPath $config -Encoding utf8
@@ -122,7 +122,8 @@ try {
     $passPrefix = 'PASS Windows:'
     $packageVersions = [ordered]@{ 'NativeChannels.Core' = $Version; 'NativeChannels' = $Version; 'NativeChannels.Maui' = $Version }
     if ($Plugin) {
-        $pluginProject = "plugins/Plugin.Maui.$Plugin/src/Plugin.Maui.$Plugin/Plugin.Maui.$Plugin.csproj"
+        $packageId = if ($Plugin -eq 'PdfViewer') { 'Plugin.Maui.PdfViewer' } else { "Plugin.$Plugin" }
+        $pluginProject = "plugins/$packageId/src/$packageId/$packageId.csproj"
         $pluginVersion = if ($Plugin -eq 'Currency') { $CurrencyVersion } else { '0.1.0-alpha.1' }
         if (-not $PackageFeed) {
             $pluginCache = Join-Path $repoRoot ('.tools/wn/' + [Guid]::NewGuid().ToString('N').Substring(0, 12))
@@ -130,8 +131,8 @@ try {
             Invoke-Dotnet restore $pluginProject @pluginSettings --configfile $config
             Invoke-Dotnet pack $pluginProject @pluginSettings -c Release --no-restore -o $packages
         }
-        Test-WindowsPackage "Plugin.Maui.$Plugin" $pluginVersion
-        $packageVersions["Plugin.Maui.$Plugin"] = $pluginVersion
+        Test-WindowsPackage $packageId $pluginVersion
+        $packageVersions[$packageId] = $pluginVersion
         $sample = "samples/Maui/$Plugin/$Plugin.Sample.csproj"
         $executable = "$Plugin.Sample.exe"
         $shortName = @{ Currency = 'currency'; AudioStreamer = 'audio'; VolumeMonitor = 'volume'; PdfViewer = 'pdf' }[$Plugin]
@@ -144,7 +145,7 @@ try {
         return
     }
     if ($Plugin) {
-        $tests = if ($Plugin -eq 'Currency') { 'tests/Plugin.Maui.Currency.Windows.Tests/Plugin.Maui.Currency.Windows.Tests.csproj' } else { 'tests/Plugin.Maui.Windows.Tests/Plugin.Maui.Windows.Tests.csproj' }
+        $tests = if ($Plugin -eq 'Currency') { 'tests/Plugin.Currency.Windows.Tests/Plugin.Currency.Windows.Tests.csproj' } else { 'tests/Plugin.Maui.Windows.Tests/Plugin.Maui.Windows.Tests.csproj' }
         $testSettings = @("-p:CurrencyPackageVersion=$CurrencyVersion", "-p:RestorePackagesPath=$cache", "-p:WindowsTestPlugin=$Plugin")
         Invoke-Dotnet restore $tests @testSettings --configfile $config
         # Hosted CI has no guaranteed audio endpoint. Runtime mode runs every hardware test,

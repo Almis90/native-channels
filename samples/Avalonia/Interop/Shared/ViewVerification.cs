@@ -1,6 +1,11 @@
+using MainThread = ChannelExplorer.SampleThread;
+#if UNO_SAMPLE
+using Microsoft.UI.Xaml.Controls;
+using AvaloniaChannelView = NativeChannels.UnoChannelView;
+#else
 using Avalonia;
 using Avalonia.Controls;
-using MainThread = ChannelExplorer.SampleThread;
+#endif
 
 namespace ChannelExplorer;
 
@@ -22,7 +27,36 @@ internal sealed class ViewVerification
     }
 
     private static AvaloniaChannelView Create(string title) =>
+#if UNO_SAMPLE
+#if UNO_BROWSER_SAMPLE
+        new(id => new UnoBrowserButtonView(id, title)) { Height = 72 };
+#elif UNO_MACOS_SAMPLE
+        new(id => new NativeChannels.UnoMacOSNativeView(
+            new("", "MCButtonViewFactory", "NativeChannelsSample"),
+            id,
+            new JsonMessageCodec().Encode(new Dictionary<string, object?> { ["title"] = title }).ToArray()
+        ))
+        {
+            Height = 72,
+        };
+#elif UNO_LINUX_SAMPLE
+        new(id => new NativeChannels.UnoLinuxNativeView(
+            "nc_sample",
+            typeof(SamplePlatform).Assembly,
+            id,
+            new Dictionary<string, object?> { ["title"] = title }
+        ))
+        {
+            Height = 72,
+        };
+#elif IOS || ANDROID
+        new(id => new MobileButtonView(id, title)) { Height = 72 };
+#else
+        new(id => new WindowsButtonView(id, title)) { Height = 72 };
+#endif
+#else
         new((parent, id) => SampleButtonFactory.Create(parent, id, title)) { Height = 72 };
+#endif
 
     private static async Task Reconnect(AvaloniaChannelView view)
     {
@@ -171,7 +205,11 @@ internal sealed class ViewVerification
 
     private static void CheckLayout(AvaloniaChannelView view) =>
         Check(
+#if UNO_SAMPLE
+            view.ActualWidth > 0 && view.ActualHeight > 0 && view.Channel is not null,
+#else
             view.Bounds.Width > 0 && view.Bounds.Height > 0 && view.Channel is not null,
+#endif
             "attached native view has nonzero bounds"
         );
 

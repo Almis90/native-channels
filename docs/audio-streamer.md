@@ -1,1 +1,1 @@
-<!--@include: ../plugins/Plugin.Maui.AudioStreamer/README.md-->
+<!--@include: ../plugins/Plugin.AudioStreamer/README.md-->

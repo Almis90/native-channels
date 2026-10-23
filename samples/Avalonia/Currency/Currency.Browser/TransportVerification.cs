@@ -1,18 +1,33 @@
-using Avalonia.Threading;
 using NativeChannels;
+#if UNO_SAMPLE
+using AvaloniaChannelHost = NativeChannels.UnoChannelHost;
+#else
+using Avalonia.Threading;
+#endif
 
 namespace Currency.Browser;
 
 internal static class TransportVerification
 {
-    internal static async Task<string> RunAsync()
+    internal static async Task<string> RunAsync(
+#if UNO_SAMPLE
+        Microsoft.UI.Xaml.Window window
+#endif
+    )
     {
         await VerifyCancellationDuringInitializationAsync();
+#if UNO_SAMPLE
+        var dispatcher = new UnoChannelDispatcher(window.DispatcherQueue);
+#endif
         var module = new NativeModuleRegistration("", "") { BrowserModule = "./verification.mjs" };
         await using var host = AvaloniaChannelHost.Create(services =>
             services.AddNativeChannels(options => options.Modules.Add(module))
         );
-        await using var session = host.CreateSession();
+        await using var session = host.CreateSession(
+#if UNO_SAMPLE
+            window
+#endif
+        );
         var channels = session.Channels;
         using var methods = channels.GetMethodChannel("verify.methods");
         Check(await methods.InvokeAsync<long>("echo", long.MaxValue) == long.MaxValue, "Int64 maximum");
@@ -40,12 +55,24 @@ internal static class TransportVerification
 
         using var managed = channels.GetMethodChannel(
             "verify.managed",
-            new() { HandlerDispatcher = AvaloniaChannelDispatchers.UIThread }
+            new()
+            {
+                HandlerDispatcher =
+#if UNO_SAMPLE
+                dispatcher.DispatchAsync
+#else
+                AvaloniaChannelDispatchers.UIThread
+#endif
+            }
         );
         using var registration = managed.SetMethodCallHandler(
             async (call, token) =>
             {
+#if UNO_SAMPLE
+                Check(dispatcher.HasThreadAccess, "Uno UI callback dispatch");
+#else
                 Check(Dispatcher.UIThread.CheckAccess(), "Avalonia UI callback dispatch");
+#endif
                 return await methods.InvokeAsync<long>("echo", call.Arguments, cancellationToken: token);
             }
         );
@@ -96,7 +123,11 @@ internal static class TransportVerification
         Check(session.Stopping.IsCancellationRequested, "Host session stopping token");
         await ExpectAsync<ObjectDisposedException>(() => pending);
         await ExpectAsync<ObjectDisposedException>(() => methods.InvokeAsync("echo", 1));
-        await using var restarted = host.CreateSession();
+        await using var restarted = host.CreateSession(
+#if UNO_SAMPLE
+            window
+#endif
+        );
         using var restartedMethod = restarted.Channels.GetMethodChannel("verify.methods");
         Check(await restartedMethod.InvokeAsync<int>("echo", 42) == 42, "Fresh session after disposal");
 

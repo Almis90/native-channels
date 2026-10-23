@@ -22,13 +22,13 @@ node eng/serve-browser.mjs samples/Avalonia/Currency/Currency.Browser/bin/Releas
 
 Open `http://127.0.0.1:8085/currency/`. Preserve previous platform packages before building:
 `pack-browser.sh` requires an empty `artifacts/packages` feed. It builds only `NativeChannels.Core`,
-`NativeChannels`, and `Plugin.Maui.Currency`. The latter two use `net10.0-browser`; the Core package
+`NativeChannels`, and `Plugin.Currency`. The latter two use `net10.0-browser`; the Core package
 stays portable. These are scoped development archives with existing preview version numbers, not
 a combined release feed or newly published NuGet versions.
 
 The sample references the shared UI project and consumes all library assemblies from a fresh
 NuGet cache. Both packages carry their own ES modules and `buildTransitive` content items. Publish
-places them under `_content/NativeChannels/` and `_content/Plugin.Maui.Currency/` automatically.
+places them under `_content/NativeChannels/` and `_content/Plugin.Currency/` automatically.
 Do not copy adapters out of the source checkout. A production static host must serve `.mjs` as
 JavaScript and `.wasm` as `application/wasm`; use HTTP(S), not `file://`. Keep the packaged module
 URLs relative to the document base, including when deploying under a subpath. Revalidate these

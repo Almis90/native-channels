@@ -1,16 +1,28 @@
 using Microsoft.Extensions.DependencyInjection;
 using NativeChannels;
-using Plugin.Maui.AudioStreamer;
+using Plugin.AudioStreamer;
 
 namespace AudioStreamer.Avalonia;
 
 internal static class AvaloniaAudioVerification
 {
+#if UNO_SAMPLE
+    public static async Task RunAsync(
+        UnoChannelHost host,
+        Microsoft.UI.Xaml.Window window,
+        CancellationToken cancellation
+    )
+#else
     public static async Task RunAsync(AvaloniaChannelHost host, CancellationToken cancellation)
+#endif
     {
         for (var index = 0; index < 3; index++)
         {
+#if UNO_SAMPLE
+            await using var owner = host.CreateSession(window);
+#else
             await using var owner = host.CreateSession();
+#endif
             var audio = owner.Services.GetRequiredService<IAudioStreamer>();
             // Deliberately leave playback owned by DI, including a blocked writer.
             var playback = await audio.OpenAsync(cancellation);

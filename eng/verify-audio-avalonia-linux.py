@@ -47,7 +47,7 @@ def main():
            for name in dependencies):
         raise ValueError('Unexpected UI framework dependency in Linux consumer')
     packages = []
-    for identity in ('NativeChannels.Core', 'NativeChannels', 'NativeChannels.Avalonia', 'Plugin.Maui.AudioStreamer'):
+    for identity in ('NativeChannels.Core', 'NativeChannels', 'NativeChannels.Avalonia', 'Plugin.AudioStreamer'):
         matches = list((ROOT / 'artifacts/packages').glob(identity + '.*.nupkg'))
         matches = [p for p in matches if p.name.removeprefix(identity + '.')[0].isdigit()]
         if len(matches) != 1:
@@ -56,7 +56,7 @@ def main():
         audit_platform_scope(matches[0], record, 'linux')
         with zipfile.ZipFile(matches[0]) as archive:
             assembly = archive.read('lib/net10.0/' + identity + '.dll')
-            if identity == 'Plugin.Maui.AudioStreamer':
+            if identity == 'Plugin.AudioStreamer':
                 if (app / 'libnc_audio.so').read_bytes() != archive.read('runtimes/linux-x64/native/libnc_audio.so'):
                     raise ValueError('Published C++ audio adapter differs from the local archive')
         if (app / (identity + '.dll')).read_bytes() != assembly:

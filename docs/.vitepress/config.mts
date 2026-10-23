@@ -34,6 +34,8 @@ export default defineConfig({
       { text: 'Start here', items: [
         { text: 'Getting started', link: '/getting-started' },
         { text: 'Avalonia host', link: '/avalonia-host' },
+        { text: 'Uno host (experimental)', link: '/uno-host' },
+        { text: 'Uno plugins (experimental)', link: '/uno-plugins' },
         { text: 'Choose a channel', link: '/choosing-a-channel' },
         { text: 'Examples', link: '/examples' },
         { text: 'Documentation guide', link: '/overview' },
@@ -103,6 +105,7 @@ export default defineConfig({
         { text: 'API compatibility', link: '/api-compatibility' },
         { text: 'Performance and stress', link: '/performance' },
         { text: 'Release checklist', link: '/release-checklist' },
+        { text: 'Uno 0.3 preparation', link: '/preview-03' },
         { text: 'Publishing to NuGet', link: '/publishing' },
         { text: 'Roadmap', link: '/roadmap' },
         { text: 'Verified platforms', link: '/verification' },

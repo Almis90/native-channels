@@ -1,4 +1,4 @@
-#if AVALONIA
+#if AVALONIA || UNO_SAMPLE
 using MainThread = ChannelExplorer.SampleThread;
 #else
 using Microsoft.Maui.ApplicationModel;
@@ -15,7 +15,9 @@ internal sealed class NativeVerification(IChannelService channels)
             new()
             {
                 HandlerDispatcher =
-#if AVALONIA
+#if UNO_SAMPLE
+                SampleThread.Dispatcher.DispatchAsync
+#elif AVALONIA
                 AvaloniaChannelDispatchers.UIThread
 #else
                 MauiChannelDispatchers.MainThread
@@ -140,7 +142,7 @@ internal sealed class NativeVerification(IChannelService channels)
     {
         var modules = new NativeModuleRegistration[]
         {
-#if AVALONIA
+#if AVALONIA || UNO_SAMPLE
             SamplePlatform.CreateModule()
 #else
             MauiProgram.CreateSampleModule()

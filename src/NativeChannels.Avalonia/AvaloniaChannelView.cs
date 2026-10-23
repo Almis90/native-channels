@@ -36,7 +36,7 @@ public sealed class AvaloniaChannelView : ContentControl
         Dispatcher.UIThread.VerifyAccess();
         var previous = Content as Surface;
         Content = null;
-        previous?.Release();
+        previous?.Disconnect();
         Content = new Surface(this);
     }
 
@@ -45,18 +45,22 @@ public sealed class AvaloniaChannelView : ContentControl
         Dispatcher.UIThread.VerifyAccess();
         var previous = Content as Surface;
         Content = null;
-        previous?.Release();
+        previous?.Disconnect();
         return _cleanup;
     }
 
     private sealed class Surface(AvaloniaChannelView owner) : NativeControlHost
     {
         private IAvaloniaNativeView? _view;
+        private TaskCompletionSource? _destroyed;
+        private bool _disconnected;
 
         protected override IPlatformHandle CreateNativeControlCore(IPlatformHandle parent)
         {
             Dispatcher.UIThread.VerifyAccess();
             _view = owner._create(parent, Guid.NewGuid().ToString("N"));
+            _destroyed = new(TaskCreationOptions.RunContinuationsAsynchronously);
+            _disconnected = false;
             owner._current = _view;
             var attached = _view;
             Dispatcher.UIThread.Post(() =>
@@ -67,30 +71,49 @@ public sealed class AvaloniaChannelView : ContentControl
             return _view.Handle;
         }
 
-        protected override void DestroyNativeControlCore(IPlatformHandle control) => Release();
-
-        internal void Release()
+        internal void Disconnect()
         {
             Dispatcher.UIThread.VerifyAccess();
             var view = _view;
+            if (view is null || _disconnected)
+                return;
+            _disconnected = true;
+            owner._cleanup = Task.WhenAll(owner._cleanup, _destroyed!.Task);
+            view.Channel.Dispose();
+            if (ReferenceEquals(owner._current, view))
+            {
+                owner._current = null;
+                owner.Disconnected?.Invoke(owner, EventArgs.Empty);
+            }
+        }
+
+        protected override async void DestroyNativeControlCore(IPlatformHandle control)
+        {
+            // NativeControlHost disposes its attachment before calling this hook.
+            // Destroying earlier lets its deferred cleanup act on a recycled handle
+            // belonging to the replacement view (notably after Qt reconnects to X11).
+            Disconnect();
+            var view = _view;
+            var destroyed = _destroyed;
             _view = null;
             if (view is null)
                 return;
-            if (ReferenceEquals(owner._current, view))
-                owner._current = null;
-            view.Channel.Dispose();
             try
             {
-                view.Destroy();
+                try
+                {
+                    view.Destroy();
+                }
+                finally
+                {
+                    await view.DisposeAsync();
+                }
+                destroyed!.TrySetResult();
             }
-            finally
+            catch (Exception error)
             {
-                owner._cleanup = Task.WhenAll(owner._cleanup, view.DisposeAsync().AsTask());
-                _ = owner._cleanup.ContinueWith(
-                    task => System.Diagnostics.Trace.TraceError(task.Exception!.ToString()),
-                    TaskContinuationOptions.OnlyOnFaulted
-                );
-                owner.Disconnected?.Invoke(owner, EventArgs.Empty);
+                destroyed!.TrySetException(error);
+                System.Diagnostics.Trace.TraceError(error.ToString());
             }
         }
     }

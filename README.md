@@ -9,7 +9,7 @@
 [![Verify distribution](https://github.com/Almis90/native-channels/actions/workflows/verify-distribution.yml/badge.svg?branch=main&event=workflow_dispatch)](https://github.com/Almis90/native-channels/actions/workflows/verify-distribution.yml)
 [![MIT license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-**Native integrations for .NET MAUI and Avalonia, through one reusable bridge.**
+**Native integrations for .NET applications, through one reusable bridge.**
 
 NativeChannels connects C# with Kotlin, Swift, and Windows APIs through asynchronous calls, messages, event streams,
 and embedded native views. Keep SDK operations in a native adapter and expose a typed C# API to
@@ -31,7 +31,7 @@ The latest published preview is **0.2.0-preview.1**, available for
 All five samples passed locally against the exact release packages across six Avalonia targets
 and four MAUI targets; fresh Windows consumers also passed from NuGet.org. See the
 [verification record](docs/verification.md#published-02-preview) and
-[preview limitations](docs/preview-02.md). Uno remains planned for 0.3.
+[preview limitations](docs/preview-02.md). Version `0.3.0-preview.1` is being prepared with the optional Uno host; see [0.3 preparation](docs/preview-03.md).
 
 [Documentation](https://almis90.github.io/native-channels/) Â·
 [Getting started](docs/getting-started.md) Â·
@@ -42,9 +42,9 @@ and four MAUI targets; fresh Windows consumers also passed from NuGet.org. See t
 
 | Contract | API | Reference example |
 | --- | --- | --- |
-| Named operations with typed results and structured errors | `MethodChannel` | [Currency](plugins/Plugin.Maui.Currency/README.md): currency code â†’ native symbol |
-| Values or binary chunks with an asynchronous reply | `BasicMessageChannel` | [AudioStreamer](plugins/Plugin.Maui.AudioStreamer/README.md): PCM playback through AudioTrack / AVAudioEngine / Windows waveOut |
-| Native observations with independent subscriptions | `EventChannel` | [VolumeMonitor](plugins/Plugin.Maui.VolumeMonitor/README.md): volume levels and listener cleanup |
+| Named operations with typed results and structured errors | `MethodChannel` | [Currency](plugins/Plugin.Currency/README.md): currency code â†’ native symbol |
+| Values or binary chunks with an asynchronous reply | `BasicMessageChannel` | [AudioStreamer](plugins/Plugin.AudioStreamer/README.md): PCM playback through AudioTrack / AVAudioEngine / Windows waveOut |
+| Native observations with independent subscriptions | `EventChannel` | [VolumeMonitor](plugins/Plugin.VolumeMonitor/README.md): volume levels and listener cleanup |
 | Embedded native UI with an instance-specific channel | `PlatformChannelView` | [PdfViewer](plugins/Plugin.Maui.PdfViewer/README.md): PDFKit / PdfRenderer / Windows.Data.Pdf with navigation and zoom |
 
 All four examples include native adapters and a separate MAUI application that consumes local packages.
@@ -74,6 +74,14 @@ platform-specific lifecycle behavior. See [architecture](docs/architecture.md).
 
 ## Get started
 
+Choose the optional `NativeChannels.Maui` or `NativeChannels.Avalonia` package for your
+application's startup, UI dispatch, and native view integration. For messaging alone,
+reference `NativeChannels` and use `services.AddNativeChannels(...)`, managing service
+ownership and UI dispatch in your application. See [package boundaries](docs/architecture.md#package-boundaries).
+The Currency, AudioStreamer, and VolumeMonitor plugins are framework-independent.
+The experimental [Uno host](docs/uno-host.md) follows the same optional boundary;
+try its [local package samples](samples/Uno/README.md) with the documented limitations.
+
 Add the package to a .NET 10 MAUI application:
 
 ```sh
@@ -95,7 +103,7 @@ adapter registration, and a complete native round trip. Then follow one path:
 - **Integrate a native SDK:** follow [getting started](docs/getting-started.md), then the
   [Android](docs/android-integration.md) and [Apple](docs/ios-integration.md) adapter guides.
 - **Build a reusable plugin:** follow [plugin authoring](docs/plugin-authoring.md) and study the
-  [Currency reference implementation](plugins/Plugin.Maui.Currency/README.md).
+  [Currency reference implementation](plugins/Plugin.Currency/README.md).
 
 Repository samples use local feeds to test source changes. For those feeds, device commands, and
 the pinned toolchain, see [building from source](docs/building.md).
@@ -127,12 +135,11 @@ See [configuration](docs/configuration.md), [lifecycle](docs/lifecycle.md), and
 | Mac Catalyst | Apple adapters and UIKit views on macOS |
 | Windows | C# adapters for WinRT, COM, and native libraries; WinUI views |
 
-MAUI is the current application host. Mac Catalyst support does not provide an AppKit desktop host.
-See [platform verification](docs/verification.md) for executed scenarios and remaining gaps,
-and the [roadmap](docs/roadmap.md) for planned Avalonia (0.2) and Uno (0.3) integration across Android,
-iOS, Windows, desktop macOS, Linux, and browser/WebAssembly. These planned targets do not extend
-the current support matrix. Browser Currency has an initial packaged JavaScript proof; DOM views
-and complete browser hosting remain planned.
+MAUI is the published 0.1 application host. Mac Catalyst support does not provide an AppKit desktop host.
+Unreleased Avalonia 0.2 and experimental Uno 0.3 work target Android, iOS, Windows,
+desktop macOS, Linux, and browser/WebAssembly. See [platform verification](docs/verification.md)
+for executed scenarios and [Uno release gates](docs/preview-03.md) for its remaining
+runtime, native-view and PDF gaps. Development work does not extend the published support matrix.
 
 ## Documentation
 
@@ -163,6 +170,7 @@ dependencies, or packaging require fresh package-consumer verification.
 See [contributing](CONTRIBUTING.md), [testing](docs/testing.md), and [performance](docs/performance.md).
 
 The [roadmap](docs/roadmap.md) covers the initial preview, complete Avalonia and Uno integration,
+including the experimental [Uno host package](docs/uno-host.md) with per-window sessions and UI dispatch,
 and stable API acceptance. The development [Avalonia host package](docs/avalonia-host.md) provides
 application registration, owned sessions and UI dispatch. The [template-generated Avalonia solution](samples/Avalonia/Currency/README.md) contains
 [Avalonia Android](samples/Avalonia/Currency/Currency.Android/README.md),

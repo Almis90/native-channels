@@ -3,7 +3,7 @@ using Microsoft.Maui.Controls;
 using Microsoft.Maui.Graphics;
 using Microsoft.Maui.Storage;
 using NativeSamples;
-using Plugin.Maui.VolumeMonitor;
+using Plugin.VolumeMonitor;
 
 namespace VolumeMonitor.Sample;
 

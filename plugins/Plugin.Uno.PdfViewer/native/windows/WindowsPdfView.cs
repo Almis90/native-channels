@@ -1,0 +1,402 @@
+extern alias WindowsSdk;
+using System.Drawing;
+using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
+using Microsoft.UI.Dispatching;
+using NativeChannels;
+using Plugin.Maui.PdfViewer;
+using static WindowsSdk::System.IO.WindowsRuntimeStreamExtensions;
+
+namespace Plugin.Uno.PdfViewer;
+
+// A Win32 child window renders Windows.Data.Pdf pages without a WinUI/MAUI host.
+[SupportedOSPlatform("windows10.0.17763")]
+internal sealed class WindowsPdfView : IUnoNativeView
+{
+    private readonly ChannelService _channels;
+    private readonly CancellationTokenSource _stopping = new();
+    private readonly WndProc _procedure;
+    private readonly nint _original;
+    private readonly WindowsPdfAccessibility _accessibility;
+    private WindowsPdfDocument? _document;
+    private Bitmap? _bitmap;
+    private int _page;
+    private double _zoom = 1;
+    private float _panX,
+        _panY;
+    private int _mouseX,
+        _mouseY;
+    private bool _closed,
+        _busy,
+        _dragging;
+    private TaskCompletionSource? _operation;
+    private nint Handle { get; }
+    public object NativeElement { get; }
+    public MethodChannel Channel { get; }
+    public string InstanceId { get; }
+
+    public WindowsPdfView(string identity)
+    {
+        InstanceId = identity;
+        var dispatcher = new UnoChannelDispatcher(
+            DispatcherQueue.GetForCurrentThread()
+                ?? throw new InvalidOperationException("Create PDF views on the Uno UI thread.")
+        );
+        var name = "nativechannels.view." + identity;
+        var transport = new NativeChannelTransport([
+            new NativeModuleRegistration("", "")
+            {
+                WindowsFactory = () =>
+                    new Module(channels =>
+                        channels
+                            .GetMethodChannel(name, new() { HandlerDispatcher = dispatcher.DispatchAsync })
+                            .SetMethodCallHandler(Invoke)
+                    ),
+            },
+        ]);
+        _channels = new(new BinaryMessenger(transport));
+        Channel = _channels.GetMethodChannel(name, new() { HandlerDispatcher = dispatcher.DispatchAsync });
+        var window = CreateWindowExW(0, "STATIC", "PDF", 0x80000000, 0, 0, 1, 1, 0, 0, 0, 0);
+        if (window == 0)
+        {
+            _ = _channels.DisposeAsync();
+            throw new System.ComponentModel.Win32Exception();
+        }
+        Handle = window;
+        _accessibility = new(window);
+        // SS_NOTIFY makes the STATIC window return HTCLIENT instead of
+        // HTTRANSPARENT, allowing real pointer input to reach this subclass.
+        if (SetWindowLongW(window, -16, 0x40010100) == 0) // WS_CHILD | WS_TABSTOP | SS_NOTIFY
+        {
+            var error = Marshal.GetLastWin32Error();
+            DestroyWindow(window);
+            _ = _channels.DisposeAsync();
+            throw new System.ComponentModel.Win32Exception(error);
+        }
+        NativeElement = new global::Uno.UI.NativeElementHosting.Win32NativeWindow(window);
+        _procedure = Procedure;
+        _original = SetWindowLongPtrW(window, -4, Marshal.GetFunctionPointerForDelegate(_procedure));
+        if (_original == 0)
+        {
+            DestroyWindow(window);
+            _ = _channels.DisposeAsync();
+            throw new System.ComponentModel.Win32Exception();
+        }
+    }
+
+    private sealed class Module(Func<IChannelService, IDisposable> register) : IWindowsChannelModule
+    {
+        private IDisposable? _registration;
+
+        public void Register(IChannelService channels) => _registration = register(channels);
+
+        public void Dispose() => _registration?.Dispose();
+    }
+
+    private object State() =>
+        new Dictionary<string, object?>
+        {
+            ["instanceId"] = InstanceId,
+            ["page"] = _page,
+            ["pageCount"] = _document?.PageCount ?? 0,
+            ["zoom"] = _zoom,
+        };
+
+    private async ValueTask<object?> Invoke(MethodCall call, CancellationToken cancellation)
+    {
+        ObjectDisposedException.ThrowIf(_closed, this);
+        if (_busy)
+            throw new ChannelException("pdf_busy", "Wait for the current PDF operation.");
+        using var linked = CancellationTokenSource.CreateLinkedTokenSource(cancellation, _stopping.Token);
+        var token = linked.Token;
+        _busy = true;
+        var completion = _operation = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        try
+        {
+            switch (call.Method)
+            {
+                case "open":
+                    var next = await WindowsPdfDocument.OpenAsync(
+                        call.Arguments as string ?? throw new ArgumentException("Expected a file path."),
+                        token
+                    );
+                    try
+                    {
+                        var image = await Render(next, 1, token);
+                        _document?.Dispose();
+                        _document = next;
+                        next = null!;
+                        _bitmap?.Dispose();
+                        _bitmap = image;
+                        _page = 1;
+                        _zoom = 1;
+                        _panX = _panY = 0;
+                    }
+                    finally
+                    {
+                        next?.Dispose();
+                    }
+                    break;
+                case "goToPage":
+                    if (_document is null)
+                        throw new ChannelException("document_not_open", "Open a PDF first.");
+                    var page = Convert.ToInt32(call.Arguments);
+                    var bitmap = await Render(_document, page, token);
+                    _bitmap?.Dispose();
+                    _bitmap = bitmap;
+                    _page = page;
+                    _panX = _panY = 0;
+                    break;
+                case "setZoom":
+                    var zoom = Convert.ToDouble(call.Arguments);
+                    if (!double.IsFinite(zoom) || zoom < 1 || zoom > 4)
+                        throw new ChannelException("invalid_zoom", "Zoom must be between 1 and 4.");
+                    if (_document is null)
+                        throw new ChannelException("document_not_open", "Open a PDF first.");
+                    _zoom = zoom;
+                    break;
+                case "getState":
+                    return State();
+                default:
+                    throw new MethodNotImplementedException(call.Method);
+            }
+            InvalidateRect(Handle, 0, false);
+            _accessibility.Update(_page, _document?.PageCount ?? 0, _zoom);
+            return State();
+        }
+        finally
+        {
+            _busy = false;
+            completion.TrySetResult();
+        }
+    }
+
+    private async Task<Bitmap> Render(WindowsPdfDocument document, int page, CancellationToken token)
+    {
+        using var rendered = await document.RenderAsync(page, token);
+        using var stream = rendered.AsStreamForRead();
+        using var image = Image.FromStream(stream);
+        token.ThrowIfCancellationRequested();
+        return new Bitmap(image);
+    }
+
+    private nint Procedure(nint hwnd, uint message, nuint wparam, nint lparam)
+    {
+        try
+        {
+            if (message == 0x003D && (int)lparam == -25) // WM_GETOBJECT / UiaRootObjectId
+                return _accessibility.GetObject(wparam, lparam);
+            if (message == 0x0007) // WM_SETFOCUS
+                _accessibility.FocusChanged();
+        }
+        catch (Exception error)
+        {
+            // Provider failures must not unwind through a native window procedure.
+            System.Diagnostics.Trace.TraceError(error.ToString());
+            if (message == 0x003D)
+                return 0;
+        }
+        if (message == 0x0201) // Drag the magnified page with the left mouse button.
+        {
+            _mouseX = (short)(long)lparam;
+            _mouseY = (short)((long)lparam >> 16);
+            SetFocus(hwnd);
+            SetCapture(hwnd);
+            _dragging = GetCapture() == hwnd;
+            return 0;
+        }
+        if (message == 0x0202 && _dragging)
+        {
+            _dragging = false;
+            if (GetCapture() == hwnd)
+                ReleaseCapture();
+            return 0;
+        }
+        if (message == 0x0215) // WM_CAPTURECHANGED: another window took the drag.
+            _dragging = false;
+        if (message == 0x001F) // WM_CANCELMODE
+        {
+            _dragging = false;
+            if (GetCapture() == hwnd)
+                ReleaseCapture();
+        }
+        if (message == 0x0200 && _dragging && (wparam & 1) != 0)
+        {
+            var x = (short)(long)lparam;
+            var y = (short)((long)lparam >> 16);
+            _panX += x - _mouseX;
+            _panY += y - _mouseY;
+            _mouseX = x;
+            _mouseY = y;
+            InvalidateRect(hwnd, 0, false);
+            return 0;
+        }
+        if (message == 0x020A)
+        {
+            var delta = (short)(wparam >> 16) / 120f * 48;
+            if ((wparam & 4) != 0)
+                _panX += delta;
+            else
+                _panY += delta;
+            InvalidateRect(hwnd, 0, false);
+            return 0;
+        }
+        if (message == 0x0005)
+            InvalidateRect(hwnd, 0, false);
+        if (message == 0x0318) // WM_PRINTCLIENT: same native paint path for capture/printing.
+        {
+            try
+            {
+                Draw(hwnd, (nint)wparam);
+            }
+            catch (Exception error)
+            {
+                System.Diagnostics.Trace.TraceError(error.ToString());
+            }
+            return 0;
+        }
+        if (message == 0x000F)
+        {
+            var hdc = BeginPaint(hwnd, out var paint);
+            try
+            {
+                Draw(hwnd, hdc);
+            }
+            catch (Exception error)
+            {
+                // Exceptions must not cross the unmanaged window procedure boundary.
+                System.Diagnostics.Trace.TraceError(error.ToString());
+            }
+            finally
+            {
+                EndPaint(hwnd, ref paint);
+            }
+            return 0;
+        }
+        return CallWindowProcW(_original, hwnd, message, wparam, lparam);
+    }
+
+    private void Draw(nint hwnd, nint hdc)
+    {
+        using var graphics = Graphics.FromHdc(hdc);
+        graphics.Clear(Color.FromArgb(226, 232, 240));
+        if (_bitmap is { } image)
+        {
+            GetClientRect(hwnd, out var rect);
+            if (rect.Right <= 0 || rect.Bottom <= 0)
+                return;
+            var scale = Math.Min((double)rect.Right / image.Width, (double)rect.Bottom / image.Height) * _zoom;
+            var w = (float)(image.Width * scale);
+            var h = (float)(image.Height * scale);
+            var maxX = Math.Max(0, (w - rect.Right) / 2);
+            var maxY = Math.Max(0, (h - rect.Bottom) / 2);
+            _panX = Math.Clamp(_panX, -maxX, maxX);
+            _panY = Math.Clamp(_panY, -maxY, maxY);
+            graphics.DrawImage(image, (rect.Right - w) / 2 + _panX, (rect.Bottom - h) / 2 + _panY, w, h);
+        }
+    }
+
+    public void Destroy()
+    {
+        if (_closed)
+            return;
+        _closed = true;
+        _accessibility.Dispose();
+        _dragging = false;
+        if (GetCapture() == Handle)
+            ReleaseCapture();
+        _stopping.Cancel();
+        SetWindowLongPtrW(Handle, -4, _original);
+        DestroyWindow(Handle);
+        _bitmap?.Dispose();
+        _bitmap = null;
+        // In-flight WinRT operations hold the document until cancellation has completed.
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        Destroy();
+        if (_operation is not null)
+            await _operation.Task;
+        await _channels.DisposeAsync();
+        _document?.Dispose();
+        _document = null;
+        _stopping.Dispose();
+        GC.KeepAlive(_procedure);
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct Rect
+    {
+        public int Left,
+            Top,
+            Right,
+            Bottom;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    private unsafe struct Paint
+    {
+        public nint Hdc;
+        public int Erase;
+        public Rect Rect;
+        public int Restore,
+            IncUpdate;
+        public fixed byte Reserved[32];
+    }
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    private delegate nint WndProc(nint hwnd, uint message, nuint wparam, nint lparam);
+
+    [DllImport("user32", CharSet = CharSet.Unicode, SetLastError = true)]
+    private static extern nint CreateWindowExW(
+        uint exStyle,
+        string name,
+        string title,
+        uint style,
+        int x,
+        int y,
+        int w,
+        int h,
+        nint parent,
+        nint menu,
+        nint instance,
+        nint param
+    );
+
+    [DllImport("user32", SetLastError = true)]
+    private static extern int SetWindowLongW(nint window, int index, int value);
+
+    [DllImport("user32", SetLastError = true)]
+    private static extern nint SetWindowLongPtrW(nint window, int index, nint value);
+
+    [DllImport("user32")]
+    private static extern nint CallWindowProcW(nint proc, nint window, uint message, nuint wparam, nint lparam);
+
+    [DllImport("user32")]
+    private static extern bool DestroyWindow(nint window);
+
+    [DllImport("user32")]
+    private static extern nint SetFocus(nint window);
+
+    [DllImport("user32")]
+    private static extern nint GetCapture();
+
+    [DllImport("user32")]
+    private static extern nint SetCapture(nint window);
+
+    [DllImport("user32")]
+    private static extern bool ReleaseCapture();
+
+    [DllImport("user32")]
+    private static extern bool InvalidateRect(nint window, nint rect, bool erase);
+
+    [DllImport("user32")]
+    private static extern bool GetClientRect(nint window, out Rect rect);
+
+    [DllImport("user32")]
+    private static extern nint BeginPaint(nint window, out Paint paint);
+
+    [DllImport("user32")]
+    private static extern bool EndPaint(nint window, ref Paint paint);
+}

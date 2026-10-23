@@ -27,7 +27,7 @@ root=ET.Element('configuration'); sources=ET.SubElement(root,'packageSources'); 
 ET.SubElement(sources,'add',key='local',value=sys.argv[2]); ET.SubElement(sources,'add',key='nuget',value='https://api.nuget.org/v3/index.json')
 mapping=ET.SubElement(root,'packageSourceMapping')
 local=ET.SubElement(mapping,'packageSource',key='local')
-for pattern in ['NativeChannels*','Plugin.Maui.*','Plugin.Avalonia.*']: ET.SubElement(local,'package',pattern=pattern)
+for pattern in ['NativeChannels*','Plugin.*']: ET.SubElement(local,'package',pattern=pattern)
 ET.SubElement(ET.SubElement(mapping,'packageSource',key='nuget'),'package',pattern='*')
 ET.ElementTree(root).write(sys.argv[1],encoding='utf-8',xml_declaration=True)
 PY

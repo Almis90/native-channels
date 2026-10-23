@@ -178,7 +178,10 @@ class NativeBridge : AutoCloseable {
                 requestReceiver = null
                 handlers.clear()
                 requestHandlers.clear()
-                pending.values.toList()
+                // Replies can complete outside the lifecycle lock. Collection.toList()
+                // assumes a size of one remains nonempty until iterator.next().
+                // ConcurrentHashMap's array snapshot tolerates concurrent removals.
+                pending.values.toTypedArray()
             }
         outstanding.forEach {
             try {
