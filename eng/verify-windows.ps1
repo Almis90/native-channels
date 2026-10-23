@@ -1,5 +1,5 @@
 param(
-    [string]$Version = '0.1.0-preview.2',
+    [string]$Version,
     [string]$CurrencyVersion = '1.1.0-alpha.1',
     [string]$PackageFeed,
     [switch]$WindowsOnlyFeed,
@@ -21,6 +21,11 @@ if ($Currency -and $Plugin -and $Plugin -ne 'Currency') { throw 'Currency and Pl
 if ($Currency) { $Plugin = 'Currency' }
 if ($WindowsOnlyFeed -and -not $PackageFeed) { throw 'WindowsOnlyFeed requires PackageFeed.' }
 $repoRoot = Split-Path $PSScriptRoot -Parent
+if (-not $Version) {
+    [xml]$buildProperties = Get-Content -LiteralPath (Join-Path $repoRoot 'Directory.Build.props') -Raw
+    $Version = [string]$buildProperties.Project.PropertyGroup.Version
+    if (-not $Version) { throw 'Directory.Build.props does not declare a release version.' }
+}
 $localDotnet = Join-Path $repoRoot '.tools/dotnet/dotnet.exe'
 $dotnet = if (Test-Path $localDotnet) { $localDotnet } else { 'dotnet' }
 $framework = 'net10.0-windows10.0.19041.0'

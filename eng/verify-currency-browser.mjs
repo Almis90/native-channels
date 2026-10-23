@@ -35,7 +35,7 @@ try {
         const folder = path.join(output, name);
         await mkdir(folder, { recursive: true });
         for (const file of ['verification.json', 'failure.json']) await rm(path.join(folder, file), { force: true });
-        const browser = await engine.launch({ headless: true,
+        const browser = await engine.launch({ headless: !(name === 'firefox' && process.env.BROWSER_FIREFOX_HEADED === 'true'),
             ...(name === 'chromium' && process.env.BROWSER_CHROMIUM_CHANNEL ? { channel: process.env.BROWSER_CHROMIUM_CHANNEL } : {}) });
         const consoleLines = [], errors = [], runs = [], requests = new Set();
         let success = false;

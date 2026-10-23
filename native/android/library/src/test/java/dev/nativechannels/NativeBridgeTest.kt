@@ -22,22 +22,25 @@ class NativeBridgeTest {
         val pending = field.get(bridge) as ConcurrentHashMap<String, Any>
         // Force the exact interleaving seen on Android: size reports one, then
         // the last callback removes itself before snapshot iteration starts.
-        val shrinking = object : ConcurrentHashMap<String, Any>() {
-            override val values: MutableCollection<Any>
-                get() {
-                    val live = super.values
-                    return object : AbstractMutableCollection<Any>() {
-                        override val size: Int
-                            get() {
-                                val count = live.size
-                                reply.complete(0, byteArrayOf())
-                                return count
-                            }
-                        override fun iterator(): MutableIterator<Any> = live.iterator()
-                        override fun add(element: Any): Boolean = error("Read-only test view")
+        val shrinking =
+            object : ConcurrentHashMap<String, Any>() {
+                override val values: MutableCollection<Any>
+                    get() {
+                        val live = super.values
+                        return object : AbstractMutableCollection<Any>() {
+                            override val size: Int
+                                get() {
+                                    val count = live.size
+                                    reply.complete(0, byteArrayOf())
+                                    return count
+                                }
+
+                            override fun iterator(): MutableIterator<Any> = live.iterator()
+
+                            override fun add(element: Any): Boolean = error("Read-only test view")
+                        }
                     }
-                }
-        }
+            }
         shrinking.putAll(pending)
         field.set(bridge, shrinking)
         try {

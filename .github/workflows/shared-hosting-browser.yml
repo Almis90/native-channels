@@ -25,7 +25,7 @@ jobs:
       - name: Install WebAssembly and browser test dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libatomic1
+          sudo apt-get install -y libatomic1 xvfb libgl1-mesa-dri
           bash eng/bootstrap.sh
           bash eng/dotnet.sh workload install wasm-tools --skip-manifest-update
           npm ci --prefix tests/NativeChannels.Browser.Tests
@@ -43,7 +43,11 @@ jobs:
           python3 eng/prepare-browser-proof.py
       - name: Execute browser checks, reload and disposal
         timeout-minutes: 5
-        run: node eng/verify-currency-browser.mjs
+        # Firefox needs an X server and Mesa to create its WebGL rendering context.
+        env:
+          BROWSER_FIREFOX_HEADED: 'true'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: xvfb-run -a node eng/verify-currency-browser.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
