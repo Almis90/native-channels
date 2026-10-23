@@ -12,6 +12,21 @@ spec.loader.exec_module(proof)
 
 
 class SharedHostingTests(unittest.TestCase):
+    def test_mobile_runtime_scripts_reference_existing_host_projects(self):
+        import shlex
+        root = Path(__file__).resolve().parents[2]
+        for platform in ('android', 'ios'):
+            script = root / f'eng/verify-shared-hosting-{platform}.sh'
+            hosts = {}
+            for line in script.read_text().splitlines():
+                if line.startswith('run_host '):
+                    _, host, project, *_ = shlex.split(line)
+                    hosts[host] = project
+                    with self.subTest(platform=platform, host=host):
+                        self.assertEqual(1, len(list((root / 'samples' / project).glob('*.csproj'))))
+            self.assertEqual({'maui', 'avalonia'}, set(hosts))
+            self.assertEqual('Maui/Currency', hosts['maui'])
+
     def test_messaging_plugins_do_not_require_ui_hosts(self):
         root = Path(__file__).resolve().parents[2]
         for name in ('Currency', 'AudioStreamer', 'VolumeMonitor'):

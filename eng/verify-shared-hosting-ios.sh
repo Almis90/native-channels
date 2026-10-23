@@ -39,7 +39,7 @@ run_host() {
 
 # Attempt both hosts so a failed app still leaves diagnostics for its peer.
 status=0
-run_host maui Currency.Sample dev.nativechannels.currency.sample currency-result.txt CURRENCY_SAMPLE || status=1
+run_host maui Maui/Currency dev.nativechannels.currency.sample currency-result.txt CURRENCY_SAMPLE || status=1
 run_host avalonia Avalonia/Currency/Currency.iOS dev.nativechannels.currency.avalonia currency-avalonia-result.txt CURRENCY_AVALONIA || status=1
 if (( status )); then
     exit "$status"
