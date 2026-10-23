@@ -37,7 +37,7 @@ run_host() {
 
 # Attempt both hosts even if one fails, so both diagnostics are available.
 status=0
-run_host maui Currency.Sample dev.nativechannels.currency.sample CURRENCY_SAMPLE || status=1
+run_host maui Maui/Currency dev.nativechannels.currency.sample CURRENCY_SAMPLE || status=1
 run_host avalonia Avalonia/Currency/Currency.Android dev.nativechannels.currency.avalonia CURRENCY_AVALONIA || status=1
 if (( status )); then
     exit "$status"
