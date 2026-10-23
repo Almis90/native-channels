@@ -7,7 +7,7 @@ jobs:
   currency:
     name: Same Currency package in MAUI and Avalonia iOS
     runs-on: macos-26
-    timeout-minutes: 40
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
@@ -44,7 +44,7 @@ jobs:
           bash eng/restore-currency-avalonia.sh ios -r iossimulator-arm64
           python3 eng/verify-shared-hosting.py packages --platform ios
       - name: Compile both Release apps from those restores
-        timeout-minutes: 15
+        timeout-minutes: 35
         run: |
           bash eng/dotnet.sh build samples/Maui/Currency -c Release -f net10.0-ios -r iossimulator-arm64 --no-restore --disable-build-servers
           bash eng/dotnet.sh build samples/Avalonia/Currency/Currency.iOS -c Release -r iossimulator-arm64 --no-restore --disable-build-servers

@@ -30,6 +30,12 @@ def merge_payload(left, right, package_id):
     spec = package_id + '.nuspec'
     incoming, namespace = xml(right[spec])
     original, original_namespace = xml(left[spec])
+    # Checkout branch names differ across builders; the audited immutable commit
+    # and repository URL identify the source. Keep every other metadata check.
+    for manifest in (original, incoming):
+        repository = manifest.find('metadata/repository')
+        if repository is not None:
+            repository.attrib.pop('branch', None)
     content_files = {}
     for manifest in (original, incoming):
         metadata = manifest.find('metadata')

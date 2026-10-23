@@ -132,6 +132,20 @@ class CombineUnoTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             combine.assemble(self.inputs, output, COMMIT)
 
+    def test_checkout_branch_does_not_change_source_identity(self):
+        left = combine.read_archive(self.inputs['windows'] / 'Plugin.Currency.0.3.0-test.nupkg')
+        right = combine.read_archive(self.inputs['macos'] / 'Plugin.Currency.0.3.0-test.nupkg')
+        spec = 'Plugin.Currency.nuspec'
+        left[spec] = left[spec].replace(b'<repository ', b'<repository branch="refs/heads/main" ')
+        right[spec] = right[spec].replace(b'<repository ', b'<repository branch="refs/heads/develop" ')
+        merged = combine.merge_payload(left, right, 'Plugin.Currency')
+        metadata, _ = combine.xml(merged[spec])
+        self.assertEqual(COMMIT, metadata.find('metadata/repository').get('commit'))
+        self.assertIsNone(metadata.find('metadata/repository').get('branch'))
+        right[spec] = right[spec].replace(COMMIT.encode(), b'b' * 40)
+        with self.assertRaisesRegex(ValueError, 'metadata differs'):
+            combine.merge_payload(left, right, 'Plugin.Currency')
+
     def test_conflicting_native_payload_is_rejected(self):
         left = combine.read_archive(self.inputs['windows'] / 'Plugin.Currency.0.3.0-test.nupkg')
         right = combine.read_archive(self.inputs['macos'] / 'Plugin.Currency.0.3.0-test.nupkg')
