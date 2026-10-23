@@ -20,6 +20,7 @@ def main():
     parser.add_argument('--output', type=Path, required=True, help='New input directory (packages, cache and logs)')
     parser.add_argument('--reuse-external-cache', type=Path)
     parser.add_argument('--include-existing-hosts', action='store_true')
+    parser.add_argument('--frameworks-only', action='store_true', help='Exclude reference plugin packages')
     parser.add_argument('--version', default='0.3.0-preview.6')
     parser.add_argument('--android-sdk', type=Path)
     parser.add_argument('--java-sdk', type=Path)
@@ -75,7 +76,7 @@ def main():
              'NativeChannels', 'NativeChannels.Maui', 'NativeChannels.Avalonia', 'NativeChannels.Uno',
              'Plugin.Currency', 'Plugin.AudioStreamer', 'Plugin.VolumeMonitor',
              'Plugin.Maui.PdfViewer', 'Plugin.Avalonia.PdfViewer', 'Plugin.Uno.PdfViewer']
-    names = expected_packages(args.platform, args.include_existing_hosts)
+    names = expected_packages(args.platform, args.include_existing_hosts, args.frameworks_only)
     for name in order:
         if name not in names:
             continue

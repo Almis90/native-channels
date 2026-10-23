@@ -76,6 +76,25 @@ class CombineUnoTests(unittest.TestCase):
         self.assertTrue(report['includesExistingHosts'])
         combine.validate_release_targets(report['packages'])
 
+    def test_framework_release_contains_exactly_seven_packages(self):
+        self.release_inputs()
+        for folder in self.inputs.values():
+            for path in folder.glob('Plugin.*'):
+                path.unlink()
+        report = combine.assemble(self.inputs, self.root / 'combined', COMMIT, True, True)
+        self.assertEqual({
+            'NativeChannels.Core', 'NativeChannels.Native.Android',
+            'NativeChannels.Native.Apple', 'NativeChannels', 'NativeChannels.Maui',
+            'NativeChannels.Avalonia', 'NativeChannels.Uno',
+        }, {p['id'] for p in report['packages']})
+        from uno_candidate import validate_candidate
+        validate_candidate(self.root / 'combined', COMMIT)
+        combine.validate_release_targets(report['packages'], frameworks_only=True)
+        apple = next(p for p in report['packages'] if p['id'] == 'NativeChannels.Native.Apple')
+        apple['assemblies'] = [p for p in apple['assemblies'] if 'maccatalyst' not in p]
+        with self.assertRaisesRegex(ValueError, 'missing existing consumer target'):
+            combine.validate_release_targets(report['packages'], frameworks_only=True)
+
     def test_release_rejects_missing_compatibility_feed(self):
         self.release_inputs()
         del self.inputs['maccatalyst']

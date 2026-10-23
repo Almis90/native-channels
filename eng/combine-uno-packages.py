@@ -76,7 +76,7 @@ def write_archive(path, entries):
             archive.writestr(info, entries[name])
 
 
-def assemble(inputs, output, commit, include_existing_hosts=False):
+def assemble(inputs, output, commit, include_existing_hosts=False, frameworks_only=False):
     platforms = PLATFORMS + (COMPATIBILITY_PLATFORMS if include_existing_hosts else ())
     if set(inputs) != set(platforms):
         raise ValueError(f'Provide all named platform feeds: {platforms}')
@@ -86,7 +86,7 @@ def assemble(inputs, output, commit, include_existing_hosts=False):
     for platform, folder in inputs.items():
         audited = [audit_package(p, commit) for p in sorted(folder.glob('*.nupkg'))]
         records[platform] = {p['id']: p for p in audited}
-        expected = expected_packages(platform, include_existing_hosts)
+        expected = expected_packages(platform, include_existing_hosts, frameworks_only)
         if set(records[platform]) != expected or len(audited) != len(expected):
             raise ValueError(f'{platform}: missing, duplicate or unexpected packages')
     versions = {p['version'] for feed in records.values() for p in feed.values()}
@@ -115,10 +115,12 @@ def assemble(inputs, output, commit, include_existing_hosts=False):
                 write_archive(stage / archives[0].name, merged)
         audited = [audit_package(p, commit) for p in sorted(stage.glob('*.nupkg'))]
         if include_existing_hosts:
-            validate_release_targets(audited)
+            validate_release_targets(audited, frameworks_only)
         report = {'sourceCommit': commit, 'canonicalDesktop': 'windows', 'inputs': records,
                   'packages': audited, 'runtimeAcceptance': 'pending',
                   'includesExistingHosts': include_existing_hosts}
+        if frameworks_only:
+            report['frameworksOnly'] = True
         (stage / 'package-audit.json').write_text(json.dumps(report, indent=2) + '\n')
         stage.rename(output)
     return report
@@ -132,13 +134,14 @@ def main():
         parser.add_argument('--' + platform, type=Path)
     parser.add_argument('--include-existing-hosts', action='store_true',
                         help='Require MAUI/Avalonia packages and their existing target frameworks')
+    parser.add_argument('--frameworks-only', action='store_true', help='Exclude reference plugin packages')
     parser.add_argument('--output', required=True, type=Path)
     parser.add_argument('--source-commit', required=True)
     args = parser.parse_args()
     platforms = PLATFORMS + COMPATIBILITY_PLATFORMS
     report = assemble({name: getattr(args, name.replace('-', '_')).resolve() for name in platforms
                        if getattr(args, name.replace('-', '_')) is not None},
-                      args.output.resolve(), args.source_commit, args.include_existing_hosts)
+                      args.output.resolve(), args.source_commit, args.include_existing_hosts, args.frameworks_only)
     print(f"Assembled {len(report['packages'])} packages; runtime acceptance remains pending.")
 
 

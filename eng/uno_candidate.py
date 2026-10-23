@@ -18,5 +18,5 @@ def validate_candidate(folder, source_commit):
     if actual != manifest.get('packages'):
         raise ValueError('Candidate packages differ from their assembly audit')
     if manifest.get('includesExistingHosts'):
-        validate_release_targets(actual)
+        validate_release_targets(actual, manifest.get("frameworksOnly", False))
     return actual

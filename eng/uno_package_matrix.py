@@ -7,7 +7,7 @@ SHARED = {'NativeChannels.Core', 'NativeChannels', 'Plugin.Currency',
 PACKAGES = SHARED | {'NativeChannels.Uno', 'Plugin.Uno.PdfViewer'}
 
 
-def expected_packages(platform, include_existing_hosts=False):
+def expected_packages(platform, include_existing_hosts=False, frameworks_only=False):
     packages = set(PACKAGES if platform in PLATFORMS else SHARED)
     if platform == 'android':
         packages.add('NativeChannels.Native.Android')
@@ -18,10 +18,10 @@ def expected_packages(platform, include_existing_hosts=False):
             packages.update(('NativeChannels.Maui', 'Plugin.Maui.PdfViewer'))
         if platform in ('android', 'ios', 'windows-native', 'macos-native', 'linux', 'browser'):
             packages.update(('NativeChannels.Avalonia', 'Plugin.Avalonia.PdfViewer'))
-    return packages
+    return {name for name in packages if not name.startswith("Plugin.")} if frameworks_only else packages
 
 
-def validate_release_targets(records):
+def validate_release_targets(records, frameworks_only=False):
     """A release must not silently drop the pre-Uno consumer target frameworks."""
     required = {
         'NativeChannels': ('net10.0', 'net10.0-android', 'net10.0-ios', 'net10.0-maccatalyst', 'net10.0-macos', 'net10.0-windows', 'net10.0-browser'),
@@ -35,6 +35,8 @@ def validate_release_targets(records):
         required[name] = required['NativeChannels']
     by_id = {record['id']: record for record in records}
     for name, targets in required.items():
+        if frameworks_only and name.startswith('Plugin.'):
+            continue
         frameworks = {path.split('/')[1] for path in by_id.get(name, {}).get('assemblies', [])}
         for target in targets:
             if not any(tfm == target or (target != 'net10.0' and tfm.startswith(target) and tfm[len(target):len(target)+1].isdigit()) for tfm in frameworks):
